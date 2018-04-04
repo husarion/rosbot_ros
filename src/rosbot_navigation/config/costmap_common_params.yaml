@@ -1,0 +1,14 @@
+obstacle_range: 2.5
+raytrace_range: 3.0
+#footprint: [[x0, y0], [x1, y1], ... [xn, yn]]
+#robot_radius: ir_of_robot
+robot_radius: 0.5 # distance a circular robot should be clear of the obstacle
+inflation_radius: 3.0
+
+observation_sources: laser_scan_sensor #point_cloud_sensor
+
+# marking - add obstacle information to cost map
+# clearing - clear obstacle information to cost map
+laser_scan_sensor: {sensor_frame: hokuyo, data_type: LaserScan, topic: /rosbot/laser/scan, marking: true, clearing: true}
+
+#point_cloud_sensor: {sensor_frame: frame_name, data_type: PointCloud, topic: topic_name, marking: true, clearing: true}

@@ -1,0 +1,259 @@
+<?xml version='1.0'?>
+
+<robot name="rosbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="cameraSize" value="0.05"/>
+  <xacro:property name="cameraMass" value="0.1"/>
+
+  <xacro:include filename="$(find rosbot_description)/urdf/rosbot.gazebo" />
+  <xacro:include filename="$(find rosbot_description)/urdf/materials.xacro" />
+  <xacro:include filename="$(find rosbot_description)/urdf/macros.xacro" />
+
+
+  <link name='chassis'>
+    <pose>0 0 0.1 0 0 0</pose>
+
+    <inertial>
+      <mass value="30.0"/>
+      <origin xyz="0 0 0.1" rpy=" 0 0 0"/>
+      <inertia
+          ixx="0.1" ixy="0" ixz="0"
+          iyy="0.1" iyz="0"
+          izz="0.1"
+      />
+    </inertial>
+
+    <collision name='collision'>
+      <geometry>
+        <box size=".4 .2 .1"/>
+      </geometry>
+    </collision>
+
+    <visual name='chassis_visual'>
+      <origin xyz="0 0 -0.06" rpy=" 1.5707 0 1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/box.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </visual>
+
+  </link>
+  
+  <joint name="top_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="top"/>
+  </joint>
+  
+  <link name='top'>
+    <pose>0 0 0.1 0 0 0</pose>
+
+    <inertial>
+      <mass value="30.0"/>
+      <origin xyz="0 0 0.1" rpy=" 0 0 0"/>
+      <inertia
+          ixx="0.1" ixy="0" ixz="0"
+          iyy="0.1" iyz="0"
+          izz="0.1"
+      />
+    </inertial>
+    <visual name='top'>
+      <origin xyz="0 0 0.09" rpy=" 1.5707 0 1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/upper.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="front_left_wheel">
+    <collision name="collision">
+      <origin xyz="0 0.07 0" rpy="0 0 1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/wheel.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </collision>
+    <visual name="front_left_wheel_visual">
+      <origin xyz="0 0.07 0" rpy="0 0 1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/wheel.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="5"/>
+      <inertia
+        ixx=".1" ixy="0.0" ixz="0.0"
+        iyy=".1" iyz="0.0"
+        izz=".1"/>
+    </inertial>
+  </link>
+
+  <link name="front_right_wheel">
+    <collision name="collision">
+      <origin xyz="0 -0.07 0" rpy="0 0 -1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/wheel.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </collision>
+    <visual name="front_right_wheel_visual">
+      <origin xyz="0 -0.07 0" rpy="0 0 -1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/wheel.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="5"/>
+      <inertia
+        ixx=".1" ixy="0.0" ixz="0.0"
+        iyy=".1" iyz="0.0"
+        izz=".1"/>
+    </inertial>
+  </link>
+  
+    <link name="rear_left_wheel">
+    <collision name="collision">
+      <origin xyz="0 0.07 0" rpy="0 0 1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/wheel.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </collision>
+    <visual name="rear_left_wheel_visual">
+      <origin xyz="0 0.07 0" rpy="0 0 1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/wheel.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="5"/>
+      <inertia
+        ixx=".1" ixy="0.0" ixz="0.0"
+        iyy=".1" iyz="0.0"
+        izz=".1"/>
+    </inertial>
+  </link>
+
+  <link name="rear_right_wheel">
+    <collision name="collision">
+      <origin xyz="0 -0.07 0" rpy="0 0 -1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/wheel.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </collision>
+    <visual name="rear_right_wheel_visual">
+      <origin xyz="0 -0.07 0" rpy="0 0 -1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/wheel.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="5"/>
+      <inertia
+        ixx=".1" ixy="0.0" ixz="0.0"
+        iyy=".1" iyz="0.0"
+        izz=".1"/>
+    </inertial>
+  </link>
+
+
+  <joint type="continuous" name="front_left_wheel_hinge">
+    <origin xyz="0.1 0.15 0" rpy="0 0 0"/>
+    <child link="front_left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+
+  <joint type="continuous" name="front_right_wheel_hinge">
+    <origin xyz="0.1 -0.15 0" rpy="0 0 0"/>
+    <child link="front_right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+  <joint type="continuous" name="rear_left_wheel_hinge">
+    <origin xyz="-0.12 0.15 0" rpy="0 0 0"/>
+    <child link="rear_left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+
+  <joint type="continuous" name="rear_right_wheel_hinge">
+    <origin xyz="-0.12 -0.15 0" rpy="0 0 0"/>
+    <child link="rear_right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+
+  <!-- Orbbec Astra RGBD Camera -->
+  <joint name="astra_joint" type="fixed">
+    <axis xyz="0 0 0" />
+    <origin xyz="-0.055 0 0.308" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="astra"/>
+  </joint>
+  
+  <link name="astra">
+    <collision>
+      <origin xyz="0.02 0 0" rpy="0 0 0"/>
+      <geometry>0
+    <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="-0.01 0 -0.03" rpy="1.5707 0 1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/astra.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>   
+  
+  <joint name="rplidar_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.08 0 0.12" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="rplidar"/>
+  </joint>
+  
+  <!-- rplidar Laser -->
+  <link name="rplidar">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 -0.03" rpy="1.5707 0 1.5707"/>
+      <geometry>
+        <mesh filename="package://rosbot_description/meshes/rplidar.dae" scale="0.002 0.002 0.002" />
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+
+</robot>
+
