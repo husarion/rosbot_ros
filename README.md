@@ -27,7 +27,7 @@ If you have any problems with laser scan it probably means that you don't have a
 Find:   `<!-- If you cant't use your GPU comment RpLidar using GPU and uncomment RpLidar using CPU gazebo plugin. -->`
 next coment RpLidar using GPU using `<!-- -->` from `<gazebo>` to `</gazebo>` like below:
 
- ```xml
+ ```
  <!-- gazebo reference="rplidar">
    <sensor type="gpu_ray" name="head_rplidar_sensor">
      <pose>0 0 0 0 0 0</pose>
