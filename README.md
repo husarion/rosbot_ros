@@ -1,8 +1,8 @@
-# rosbot_ws
+# rosbot_ws #
 
 URDF model for Gazebo integrated with ROS.
 
-1. Using the package.
+## 1. Using the package. ##
 
 Description of the available .sh file:
 
@@ -20,14 +20,14 @@ Runnig launch file with already created map and "move base" node.
 run_teleop.sh -
 Runnig teleop_twist_keyboard to allow control of the robot.
 
-2. Tips.
+## 2. Tips. ##
 
 If you have any problems with laser scan it probably means that you don't have a dedicated graphic card (or lack appropriate drivers). If that's the case then you'll have to change couple of things in /rosbot_description/urdf/rosbot_gazebo file:
 
 Find:   `<!-- If you cant't use your GPU comment RpLidar using GPU and uncomment RpLidar using CPU gazebo plugin. -->`
 next coment RpLidar using GPU using `<!-- -->` from `<gazebo>` to `</gazebo>` like below:
 
- ```
+ ```xml
  <!-- gazebo reference="rplidar">
    <sensor type="gpu_ray" name="head_rplidar_sensor">
      <pose>0 0 0 0 0 0</pose>
