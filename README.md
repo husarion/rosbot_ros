@@ -24,9 +24,10 @@ Runnig teleop_twist_keyboard to allow control of the robot.
 
 If you have any problems with laser scan it probably means that you don't have a dedicated graphic card (or lack appropriate drivers). If that's the case then you'll have to change couple of things in /rosbot_description/urdf/rosbot_gazebo file:
 
-Find:   <!-- If you cant't use your GPU comment RpLidar using GPU and uncomment RpLidar using CPU gazebo plugin. -->
-next coment RpLidar using GPU using <!-- --> from <gazebo> to </gazebo> like below:
+Find:   `<!-- If you cant't use your GPU comment RpLidar using GPU and uncomment RpLidar using CPU gazebo plugin. -->`
+next coment RpLidar using GPU using `<!-- -->` from `<gazebo>` to `</gazebo>` like below:
 
+ ```
  <!-- gazebo reference="rplidar">
    <sensor type="gpu_ray" name="head_rplidar_sensor">
      <pose>0 0 0 0 0 0</pose>
@@ -58,15 +59,16 @@ next coment RpLidar using GPU using <!-- --> from <gazebo> to </gazebo> like bel
      </plugin>
    </sensor>
  </gazebo -->
+```
 
-Now uncomment RpLidar using CPU plugin removing <!-- -->.
+Now uncomment RpLidar using CPU plugin removing `<!-- -->`.
 
 If you want to make your laser scan visible just change:
-
+```
 <visualize>false</visualize>
-
+```
 to:
-
+```
 <visualize>true</visualize>
-
+```
 in the same plug in.
