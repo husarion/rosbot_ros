@@ -1,4 +1,4 @@
-# rosbot_ws #
+# rosbot_description #
 
 URDF model for Gazebo integrated with ROS.
 
