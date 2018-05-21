@@ -18,13 +18,34 @@
       <minDepth value="0.0001" />
   </gazebo-->    
 
+<!--gazebo>
+  <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
+    <updateRate>10.0</updateRate>
+    <robotNamespace>/rosbot</robotNamespace>
+    <leftFrontJoint>front_left_wheel_hinge</leftFrontJoint>
+    <rightFrontJoint>front_right_wheel_hinge</rightFrontJoint>
+    <leftRearJoint>rare_left_wheel_hinge</leftRearJoint>
+    <rightRearJoint>rare_right_wheel_hinge</rightRearJoint>
+    <wheelSeparation>0.4</wheelSeparation>
+    <wheelDiameter>0.215</wheelDiameter>
+	<commandTopic>cmd_vel</commandTopic>
+	<odometryTopic>odom</odometryTopic>
+    <odometryFrame>odom</odometryFrame>
+    <robotBaseFrame>chassis</robotBaseFrame>
+    <torque>20</torque>
+    <topicName>cmd_vel</topicName>
+	<broadcastTF>true</broadcastTF>
+  </plugin>
+</gazebo-->	
+	
   <gazebo>
     <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
       <legacyMode>false</legacyMode>
       <alwaysOn>true</alwaysOn>
       <updateRate>10</updateRate>
-      <leftJoint>front_left_wheel_hinge</leftJoint>
-      <rightJoint>front_right_wheel_hinge</rightJoint>
+      <leftJoint>rear_left_wheel_hinge</leftJoint>
+      <rightJoint>rear_right_wheel_hinge</rightJoint>
+      <publishWheelJointState>true</publishWheelJointState>
       <wheelSeparation>0.4</wheelSeparation>
       <wheelDiameter>0.2</wheelDiameter>
       <wheelTorque>20</wheelTorque>

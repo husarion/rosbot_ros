@@ -6,10 +6,6 @@
   <arg name="map_file" default="$(find rosbot_navigation)/maps/test_map.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
-  <!-- Place map frame at odometry frame -->
-  <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster"
-      args="0 0 0 0 0 0 map odom 100"/>
-
   <!-- Localization -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
     <remap from="scan" to="rosbot/laser/scan"/>
