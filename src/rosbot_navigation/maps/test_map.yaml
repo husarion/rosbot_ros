@@ -1,4 +1,4 @@
-image: /home/hubert/rosbot_description/src/rosbot_navigation/maps/test_map.pgm
+image: test_map.pgm
 resolution: 0.010000
 origin: [-31.520000, -38.560000, 0.000000]
 negate: 0
