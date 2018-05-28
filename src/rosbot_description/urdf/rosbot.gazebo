@@ -39,20 +39,24 @@
 </gazebo-->	
 	
   <gazebo>
-    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
-      <legacyMode>false</legacyMode>
-      <alwaysOn>true</alwaysOn>
-      <updateRate>10</updateRate>
-      <leftJoint>rear_left_wheel_hinge</leftJoint>
-      <rightJoint>rear_right_wheel_hinge</rightJoint>
-      <publishWheelJointState>true</publishWheelJointState>
+    <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
+      <updateRate>10.0</updateRate>
+      <robotBaseFrame>chassis</robotBaseFrame>
       <wheelSeparation>0.4</wheelSeparation>
       <wheelDiameter>0.2</wheelDiameter>
-      <wheelTorque>20</wheelTorque>
+      <torque>20</torque>
+      <leftFrontJoint>front_left_wheel_hinge</leftFrontJoint>
+      <rightFrontJoint>front_right_wheel_hinge</rightFrontJoint>
+      <leftRearJoint>rear_left_wheel_hinge</leftRearJoint>
+      <rightRearJoint>rear_right_wheel_hinge</rightRearJoint>
+      <topicName>cmd_vel</topicName>
       <commandTopic>cmd_vel</commandTopic>
+      <broadcastTF>true</broadcastTF>
       <odometryTopic>odom</odometryTopic>
       <odometryFrame>odom</odometryFrame>
-      <robotBaseFrame>chassis</robotBaseFrame>
+      <covariance_x>0.000100</covariance_x>
+      <covariance_y>0.000100</covariance_y>
+      <covariance_yaw>0.010000</covariance_yaw>
     </plugin>
   </gazebo>
 
