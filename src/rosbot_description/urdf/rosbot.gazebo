@@ -1,43 +1,6 @@
 <?xml version="1.0"?>
 <robot>
 
-  <!--gazebo reference="left_wheel_hinge">
-      <mu1 value="10000.0" />
-      <mu2 value="10000.0" />
-      <kp value="100000.0" />
-      <kd value="0.00001" />
-      <maxVel value="1.0" />
-      <minDepth value="0.0001" />
-  </gazebo>    
-  <gazebo reference="right_wheel_hinge">
-      <mu1 value="10000.0" />
-      <mu2 value="10000.0" />
-      <kp value="100000.0" />
-      <kd value="0.00001" />
-      <maxVel value="1.0" />
-      <minDepth value="0.0001" />
-  </gazebo-->    
-
-<!--gazebo>
-  <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
-    <updateRate>10.0</updateRate>
-    <robotNamespace>/rosbot</robotNamespace>
-    <leftFrontJoint>front_left_wheel_hinge</leftFrontJoint>
-    <rightFrontJoint>front_right_wheel_hinge</rightFrontJoint>
-    <leftRearJoint>rare_left_wheel_hinge</leftRearJoint>
-    <rightRearJoint>rare_right_wheel_hinge</rightRearJoint>
-    <wheelSeparation>0.4</wheelSeparation>
-    <wheelDiameter>0.215</wheelDiameter>
-	<commandTopic>cmd_vel</commandTopic>
-	<odometryTopic>odom</odometryTopic>
-    <odometryFrame>odom</odometryFrame>
-    <robotBaseFrame>chassis</robotBaseFrame>
-    <torque>20</torque>
-    <topicName>cmd_vel</topicName>
-	<broadcastTF>true</broadcastTF>
-  </plugin>
-</gazebo-->	
-	
   <gazebo>
     <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
       <updateRate>10.0</updateRate>
@@ -59,7 +22,6 @@
       <covariance_yaw>0.010000</covariance_yaw>
     </plugin>
   </gazebo>
-
 
   <gazebo reference="chassis">
     <material>Gazebo/White</material>
