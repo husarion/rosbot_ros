@@ -2,7 +2,7 @@
 
 URDF model for Gazebo integrated with ROS.
 
-## 1 Using the package. ##
+## 1. Using the package. ##
 
 Description of the available .sh file:
 
