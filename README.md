@@ -95,7 +95,7 @@ roslaunch rosbot_description rosbot_rviz_gmapping.launch
 
 In Terminal 4, start teleop and create a map
 ```
-roslaunch rosbot_navigation mybot_teleop.launch
+roslaunch rosbot_navigation rosbot_teleop.launch
 ```
 In Terminal 5, save the map to some file path 
 ```
