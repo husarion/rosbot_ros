@@ -99,7 +99,7 @@ roslaunch rosbot_navigation rosbot_teleop.launch
 ```
 In Terminal 5, save the map to some file path 
 ```
-rosrun map_server map_saver -f ~/rosbot_description/src/rosbot_navigation/maps/test_map
+rosrun map_server map_saver -f ~/ros_workspace/src/rosbot_description/src/rosbot_navigation/maps/test_map
 ```
 
 Now to make saved map loading possible you have to close all previous terminals and run the following commands below. Once loaded, use rviz to set 2D Nav Goal and the robot will autonomously reache the indicated position
