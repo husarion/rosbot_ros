@@ -10,7 +10,7 @@
   <xacro:include filename="$(find rosbot_description)/urdf/macros.xacro" />
 
 
-  <link name='chassis'>
+  <link name='base_frame'>
     <pose>0 0 0.1 0 0 0</pose>
 
     <inertial>
@@ -29,7 +29,7 @@
       </geometry>
     </collision>
 
-    <visual name='chassis_visual'>
+    <visual name='base_frame_visual'>
       <origin xyz="0 0 -0.06" rpy=" 1.5707 0 1.5707"/>
       <geometry>
         <mesh filename="package://rosbot_description/meshes/box.dae" scale="0.002 0.002 0.002" />
@@ -41,7 +41,7 @@
   <joint name="top_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
-    <parent link="chassis"/>
+    <parent link="base_frame"/>
     <child link="top"/>
   </joint>
   
@@ -161,7 +161,7 @@
   <joint type="continuous" name="front_left_wheel_hinge">
     <origin xyz="0.1 0.15 0" rpy="0 0 0"/>
     <child link="front_left_wheel"/>
-    <parent link="chassis"/>
+    <parent link="base_frame"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="1.0" friction="1.0"/>
@@ -170,7 +170,7 @@
   <joint type="continuous" name="front_right_wheel_hinge">
     <origin xyz="0.1 -0.15 0" rpy="0 0 0"/>
     <child link="front_right_wheel"/>
-    <parent link="chassis"/>
+    <parent link="base_frame"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="1.0" friction="1.0"/>
@@ -179,7 +179,7 @@
   <joint type="continuous" name="rear_left_wheel_hinge">
     <origin xyz="-0.12 0.15 0" rpy="0 0 0"/>
     <child link="rear_left_wheel"/>
-    <parent link="chassis"/>
+    <parent link="base_frame"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="1.0" friction="1.0"/>
@@ -188,7 +188,7 @@
   <joint type="continuous" name="rear_right_wheel_hinge">
     <origin xyz="-0.12 -0.15 0" rpy="0 0 0"/>
     <child link="rear_right_wheel"/>
-    <parent link="chassis"/>
+    <parent link="base_frame"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="1.0" friction="1.0"/>
@@ -198,7 +198,7 @@
   <joint name="astra_joint" type="fixed">
     <axis xyz="0 0 0" />
     <origin xyz="-0.055 0 0.308" rpy="0 0 0"/>
-    <parent link="chassis"/>
+    <parent link="base_frame"/>
     <child link="astra"/>
   </joint>
   
@@ -227,7 +227,7 @@
   <joint name="rplidar_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0.08 0 0.12" rpy="0 0 0"/>
-    <parent link="chassis"/>
+    <parent link="base_frame"/>
     <child link="rplidar"/>
   </joint>
   
