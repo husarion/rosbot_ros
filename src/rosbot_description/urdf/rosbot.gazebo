@@ -7,7 +7,7 @@
       <robotBaseFrame>base_frame</robotBaseFrame>
       <wheelSeparation>0.4</wheelSeparation>
       <wheelDiameter>0.2</wheelDiameter>
-      <torque>20</torque>
+      <torque>50</torque>
       <leftFrontJoint>front_left_wheel_hinge</leftFrontJoint>
       <rightFrontJoint>front_right_wheel_hinge</rightFrontJoint>
       <leftRearJoint>rear_left_wheel_hinge</leftRearJoint>
@@ -207,7 +207,7 @@
         <updateRate>5</updateRate>
         <topicName>/range/fl</topicName>
         <frameName>range_fl</frameName>
-        <fov>0.2</fov>
+        <fov>0.1</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
@@ -244,7 +244,7 @@
         <updateRate>5</updateRate>
         <topicName>/range/fr</topicName>
         <frameName>range_fr</frameName>
-        <fov>0.2</fov>
+        <fov>0.1</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
@@ -281,7 +281,7 @@
         <updateRate>5</updateRate>
         <topicName>/range/rl</topicName>
         <frameName>range_rl</frameName>
-        <fov>0.2</fov>
+        <fov>0.1</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
@@ -318,7 +318,7 @@
         <updateRate>5</updateRate>
         <topicName>/range/rr</topicName>
         <frameName>range_rr</frameName>
-        <fov>0.2</fov>
+        <fov>0.1</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
