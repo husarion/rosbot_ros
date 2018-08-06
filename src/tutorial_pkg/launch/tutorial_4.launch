@@ -1,0 +1,25 @@
+<launch>
+
+    <arg name="use_rosbot" default="true"/>
+    <arg name="use_gazebo" default="false"/>
+
+    <arg name="teach" default="true"/>
+    <arg name="recognize" default="false"/>
+
+    <arg if="$(arg teach)" name="chosen_world" value="rosbot_world_teaching"/>
+    <arg if="$(arg recognize)" name="chosen_world" value="rosbot_world_recognition"/>
+
+    <include if="$(arg use_rosbot)" file="$(find astra_launch)/launch/astra.launch"/>
+    <include if="$(arg use_gazebo)" file="$(find rosbot_gazebo)/launch/$(arg chosen_world).launch"/>
+
+    <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen"/>
+
+    <node pkg="find_object_2d" type="find_object_2d" name="find_object_2d">
+        <remap from="image" to="/camera/rgb/image_raw"/>
+        <param name="gui" value="$(arg teach)"/>
+        <param if="$(arg recognize)" name="objects_path" value="$(find tutorial_pkg)/image_rec/"/>
+    </node>
+
+    <node pkg="tutorial_pkg" type="action_controller_node" name="action_controller" output="screen"/>
+
+</launch>
