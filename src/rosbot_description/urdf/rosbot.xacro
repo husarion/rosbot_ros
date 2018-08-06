@@ -17,9 +17,9 @@
       <mass value="30.0"/>
       <origin xyz="0 0 0.1" rpy=" 0 0 0"/>
       <inertia
-          ixx="0.1" ixy="0" ixz="0"
-          iyy="0.1" iyz="0"
-          izz="0.1"
+      ixx="0.1" ixy="0" ixz="0"
+      iyy="0.1" iyz="0"
+      izz="0.1"
       />
     </inertial>
 
@@ -37,24 +37,24 @@
     </visual>
 
   </link>
-  
+
   <joint name="top_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="base_frame"/>
     <child link="top"/>
   </joint>
-  
+
   <link name='top'>
     <pose>0 0 0.1 0 0 0</pose>
 
     <inertial>
       <mass value="30.0"/>
       <origin xyz="0 0 0.1" rpy=" 0 0 0"/>
-      <inertia
-          ixx="0.1" ixy="0" ixz="0"
-          iyy="0.1" iyz="0"
-          izz="0.1"
+      <inertia 
+      ixx="0.1" ixy="0" ixz="0" 
+      iyy="0.1" iyz="0" 
+      izz="0.1" 
       />
     </inertial>
     <visual name='top'>
@@ -81,10 +81,10 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <mass value="5"/>
-      <inertia
-        ixx=".1" ixy="0.0" ixz="0.0"
-        iyy=".1" iyz="0.0"
-        izz=".1"/>
+      <inertia 
+      ixx=".1" ixy="0.0" ixz="0.0" 
+      iyy=".1" iyz="0.0" 
+      izz=".1"/>
     </inertial>
   </link>
 
@@ -104,14 +104,14 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <mass value="5"/>
-      <inertia
-        ixx=".1" ixy="0.0" ixz="0.0"
-        iyy=".1" iyz="0.0"
-        izz=".1"/>
+      <inertia 
+      ixx=".1" ixy="0.0" ixz="0.0" 
+      iyy=".1" iyz="0.0" 
+      izz=".1"/>
     </inertial>
   </link>
-  
-    <link name="rear_left_wheel">
+
+  <link name="rear_left_wheel">
     <collision name="collision">
       <origin xyz="0 0.07 0" rpy="0 0 1.5707"/>
       <geometry>
@@ -127,10 +127,10 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <mass value="5"/>
-      <inertia
-        ixx=".1" ixy="0.0" ixz="0.0"
-        iyy=".1" iyz="0.0"
-        izz=".1"/>
+      <inertia 
+      ixx=".1" ixy="0.0" ixz="0.0" 
+      iyy=".1" iyz="0.0" 
+      izz=".1"/>
     </inertial>
   </link>
 
@@ -150,10 +150,10 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <mass value="5"/>
-      <inertia
-        ixx=".1" ixy="0.0" ixz="0.0"
-        iyy=".1" iyz="0.0"
-        izz=".1"/>
+      <inertia 
+      ixx=".1" ixy="0.0" ixz="0.0" 
+      iyy=".1" iyz="0.0" 
+      izz=".1"/>
     </inertial>
   </link>
 
@@ -175,7 +175,7 @@
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="1.0" friction="1.0"/>
   </joint>
-  
+
   <joint type="continuous" name="rear_left_wheel_hinge">
     <origin xyz="-0.12 0.15 0" rpy="0 0 0"/>
     <child link="rear_left_wheel"/>
@@ -201,12 +201,12 @@
     <parent link="base_frame"/>
     <child link="astra"/>
   </joint>
-  
+
   <link name="astra">
     <collision>
       <origin xyz="0.02 0 0" rpy="0 0 0"/>
       <geometry>0
-    <box size="0.01 0.01 0.01"/>
+        <box size="0.01 0.01 0.01"/>
       </geometry>
     </collision>
 
@@ -222,21 +222,21 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
     </inertial>
-  </link>   
-  
+  </link>
+
   <joint name="rplidar_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0.08 0 0.12" rpy="0 0 0"/>
     <parent link="base_frame"/>
     <child link="rplidar"/>
   </joint>
-  
+
   <!-- rplidar Laser -->
   <link name="rplidar">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-    <box size="0.1 0.1 0.1"/>
+        <box size="0.1 0.1 0.1"/>
       </geometry>
     </collision>
 
@@ -254,6 +254,37 @@
     </inertial>
   </link>
 
+  <joint name="range_fl_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.2 0.1 0.005" rpy="0 0 0 "/>
+    <parent link="base_frame"/>
+    <child link="range_fl"/>
+  </joint>
+  <link name="range_fl"></link>
+
+  <joint name="range_fr_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.2 -0.1 0.005" rpy="0 0 0 "/>
+    <parent link="base_frame"/>
+    <child link="range_fr"/>
+  </joint>
+  <link name="range_fr"></link>
+
+  <joint name="range_rl_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="-0.2 0.1 0.005" rpy="0 0 3.14 "/>
+    <parent link="base_frame"/>
+    <child link="range_rl"/>
+  </joint>
+  <link name="range_rl"></link>
+
+  <joint name="range_rr_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="-0.2 -0.1 0.005" rpy="0 0 3.14 "/>
+    <parent link="base_frame"/>
+    <child link="range_rr"/>
+  </joint>
+  <link name="range_rr"></link>
 
 </robot>
 

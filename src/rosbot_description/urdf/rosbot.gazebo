@@ -26,12 +26,12 @@
   <gazebo reference="base_frame">
     <material>Gazebo/White</material>
   </gazebo>
-  
+
   <gazebo reference="top">
     <material>Gazebo/Red</material>
   </gazebo>
-  
-  
+
+
   <gazebo reference="rplidar">
     <material>Gazebo/Black</material>
   </gazebo>
@@ -39,7 +39,7 @@
   <gazebo reference="astra">
     <material>Gazebo/Black</material>
   </gazebo>
-  
+
   <gazebo reference="front_left_wheel">
     <material>Gazebo/Black</material>
   </gazebo>
@@ -47,7 +47,7 @@
   <gazebo reference="front_right_wheel">
     <material>Gazebo/Black</material>
   </gazebo>
-  
+
   <gazebo reference="rear_left_wheel">
     <material>Gazebo/Black</material>
   </gazebo>
@@ -57,37 +57,37 @@
   </gazebo>
 
   <!-- astra -->
-  
-<gazebo reference="astra">
-    <sensor type="depth" name="openni_camera_camera">       
-        <always_on>1</always_on>
-        <visualize>true</visualize>             
-        <camera>
-            <horizontal_fov>1.047</horizontal_fov>  
-            <image>
-                <width>640</width>
-                <height>480</height>
-                <format>R8G8B8</format>
-            </image>
-            <depth_camera>
 
-            </depth_camera>
-            <clip>
-                <near>0.1</near>
-                <far>100</far>
-            </clip>
-        </camera>
-        <plugin name="kinect_controller" filename="libgazebo_ros_openni_kinect.so">
+  <gazebo reference="astra">
+    <sensor type="depth" name="openni_camera_camera">
+      <always_on>1</always_on>
+      <visualize>true</visualize>
+      <camera>
+        <horizontal_fov>1.047</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <depth_camera>
+
+        </depth_camera>
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <plugin name="kinect_controller" filename="libgazebo_ros_openni_kinect.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>10.0</updateRate>
         <cameraName>camera</cameraName>
-        <frameName>astra</frameName>                   
+        <frameName>astra</frameName>
         <imageTopicName>rgb/image_raw</imageTopicName>
         <depthImageTopicName>depth/image_raw</depthImageTopicName>
         <pointCloudTopicName>depth/points</pointCloudTopicName>
-        <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>              
-        <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>            
-        <pointCloudCutoff>0.4</pointCloudCutoff>                
+        <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+        <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
+        <pointCloudCutoff>0.4</pointCloudCutoff>
         <hackBaseline>0.07</hackBaseline>
         <distortionK1>0.0</distortionK1>
         <distortionK2>0.0</distortionK2>
@@ -98,18 +98,18 @@
         <Cx>0.0</Cx>
         <Cy>0.0</Cy>
         <focalLength>0.0</focalLength>
-        </plugin>
+      </plugin>
     </sensor>
   </gazebo>
-  
+
   <!-- If you cant't use your GPU comment RpLidar using GPU and uncomment RpLidar using CPU 
     gazebo plugin. -->
-  
+
   <!-- Noise parameters based on published spec for rplidar laser
     achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
     stddev of 0.01m will put 99.7% of samples within 0.03m of the true
     reading. -->
-  
+
   <!-- RpLidar using GPU -->
   <gazebo reference="rplidar">
     <sensor type="gpu_ray" name="head_rplidar_sensor">
@@ -142,8 +142,8 @@
       </plugin>
     </sensor>
   </gazebo>
-  
-    <!-- RpLidar using CPU -->
+
+  <!-- RpLidar using CPU -->
   <!--gazebo reference="rplidar">
     <sensor type="ray" name="head_rplidar_sensor">
       <pose>0 0 0 0 0 0</pose>
@@ -175,5 +175,153 @@
       </plugin>
     </sensor>
   </gazebo-->
+
+  <gazebo reference="range_fl">
+    <sensor type="ray" name="range_fl">
+      <pose>0 0 0 0 0 0</pose>
+      <update_rate>5</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>5</samples>
+            <resolution>1.0</resolution>
+            <min_angle>-0.05</min_angle>
+            <max_angle>0.05</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.05</min_angle>
+            <max_angle>0.05</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>0.9</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
+        <gaussianNoise>0.005</gaussianNoise>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>5</updateRate>
+        <topicName>/range/fl</topicName>
+        <frameName>range_fl</frameName>
+        <fov>0.1</fov>
+        <radiation>ultrasound</radiation>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="range_fr">
+    <sensor type="ray" name="range_fr">
+      <pose>0 0 0 0 0 0</pose>
+      <update_rate>5</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>5</samples>
+            <resolution>1.0</resolution>
+            <min_angle>-0.05</min_angle>
+            <max_angle>0.05</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.05</min_angle>
+            <max_angle>0.05</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>0.9</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
+        <gaussianNoise>0.005</gaussianNoise>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>5</updateRate>
+        <topicName>/range/fr</topicName>
+        <frameName>range_fr</frameName>
+        <fov>0.1</fov>
+        <radiation>ultrasound</radiation>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="range_rl">
+    <sensor type="ray" name="range_rl">
+      <pose>0 0 0 0 0 0</pose>
+      <update_rate>5</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>5</samples>
+            <resolution>1.0</resolution>
+            <min_angle>-0.05</min_angle>
+            <max_angle>0.05</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.05</min_angle>
+            <max_angle>0.05</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>0.9</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
+        <gaussianNoise>0.005</gaussianNoise>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>5</updateRate>
+        <topicName>/range/rl</topicName>
+        <frameName>range_rl</frameName>
+        <fov>0.1</fov>
+        <radiation>ultrasound</radiation>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="range_rr">
+    <sensor type="ray" name="range_rr">
+      <pose>0 0 0 0 0 0</pose>
+      <update_rate>5</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>5</samples>
+            <resolution>1.0</resolution>
+            <min_angle>-0.05</min_angle>
+            <max_angle>0.05</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.05</min_angle>
+            <max_angle>0.05</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>0.9</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin filename="libgazebo_ros_range.so" name="gazebo_ros_range">
+        <gaussianNoise>0.005</gaussianNoise>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>5</updateRate>
+        <topicName>/range/rr</topicName>
+        <frameName>range_rr</frameName>
+        <fov>0.1</fov>
+        <radiation>ultrasound</radiation>
+      </plugin>
+    </sensor>
+  </gazebo>
 
 </robot>
