@@ -256,7 +256,7 @@
 
   <joint name="range_fl_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="0.2 0.1 0.005" rpy="0 0 0 "/>
+    <origin xyz="0.2 0.1 0.005" rpy="0 0 0.13 "/>
     <parent link="base_frame"/>
     <child link="range_fl"/>
   </joint>
@@ -264,7 +264,7 @@
 
   <joint name="range_fr_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="0.2 -0.1 0.005" rpy="0 0 0 "/>
+    <origin xyz="0.2 -0.1 0.005" rpy="0 0 -0.13 "/>
     <parent link="base_frame"/>
     <child link="range_fr"/>
   </joint>
@@ -272,7 +272,7 @@
 
   <joint name="range_rl_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="-0.2 0.1 0.005" rpy="0 0 3.14 "/>
+    <origin xyz="-0.2 0.1 0.005" rpy="0 0 3.01 "/>
     <parent link="base_frame"/>
     <child link="range_rl"/>
   </joint>
@@ -280,7 +280,7 @@
 
   <joint name="range_rr_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="-0.2 -0.1 0.005" rpy="0 0 3.14 "/>
+    <origin xyz="-0.2 -0.1 0.005" rpy="0 0 3.27 "/>
     <parent link="base_frame"/>
     <child link="range_rr"/>
   </joint>

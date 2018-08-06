@@ -207,7 +207,7 @@
         <updateRate>5</updateRate>
         <topicName>/range/fl</topicName>
         <frameName>range_fl</frameName>
-        <fov>0.1</fov>
+        <fov>0.2</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
@@ -244,7 +244,7 @@
         <updateRate>5</updateRate>
         <topicName>/range/fr</topicName>
         <frameName>range_fr</frameName>
-        <fov>0.1</fov>
+        <fov>0.2</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
@@ -281,7 +281,7 @@
         <updateRate>5</updateRate>
         <topicName>/range/rl</topicName>
         <frameName>range_rl</frameName>
-        <fov>0.1</fov>
+        <fov>0.2</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
@@ -318,7 +318,7 @@
         <updateRate>5</updateRate>
         <topicName>/range/rr</topicName>
         <frameName>range_rr</frameName>
-        <fov>0.1</fov>
+        <fov>0.2</fov>
         <radiation>ultrasound</radiation>
       </plugin>
     </sensor>
