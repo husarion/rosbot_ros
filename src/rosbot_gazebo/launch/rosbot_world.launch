@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-  <arg name="world" default="empty"/> 
+  <arg name="world" default="empty"/>
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
-  
+
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <!--arg name="world_name" value="$(find rosbot_gazebo)/worlds/rosbot.world"/-->
     <arg name="world_name" value="$(find rosbot_gazebo)/worlds/turtlebot_playground.world"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
@@ -18,10 +17,10 @@
     <arg name="debug" value="$(arg debug)"/>
   </include>
 
-  
+
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find rosbot_description)/urdf/rosbot.xacro'"/>
 
-  <node name="rosbot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
-   args="-urdf -param robot_description -model rosbot" />
+  <node name="rosbot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" 
+  args="-urdf -param robot_description -model rosbot" />
 
 </launch>
