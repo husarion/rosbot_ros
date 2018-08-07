@@ -10,7 +10,7 @@
   <xacro:include filename="$(find rosbot_description)/urdf/macros.xacro" />
 
 
-  <link name='base_frame'>
+  <link name='base_link'>
     <pose>0 0 0.1 0 0 0</pose>
 
     <inertial>
@@ -30,7 +30,7 @@
       </geometry>
     </collision>
 
-    <visual name='base_frame_visual'>
+    <visual name='base_link_visual'>
       <origin xyz="0 0 -0.02" rpy=" 1.5707 0 1.5707"/>
       <geometry>
         <mesh filename="package://rosbot_description/meshes/box.dae" scale="0.001 0.001 0.001" />
@@ -42,7 +42,7 @@
   <joint name="top_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <child link="top"/>
   </joint>
 
@@ -162,7 +162,7 @@
   <joint type="continuous" name="front_left_wheel_hinge">
     <origin xyz="0.05 0.05 0" rpy="0 0 0"/>
     <child link="front_left_wheel"/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="5.0" friction="1.0"/>
@@ -171,7 +171,7 @@
   <joint type="continuous" name="front_right_wheel_hinge">
     <origin xyz="0.05 -0.05 0" rpy="0 0 0"/>
     <child link="front_right_wheel"/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="5.0" friction="1.0"/>
@@ -180,7 +180,7 @@
   <joint type="continuous" name="rear_left_wheel_hinge">
     <origin xyz="-0.055 0.05 0" rpy="0 0 0"/>
     <child link="rear_left_wheel"/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="5.0" friction="1.0"/>
@@ -189,7 +189,7 @@
   <joint type="continuous" name="rear_right_wheel_hinge">
     <origin xyz="-0.055 -0.05 0" rpy="0 0 0"/>
     <child link="rear_right_wheel"/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="10000" velocity="1000"/>
     <joint_properties damping="5.0" friction="1.0"/>
@@ -199,7 +199,7 @@
   <joint name="astra_joint" type="fixed">
     <axis xyz="0 0 0" />
     <origin xyz="-0.03 0 0.18" rpy="0 0 0"/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <child link="astra"/>
   </joint>
 
@@ -227,8 +227,8 @@
 
   <joint name="rplidar_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="0.02 0 0.086" rpy="0 0 0"/>
-    <parent link="base_frame"/>
+    <origin xyz="0.02 0 0.086" rpy="0 0 3.14"/>
+    <parent link="base_link"/>
     <child link="rplidar"/>
   </joint>
 
@@ -258,7 +258,7 @@
   <joint name="range_fl_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0.1 0.05 0.01" rpy="0 0 0.13 "/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <child link="range_fl"/>
   </joint>
   <link name="range_fl"></link>
@@ -266,7 +266,7 @@
   <joint name="range_fr_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0.1 -0.05 0.01" rpy="0 0 -0.13 "/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <child link="range_fr"/>
   </joint>
   <link name="range_fr"></link>
@@ -274,7 +274,7 @@
   <joint name="range_rl_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="-0.1 0.05 0.01" rpy="0 0 3.01 "/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <child link="range_rl"/>
   </joint>
   <link name="range_rl"></link>
@@ -282,10 +282,9 @@
   <joint name="range_rr_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="-0.1 -0.05 0.01" rpy="0 0 3.27 "/>
-    <parent link="base_frame"/>
+    <parent link="base_link"/>
     <child link="range_rr"/>
   </joint>
   <link name="range_rr"></link>
 
 </robot>
-
