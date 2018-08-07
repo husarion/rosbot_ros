@@ -4,7 +4,7 @@
   <gazebo>
     <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
       <updateRate>10.0</updateRate>
-      <robotBaseFrame>base_frame</robotBaseFrame>
+      <robotBaseFrame>base_link</robotBaseFrame>
       <wheelSeparation>0.4</wheelSeparation>
       <wheelDiameter>0.2</wheelDiameter>
       <torque>50</torque>
@@ -23,7 +23,7 @@
     </plugin>
   </gazebo>
 
-  <gazebo reference="base_frame">
+  <gazebo reference="base_link">
     <material>Gazebo/White</material>
   </gazebo>
 
@@ -144,7 +144,7 @@
   </gazebo>
 
   <!-- RpLidar using CPU -->
-  <!--gazebo reference="rplidar">
+  <!-- <gazebo reference="rplidar">
     <sensor type="ray" name="head_rplidar_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
@@ -174,7 +174,7 @@
         <frameName>laser_frame</frameName>
       </plugin>
     </sensor>
-  </gazebo-->
+  </gazebo> -->
 
   <gazebo reference="range_fl">
     <sensor type="ray" name="range_fl">
