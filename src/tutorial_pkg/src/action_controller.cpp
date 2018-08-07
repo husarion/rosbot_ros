@@ -46,14 +46,14 @@ void objectCallback(const std_msgs::Float32MultiArrayPtr &object) {
       switch (id) {
          case ARROW_LEFT:
             set_vel.linear.x = 0;
-            set_vel.angular.z = 4.5;
+            set_vel.angular.z = 1;
             break;
          case ARROW_UP:
-            set_vel.linear.x = 2;
+            set_vel.linear.x = 1;
             set_vel.angular.z = 0;
             break;
          case ARROW_DOWN:
-            set_vel.linear.x = -2;
+            set_vel.linear.x = -1;
             set_vel.angular.z = 0;
             break;
          case SMILE:
