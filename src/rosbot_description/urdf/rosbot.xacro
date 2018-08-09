@@ -242,7 +242,7 @@
     </collision>
 
     <visual>
-      <origin xyz="0 0 -0.03" rpy="1.5707 0 1.5707"/>
+      <origin xyz="0 0 -0.03" rpy="1.5707 0 4.71"/>
       <geometry>
         <mesh filename="package://rosbot_description/meshes/rplidar.dae" scale="0.001 0.001 0.001" />
       </geometry>
