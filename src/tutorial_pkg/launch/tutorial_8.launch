@@ -11,7 +11,7 @@
 
     <node if="$(arg use_rosbot)" pkg="tutorial_pkg" type="drive_controller_node" name="drive_controller"/>
 
-    <node pkg="tf" type="static_transform_publisher" name="laser_broadcaster" args="0 0 0 3.14 0 0 base_link laser_frame 100" />
+    <node if="$(arg use_rosbot)" pkg="tf" type="static_transform_publisher" name="laser_broadcaster" args="0 0 0 3.14 0 0 base_link laser_frame 100" />
 
     <node pkg="rviz" type="rviz" name="rviz"/>
 
@@ -23,11 +23,11 @@
 
     <node pkg="move_base" type="move_base" name="move_base" output="screen">
         <param name="controller_frequency" value="10.0"/>
-        <rosparam file="$(find tutorial_pkg)/conf/costmap_common_params.yaml" command="load" ns="global_costmap" />
-        <rosparam file="$(find tutorial_pkg)/conf/costmap_common_params.yaml" command="load" ns="local_costmap" />
-        <rosparam file="$(find tutorial_pkg)/conf/local_costmap_params.yaml" command="load" />
-        <rosparam file="$(find tutorial_pkg)/conf/global_costmap_params.yaml" command="load" />
-        <rosparam file="$(find tutorial_pkg)/conf/trajectory_planner.yaml" command="load" />
+        <rosparam file="$(find rosbot_navigation)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find rosbot_navigation)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find rosbot_navigation)/config/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find rosbot_navigation)/config/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find rosbot_navigation)/config/trajectory_planner.yaml" command="load" />
     </node>
 
     <node pkg="frontier_exploration" type="explore_client" name="explore_client" output="screen"/>
@@ -35,7 +35,7 @@
     <node pkg="frontier_exploration" type="explore_server" name="explore_server" output="screen">
         <param name="frequency" type="double" value="1.0"/>
         <param name="goal_aliasing" type="double" value="0.5"/>
-        <rosparam ns="explore_costmap" subst_value="true" file="$(find tutorial_pkg)/conf/exploration.yaml" command="load" />
+        <rosparam ns="explore_costmap" subst_value="true" file="$(find rosbot_navigation)/config/exploration.yaml" command="load" />
     </node>
 
 </launch>
