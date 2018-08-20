@@ -234,6 +234,15 @@
 <link name="astra_optical">
 </link>
 
+<joint name="camera_depth_joint" type="fixed">
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <parent link="astra"/>
+  <child link="camera_depth_frame"/>
+</joint>
+
+<link name="camera_depth_frame">
+</link>
+
   <joint name="rplidar_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0.02 0 0.086" rpy="0 0 3.14"/>
