@@ -225,6 +225,15 @@
     </inertial>
   </link>
 
+<joint name="camera_optical_joint" type="fixed">
+  <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+  <parent link="astra"/>
+  <child link="astra_optical"/>
+</joint>
+
+<link name="astra_optical">
+</link>
+
   <joint name="rplidar_joint" type="fixed">
     <axis xyz="0 1 0" />
     <origin xyz="0.02 0 0.086" rpy="0 0 3.14"/>
