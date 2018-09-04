@@ -5,9 +5,9 @@
     <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
       <updateRate>10.0</updateRate>
       <robotBaseFrame>base_link</robotBaseFrame>
-      <wheelSeparation>0.4</wheelSeparation>
-      <wheelDiameter>0.2</wheelDiameter>
-      <torque>50</torque>
+      <wheelSeparation>0.1</wheelSeparation>
+      <wheelDiameter>0.08</wheelDiameter>
+      <torque>0.5</torque>
       <leftFrontJoint>front_left_wheel_hinge</leftFrontJoint>
       <rightFrontJoint>front_right_wheel_hinge</rightFrontJoint>
       <leftRearJoint>rear_left_wheel_hinge</leftRearJoint>
@@ -36,7 +36,7 @@
     <material>Gazebo/Black</material>
   </gazebo>
 
-  <gazebo reference="astra">
+  <gazebo reference="camera_link">
     <material>Gazebo/Black</material>
   </gazebo>
 
@@ -58,7 +58,7 @@
 
   <!-- astra -->
 
-  <gazebo reference="astra">
+  <gazebo reference="camera_link">
     <sensor type="depth" name="openni_camera_camera">
       <always_on>1</always_on>
       <visualize>true</visualize>
@@ -81,7 +81,7 @@
         <alwaysOn>true</alwaysOn>
         <updateRate>10.0</updateRate>
         <cameraName>camera</cameraName>
-        <frameName>astra_optical</frameName>
+        <frameName>camera_depth_frame</frameName>
         <imageTopicName>rgb/image_raw</imageTopicName>
         <depthImageTopicName>depth/image_raw</depthImageTopicName>
         <pointCloudTopicName>depth/points</pointCloudTopicName>
@@ -138,7 +138,7 @@
       </ray>
       <plugin name="gazebo_ros_head_rplidar_controller" filename="libgazebo_ros_gpu_laser.so">
         <topicName>scan</topicName>
-        <frameName>laser_frame</frameName>
+        <frameName>laser</frameName>
       </plugin>
     </sensor>
   </gazebo>
@@ -171,7 +171,7 @@
       </ray>
       <plugin name="gazebo_ros_head_rplidar_controller" filename="libgazebo_ros_laser.so">
         <topicName>scan</topicName>
-        <frameName>laser_frame</frameName>
+        <frameName>laser</frameName>
       </plugin>
     </sensor>
   </gazebo> -->
