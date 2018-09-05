@@ -1,7 +1,7 @@
 footprint: [[0.12, 0.14], [0.12, -0.14], [-0.12, -0.14], [-0.12, 0.14]]
 transform_tolerance: 5
-update_frequency: 5
-publish_frequency: 5
+update_frequency: 1
+publish_frequency: 1
 global_frame: map
 robot_base_frame: base_link
 
