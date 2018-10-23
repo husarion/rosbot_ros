@@ -32,7 +32,7 @@
   </gazebo>
 
 
-  <gazebo reference="rplidar">
+  <gazebo reference="laser">
     <material>Gazebo/Black</material>
   </gazebo>
 
@@ -111,7 +111,7 @@
     reading. -->
 
   <!-- RpLidar using GPU -->
-  <gazebo reference="rplidar">
+  <gazebo reference="laser">
     <sensor type="gpu_ray" name="head_rplidar_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
@@ -144,7 +144,7 @@
   </gazebo>
 
   <!-- RpLidar using CPU -->
-  <!-- <gazebo reference="rplidar">
+  <!-- <gazebo reference="laser">
     <sensor type="ray" name="head_rplidar_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
