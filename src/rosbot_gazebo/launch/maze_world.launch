@@ -21,4 +21,6 @@
   <node name="rosbot_spawn" pkg="gazebo_ros" type="spawn_model" output="log" args="-urdf -param robot_description -model rosbot_s">
   </node>
 
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+
 </launch>
