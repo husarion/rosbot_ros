@@ -22,8 +22,6 @@
 
   <node name="rosbot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param robot_description -model rosbot" />
 
-  <node pkg="tf" type="static_transform_publisher" name="laser_broadcaster" args="0 0 0 3.14 0 0 base_link laser_frame 100" />
-
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
 
 </launch>
