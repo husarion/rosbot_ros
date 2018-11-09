@@ -230,7 +230,7 @@ void scanCallback(const sensor_msgs::LaserScanConstPtr &msg)
     }
     else
     {
-        ROS_ERROR("Transform lookup failed, drop this scan");
+        ROS_WARN("Transform lookup failed, drop this scan");
     }
 }
 
