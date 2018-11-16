@@ -23,6 +23,11 @@
     </plugin>
   </gazebo>
 
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    </plugin>
+  </gazebo>
+
   <gazebo reference="base_link">
     <material>Gazebo/White</material>
   </gazebo>

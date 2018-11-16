@@ -17,6 +17,8 @@
     <arg name="debug" value="$(arg debug)"/>
   </include>
 
+  <rosparam command="load" file="$(find joint_state_controller)/joint_state_controller.yaml" />
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="joint_state_controller" />
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find rosbot_description)/urdf/rosbot.xacro'"/>
 
