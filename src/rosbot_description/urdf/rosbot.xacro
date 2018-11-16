@@ -277,7 +277,7 @@
 
   <joint name="rplidar_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="0.02 0 0.086" rpy="0 0 3.14"/>
+    <origin xyz="0.02 0 0" rpy="0 0 3.14"/>
     <parent link="base_link"/>
     <child link="laser"/>
   </joint>
@@ -285,14 +285,14 @@
   <!-- rplidar Laser -->
   <link name="laser">
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0.058" rpy="1.5707 0 4.71"/>
       <geometry>
-        <box size="0.001 0.001 0.001"/>
+        <mesh filename="package://rosbot_description/meshes/rplidar.dae" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
 
     <visual>
-      <origin xyz="0 0 -0.03" rpy="1.5707 0 4.71"/>
+      <origin xyz="0 0 0.058" rpy="1.5707 0 4.71"/>
       <geometry>
         <mesh filename="package://rosbot_description/meshes/rplidar.dae" scale="0.001 0.001 0.001" />
       </geometry>
@@ -300,7 +300,7 @@
 
     <inertial>
       <mass value="1e-5" />
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0.058" rpy="1.5707 0 4.71"/>
       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
     </inertial>
   </link>
