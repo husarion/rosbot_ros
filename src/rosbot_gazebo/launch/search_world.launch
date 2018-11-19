@@ -9,7 +9,7 @@
   <arg name="debug" default="false"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find rosbot_gazebo)/worlds/turtlebot_playground.world"/>
+    <arg name="world_name" value="$(find rosbot_gazebo)/worlds/search.world"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
     <arg name="gui" value="$(arg gui)"/>
