@@ -87,22 +87,22 @@ int main(int argc, char **argv)
             }
             if (distL > 0 && distR > 0)
             {
-                set_vel.angular.z = (distL - distR) * 2;
+                set_vel.angular.z = (distL - distR) * 10;
                 set_vel.linear.x = ((distL + distR) / 2) - ((sensorL_max + sensorR_max) / 4);
             }
             else if (distL > 0)
             {
-                set_vel.angular.z = -0.25;
-                set_vel.linear.x = -0.125;
+                set_vel.angular.z = -1;
+                set_vel.linear.x = -0.1;
             }
             else if (distR > 0)
             {
-                set_vel.angular.z = 0.25;
-                set_vel.linear.x = -0.125;
+                set_vel.angular.z = 1;
+                set_vel.linear.x = -0.1;
             }
             else
             {
-                set_vel.linear.x = 0.25;
+                set_vel.linear.x = 0.2;
                 set_vel.angular.z = 0;
             }
         }
