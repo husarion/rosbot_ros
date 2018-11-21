@@ -23,6 +23,11 @@
     </plugin>
   </gazebo>
 
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    </plugin>
+  </gazebo>
+
   <gazebo reference="base_link">
     <material>Gazebo/White</material>
   </gazebo>
@@ -146,7 +151,7 @@
   <!-- RpLidar using CPU -->
   <!-- <gazebo reference="laser">
     <sensor type="ray" name="head_rplidar_sensor">
-      <pose>0 0 0.6 0 0 0</pose>
+      <pose>0 0 0.06 0 0 0</pose>
       <visualize>false</visualize>
       <update_rate>40</update_rate>
       <ray>

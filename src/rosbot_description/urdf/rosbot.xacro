@@ -1,6 +1,7 @@
 <?xml version='1.0'?>
 
-<robot name="rosbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="rosbot" 
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:property name="cameraSize" value="0.05"/>
   <xacro:property name="cameraMass" value="0.1"/>
@@ -200,6 +201,16 @@
     <joint_properties damping="5.0" friction="1.0"/>
   </joint>
 
+  <transmission name="front_left_wheel_trans" type="SimpleTransmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="front_left_wheel_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="front_left_wheel_hinge">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+
   <joint type="continuous" name="front_right_wheel_hinge">
     <origin xyz="0.05 -0.11 0" rpy="0 0 0"/>
     <child link="front_right_wheel"/>
@@ -208,6 +219,16 @@
     <limit effort="1" velocity="10"/>
     <joint_properties damping="5.0" friction="1.0"/>
   </joint>
+
+  <transmission name="front_right_wheel_trans" type="SimpleTransmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="front_right_wheel_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="front_right_wheel_hinge">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
 
   <joint type="continuous" name="rear_left_wheel_hinge">
     <origin xyz="-0.055 0.11 0" rpy="0 0 0"/>
@@ -218,6 +239,16 @@
     <joint_properties damping="5.0" friction="1.0"/>
   </joint>
 
+  <transmission name="rear_left_wheel_trans" type="SimpleTransmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="rear_left_wheel_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="rear_left_wheel_hinge">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+
   <joint type="continuous" name="rear_right_wheel_hinge">
     <origin xyz="-0.055 -0.11 0" rpy="0 0 0"/>
     <child link="rear_right_wheel"/>
@@ -226,6 +257,16 @@
     <limit effort="1" velocity="10"/>
     <joint_properties damping="5.0" friction="1.0"/>
   </joint>
+
+  <transmission name="rear_right_wheel_trans" type="SimpleTransmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="rear_right_wheel_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="rear_right_wheel_hinge">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
 
   <!-- Orbbec Astra RGBD Camera -->
   <joint name="astra_joint" type="fixed">
