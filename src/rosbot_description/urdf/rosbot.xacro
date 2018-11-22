@@ -308,7 +308,7 @@
   </link>
 
   <joint name="camera_depth_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
     <parent link="camera_link"/>
     <child link="camera_depth_frame"/>
   </joint>
