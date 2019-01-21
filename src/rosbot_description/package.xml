@@ -13,6 +13,10 @@
   <depend>joint_state_publisher</depend>
   <depend>gazebo_ros</depend>
   <depend>gazebo_ros_control</depend>
+  <depend>gazebo_plugins</depend>
+  <depend>controller_interface</depend>
+  <depend>hardware_interface</depend>
+  <depend>joint_limits_interface</depend>
   <depend>robot_state_publisher</depend>
   <depend>transmission_interface</depend>
   <depend>diff_drive_controller</depend>
