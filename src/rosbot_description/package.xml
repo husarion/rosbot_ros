@@ -8,6 +8,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>rospy</depend>
   <depend>controller_manager</depend>
   <depend>joint_state_controller</depend>
   <depend>joint_state_publisher</depend>
