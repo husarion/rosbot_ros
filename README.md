@@ -79,44 +79,29 @@ in the same plug in.
 
 Run the following commands below. Use the teleop to move the robot around to create an accurate and thorough map.
 
-In Terminal 1, launch the Gazebo world
-```
-roslaunch rosbot_gazebo rosbot_world.launch
-```
-In Terminal 2, start map building
-```
-roslaunch rosbot_navigation gmapping_demo.launch
-```
+In Terminal 1, launch the Gazebo simulation:
 
-In Terminal 3, launch rviz and set the following parameters:
 ```
 roslaunch rosbot_description rosbot_rviz_gmapping.launch
 ```
 
-In Terminal 4, start teleop and create a map
+In Terminal 2, start teleop and drive the ROSbot, observe in Rviz as the map is created:
+
 ```
 roslaunch rosbot_navigation rosbot_teleop.launch
 ```
-In Terminal 5, save the map to some file path 
+
+When you are satisfied with created map, you can save it. Open new terminal and save the map to some given path: 
+
 ```
 rosrun map_server map_saver -f ~/ros_workspace/src/rosbot_description/src/rosbot_navigation/maps/test_map
 ```
 
-Now to make saved map loading possible you have to close all previous terminals and run the following commands below. Once loaded, use rviz to set 2D Nav Goal and the robot will autonomously reache the indicated position
-In Terminal 1, launch the Gazebo world
-```
-roslaunch rosbot_gazebo rosbot_world.launch
-```
 
-In Terminal 2, start map building
-```
-roslaunch rosbot_navigation amcl_demo.launch
-```
+Now to make saved map loading possible you have to close all previous terminals and run the following commands below. Once loaded, use rviz to set 2D Nav Goal and the robot will autonomously reach the indicated position
 
-In Terminal 3, launch rviz
+In Terminal 1, launch the Gazebo simulation
+
 ```
 roslaunch rosbot_description rosbot_rviz_amcl.launch
-```	
-
-
-
+```
