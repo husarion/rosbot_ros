@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<launch>
-
-  <include file="$(find rosbot_description)/launch/rosbot_gazebo.launch"></include>
-
-  <include file="$(find rosbot_gazebo)/launch/rosbot_world.launch"></include>
-
-</launch>
