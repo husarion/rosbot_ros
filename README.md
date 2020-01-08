@@ -57,7 +57,7 @@ source ~/ros_workspace/install/setup.sh
 ROS2 requires to change firmware, downolad and flashit to CORE2 board:
 
 ```
-wget https://files.husarion.com/rosbot-firmware/rosbot-2.0-fw-ros2-v0.1.0.bin
+wget https://files.husarion.com/rosbot2_ros2_beta/rosbot-2.0-fw-ros2-v0.1.0.bin
 sudo stm32loader -c tinker -e -v -w rosbot-2.0-fw-ros2-v0.1.0.bin
 ```
 
