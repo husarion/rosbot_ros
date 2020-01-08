@@ -67,6 +67,8 @@ Start ROS2 connection with board:
 sudo MicroXRCEAgent serial --dev /dev/ttyS1 -b 500000
 ```
 
+After issuing this command, it is required to reset CORE2 board with reset button on ROSbot back panel. 
+
 ### Map buiding and navigation example ###
 
 This example allows to build a map and navigate to user defined destinations.
