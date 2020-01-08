@@ -17,8 +17,10 @@
   <depend>gazebo_ros</depend>
   <depend>gazebo_ros_pkgs</depend>
   <depend>gazebo_plugins</depend>
+  <depend>nav2_bringup</depend>
   <depend>robot_state_publisher</depend>
   <depend>rviz2</depend>
+  <depend>slam_toolbox</depend>
   <depend>xacro</depend>
 
   <export>
