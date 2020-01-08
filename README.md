@@ -23,6 +23,13 @@ cd ~/ros_workspace/src
 git clone --single-branch --branch ros2 https://github.com/husarion/rosbot_description.git
 ```
 
+Clone `ros2` branch of forked `rplidar_ros` repository to your workspace :
+
+```
+cd ~/ros_workspace/src
+git clone --single-branch --branch ros2 https://github.com/lukaszmitka/rplidar_ros.git
+```
+
 Install depencencies:
 
 ```
@@ -45,7 +52,22 @@ source ~/ros_workspace/install/setup.sh
 
 ## How to use ##
 
-### Map buiding and navigztion example ###
+### Low level firmware
+
+ROS2 requires to change firmware, downolad and flashit to CORE2 board:
+
+```
+wget https://husarion-robomaker-downloads.s3-eu-west-1.amazonaws.com/firmware.bin
+sudo stm32loader -c tinker -e -v -w firmware.bin
+```
+
+Start ROS2 connection with board:
+
+```
+sudo MicroXRCEAgent serial --dev /dev/ttyS1 -b 500000
+```
+
+### Map buiding and navigation example ###
 
 This example allows to build a map and navigate to user defined destinations.
 
@@ -53,4 +75,16 @@ To run the simulation:
 
 ```
 ros2 launch rosbot_description rosbot_sim.launch.py
+```
+
+To run on ROSbot 2.0:
+
+```
+ros2 launch rosbot_description rosbot.launch.py
+```
+
+To run on ROSbot 2.0 PRO:
+
+```
+ros2 launch rosbot_description rosbot_pro.launch.py
 ```
