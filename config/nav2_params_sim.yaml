@@ -1,11 +1,11 @@
 bt_navigator:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
     bt_xml_filename: "bt_navigator.xml"
 
 dwb_controller:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
     debug_trajectory_details: True
     min_vel_x: 0.0
     min_vel_y: 0.0
@@ -44,7 +44,7 @@ dwb_controller:
 local_costmap:
   local_costmap:
     ros__parameters:
-      use_sim_time: False
+      use_sim_time: true
       global_frame: odom
       plugin_names: ["obstacle_layer", "inflation_layer"]
       plugin_types: ["nav2_costmap_2d::ObstacleLayer", "nav2_costmap_2d::InflationLayer"]
@@ -67,15 +67,15 @@ local_costmap:
         marking: True
   local_costmap_client:
     ros__parameters:
-      use_sim_time: False
+      use_sim_time: true
   local_costmap_rclcpp_node:
     ros__parameters:
-      use_sim_time: False
+      use_sim_time: true
 
 global_costmap:
   global_costmap:
     ros__parameters:
-      use_sim_time: False
+      use_sim_time: true
       footprint: '[[0.12, 0.14], [0.12, -0.14], [-0.12, -0.14], [-0.12, 0.14]]'
       obstacle_layer:
         enabled: True
@@ -90,40 +90,40 @@ global_costmap:
         marking: True
   global_costmap_client:
     ros__parameters:
-      use_sim_time: False
+      use_sim_time: true
   global_costmap_rclcpp_node:
     ros__parameters:
-      use_sim_time: False
+      use_sim_time: true
 
 lifecycle_manager:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
     autostart: True
     node_names: ['world_model', 'dwb_controller',
                  'navfn_planner', 'bt_navigator']
 
 lifecycle_manager_service_client:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
 
 lifecycle_manager_client_service_client:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
 
 navfn_planner:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
     tolerance: 0.0
     use_astar: false
 
 navfn_planner_GetCostmap_client:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
 
 robot_state_publisher:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
 
 world_model:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: true
