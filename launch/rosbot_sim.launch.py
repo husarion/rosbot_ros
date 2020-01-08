@@ -12,7 +12,7 @@ from launch.substitutions import LaunchConfiguration
 def generate_launch_description():
     world_file_name =  'willow_garage.world'
 
-    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time', default='true')
     gazebo_ros = get_package_share_directory('gazebo_ros')
     rosbot_description = get_package_share_directory('rosbot_description')
     gazebo_client = launch.actions.IncludeLaunchDescription(
@@ -28,13 +28,9 @@ def generate_launch_description():
         launch.launch_description_sources.PythonLaunchDescriptionSource(
             os.path.join(rosbot_description, 'launch', 'rosbot_spawn.launch.py'))
     )
-    slam_toolbox = launch.actions.IncludeLaunchDescription(
-        launch.launch_description_sources.PythonLaunchDescriptionSource(
-            os.path.join(rosbot_description, 'launch', 'slam.launch.py'))
-    )
     nav2 = launch.actions.IncludeLaunchDescription(
         launch.launch_description_sources.PythonLaunchDescriptionSource(
-            os.path.join(rosbot_description, 'launch', 'rosbot_navigation.launch.py'))
+            os.path.join(rosbot_description, 'launch', 'rosbot_navigation_sim.launch.py'))
     )
 
     rviz2 = launch_ros.actions.Node(
@@ -42,6 +38,15 @@ def generate_launch_description():
             node_executable='rviz2',
             output='log',
             )
+    slam_toolbox_node = launch_ros.actions.Node(
+        	parameters=[
+                rosbot_description + '/config/slam_toolbox_sim.yaml'
+        	],
+            package='slam_toolbox',
+            node_executable='async_slam_toolbox_node',
+            name='slam_toolbox',
+            output='screen'
+        )
     return LaunchDescription([
         DeclareLaunchArgument(
           'world',
@@ -64,7 +69,7 @@ def generate_launch_description():
         gazebo_server,
         gazebo_client,
         spawn_rosbot,
-        slam_toolbox,
+        slam_toolbox_node,
         rviz2,
         nav2,
     ])
