@@ -20,15 +20,52 @@ find_package(ament_cmake REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(gazebo_ros REQUIRED)
 find_package(gazebo_ros_pkgs REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+
+find_package(rclcpp REQUIRED)
+# find_package(rclcpp_lifecycle REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2 REQUIRED)
+
+#################
+## Executables ##
+#################
+
+set(executable_name rosbot_republisher)
+
+add_executable(${executable_name}
+  src/rosbot_republisher.cpp
+)
+
+set(dependencies
+  rclcpp
+#  rclcpp_lifecycle
+  tf2_geometry_msgs
+  geometry_msgs
+  tf2_ros
+  tf2
+)
+
+ament_target_dependencies(${executable_name}
+  ${dependencies}
+)
+
+target_link_libraries(${executable_name}
+  ${library_name}
+)
 
 #############
 ## Install ##
 #############
 
-install(DIRECTORY config launch urdf worlds
+install(TARGETS ${executable_name}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY config include launch urdf worlds
   DESTINATION share/${PROJECT_NAME}
 )
 
