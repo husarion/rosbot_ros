@@ -65,7 +65,7 @@ install(TARGETS ${executable_name}
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY config include launch urdf worlds
+install(DIRECTORY config launch urdf worlds
   DESTINATION share/${PROJECT_NAME}
 )
 
