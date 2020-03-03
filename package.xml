@@ -12,16 +12,18 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <depend>rclpy</depend>
-  <depend>gazebo</depend>
-  <depend>gazebo_ros</depend>
-  <depend>gazebo_ros_pkgs</depend>
-  <depend>gazebo_plugins</depend>
-  <depend>nav2_bringup</depend>
-  <depend>robot_state_publisher</depend>
-  <depend>rviz2</depend>
-  <depend>slam_toolbox</depend>
-  <depend>xacro</depend>
+  <build_depend>rclpy</build_depend>
+  <build_depend>gazebo_dev</build_depend>
+  
+  <exec_depend>gazebo</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_ros_pkgs</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>xacro</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
