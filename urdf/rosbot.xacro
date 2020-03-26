@@ -280,14 +280,14 @@
     <sensor type="ray" name="rp_lidar">
       <pose>0 0 0 0 0 0</pose>
       <visualize>true</visualize>
-      <update_rate>30</update_rate>
+      <update_rate>10</update_rate>
       <ray>
         <scan>
           <horizontal>
-            <samples>720</samples>
+            <samples>400</samples>
             <resolution>1</resolution>
-            <min_angle>-3.141693</min_angle>
-            <max_angle>3.141693</max_angle>
+            <min_angle>-3.150319</min_angle>
+            <max_angle>3.150319</max_angle>
           </horizontal>
         </scan>
         <range>
