@@ -54,20 +54,31 @@ source ~/ros_workspace/install/setup.sh
 
 ### Low level firmware
 
-ROS2 requires to change firmware, downolad and flashit to CORE2 board:
+ROS2 requires to change firmware, downolad and flash it to CORE2 board, depending on your ROSbot version:
 
-```
-wget https://files.husarion.com/rosbot2_ros2_beta/rosbot-2.0-fw-ros2-v0.1.0.bin
-sudo stm32loader -c tinker -e -v -w rosbot-2.0-fw-ros2-v0.1.0.bin
-```
+- for ROSbot 2.0:
+    ```
+    wget https://husarion-files.s3-eu-west-1.amazonaws.com/rosbot-2.0-fw-ros2-v0.2.0-synchro.bin
+    sudo stm32loader -c tinker -e -v -w rosbot-2.0-fw-ros2-v0.2.0-synchro.bin
+    ```
+
+- for ROSbot 2.0 PRO:
+    ```
+    wget https://husarion-files.s3-eu-west-1.amazonaws.com/rosbot-2.0-pro-fw-ros2-v0.2.0-synchro.bin
+    sudo stm32loader -c upboard -e -v -w rosbot-2.0-pro-fw-ros2-v0.2.0-synchro.bin
+    ```
 
 Start ROS2 connection with board:
 
-```
-sudo MicroXRCEAgent serial --dev /dev/ttyS1 -b 500000
-```
+- for ROSbot 2.0:
+    ```
+    sudo MicroXRCEAgent serial --dev /dev/ttyS1 -b 500000
+    ```
 
-After issuing this command, it is required to reset CORE2 board with reset button on ROSbot back panel. 
+- for ROSbot 2.0 PRO:
+    ```
+    sudo MicroXRCEAgent serial --dev /dev/ttyS4 -b 460800
+    ```
 
 ### Map buiding and navigation example ###
 
