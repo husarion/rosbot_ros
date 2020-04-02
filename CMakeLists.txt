@@ -32,12 +32,6 @@ find_package(tf2 REQUIRED)
 ## Executables ##
 #################
 
-set(executable_name rosbot_republisher)
-
-add_executable(${executable_name}
-  src/rosbot_republisher.cpp
-)
-
 set(dependencies
   rclcpp
 #  rclcpp_lifecycle
@@ -58,12 +52,6 @@ target_link_libraries(${executable_name}
 #############
 ## Install ##
 #############
-
-install(TARGETS ${executable_name}
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
-)
 
 install(DIRECTORY config launch urdf worlds
   DESTINATION share/${PROJECT_NAME}

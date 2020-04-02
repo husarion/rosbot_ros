@@ -40,11 +40,6 @@ def generate_launch_description():
     		rosbot_description + '/config/static_tf.yaml'
         ]
     )
-    rosbot_republisher = launch_ros.actions.Node(
-        package='rosbot_description',
-        node_executable='rosbot_republisher',
-        output='log'
-    )
     slam_toolbox_node = launch_ros.actions.Node(
         	parameters=[
                 rosbot_description + '/config/slam_toolbox.yaml'
@@ -82,7 +77,6 @@ def generate_launch_description():
         slam_toolbox_node,
         nav2,
         laser_frame_tf,
-        rosbot_republisher,
     ])
 
 if __name__ == '__main__':
