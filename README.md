@@ -80,6 +80,25 @@ Start ROS2 connection with board:
     sudo MicroXRCEAgent serial --dev /dev/ttyS4 -b 460800
     ```
 
+### Start `dds_bridge`
+
+Enable communication between FastRTPS on IPv4 and CycloneDDS on IPv6:
+
+```
+ros2 run dds_bridge dds_bridge
+```
+
+To find out more regarding the interoperability issue, refer to [`dds_bridge` documentation](https://github.com/husarion/dds_bridge#dds-bridge)
+
+### CORE2 Timestapms
+
+By default CORE is measuring time since reset, thus timestapms are published the same.
+If you want to use system time, use `rosbot_time_publisher` node:
+
+```
+RMW_IMPLEMENTATION=rmw_fastrtps_cpp ros2 run dds_bridge rosbot_time_publisher
+```
+
 ### Map buiding and navigation example ###
 
 This example allows to build a map and navigate to user defined destinations.
