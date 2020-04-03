@@ -41,14 +41,6 @@ set(dependencies
   tf2
 )
 
-ament_target_dependencies(${executable_name}
-  ${dependencies}
-)
-
-target_link_libraries(${executable_name}
-  ${library_name}
-)
-
 #############
 ## Install ##
 #############
