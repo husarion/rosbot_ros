@@ -45,7 +45,7 @@ set(dependencies
 ## Install ##
 #############
 
-install(DIRECTORY config launch urdf worlds
+install(DIRECTORY config launch models worlds
   DESTINATION share/${PROJECT_NAME}
 )
 

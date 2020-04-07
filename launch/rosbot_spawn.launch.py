@@ -24,9 +24,18 @@ def generate_launch_description():
             ]
             ),
         launch_ros.actions.Node(
+            package='tf2_ros',
+            node_executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0.07', '0', '0', '0', 'base_link', 'laser'],
+            parameters=[
+        		rosbot_description_dir + '/config/static_tf.yaml'
+            ]
+            ),
+        launch_ros.actions.Node(
             package='gazebo_ros',
             node_executable='spawn_entity.py',
             output='screen',
-            arguments=['-entity', 'rosbot', '-x', '0', '-y', '0', '-z', '0.01', '-file', rosbot_description_dir + '/urdf/rosbot.xacro']),
+            arguments=['-entity', 'rosbot', '-x', '0', '-y', '0', '-z', '0.03', '-file', rosbot_description_dir + '/models/rosbot.sdf']),
     ])
 

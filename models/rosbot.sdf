@@ -1,0 +1,844 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='ROSbot'>
+    <static>false</static>
+    <link name='base_link'>
+      <pose>0 0 0 0 0 0</pose>
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <inertial>
+        <mass>2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+        <pose>0 0 0.03 0 0 0</pose>
+      </inertial>
+      <collision name='collision'>
+        <pose>0 0 0.03 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.2 0.15 0.06</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose>0 0 0 1.5707 0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>box.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/White</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+          <specular>1 1 1 1</specular>
+          <emissive>0.2 0.2 0.2 0.2</emissive>
+        </material>
+        <transparency>0</transparency>
+        <cast_shadows>0</cast_shadows>
+      </visual>
+    </link>
+
+    <joint type="fixed" name="top_cover_joint">
+      <pose>0 0 0 0 0 0</pose>
+      <child>top_cover</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 0</xyz>
+      </axis>
+    </joint>
+    <link name='top_cover'>
+      <pose>0 0 0.075 0 0 0</pose>
+      <gravity>0</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <inertial>
+        <mass>0.0001</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+        <pose>0 0 0 0 0 0</pose>
+      </inertial>
+      <visual name='visual'>
+        <pose>0 0 0 1.5707 0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>upper.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>true</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Red</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0 0 1</diffuse>
+          <specular>0.75 0 0 1</specular>
+          <emissive>0.1 0 0 0</emissive>
+        </material>
+        <transparency>0</transparency>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+      <sensor name="imu_sensor" type="imu">
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+          <ros>
+            <argument>~/out:=imu</argument>
+          </ros>
+          <frame_name>imu</frame_name>
+        </plugin>
+        <pose>0 0 0 0 0 0</pose>
+        <imu>
+          <angular_velocity>
+            <x>
+              <noise type="none"></noise>
+            </x>
+            <y>
+              <noise type="none"></noise>
+            </y>
+            <z>
+              <noise type="none"></noise>
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x>
+              <noise type="none"></noise>
+            </x>
+            <y>
+              <noise type="none"></noise>
+            </y>
+            <z>
+              <noise type="none"></noise>
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+    </link>
+
+    <link name="front_left_wheel">
+      <pose>0.053 0.11 0.02 0 0 0</pose>
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <visual name="front_left_wheel_visual">
+        <pose>0 0 0 0 0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>wheel.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+          <ambient>0.25 0.25 0.25 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <transparency>0</transparency>
+        <cast_shadows>0</cast_shadows>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0 1.5707 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.001</ixx>
+          <ixy>0.0001</ixy>
+          <ixz>0.0001</ixz>
+          <iyy>0.001</iyy>
+          <iyz>0.0001</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint type="revolute" name="front_left_wheel_hinge">
+      <pose>0 0 0 0 0 0</pose>
+      <child>front_left_wheel</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+    <link name="front_right_wheel">
+      <pose>0.053 -0.11 0.02 0 0</pose>
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <visual name="front_left_wheel_visual">
+        <pose>0 0 0 0 0 -1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>wheel.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+          <ambient>0.25 0.25 0.25 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <transparency>0</transparency>
+        <cast_shadows>0</cast_shadows>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0 1.5707 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.001</ixx>
+          <ixy>0.0001</ixy>
+          <ixz>0.0001</ixz>
+          <iyy>0.001</iyy>
+          <iyz>0.0001</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint type="revolute" name="front_right_wheel_hinge">
+      <pose>0 0 0 0 0 0</pose>
+      <child>front_right_wheel</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+    <link name="rear_left_wheel">
+      <pose>-0.053 0.11 0.02 0 0 0</pose>
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <visual name="rear_left_wheel_visual">
+        <pose>0 0 0 0 0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>wheel.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+          <ambient>0.2 0.2 0.2 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <transparency>0</transparency>
+        <cast_shadows>0</cast_shadows>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0 1.5707 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.001</ixx>
+          <ixy>0.0001</ixy>
+          <ixz>0.0001</ixz>
+          <iyy>0.001</iyy>
+          <iyz>0.0001</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint type="revolute" name="rear_left_wheel_hinge">
+      <pose>0 0 0 0 0 0</pose>
+      <child>rear_left_wheel</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+
+    <link name="rear_right_wheel">
+      <pose>-0.053 -0.11 0.02 0 0</pose>
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <visual name="rear_left_wheel_visual">
+        <pose>0 0 0 0 0 -1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>wheel.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+          <ambient>0.25 0.25 0.25 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <transparency>0</transparency>
+        <cast_shadows>0</cast_shadows>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0 1.5707 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.001</ixx>
+          <ixy>0.0001</ixy>
+          <ixz>0.0001</ixz>
+          <iyy>0.001</iyy>
+          <iyz>0.0001</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint type="revolute" name="rear_right_wheel_hinge">
+      <pose>0 0 0 0 0 0</pose>
+      <child>rear_right_wheel</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+
+    <!-- BEGIN: Motors controller -->
+    <plugin name='skid_steer_drive' filename='libgazebo_ros_diff_drive.so'>
+      <ros>
+      </ros>
+      <!-- Update rate -->
+      <update_rate>10</update_rate>
+      <!-- Number of wheel pairs -->
+      <num_wheel_pairs>2</num_wheel_pairs>
+      <!-- wheels0 -->
+      <left_joint>front_left_wheel_hinge</left_joint>
+      <right_joint>front_right_wheel_hinge</right_joint>
+      <!-- wheels1-->
+      <left_joint>rear_left_wheel_hinge</left_joint>
+      <right_joint>rear_right_wheel_hinge</right_joint>
+
+      <!-- kinematics -->
+      <wheel_separation>0.24</wheel_separation>
+      <wheel_separation>0.24</wheel_separation>
+      <wheel_diameter>0.08</wheel_diameter>
+      <wheel_diameter>0.08</wheel_diameter>
+
+      <!-- limits -->
+      <max_wheel_torque>0.5</max_wheel_torque>
+      <max_wheel_acceleration>2.5</max_wheel_acceleration>
+
+      <!-- output -->
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>true</publish_wheel_tf>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+
+    </plugin>
+    <!-- END: Motors controller -->
+
+    <!-- BEGIN: Orbbec Astra RGBD Camera -->
+    <joint type="fixed" name="camera_joint">
+      <pose>0 0 0 0 0 0</pose>
+      <child>camera_link</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 0</xyz>
+      </axis>
+    </joint>
+    <link name="camera_link">
+      <gravity>0</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <pose>-0.03 0 0.17 0 0 0</pose>
+      <inertial>
+        <mass>0.0001</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+        <pose>0 0 0 0 0 0</pose>
+      </inertial>
+      <visual name="camera_visual">
+        <pose>0 0 0 1.5707 0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>astra.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+          <emissive>0.1 0.1 0.1 1</emissive>
+        </material>
+        <transparency>0</transparency>
+        <cast_shadows>0</cast_shadows>
+      </visual>
+      <sensor type="depth" name="astra_camera">
+        <always_on>true</always_on>
+        <update_rate>10.0</update_rate>
+        <camera name="astra_camera">
+          <horizontal_fov>1.3962634</horizontal_fov>
+          <image>
+            <width>160</width>
+            <height>120</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>10</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="astra_camera" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>0.0</updateRate>
+          <ros>
+          </ros>
+          <camera_name>camera</camera_name>
+          <frame_name>camera_depth_frame</frame_name>
+          <hack_baseline>0.07</hack_baseline>
+          <min_depth>0.1</min_depth>
+          <max_depth>8.0</max_depth>
+        </plugin>
+      </sensor>
+    </link>
+    <!-- END: Orbbec Astra RGBD Camera -->
+
+    <!-- BEGIN: RpLidar -->
+    <joint type="fixed" name="laser_joint">
+      <pose>0 0 0 0 0 0</pose>
+      <child>laser_link</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 0</xyz>
+      </axis>
+    </joint>
+    <link name="laser_link">
+      <gravity>0</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <pose>0 0 0.065 0 0 0</pose>
+      <inertial>
+        <mass>0.0001</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+        <pose>0 0 0 0 0 0</pose>
+      </inertial>
+      <visual name="laser_visual">
+        <pose>0 0 0 1.5707 0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>rplidar.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Black</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+          <emissive>0.1 0.1 0.1 1</emissive>
+        </material>
+        <transparency>0</transparency>
+        <cast_shadows>0</cast_shadows>
+      </visual>
+      <sensor type="ray" name="rp_lidar">
+        <pose>0 0 0.015 0 0 0</pose>
+        <visualize>false</visualize>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>400</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.150319</min_angle>
+              <max_angle>3.150319</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.25</min>
+            <max>25.0</max>
+            <resolution>0.02</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="rp_lidar" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <!-- <namespace>/laser</namespace> -->
+            <argument>~/out:=scan</argument>
+          </ros>
+          <output_type>sensor_msgs/LaserScan</output_type>
+          <frame_name>laser</frame_name>
+        </plugin>
+      </sensor>
+    </link>
+    <!-- END: RpLidar -->
+
+
+    <!-- BEGIN: Range sensors -->
+    <joint type="fixed" name="range_fl_joint">
+      <pose>0 0 0 0 0 0</pose>
+      <child>range_fl</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 0</xyz>
+      </axis>
+    </joint>
+    <link name="range_fl">
+      <gravity>0</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <pose>0.095 0.055 0 0 0 0</pose>
+      <sensor name="sensor_ray" type="ray">
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>2</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.01</min_angle>
+              <max_angle>0.01</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>2</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.01</min_angle>
+              <max_angle>0.01</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.05</min>
+            <max>2.0</max>
+          </range>
+        </ray>
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <plugin name="range" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <argument>~/out:=/range</argument>
+          </ros>
+          <output_type>sensor_msgs/Range</output_type>
+        </plugin>
+      </sensor>
+      <inertial>
+        <mass>0.0001</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+        <pose>0 0 0 0 0 0</pose>
+      </inertial>
+    </link>
+
+    <joint type="fixed" name="range_fr_joint">
+      <pose>0 0 0 0 0 0</pose>
+      <child>range_fr</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 0</xyz>
+      </axis>
+    </joint>
+    <link name="range_fr">
+      <gravity>0</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <pose>0.095 -0.055 0 0 0 0</pose>
+      <sensor name="sensor_ray" type="ray">
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>2</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.01</min_angle>
+              <max_angle>0.01</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>2</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.01</min_angle>
+              <max_angle>0.01</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.05</min>
+            <max>2.0</max>
+          </range>
+        </ray>
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <plugin name="range" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <argument>~/out:=/range</argument>
+          </ros>
+          <output_type>sensor_msgs/Range</output_type>
+        </plugin>
+      </sensor>
+      <inertial>
+        <mass>0.0001</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+        <pose>0 0 0 0 0 0</pose>
+      </inertial>
+    </link>
+
+    <joint type="fixed" name="range_rr_joint">
+      <pose>0 0 0 0 0 0</pose>
+      <child>range_rr</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 0</xyz>
+      </axis>
+    </joint>
+    <link name="range_rr">
+      <gravity>0</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <pose>-0.095 -0.055 0 0 3.1415 0</pose>
+      <sensor name="sensor_ray" type="ray">
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>2</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.01</min_angle>
+              <max_angle>0.01</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>2</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.01</min_angle>
+              <max_angle>0.01</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.05</min>
+            <max>2.0</max>
+          </range>
+        </ray>
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <plugin name="range" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <argument>~/out:=/range</argument>
+          </ros>
+          <output_type>sensor_msgs/Range</output_type>
+        </plugin>
+      </sensor>
+      <inertial>
+        <mass>0.0001</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+        <pose>0 0 0 0 0 0</pose>
+      </inertial>
+    </link>
+
+    <joint type="fixed" name="range_rl_joint">
+      <pose>0 0 0 0 0 0</pose>
+      <child>range_rl</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 0</xyz>
+      </axis>
+    </joint>
+    <link name="range_rl">
+      <gravity>0</gravity>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <enable_wind>0</enable_wind>
+      <pose>-0.095 0.055 0 0 0 3.1415</pose>
+      <sensor name="sensor_ray" type="ray">
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>2</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.01</min_angle>
+              <max_angle>0.01</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>2</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.01</min_angle>
+              <max_angle>0.01</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.05</min>
+            <max>2.0</max>
+          </range>
+        </ray>
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <plugin name="range" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <argument>~/out:=/range</argument>
+          </ros>
+          <output_type>sensor_msgs/Range</output_type>
+        </plugin>
+      </sensor>
+      <inertial>
+        <mass>0.0001</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.05</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+        <pose>0 0 0 0 0 0</pose>
+      </inertial>
+    </link>
+
+  </model>
+</sdf>
