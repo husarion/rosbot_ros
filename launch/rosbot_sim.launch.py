@@ -28,25 +28,6 @@ def generate_launch_description():
         launch.launch_description_sources.PythonLaunchDescriptionSource(
             os.path.join(rosbot_description, 'launch', 'rosbot_spawn.launch.py'))
     )
-    nav2 = launch.actions.IncludeLaunchDescription(
-        launch.launch_description_sources.PythonLaunchDescriptionSource(
-            os.path.join(rosbot_description, 'launch', 'rosbot_navigation_sim.launch.py'))
-    )
-
-    rviz2 = launch_ros.actions.Node(
-            package='rviz2',
-            node_executable='rviz2',
-            output='log',
-            )
-    slam_toolbox_node = launch_ros.actions.Node(
-        	parameters=[
-                rosbot_description + '/config/slam_toolbox_sim.yaml'
-        	],
-            package='slam_toolbox',
-            node_executable='async_slam_toolbox_node',
-            name='slam_toolbox',
-            output='screen'
-        )
     return LaunchDescription([
         DeclareLaunchArgument(
           'world',
@@ -69,9 +50,6 @@ def generate_launch_description():
         gazebo_server,
         gazebo_client,
         spawn_rosbot,
-        slam_toolbox_node,
-        rviz2,
-        nav2,
     ])
 
 if __name__ == '__main__':
