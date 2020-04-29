@@ -6,19 +6,21 @@ bt_navigator:
 dwb_controller:
   ros__parameters:
     use_sim_time: true
-    debug_trajectory_details: True
+    controller_frequency: 10.0
+    debug_trajectory_details: false
     min_vel_x: 0.0
     min_vel_y: 0.0
     max_vel_x: 0.26
     max_vel_y: 0.0
-    max_vel_theta: 1.0
+    min_vel_theta: 0.1
+    max_vel_theta: 3.14
     min_speed_xy: 0.0
     max_speed_xy: 0.26
     min_speed_theta: 0.0
     min_x_velocity_threshold: 0.001
     # Add high threshold velocity for turtlebot 3 issue.
     # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
-    min_y_velocity_threshold: 0.5
+    min_y_velocity_threshold: 1.0
     min_theta_velocity_threshold: 0.001
     acc_lim_x: 2.5
     acc_lim_y: 0.0
@@ -29,10 +31,11 @@ dwb_controller:
     vx_samples: 20
     vy_samples: 5
     vtheta_samples: 20
-    sim_time: 1.7
+    sim_time: 2.5
     linear_granularity: 0.05
     xy_goal_tolerance: 0.25
-    transform_tolerance: 0.2
+    yaw_goal_tolerance: 0.75
+    transform_tolerance: 1.0
     critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
     BaseObstacle.scale: 0.02
     PathAlign.scale: 0.0
@@ -57,7 +60,9 @@ local_costmap:
       obstacle_layer:
         enabled: True
       static_layer:
-        map_subscribe_transient_local: True
+        enabled: true
+        subscribe_to_updates: true
+        map_subscribe_transient_local: true
       always_send_full_costmap: True
       observation_sources: scan
       scan:
@@ -80,7 +85,9 @@ global_costmap:
       obstacle_layer:
         enabled: True
       static_layer:
-        map_subscribe_transient_local: True
+        enabled: true
+        subscribe_to_updates: true
+        map_subscribe_transient_local: true
       always_send_full_costmap: True
       observation_sources: scan
       scan:
@@ -113,7 +120,7 @@ lifecycle_manager_client_service_client:
 navfn_planner:
   ros__parameters:
     use_sim_time: true
-    tolerance: 0.0
+    tolerance: 1.0
     use_astar: false
 
 navfn_planner_GetCostmap_client:
