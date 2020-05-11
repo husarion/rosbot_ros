@@ -10,12 +10,12 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
-    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time', default='true')
     rosbot_description = get_package_share_directory('rosbot_description')
  
     slam_toolbox_node = launch_ros.actions.Node(
         	parameters=[
-                rosbot_description + '/config/slam_toolbox.yaml'
+                rosbot_description + '/config/slam_toolbox_sim.yaml'
         	],
             package='slam_toolbox',
             node_executable='sync_slam_toolbox_node',
@@ -25,7 +25,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             name='use_sim_time',
-            default_value='false'
+            default_value='true'
         ),
         slam_toolbox_node,
     ])

@@ -29,7 +29,7 @@ def generate_launch_description():
             output='screen',
             arguments=['0', '0', '0.07', '0', '0', '0', 'base_link', 'laser'],
             parameters=[
-        		rosbot_description_dir + '/config/static_tf.yaml'
+        		rosbot_description_dir + '/config/static_tf_sim.yaml'
             ]
             ),
         launch_ros.actions.Node(

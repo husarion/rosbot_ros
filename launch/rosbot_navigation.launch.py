@@ -56,7 +56,7 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='nav2_world_model',
             node_executable='world_model',
-            output='screen',
+            output='log',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
@@ -69,7 +69,7 @@ def generate_launch_description():
             package='nav2_navfn_planner',
             node_executable='navfn_planner',
             node_name='navfn_planner',
-            output='screen',
+            output='log',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
@@ -83,7 +83,7 @@ def generate_launch_description():
             package='nav2_bt_navigator',
             node_executable='bt_navigator',
             node_name='bt_navigator',
-            output='screen',
+            output='log',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
