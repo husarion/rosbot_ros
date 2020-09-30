@@ -6,9 +6,9 @@
       <robotNamespace>${namespace}/</robotNamespace>
       <updateRate>10.0</updateRate>
       <robotBaseFrame>${namespace}/base_link</robotBaseFrame>
-      <wheelSeparation>0.1</wheelSeparation>
+      <wheelSeparation>0.20</wheelSeparation>
       <wheelDiameter>0.08</wheelDiameter>
-      <torque>0.5</torque>
+      <torque>5</torque>
       <leftFrontJoint>front_left_wheel_hinge</leftFrontJoint>
       <rightFrontJoint>front_right_wheel_hinge</rightFrontJoint>
       <leftRearJoint>rear_left_wheel_hinge</leftRearJoint>
@@ -120,7 +120,7 @@
   <!-- RpLidar A2 using GPU -->
   <gazebo reference="laser">
     <sensor type="gpu_ray" name="head_rplidar_sensor">
-      <pose>0 0 0.06 0 0 0</pose>
+      <pose>0 0 0.5 0 0 0</pose>
       <visualize>false</visualize>
       <update_rate>40</update_rate>
       <ray>
