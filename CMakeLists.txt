@@ -49,6 +49,18 @@ install(DIRECTORY config launch models worlds
   DESTINATION share/${PROJECT_NAME}
 )
 
+
+install(PROGRAMS 
+  scripts/rosserial_node.py
+  scripts/serialclient.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY 
+  scripts/rosserial
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
