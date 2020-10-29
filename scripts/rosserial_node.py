@@ -30,9 +30,7 @@ from serialclient import SerialClient
 def main(args=None):
     rclpy.init(args=args)
 
-    # minimal_publisher = MinimalPublisher()
-    sc = SerialClient("/dev/ttyS1", 500000)
-    # rclpy.spin(minimal_publisher)
+    sc = SerialClient()
     rclpy.spin(sc)
 
     # Destroy the node explicitly

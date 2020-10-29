@@ -414,9 +414,14 @@ class SerialClient(Node):
     protocol_ver2 = b'\xfe'
     protocol_ver = protocol_ver2
 
-    def __init__(self, port=None, baud=57600, timeout=5.0, fix_pyserial_for_test=False):
+    def __init__(self, timeout=5.0, fix_pyserial_for_test=False):
         super().__init__('serial_node')
         """ Initialize node, connect to bus, attempt to negotiate topics. """
+
+        param_port = rclpy.parameter.Parameter('port', type_=rclpy.parameter.Parameter.Type.STRING, value='/dev/ttyS1')
+        param_baud = rclpy.parameter.Parameter('baud', type_=rclpy.parameter.Parameter.Type.INTEGER, value=500000)
+        self.port = param_port.get_parameter_value()
+        self.baud = param_baud.get_parameter_value()
 
         self.read_lock = threading.RLock()
 
@@ -438,27 +443,21 @@ class SerialClient(Node):
         self.serial_subscribers = dict() # topic:Subscriber
         self.serial_services = dict()    # topic:Service
 
-        # self.pub_diagnostics = rospy.Publisher('/diagnostics', diagnostic_msgs.msg.DiagnosticArray, queue_size=10)
-
-        if port is None:
+        if self.port is None:
             self.get_logger().error("no port specified, listen for any new port?")
             pass
-        elif hasattr(port, 'read'):
-            #assume its a filelike object
-            self.port=port
         else:
-            print("open port " + port)
-            while rclpy.ok():
+            print("open port " + self.port.string_value)
+            if rclpy.ok():
                 try:
                     if self.fix_pyserial_for_test:
                         # see https://github.com/pyserial/pyserial/issues/59
-                        self.port = Serial(port, baud, timeout=self.timeout, write_timeout=10, rtscts=True, dsrdtr=True)
+                        self.port = Serial(self.port.string_value, self.baud.integer_value, timeout=self.timeout, write_timeout=10, rtscts=True, dsrdtr=True)
                     else:
-                        self.port = Serial(port, baud, timeout=self.timeout, write_timeout=10)
-                    break
+                        self.port = Serial(self.port.string_value, self.baud.integer_value, timeout=self.timeout, write_timeout=10)
                 except SerialException as e:
                     self.get_logger().error("Error opening serial")
-                    time.sleep(3)
+                    return
 
         if not rclpy.ok():
             return

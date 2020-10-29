@@ -44,6 +44,21 @@ def generate_launch_description():
         ]
     )
 
+    rosserial = launch_ros.actions.Node(
+        package='rosbot_description',
+        node_executable='rosserial_node.py',
+        output='screen',
+        parameters=[
+    		rosbot_description + '/config/rosserial_pro.yaml'
+        ]
+    )
+
+    rosbot_tf = launch_ros.actions.Node(
+        package='rosbot_description',
+        node_executable='rosbot_tf',
+        output='log',
+    )
+
     rp_lidar = launch.actions.IncludeLaunchDescription(
         launch.launch_description_sources.PythonLaunchDescriptionSource(
             os.path.join(rplidar_ros, 'launch', 'rplidar_a3.launch.py'))
@@ -57,6 +72,8 @@ def generate_launch_description():
                               description='Set "true" to increase messages written to terminal.'),
         rp_lidar,
         laser_frame_tf,
+        rosserial,
+        rosbot_tf,
     ])
 
 if __name__ == '__main__':
