@@ -236,9 +236,9 @@ class ServiceServer:
         s = getattr(s, 'srv')
         self.req_rosserial = getattr(s, service+"Request")
         self.res_rosserial = getattr(s, service+"Response") 
-        srv_pkg = __import__(str(package) + '.srv', globals(), locals(), [service], 0)
-        self.ServiceClass = getattr(srv_pkg, service)
-        self.service_server = self.parent.create_service(self.ServiceClass, self.topic, self.callback)
+        # srv_pkg = __import__(str(package) + '.srv', globals(), locals(), [service], 0)
+        # self.ServiceClass = getattr(srv_pkg, service)
+        # self.service_server = self.parent.create_service(self.ServiceClass, self.topic, self.callback)
 
         # response message
         self.data = None
@@ -264,8 +264,8 @@ class ServiceServer:
         r = self.res_rosserial()
         r.deserialize(data)
         # TODO copy data from r(rosserial) to res(ros2)
-        res = self.ServiceClass.Request()
-        self.response = res
+        # res = self.ServiceClass.Request()
+        # self.response = res
 
 
 class ServiceClient:
@@ -300,107 +300,6 @@ class ServiceClient:
         data_buffer = io.BytesIO()
         resp.serialize(data_buffer)
         self.parent.send(self.id, data_buffer.getvalue())
-
-class RosSerialServer:
-    """
-        RosSerialServer waits for a socket connection then passes itself, forked as a
-        new process, to SerialClient which uses it as a serial port. It continues to listen
-        for additional connections. Each forked process is a new ros node, and proxies ros
-        operations (e.g. publish/subscribe) from its connection to the rest of ros.
-    """
-    def __init__(self, tcp_portnum, fork_server=False):
-        self.get_logger().info("Fork_server is: %s" % fork_server)
-        self.tcp_portnum = tcp_portnum
-        self.fork_server = fork_server
-
-    def listen(self):
-        self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        #bind the socket to a public host, and a well-known port
-        self.serversocket.bind(("", self.tcp_portnum)) #become a server socket
-        self.serversocket.listen(1)
-
-        while True:
-            #accept connections
-            self.get_logger().info("Waiting for socket connection")
-            clientsocket, address = self.serversocket.accept()
-
-            #now do something with the clientsocket
-            self.get_logger().info("Established a socket connection from %s on port %s" % address)
-            self.socket = clientsocket
-            self.isConnected = True
-
-            if self.fork_server: # if configured to launch server in a separate process
-                self.get_logger().info("Forking a socket server process")
-                process = multiprocessing.Process(target=self.startSocketServer, args=address)
-                process.daemon = True
-                process.start()
-                self.get_logger().info("launched startSocketServer")
-            else:
-                self.get_logger().info("calling startSerialClient")
-                self.startSerialClient()
-                self.get_logger().info("startSerialClient() exited")
-
-    def startSerialClient(self):
-        client = SerialClient(self)
-        try:
-            client.run()
-        except KeyboardInterrupt:
-            pass
-        except RuntimeError:
-            self.get_logger().info("RuntimeError exception caught")
-            self.isConnected = False
-        except socket.error:
-            self.get_logger().info("socket.error exception caught")
-            self.isConnected = False
-        finally:
-            self.get_logger().info("Client has exited, closing socket.")
-            self.socket.close()
-            for sub in client.subscribers.values():
-                sub.unregister()
-            for srv in client.services.values():
-                srv.unregister()
-
-    def startSocketServer(self, port, address):
-        self.get_logger().info("starting ROS Serial Python Node serial_node-%r" % address)
-        # rospy.init_node("serial_node_%r" % address)
-        self.startSerialClient()
-
-    def flushInput(self):
-        pass
-
-    def write(self, data):
-        if not self.isConnected:
-            return
-        length = len(data)
-        totalsent = 0
-
-        while totalsent < length:
-            try:
-                totalsent += self.socket.send(data[totalsent:])
-            except BrokenPipeError:
-                raise RuntimeError("RosSerialServer.write() socket connection broken")
-
-    def read(self, rqsted_length):
-        self.msg = b''
-        if not self.isConnected:
-            return self.msg
-
-        while len(self.msg) < rqsted_length:
-            chunk = self.socket.recv(rqsted_length - len(self.msg))
-            if chunk == b'':
-                raise RuntimeError("RosSerialServer.read() socket connection broken")
-            self.msg = self.msg + chunk
-        return self.msg
-
-    def inWaiting(self):
-        try: # the caller checks just for <1, so we'll peek at just one byte
-            chunk = self.socket.recv(1, socket.MSG_DONTWAIT|socket.MSG_PEEK)
-            if chunk == b'':
-                raise RuntimeError("RosSerialServer.inWaiting() socket connection broken")
-            return len(chunk)
-        except BlockingIOError:
-            return 0
 
 class SerialClient(Node):
     """
@@ -462,8 +361,6 @@ class SerialClient(Node):
         if not rclpy.ok():
             return
 
-        time.sleep(0.1)           # Wait for ready (patch for Uno)
-
         self.buffer_out = -1
         self.buffer_in = -1
 
@@ -485,9 +382,9 @@ class SerialClient(Node):
         self.requestTopics()
         self.lastsync = self.get_clock().now()
 
-        read_timer_period = 0.001  # seconds
+        read_timer_period = 0.01  # seconds
         self.read_timer = self.create_timer(read_timer_period, self.read_timer_callback)
-        write_timer_period = 0.001  # seconds
+        write_timer_period = 0.01  # seconds
         self.write_timer = self.create_timer(write_timer_period, self.processWriteQueue)
         
 
@@ -524,6 +421,8 @@ class SerialClient(Node):
                     self.last_read = self.get_clock().now()
                     result.extend(received)
                     bytes_remaining -= len(received)
+                else:
+                    time.sleep(0.01)
 
             if bytes_remaining != 0:
                 raise IOError("Returned short (expected %d bytes, received %d instead)." % (length, length - bytes_remaining))
@@ -544,7 +443,6 @@ class SerialClient(Node):
             else:
                 self.get_logger().error("Unable to sync with device; possible link problem or link software version mismatch such as hydro rosserial_python with groovy Arduino")
             self.lastsync_lost = self.get_clock().now()
-            self.sendDiagnostics(diagnostic_msgs.msg.DiagnosticStatus.ERROR, ERROR_NO_SYNC)
             self.requestTopics()
             self.lastsync = self.get_clock().now()
         # This try-block is here because we make multiple calls to read(). Any one of them can throw
@@ -553,7 +451,6 @@ class SerialClient(Node):
         try:
             with self.read_lock:
                 if self.port.inWaiting() < 1:
-                    time.sleep(0.001)
                     return
             # Find sync flag.
             flag = [0, 0]
@@ -565,7 +462,6 @@ class SerialClient(Node):
             read_step = 'protocol'
             flag[1] = self.tryRead(1)
             if flag[1] != self.protocol_ver:
-                self.sendDiagnostics(diagnostic_msgs.msg.DiagnosticStatus.ERROR, ERROR_MISMATCHED_PROTOCOL)
                 self.get_logger().error("Mismatched protocol version in packet (%s): lost sync or rosserial_python is from different ros release than the rosserial client" % repr(flag[1]))
                 protocol_ver_msgs = {
                         self.protocol_ver1: 'Rev 0 (rosserial 0.4 and earlier)',
@@ -595,7 +491,6 @@ class SerialClient(Node):
             try:
                 msg = self.tryRead(msg_length)
             except IOError:
-                self.sendDiagnostics(diagnostic_msgs.msg.DiagnosticStatus.ERROR, ERROR_PACKET_FAILED)
                 self.get_logger().info("Packet Failed :  Failed to read msg data")
                 self.get_logger().info("expected msg length is %d", msg_length)
                 raise
@@ -845,50 +740,19 @@ class SerialClient(Node):
             return length
 
     def processWriteQueue(self):
-        """
-        Main loop for the thread that processes outgoing data to write to the serial port.
-        """
         if self.write_queue.empty():
             return
         else:
             data = self.write_queue.get()
-            while True:
-                try:
-                    if isinstance(data, tuple):
-                        topic, msg = data
-                        self._send(topic, msg)
-                    elif isinstance(data, bytes):
-                        self._write(data)
-                    else:
-                        self.get_logger().error("Trying to write invalid data type: %s" % type(data))
-                    break
-                except SerialTimeoutException as exc:
-                    self.get_logger().error('Write timeout: %s' % exc)
-                    time.sleep(1)
-                except RuntimeError as exc:
-                    self.get_logger().error('Write thread exception: %s' % exc)
-                    break
-
-
-    def sendDiagnostics(self, level, msg_text):
-        msg = diagnostic_msgs.msg.DiagnosticArray()
-        status = diagnostic_msgs.msg.DiagnosticStatus()
-        status.name = "rosserial_python"
-        msg.header.stamp = self.get_clock().now()
-        msg.status.append(status)
-
-        status.message = msg_text
-        status.level = level
-
-        status.values.append(diagnostic_msgs.msg.KeyValue())
-        status.values[0].key="last sync"
-        if self.lastsync.to_sec()>0:
-            status.values[0].value=time.ctime(self.lastsync.to_sec())
-        else:
-            status.values[0].value="never"
-
-        status.values.append(diagnostic_msgs.msg.KeyValue())
-        status.values[1].key="last sync lost"
-        status.values[1].value=time.ctime(self.lastsync_lost.to_sec())
-
-        self.pub_diagnostics.publish(msg)
+            try:
+                if isinstance(data, tuple):
+                    topic, msg = data
+                    self._send(topic, msg)
+                elif isinstance(data, bytes):
+                    self._write(data)
+                else:
+                    self.get_logger().error("Trying to write invalid data type: %s" % type(data))
+            except SerialTimeoutException as exc:
+                self.get_logger().error('Write timeout: %s' % exc)
+            except RuntimeError as exc:
+                self.get_logger().error('Write thread exception: %s' % exc)
