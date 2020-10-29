@@ -41,6 +41,10 @@ set(dependencies
   tf2
 )
 
+add_executable(rosbot_tf src/rosbot_tf_node.cpp src/rosbot_tf.cpp)
+target_link_libraries(rosbot_tf ${Boost_LIBRARIES})
+ament_target_dependencies(rosbot_tf rclcpp geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
+
 #############
 ## Install ##
 #############
@@ -49,6 +53,11 @@ install(DIRECTORY config launch models worlds
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(TARGETS rosbot_tf
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
 
 install(PROGRAMS 
   scripts/rosserial_node.py
