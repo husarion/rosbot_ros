@@ -13,6 +13,11 @@
   <xacro:include filename="$(find rosbot_description)/urdf/materials.xacro" />
   <xacro:include filename="$(find rosbot_description)/urdf/macros.xacro" />
 
+  <link name="dummy"></link> 
+  <joint name="dummy_joint" type="fixed">
+    <parent link="dummy"/>
+    <child link="base_link"/>
+  </joint>
 
   <link name='base_link'>
     <pose>0 0 0.1 0 0 0</pose>
@@ -26,6 +31,7 @@
       izz="0.01" 
       />
     </inertial>
+  
 
     <collision name='collision'>
       <origin xyz="0 0 0.02" rpy="0 0 0"/>
