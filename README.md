@@ -4,7 +4,7 @@ Simulation model for Gazebo integrated with ROS 2.
 
 ## Installation. ## 
 
-We assume that you are working on Ubuntu 18.04/20.04 and already have installed ROS Dashing/Foxy. If not, follow the [ROS install guide](https://index.ros.org/doc/ros2/Installation/Dashing/)
+We assume that you are working on Ubuntu 20.04 and already have installed ROS Foxy. If not, follow the [ROS install guide](https://index.ros.org/doc/ros2/Installation/Foxy/)
 
 Prepare the repository ([more about building packages](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/)):
 ```
