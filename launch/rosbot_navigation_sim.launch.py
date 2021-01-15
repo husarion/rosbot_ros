@@ -55,40 +55,40 @@ def generate_launch_description():
 
         launch_ros.actions.Node(
             package='nav2_world_model',
-            node_executable='world_model',
+            executable='world_model',
             output='screen',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
             package='dwb_controller',
-            node_executable='dwb_controller',
+            executable='dwb_controller',
             output='screen',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
             package='nav2_navfn_planner',
-            node_executable='navfn_planner',
+            executable='navfn_planner',
             node_name='navfn_planner',
             output='screen',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
             package='nav2_recoveries',
-            node_executable='recoveries_node',
+            executable='recoveries_node',
             node_name='recoveries',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time}]),
 
         launch_ros.actions.Node(
             package='nav2_bt_navigator',
-            node_executable='bt_navigator',
+            executable='bt_navigator',
             node_name='bt_navigator',
             output='screen',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
             package='nav2_lifecycle_manager',
-            node_executable='lifecycle_manager',
+            executable='lifecycle_manager',
             node_name='lifecycle_manager_control',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time},

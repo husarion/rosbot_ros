@@ -18,7 +18,7 @@ def generate_launch_description():
                 rosbot_description + '/config/slam_toolbox.yaml'
         	],
             package='slam_toolbox',
-            node_executable='sync_slam_toolbox_node',
+            executable='sync_slam_toolbox_node',
             name='slam_toolbox',
             output='screen'
         )

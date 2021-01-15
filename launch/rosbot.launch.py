@@ -16,7 +16,7 @@ def generate_launch_description():
 
     camera_depth_tf = launch_ros.actions.Node(
         package='tf2_ros',
-        node_executable='static_transform_publisher',
+        executable='static_transform_publisher',
         output='log',
         arguments=['0', '0', '0', '-1.5707', '0', '-1.5707', 'camera_link', 'camera_depth_frame'],
         parameters=[
@@ -26,7 +26,7 @@ def generate_launch_description():
 
     camera_link_tf = launch_ros.actions.Node(
         package='tf2_ros',
-        node_executable='static_transform_publisher',
+        executable='static_transform_publisher',
         output='log',
         arguments=['-0.03', '0', '0.11', '0', '0', '0', 'base_link', 'camera_link'],
         parameters=[
@@ -36,7 +36,7 @@ def generate_launch_description():
 
     laser_frame_tf = launch_ros.actions.Node(
         package='tf2_ros',
-        node_executable='static_transform_publisher',
+        executable='static_transform_publisher',
         output='log',
         arguments=['0.0', '0.0', '0.08', '-3.141593', '0.0', '0.0', 'base_link', 'laser'],
         parameters=[
@@ -46,7 +46,7 @@ def generate_launch_description():
 
     rosserial = launch_ros.actions.Node(
         package='rosbot_description',
-        node_executable='rosserial_node.py',
+        executable='rosserial_node.py',
         output='screen',
         parameters=[
     		rosbot_description + '/config/rosserial.yaml'
@@ -55,7 +55,7 @@ def generate_launch_description():
 
     rosbot_tf = launch_ros.actions.Node(
         package='rosbot_description',
-        node_executable='rosbot_tf',
+        executable='rosbot_tf',
         output='log',
     )
 
