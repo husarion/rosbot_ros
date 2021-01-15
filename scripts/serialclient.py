@@ -317,10 +317,10 @@ class SerialClient(Node):
         super().__init__('serial_node')
         """ Initialize node, connect to bus, attempt to negotiate topics. """
 
-        param_port = rclpy.parameter.Parameter('port', type_=rclpy.parameter.Parameter.Type.STRING, value='/dev/ttyS1')
-        param_baud = rclpy.parameter.Parameter('baud', type_=rclpy.parameter.Parameter.Type.INTEGER, value=500000)
-        self.port = param_port.get_parameter_value()
-        self.baud = param_baud.get_parameter_value()
+        self.declare_parameter('port', '/dev/ttyS1')
+        self.declare_parameter('baud', 500000)
+        self.port = self.get_parameter('port')
+        self.baud = self.get_parameter('baud')
 
         self.read_lock = threading.RLock()
 
@@ -346,14 +346,14 @@ class SerialClient(Node):
             self.get_logger().error("no port specified, listen for any new port?")
             pass
         else:
-            print("open port " + self.port.string_value)
+            self.get_logger().info("open port " + self.port.value)
             if rclpy.ok():
                 try:
                     if self.fix_pyserial_for_test:
                         # see https://github.com/pyserial/pyserial/issues/59
-                        self.port = Serial(self.port.string_value, self.baud.integer_value, timeout=self.timeout, write_timeout=10, rtscts=True, dsrdtr=True)
+                        self.port = Serial(self.port.value, self.baud.value, timeout=self.timeout, write_timeout=10, rtscts=True, dsrdtr=True)
                     else:
-                        self.port = Serial(self.port.string_value, self.baud.integer_value, timeout=self.timeout, write_timeout=10)
+                        self.port = Serial(self.port.value, self.baud.value, timeout=self.timeout, write_timeout=10)
                 except SerialException as e:
                     self.get_logger().error("Error opening serial")
                     return
