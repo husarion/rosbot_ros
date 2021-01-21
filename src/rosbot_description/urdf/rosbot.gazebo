@@ -118,7 +118,7 @@
     reading. -->
 
   <!-- RpLidar A2 using GPU -->
-  <gazebo reference="laser">
+  <!--<gazebo reference="laser">
     <sensor type="gpu_ray" name="head_rplidar_sensor">
       <pose>0 0 0.5 0 0 0</pose>
       <visualize>false</visualize>
@@ -148,7 +148,7 @@
         <frameName>laser</frameName>
       </plugin>
     </sensor>
-  </gazebo>
+  </gazebo>-->
 
   <!-- RpLidar A3 using GPU -->
   <!-- <gazebo reference="laser">
@@ -184,7 +184,7 @@
   </gazebo> -->
 
   <!-- RpLidar A2 using CPU -->
-  <!-- <gazebo reference="laser">
+  <gazebo reference="laser">
     <sensor type="ray" name="head_rplidar_sensor">
       <pose>0 0 0.06 0 0 0</pose>
       <visualize>false</visualize>
@@ -214,7 +214,7 @@
         <frameName>laser</frameName>
       </plugin>
     </sensor>
-  </gazebo> -->
+  </gazebo> 
 
   <!-- RpLidar A3 using CPU -->
   <!-- <gazebo reference="laser">
