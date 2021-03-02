@@ -5,7 +5,6 @@ from serialclient import SerialClient
 
 def main(args=None):
     rclpy.init(args=args)
-    
     sc = SerialClient()
     rclpy.spin(sc)
     sc.destroy_node()

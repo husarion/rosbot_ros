@@ -555,13 +555,16 @@ class SerialClient(Node):
                 self.serial_subscribers[msg.topic_name] = sub
                 self.setSubscribeSize(msg.buffer_size)
                 self.get_logger().info("Setup subscriber on %s [%s]" % (msg.topic_name, msg.message_type) )
-            elif msg.message_type != self.serial_subscribers[msg.topic_name].message._type:
-                old_message_type = self.serial_subscribers[msg.topic_name].message._type
+            elif msg.message_type != self.serial_subscribers[msg.topic_name].rosserial_message._type:
+                old_message_type = self.serial_subscribers[msg.topic_name].rosserial_message._type
                 self.serial_subscribers[msg.topic_name].unregister()
                 sub = Subscriber(msg, self)
                 self.serial_subscribers[msg.topic_name] = sub
                 self.setSubscribeSize(msg.buffer_size)
                 self.get_logger().info("Change the message type of subscriber on %s from [%s] to [%s]" % (msg.topic_name, old_message_type, msg.message_type) )
+            else:
+                self.get_logger().info("Subscriber inicialization fine")
+
         except Exception as e:
             self.get_logger().error("Creation of subscriber failed: {0}".format(e))
 
@@ -573,14 +576,17 @@ class SerialClient(Node):
             self.setPublishSize(msg.buffer_size)
             try:
                 srv = self.serial_services[msg.topic_name]
+                # self.get_logger().error(srv.mreq)
             except KeyError:
                 srv = ServiceServer(msg, self)
                 self.get_logger().info("Setup service server on %s [%s]" % (msg.topic_name, msg.message_type) )
                 self.serial_services[msg.topic_name] = srv
-            if srv.mres._md5sum == msg.md5sum:
+
+            if srv.res_rosserial._md5sum == msg.md5sum:
                 self.callbacks[msg.topic_id] = srv.handlePacket
             else:
-                raise Exception('Checksum does not match: ' + srv.mres._md5sum + ',' + msg.md5sum)
+                raise Exception('Checksum does not match: ' +
+                                srv.res_rosserial._md5sum + ',' + msg.md5sum)
         except Exception as e:
             self.get_logger().error("Creation of service server failed: {0}".format(e))
 
@@ -596,7 +602,7 @@ class SerialClient(Node):
                 srv = ServiceServer(msg, self)
                 self.get_logger().info("Setup service server on %s [%s]" % (msg.topic_name, msg.message_type) )
                 self.serial_services[msg.topic_name] = srv
-            if srv.mreq._md5sum == msg.md5sum:
+            if srv.req_rosserial._md5sum == msg.md5sum:
                 srv.id = msg.topic_id
             else:
                 raise Exception('Checksum does not match: ' + srv.mreq._md5sum + ',' + msg.md5sum)
@@ -634,10 +640,10 @@ class SerialClient(Node):
                 srv = ServiceClient(msg, self)
                 self.get_logger().info("Setup service client on %s [%s]" % (msg.topic_name, msg.message_type) )
                 self.serial_services[msg.topic_name] = srv
-            if srv.mres._md5sum == msg.md5sum:
+            if srv.res_rosserial._md5sum == msg.md5sum:
                 srv.id = msg.topic_id
             else:
-                raise Exception('Checksum does not match: ' + srv.mres._md5sum + ',' + msg.md5sum)
+                raise Exception('Checksum does not match: ' + srv.res_rosserial._md5sum + ',' + msg.md5sum)
         except Exception as e:
             self.get_logger().error("Creation of service client failed: {0}".format(e))
 
