@@ -68,28 +68,28 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='nav2_navfn_planner',
             executable='navfn_planner',
-            node_name='navfn_planner',
+            name='navfn_planner',
             output='screen',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
             package='nav2_recoveries',
             executable='recoveries_node',
-            node_name='recoveries',
+            name='recoveries',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time}]),
 
         launch_ros.actions.Node(
             package='nav2_bt_navigator',
             executable='bt_navigator',
-            node_name='bt_navigator',
+            name='bt_navigator',
             output='screen',
             parameters=[configured_params]),
 
         launch_ros.actions.Node(
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',
-            node_name='lifecycle_manager_control',
+            name='lifecycle_manager_control',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time},
                         {'autostart': autostart},
@@ -97,5 +97,4 @@ def generate_launch_description():
                                         'dwb_controller',
                                         'navfn_planner',
                                         'bt_navigator']}]),
-
     ])
