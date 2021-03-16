@@ -53,7 +53,7 @@ def generate_launch_description():
         launch.actions.DeclareLaunchArgument(
             'params',
             default_value=[rosbot_description,
-                           '/config/nav2_params.yaml'],
+                           '/config/nav2_params_pro.yaml'],
             description='Full path to the ROS2 parameters file to use'),
 
         DeclareLaunchArgument(
