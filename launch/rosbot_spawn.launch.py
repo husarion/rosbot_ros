@@ -79,5 +79,5 @@ def generate_launch_description():
             package='gazebo_ros',
             executable='spawn_entity.py',
             output='screen',
-            arguments=['-entity', 'rosbot', '-x', '0', '-y', '0', '-z', '0.03', '-file', rosbot_description_dir + '/models/rosbot.sdf']),
+            arguments=['-spawn_service_timeout', '60', '-entity', 'rosbot', '-x', '0', '-y', '0', '-z', '0.03', '-file', rosbot_description_dir + '/models/rosbot.sdf']),
     ])
