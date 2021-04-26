@@ -51,7 +51,7 @@ ament_target_dependencies(rosbot_tf rclcpp geometry_msgs tf2 tf2_ros tf2_geometr
 ## Install ##
 #############
 
-install(DIRECTORY config launch models worlds urdf meshes
+install(DIRECTORY config launch models worlds urdf meshes rviz
   DESTINATION share/${PROJECT_NAME}
 )
 
