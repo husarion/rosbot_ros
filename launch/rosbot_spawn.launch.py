@@ -14,11 +14,56 @@ def generate_launch_description():
         		rosbot_description_dir + '/config/static_tf.yaml'
         	],
             ),
+
         launch_ros.actions.Node(
             package='tf2_ros',
             executable='static_transform_publisher',
             output='screen',
-            arguments=['-0.03', '0', '0.11', '0', '0', '0', 'base_link', 'camera_link'],
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'dummy'],
+            ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0.2', '0', '0.8', '0', '0', '0', 'base_link', 'camera_rgb_frame'],
+            ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'range_fl'],
+            ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'range_fr'],
+            ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'range_rl'],
+            ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'range_rr'],
+            ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'top'],
+            ),
+
+
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['-0.03', '0', '0.18', '0', '0', '0', 'base_link', 'camera_link'],
             parameters=[
         		rosbot_description_dir + '/config/static_tf.yaml'
             ]
