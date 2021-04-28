@@ -74,6 +74,36 @@ def generate_launch_description():
         laser_frame_tf,
         rosserial,
         rosbot_tf,
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'front_left_wheel'],
+            ),        
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'front_right_wheel'],
+            ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'rear_left_wheel'],
+            ),        
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'front_left_wheel'],
+            ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'top'],
+        ),
     ])
 
 if __name__ == '__main__':

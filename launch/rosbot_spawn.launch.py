@@ -57,8 +57,6 @@ def generate_launch_description():
             output='screen',
             arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'top'],
             ),
-
-
         launch_ros.actions.Node(
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -83,4 +81,3 @@ def generate_launch_description():
             output='screen',
             arguments=['-entity', 'rosbot', '-x', '0', '-y', '0', '-z', '0.03', '-file', rosbot_description_dir + '/models/rosbot.sdf']),
     ])
-
