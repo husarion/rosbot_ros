@@ -78,25 +78,25 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             output='screen',
-            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'front_left_wheel'],
+            arguments=['0.08', '0.1', '0', '0', '0', '0', 'base_link', 'front_left_wheel'],
             ),        
         launch_ros.actions.Node(
             package='tf2_ros',
             executable='static_transform_publisher',
             output='screen',
-            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'front_right_wheel'],
+            arguments=['0.08', '-0.1', '0', '0', '0', '0', 'base_link', 'front_right_wheel'],
             ),
         launch_ros.actions.Node(
             package='tf2_ros',
             executable='static_transform_publisher',
             output='screen',
-            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'rear_left_wheel'],
+            arguments=['-0.08', '0.1', '0', '0', '0', '0', 'base_link', 'rear_left_wheel'],
             ),        
         launch_ros.actions.Node(
             package='tf2_ros',
             executable='static_transform_publisher',
             output='screen',
-            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'front_left_wheel'],
+            arguments=['-0.08', '-0.1', '0', '0', '0', '0', 'base_link', 'rear_right_wheel'],
             ),
         launch_ros.actions.Node(
             package='tf2_ros',
@@ -104,6 +104,13 @@ def generate_launch_description():
             output='screen',
             arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'top'],
         ),
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            output='screen',
+            arguments=['0', '0', '0.18', '0', '0', '0', 'base_link', 'camera_link'],
+        ),
+
     ])
 
 if __name__ == '__main__':

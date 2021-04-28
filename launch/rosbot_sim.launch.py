@@ -61,13 +61,6 @@ def generate_launch_description():
                               description='Set "true" to run gzserver with gdb'),
         DeclareLaunchArgument('state', default_value='true',
                                 description='Set "false" not to load "libgazebo_ros_state.so"'),
-        Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            name='robot_state_publisher',
-            output='screen',
-            parameters=[{'use_sim_time': use_sim_time, 'robot_description': robot_desc}],
-            arguments=[urdf]),
         gazebo_server,
         gazebo_client,
         spawn_rosbot,
