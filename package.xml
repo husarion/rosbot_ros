@@ -15,10 +15,6 @@
   <build_depend>rclpy</build_depend>
   <build_depend>gazebo_dev</build_depend>
   
-  <exec_depend>gazebo</exec_depend>
-  <exec_depend>gazebo_ros</exec_depend>
-  <exec_depend>gazebo_ros_pkgs</exec_depend>
-  <exec_depend>gazebo_plugins</exec_depend>
   <exec_depend>nav2_bringup</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>rviz2</exec_depend>
