@@ -1,4 +1,5 @@
 import launch
+import launch_ros
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
@@ -16,5 +17,11 @@ def generate_launch_description():
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([rosbot_description, '/launch/slam_toolbox_sim.launch.py']),
+        ),
+        launch_ros.actions.Node(
+            package='rviz2',
+            executable='rviz2',
+            name="rviz2",
+            arguments=['-d', rosbot_description+"/config/rosbot.rviz"],
         ),
     ])
