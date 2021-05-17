@@ -159,6 +159,29 @@ class Publisher:
                 m_ros2.angular.y = m_rosserial.angular.y
                 m_ros2.angular.z = m_rosserial.angular.z
                 self.publisher.publish(m_ros2)
+            elif message_class == "<class 'rosserial.sensor_msgs.msg._Imu.Imu'>":
+                m_ros2 = self.MessageClass()
+                m_ros2.header.frame_id = m_rosserial.header.frame_id
+                m_ros2.header.stamp.sec = m_rosserial.header.stamp.secs
+                m_ros2.header.stamp.nanosec = m_rosserial.header.stamp.nsecs
+
+                m_ros2.orientation.x = m_rosserial.orientation.x
+                m_ros2.orientation.y = m_rosserial.orientation.y
+                m_ros2.orientation.z = m_rosserial.orientation.z
+                m_ros2.orientation.w = m_rosserial.orientation.w
+                m_ros2.orientation_covariance = m_rosserial.orientation_covariance
+
+                m_ros2.angular_velocity.x = m_rosserial.angular_velocity.x
+                m_ros2.angular_velocity.y = m_rosserial.angular_velocity.y
+                m_ros2.angular_velocity.z = m_rosserial.angular_velocity.z
+                m_ros2.angular_velocity_covariance = m_rosserial.angular_velocity_covariance
+
+                m_ros2.linear_acceleration.x = m_rosserial.linear_acceleration.x
+                m_ros2.linear_acceleration.y = m_rosserial.linear_acceleration.y
+                m_ros2.linear_acceleration.z = m_rosserial.linear_acceleration.z
+                m_ros2.linear_acceleration_covariance = m_rosserial.linear_acceleration_covariance
+
+                self.publisher.publish(m_ros2)
             elif message_class == "<class 'rosserial.sensor_msgs.msg._Range.Range'>":
                 m_ros2 = self.MessageClass()
                 m_ros2.radiation_type = m_rosserial.radiation_type
