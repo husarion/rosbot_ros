@@ -11,7 +11,7 @@
 
   <node pkg="rosbot_description" type="serial_bridge.py" name="serial_bridge" output="screen">
     <param name="port" value="/dev/ttyCORE2" />
-    <param name="baud" value="500000" />
+    <param name="baud" value="525000" />
   </node>
 
 </launch>
