@@ -57,19 +57,19 @@ This example allows to build a map and navigate to user defined destinations.
 To run the simulation:
 
 ```
-ros2 launch rosbot_description rosbot_sim.launch.py
+ros2 launch rosbot_description navigation_demo_sim.launch.py
 ```
 
 To run on ROSbot 2.0:
 
 ```
-ros2 launch rosbot_description rosbot.launch.py
+ros2 launch rosbot_description navigation_demo.launch.py
 ```
 
 To run on ROSbot 2.0 PRO:
 
 ```
-ros2 launch rosbot_description rosbot_pro.launch.py
+ros2 launch rosbot_description navigation_demo_pro.launch.py
 ```
 
 ## Navigation with pre build map 
