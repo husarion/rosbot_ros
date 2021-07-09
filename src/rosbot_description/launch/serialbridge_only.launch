@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find rosbot_description)/urdf/rosbot.xacro'"/>
+
+  <node pkg="rosbot_description" type="serial_bridge.py" name="serial_bridge" output="screen">
+    <param name="port" value="/dev/ttyCORE2" />
+    <param name="baud" value="525000" />
+  </node>
+</launch>
