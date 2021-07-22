@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <arg name="serial_port" default="/dev/ttyS1"/>
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find rosbot_description)/urdf/rosbot.xacro'"/>
 
   <node pkg="rosbot_description" type="serial_bridge.py" name="serial_bridge" output="screen" respawn="true">
-    <param name="port" value="$(arg serial_port)" />
+    <param name="port" value="$(optenv SERIAL_PORT /dev/ttyS1)" />
     <param name="baud" value="525000" />
   </node>
 </launch>
