@@ -10,6 +10,12 @@
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot.gazebo" />
 
+  <link name="dummy"></link> 
+  <joint name="dummy_joint" type="fixed">
+    <parent link="dummy"/>
+    <child link="base_link"/>
+  </joint>
+
   <link name='base_link'>
     <pose>0 0 0.1 0 0 0</pose>
 
