@@ -20,7 +20,7 @@ Clone `ros2` branch of this repository to your workspace :
 
 ```
 cd ~/ros2_workspace/src
-git clone --single-branch --branch ros2 https://github.com/husarion/rosbot_description.git
+git clone --single-branch --branch foxy https://github.com/husarion/rosbot_description.git
 ```
 
 Clone `ros2` branch of forked `rplidar_ros` repository to your workspace :
