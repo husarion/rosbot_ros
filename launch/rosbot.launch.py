@@ -16,7 +16,7 @@ def generate_launch_description():
 
     camera_depth_tf = launch_ros.actions.Node(
         package='tf2_ros',
-        executable='static_transform_publisher',
+        node_executable='static_transform_publisher',
         output='log',
         arguments=['0', '0', '0', '-1.5707', '0', '-1.5707', 'camera_link', 'camera_depth_frame'],
         parameters=[
@@ -26,7 +26,7 @@ def generate_launch_description():
 
     camera_link_tf = launch_ros.actions.Node(
         package='tf2_ros',
-        executable='static_transform_publisher',
+        node_executable='static_transform_publisher',
         output='log',
         arguments=['-0.03', '0', '0.11', '0', '0', '0', 'base_link', 'camera_link'],
         parameters=[
@@ -36,7 +36,7 @@ def generate_launch_description():
 
     laser_frame_tf = launch_ros.actions.Node(
         package='tf2_ros',
-        executable='static_transform_publisher',
+        node_executable='static_transform_publisher',
         output='log',
         arguments=['0.0', '0.0', '0.08', '-3.141593', '0.0', '0.0', 'base_link', 'laser'],
         parameters=[
@@ -46,7 +46,7 @@ def generate_launch_description():
 
     rosserial = launch_ros.actions.Node(
         package='rosbot_description',
-        executable='rosserial_node.py',
+        node_executable='rosserial_node.py',
         output='screen',
         parameters=[
     		rosbot_description + '/config/rosserial.yaml'
@@ -55,7 +55,7 @@ def generate_launch_description():
 
     rosbot_tf = launch_ros.actions.Node(
         package='rosbot_description',
-        executable='rosbot_tf',
+        node_executable='rosbot_tf',
         output='log',
     )
 
@@ -77,37 +77,37 @@ def generate_launch_description():
         rosbot_tf,
         launch_ros.actions.Node(
             package='tf2_ros',
-            executable='static_transform_publisher',
+            node_executable='static_transform_publisher',
             output='screen',
             arguments=['0.08', '0.1', '0', '0', '0', '0', 'base_link', 'front_left_wheel'],
             ),        
         launch_ros.actions.Node(
             package='tf2_ros',
-            executable='static_transform_publisher',
+            node_executable='static_transform_publisher',
             output='screen',
             arguments=['0.08', '-0.1', '0', '0', '0', '0', 'base_link', 'front_right_wheel'],
             ),
         launch_ros.actions.Node(
             package='tf2_ros',
-            executable='static_transform_publisher',
+            node_executable='static_transform_publisher',
             output='screen',
             arguments=['-0.08', '0.1', '0', '0', '0', '0', 'base_link', 'rear_left_wheel'],
             ),        
         launch_ros.actions.Node(
             package='tf2_ros',
-            executable='static_transform_publisher',
+            node_executable='static_transform_publisher',
             output='screen',
             arguments=['-0.08', '-0.1', '0', '0', '0', '0', 'base_link', 'rear_right_wheel'],
             ),
         launch_ros.actions.Node(
             package='tf2_ros',
-            executable='static_transform_publisher',
+            node_executable='static_transform_publisher',
             output='screen',
             arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'top'],
         ),
         launch_ros.actions.Node(
             package='tf2_ros',
-            executable='static_transform_publisher',
+            node_executable='static_transform_publisher',
             output='screen',
             arguments=['0', '0', '0.18', '0', '0', '0', 'base_link', 'camera_link'],
         ),

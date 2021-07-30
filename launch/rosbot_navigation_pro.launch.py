@@ -65,14 +65,14 @@ def generate_launch_description():
 
         launch_ros.actions.Node(
             package='nav2_controller',
-            executable='controller_server',
+            node_executable='controller_server',
             output='screen',
             parameters=[configured_params],
             remappings=remappings),
 
         launch_ros.actions.Node(
             package='nav2_planner',
-            executable='planner_server',
+            node_executable='planner_server',
             name='planner_server',
             output='screen',
             parameters=[configured_params],
@@ -81,7 +81,7 @@ def generate_launch_description():
 
         launch_ros.actions.Node(
             package='nav2_recoveries',
-            executable='recoveries_server',
+            node_executable='recoveries_server',
             name='recoveries_server',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time}],
@@ -89,7 +89,7 @@ def generate_launch_description():
 
         launch_ros.actions.Node(
             package='nav2_bt_navigator',
-            executable='bt_navigator',
+            node_executable='bt_navigator',
             name='bt_navigator',
             output='screen',
             parameters=[configured_params],
@@ -97,7 +97,7 @@ def generate_launch_description():
 
         launch_ros.actions.Node(
             package='nav2_waypoint_follower',
-            executable='waypoint_follower',
+            node_executable='waypoint_follower',
             name='waypoint_follower',
             output='screen',
             parameters=[configured_params],
@@ -105,7 +105,7 @@ def generate_launch_description():
 
         launch_ros.actions.Node(
             package='nav2_lifecycle_manager',
-            executable='lifecycle_manager',
+            node_executable='lifecycle_manager',
             name='lifecycle_manager_navigation',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time},

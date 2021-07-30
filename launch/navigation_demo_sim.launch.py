@@ -20,7 +20,7 @@ def generate_launch_description():
         ),
         launch_ros.actions.Node(
             package='rviz2',
-            executable='rviz2',
+            node_node_node_node_executable='rviz2',
             name="rviz2",
             arguments=['-d', rosbot_description+"/config/rosbot.rviz"],
         ),
