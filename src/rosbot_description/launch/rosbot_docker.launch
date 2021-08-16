@@ -2,7 +2,6 @@
 <!-- ========= launch for docker version ======== -->
 <launch>
  <!--   <param name="robot_description" command="$(find xacro)/xacro.py '$(find rosbot_description)/urdf/rosbot.xacro'"/>
-
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/> -->
 
     <node pkg="rosbot_description" type="serial_bridge.py" name="serial_bridge" output="screen" respawn="true">
@@ -14,7 +13,7 @@
 
     <include file="$(find rosbot_ekf)/launch/rosbot_ekf.launch"/>
 
-    <node pkg="tf" type="static_transform_publisher" name="camera_publisher" args="-0.03 0 0 0 0 0 odom base_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_publisher" args="0 0 0 0 0 0 odom base_link 100" />
     <node pkg="tf" type="static_transform_publisher" name="imu_publisher" args="0 0 0.02 0 0 0 base_link imu_link 100" />
     <node pkg="tf" type="static_transform_publisher" name="laser_publisher" args="0 0 0.058 3.14159 0 0 base_link laser 100" />
     <node pkg="tf" type="static_transform_publisher" name="camera_publisher" args="-0.03 0 0.18 0 0 0 base_link camera_link 100" />
