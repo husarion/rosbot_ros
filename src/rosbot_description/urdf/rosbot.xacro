@@ -13,6 +13,7 @@
 
   <link name="base_link"></link> 
   <joint name="base_link_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="body_link"/>
   </joint>
