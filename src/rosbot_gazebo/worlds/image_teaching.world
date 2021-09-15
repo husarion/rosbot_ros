@@ -284,7 +284,7 @@
           <pose frame=''>0 0 -0.46 0 -0 0</pose>
           <geometry>
             <mesh>
-              <uri>/home/lukasz/.gazebo/models/coke_can/meshes/coke_can.dae</uri>
+              <uri>model://coke_can/meshes/coke_can.dae</uri>
               <scale>1 1 1</scale>
             </mesh>
           </geometry>
@@ -390,7 +390,7 @@
           <pose frame=''>0 0 0 0 -0 0</pose>
           <geometry>
             <mesh>
-              <uri>/home/lukasz/.gazebo/models/stop_sign/meshes/stop_sign.dae</uri>
+              <uri>model://stop_sign/meshes/stop_sign.dae</uri>
               <scale>1 1 1</scale>
             </mesh>
           </geometry>
@@ -486,7 +486,7 @@
           <pose frame=''>0 0 0 0 -0 0</pose>
           <geometry>
             <mesh>
-              <uri>/home/lukasz/.gazebo/models/speed_limit_sign/meshes/speed_limit_sign.dae</uri>
+              <uri>model://speed_limit_sign/meshes/speed_limit_sign.dae</uri>
               <scale>1 1 1</scale>
             </mesh>
           </geometry>
