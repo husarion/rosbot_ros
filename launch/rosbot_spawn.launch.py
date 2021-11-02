@@ -25,7 +25,7 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             output='screen',
-            arguments=['0.2', '0', '0.8', '0', '0', '0', 'base_link', 'camera_rgb_frame'],
+            arguments=['0', '0', '0', '0', '0', '0', 'camera_link', 'camera_rgb_frame'],
             ),
         launch_ros.actions.Node(
             package='tf2_ros',
