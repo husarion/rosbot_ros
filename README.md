@@ -37,6 +37,12 @@ cd ~/ros2_workspace
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
+Install gazebo (if it isn't installed already)
+```
+sudo apt install ros-foxy-gazebo-ros-pkgs
+source /usr/share/gazebo/setup.bash
+```
+
 Build the workspace:
 
 ```
@@ -49,6 +55,7 @@ From this moment you can use rosbot simulations. Please remember that each time,
 ```
 source ~/ros2_workspace/install/setup.sh
 ```
+
 
 ## How to use ##
 
