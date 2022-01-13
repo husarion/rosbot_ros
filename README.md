@@ -37,12 +37,6 @@ cd ~/ros2_workspace
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
-Install gazebo (if it isn't installed already)
-```
-sudo apt install ros-foxy-gazebo-ros-pkgs -y
-source /usr/share/gazebo/setup.bash
-```
-
 Build the workspace:
 
 ```
