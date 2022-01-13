@@ -50,7 +50,6 @@ From this moment you can use rosbot simulations. Please remember that each time,
 source ~/ros2_workspace/install/setup.sh
 ```
 
-
 ## How to use ##
 
 This example allows to build a map and navigate to user defined destinations.
