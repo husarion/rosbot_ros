@@ -48,6 +48,7 @@ From this moment you can use rosbot simulations. Please remember that each time,
 
 ```
 source ~/ros2_workspace/install/setup.sh
+source /usr/share/gazebo-11/setup.bash
 ```
 
 ## How to use ##
