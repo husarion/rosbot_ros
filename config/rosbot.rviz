@@ -206,7 +206,7 @@ Visualization Manager:
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
-      Description File: ./urdf/rosbot.urdf
+      Description File: ./install/rosbot_description/share/rosbot_description/urdf/rosbot.urdf
       Description Source: File
       Description Topic:
         Depth: 5
