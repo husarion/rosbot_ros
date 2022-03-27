@@ -2,28 +2,36 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_description</name>
-  <version>0.0.1</version>
-  <description>The rosbot_description package</description>
+  <version>1.1.0</version>
+  <description>The ROSbot 2.0 description package</description>
   <maintainer email="support@husarion.com">Husarion</maintainer>
   <license>MIT</license>
 
+  <depend>controller_interface</depend>
+  <depend>hardware_interface</depend>
+
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>controller_manager</build_depend>
+  <build_depend>joint_state_broadcaster</build_depend>
+  <build_depend>joint_state_publisher</build_depend>
+  <build_depend>robot_state_publisher</build_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>xacro</build_depend>
 
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_common</test_depend>
-
-  <build_depend>rclpy</build_depend>
-  <build_depend>gazebo_dev</build_depend>
-  
-  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>rviz2</exec_depend>
-  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_ros_pkgs</exec_depend>
+  <exec_depend>gazebo_ros2_control</exec_depend>
   <exec_depend>xacro</exec_depend>
-  <exec_depend>rclpy</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
-    <gazebo_ros gazebo_media_path="${prefix}/worlds"/>
+    <gazebo_ros gazebo_plugin_path="lib"/>
+    <gazebo_ros gazebo_model_path="${prefix}/models"/>
+    <gazebo_ros gazebo_media_path="${prefix}/worlds:${prefix}/media"/>
   </export>
 </package>

@@ -1,0 +1,26 @@
+<?xml version='1.0'?>
+
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:macro name="rosbot_robot" params="use_sim">
+
+    <xacro:property name="wheel_diameter" value="0.085" />
+
+    <!-- INCLUDE ROBOT PARTS DEFINITIONS -->
+    <xacro:include filename="$(find rosbot_description)/models/rosbot_base/body.urdf.xacro" ns="body" />
+    <xacro:include filename="$(find rosbot_description)/models/rosbot_base/wheel.urdf.xacro" ns="wheel" />
+    <xacro:include filename="$(find rosbot_description)/models/rosbot_base/plugins.gazebo.xacro" ns="gazebo" />
+
+    <!-- BODY DECLARATION -->
+    <xacro:body.body wheel_diameter="${wheel_diameter}" />
+
+    <!-- WHEEL DECLARATION -->
+    <xacro:wheel.wheel wheel_type="differential" wheel_diameter="${wheel_diameter}" prefix="front_left" />
+    <xacro:wheel.wheel wheel_type="differential" wheel_diameter="${wheel_diameter}" prefix="front_right" />
+    <xacro:wheel.wheel wheel_type="differential" wheel_diameter="${wheel_diameter}" prefix="rear_left" />
+    <xacro:wheel.wheel wheel_type="differential" wheel_diameter="${wheel_diameter}" prefix="rear_right" />
+
+    <!-- GAZEBO PLUGINS DECLARATION -->
+    <xacro:gazebo.rosbot_gazebo_plugins wheel_type="differential" wheel_diameter="${wheel_diameter}" />
+  </xacro:macro>
+</robot>

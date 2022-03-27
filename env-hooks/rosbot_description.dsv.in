@@ -1,0 +1,2 @@
+prepend-non-duplicate;GAZEBO_MODEL_PATH;share/rosbot_description/models
+prepend-non-duplicate;GAZEBO_RESOURCE_PATH;share/rosbot_description/worlds
