@@ -20,7 +20,7 @@ Clone `ros2` branch of this repository to your workspace :
 
 ```
 cd ~/ros2_workspace/src
-git clone --single-branch --branch foxy https://github.com/husarion/rosbot_description.git
+git clone --single-branch --branch galactic https://github.com/husarion/rosbot_description.git
 ```
 
 Clone `ros2` branch of forked `rplidar_ros` repository to your workspace :
@@ -53,58 +53,11 @@ source /usr/share/gazebo-11/setup.bash
 
 ## How to use ##
 
-This example allows to build a map and navigate to user defined destinations.
+This example allows to control rosbot in simulation.
 
 To run the simulation:
 
 ```
-ros2 launch rosbot_description navigation_demo_sim.launch.py
+ros2 launch rosbot_description rosbot_sim.launch.py
 ```
-
-To run on ROSbot 2.0:
-
-```
-ros2 launch rosbot_description navigation_demo.launch.py
-```
-
-To run on ROSbot 2.0 PRO:
-
-```
-ros2 launch rosbot_description navigation_demo_pro.launch.py
-```
-
-## Navigation with pre build map 
-
-To launch simulation on pre-build map fiew steps are requred 
-
-1. Download world made by amazon 
-
-```
-cd ~/husarion_ws/src/
-git clone -b ros2 https://github.com/aws-robotics/aws-robomaker-bookstore-world.git 
-cd .. && rosdep install -y -r -q --from-paths src --ignore-src --rosdistro foxy
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-```
-
-2. Run demo
-
-```
-. ~/.bashrc # or . ~/husarion_ws/install/setup.bash
-ros2 launch rosbot_description nav_amcl_demo_sim.launch.py 
-```
-
-3. Set initial pose of robot
-
-Open other terminal and run rviz ether from our container [rosbot-remote](https://github.com/husarion/rosbot-remote) (all configuration set) or manually run rviz2 and set necessary displays.
-
-
-```
-rviz2
-```
-
-*- Set fixed frame to `map`
-*- Add `Map` and `LaserScan`
-*- Using `2D Pose Estimate` point rosbot somewhere to initialize localization and then set pose again to more-less right place and set goal using `2D Goal Pose`
-
-![rviz01](images/rviz01.png)
 
