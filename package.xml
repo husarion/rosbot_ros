@@ -16,6 +16,8 @@
   <build_depend>gazebo_dev</build_depend>
   
   <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>gazebo_ros_pkgs</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>slam_toolbox</exec_depend>
@@ -24,6 +26,7 @@
 
   <export>
     <build_type>ament_cmake</build_type>
+    <gazebo_ros gazebo_plugin_path="lib"/>
     <gazebo_ros gazebo_media_path="${prefix}/worlds"/>
   </export>
 </package>
