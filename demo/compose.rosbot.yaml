@@ -1,0 +1,56 @@
+version: "2.3"
+
+services:
+
+  # ROS Galactic
+  nav2:
+    image: husarion/nav2:galactic
+    restart: on-failure
+    command: >
+      ros2 launch husarion_nav2 navigation2_bringup.launch.py
+        use_slam:=False 
+        use_auto_localization:=False
+        use_sim_time:=False
+
+
+  # ROS Noetic + ROS 2 Galactic
+  bridge:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.bridge
+    restart: on-failure
+    environment:
+      - ROS_MASTER_URI=http://ros-master:11311
+    command: ros2 run ros1_bridge dynamic_bridge
+
+
+  # ROS Melodic master
+  ros-master:
+    image: ros:melodic-ros-core
+    restart: on-failure
+    command: stdbuf -o L roscore
+
+
+  # ROS Melodic rosbot hardware layer
+  rosbot:
+    build:
+      context: ./..
+      dockerfile: ./Dockerfile.hardware
+    # image: husarion/rosbot:latest
+    restart: on-failure
+    environment:
+      - ROS_MASTER_URI=http://ros-master:11311
+      - SERIAL_PORT=/dev/ttyS4 # default: ttyS1 - rosbot2.0; ttyS4 - rosbot2.0 `pro
+    devices:
+      - /dev/ttyS4   # must match environment SERIAL_PORT 
+    command: roslaunch --wait rosbot_description rosbot_docker.launch
+
+  # ROS Melodic Rplidar
+  rplidar:
+    image: husarion/rplidar:latest
+    restart: unless-stopped
+    environment: 
+      - ROS_MASTER_URI=http://ros-master:11311
+    devices:
+      - /dev/ttyUSB0
+    command: roslaunch --wait rplidar_ros rplidar_a3.launch # For Rosbot 2.0 use roslaunch rplidar_ros rplidar_a2.launch

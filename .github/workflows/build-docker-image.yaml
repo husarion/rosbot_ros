@@ -1,0 +1,50 @@
+name: Build/Publish Docker Image 
+
+on:
+  push:
+    branches:
+      - 'ros1'
+  pull_request:
+    types: [closed]
+  
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: Dockerfile.hardware
+            docker-tag: melodic
+          - dockerfile: Dockerfile.simulation
+            docker-tag: melodic-simulation
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        version: latest
+    
+    - name: Login to Docker Registry
+      uses: docker/login-action@v1
+      with:
+        registry: docker.io
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ${{ matrix.dockerfile }}
+        platforms: linux/amd64, linux/arm64, linux/arm/v7
+        push: true
+        tags: husarion/rosbot:${{ matrix.docker-tag }}
+        cache-from: type=registry,ref=husarion/rosbot:${{ matrix.docker-tag }}-buildcache
+        cache-to: type=registry,ref=husarion/rosbot:${{ matrix.docker-tag }}-buildcache,mode=max

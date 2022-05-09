@@ -1,0 +1,38 @@
+# Quick Start (at fist stop ROS Master if working on host)
+# $ docker compose -f compose.rosbot.yaml -f compose.rosbot.lan.yaml up
+
+version: "2.3"
+
+services:
+
+  nav2:
+    network_mode: host
+    ipc: host
+    environment:
+      - ROS_DOMAIN_ID=228
+
+  bridge:
+    network_mode: host
+    ipc: host
+    environment:
+      - ROS_IP=127.0.0.1
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_DOMAIN_ID=228
+
+  ros-master:
+    network_mode: host
+    environment:
+      - ROS_IP=127.0.0.1
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+
+  rosbot:
+    network_mode: host
+    environment:
+      - ROS_IP=127.0.0.1
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+    
+  rplidar:
+    network_mode: host
+    environment:
+      - ROS_IP=127.0.0.1
+      - ROS_MASTER_URI=http://127.0.0.1:11311

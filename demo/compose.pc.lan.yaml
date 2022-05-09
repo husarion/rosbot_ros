@@ -1,0 +1,13 @@
+# Quick Start
+# $ xhost local:root
+# $ docker compose -f compose.pc.yaml -f compose.pc.lan.yaml up
+
+version: "2.3"
+
+services:
+
+  rviz:
+    network_mode: host
+    ipc: host
+    environment:
+      - ROS_DOMAIN_ID=228

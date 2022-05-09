@@ -1,0 +1,11 @@
+version: "2.3"
+
+services:
+  # ROS Melodic
+  core2-flash:
+    build:
+      context: ./..
+      dockerfile: ./Dockerfile.hardware
+    # image: husarion/rosbot:latest
+    privileged: true
+    command: ./flash_firmware.sh diff # for mecanum wheels: ./flash_firmware.sh mecanum
