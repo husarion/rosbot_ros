@@ -7,13 +7,17 @@ version: "2.3"
 services:
 
   rviz:
-    network_mode: service:husarnet
+    network_mode: service:husarnet-pc
+    depends_on:
+      - husarnet-pc
     volumes:
       - ./dds-config.xml:/dds-config.xml
     environment:
+      - ROS_DOMAIN_ID=228
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - CYCLONEDDS_URI=file:///dds-config.xml
       
-  husarnet:
+  husarnet-pc:
     image: husarnet/husarnet
     restart: unless-stopped
     volumes:

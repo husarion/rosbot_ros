@@ -5,11 +5,22 @@ version: "2.3"
 
 services:
 
+  rplidar:
+    network_mode: service:husarnet
+    volumes:
+      - ./dds-config.xml:/dds-config.xml
+    environment:
+      - ROS_DOMAIN_ID=228
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - CYCLONEDDS_URI=file:///dds-config.xml
+      
   nav2:
     network_mode: service:husarnet
     volumes:
       - ./dds-config.xml:/dds-config.xml
     environment:
+      - ROS_DOMAIN_ID=228
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - CYCLONEDDS_URI=file:///dds-config.xml
 
   bridge:
@@ -17,6 +28,8 @@ services:
     volumes:
       - ./dds-config.xml:/dds-config.xml 
     environment:
+      - ROS_DOMAIN_ID=228
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - CYCLONEDDS_URI=file:///dds-config.xml
 
   husarnet:

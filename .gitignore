@@ -53,3 +53,5 @@ examples/rosbot_flash_firmware/docker-compose.yml
 
 # vscode
 .vscode/
+
+demo/.env

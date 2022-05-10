@@ -2,11 +2,8 @@ services:
 
   # ROS Melodic
   rosbot_simulation:
-    build:
-      context: ./..
-      dockerfile: ./Dockerfile.simulation
-    # image: husarion/rosbot:latest-simulation
-    container_name: rosbot_ros_simulation
+    image: husarion/rosbot:melodic-simulation
+    container_name: rosbot-gmapping-simulation
     runtime: nvidia
     environment:
       - "DISPLAY"
@@ -15,4 +12,5 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility,display
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./../src/rosbot_navigation/maps:/ros_ws/src/rosbot_navigation/maps
     command: roslaunch rosbot_description rosbot_rviz_gmapping.launch

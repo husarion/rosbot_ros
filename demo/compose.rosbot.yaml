@@ -2,22 +2,12 @@ version: "2.3"
 
 services:
 
-  # ROS Galactic
-  nav2:
-    image: husarion/nav2:galactic
-    restart: on-failure
-    command: >
-      ros2 launch husarion_nav2 navigation2_bringup.launch.py
-        use_slam:=False 
-        use_auto_localization:=False
-        use_sim_time:=False
-
-
   # ROS Noetic + ROS 2 Galactic
   bridge:
     build:
       context: ./
       dockerfile: ./Dockerfile.bridge
+    container_name: ros-bridge
     restart: on-failure
     environment:
       - ROS_MASTER_URI=http://ros-master:11311
@@ -27,16 +17,15 @@ services:
   # ROS Melodic master
   ros-master:
     image: ros:melodic-ros-core
+    container_name: ros-master
     restart: on-failure
     command: stdbuf -o L roscore
 
 
   # ROS Melodic rosbot hardware layer
   rosbot:
-    build:
-      context: ./..
-      dockerfile: ./Dockerfile.hardware
-    # image: husarion/rosbot:latest
+    image: husarion/rosbot:melodic
+    container_name: rosbot
     restart: on-failure
     environment:
       - ROS_MASTER_URI=http://ros-master:11311
@@ -48,7 +37,8 @@ services:
   # ROS Melodic Rplidar
   rplidar:
     image: husarion/rplidar:latest
-    restart: unless-stopped
+    container_name: rosbot-rplidar
+    restart: on-failure
     environment: 
       - ROS_MASTER_URI=http://ros-master:11311
     devices:

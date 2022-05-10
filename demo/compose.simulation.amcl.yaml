@@ -2,11 +2,8 @@ services:
 
   # ROS Melodic
   rosbot_simulation:
-    build:
-      context: ./..
-      dockerfile: ./Dockerfile.simulation
-    # image: husarion/rosbot:latest-simulation
-    container_name: rosbot_ros_simulation
+    image: husarion/rosbot:melodic-simulation
+    container_name: rosbot-amcl-simulation
     runtime: nvidia
     environment:
       - "DISPLAY"
