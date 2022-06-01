@@ -7,8 +7,7 @@ services:
     image: husarion/astra:latest
     restart: unless-stopped
     environment:
-      - "ROS_IP=astra"
-      - "ROS_MASTER_URI=http://my-ros-master:11311"
+      - ROS_MASTER_URI=http://ros-master:11311
     devices:
       - /dev/bus/usb/001/006
     tty: true        

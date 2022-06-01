@@ -32,7 +32,7 @@ Connect your ROSbot and laptop to the same Wi-Fi network, navigate to `demo/` fo
 - On ROSbot:
 
     ```bash
-    docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2_slam.yaml -f compose.rosbot.lan.yaml up
+    docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2-slam.yaml -f compose.rosbot.lan.yaml up
     ```
 
 Prepare map with Rviz2 using `2D Goal Pose`.
@@ -52,7 +52,7 @@ Prepare map with Rviz2 using `2D Goal Pose`.
 - On ROSbot:
 
     ```bash
-    docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2_slam.yaml -f compose.rosbot.lan.yaml up
+    docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2-slam.yaml -f compose.rosbot.lan.yaml up
     ```
 
 4. Prepare map with Rviz2 using `2D Goal Pose`.
@@ -77,7 +77,7 @@ If the map is ready, open a new terminal and run this commands:
 - On ROSbot:
 
   ```bash
-  docker exec -it nav2_slam bash
+  docker exec -it nav2-slam bash
   source /opt/ros/galactic/setup.bash
 
   cd /ros2_ws/src/husarion_nav2/config
@@ -118,7 +118,7 @@ In order for the robot to be able to use the previously prepared map for localiz
   - On ROSbot:
 
       ```bash
-      docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2_amcl.yaml -f compose.rosbot.lan.yaml up
+      docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2-amcl.yaml -f compose.rosbot.lan.yaml up
       ```
 
 The above commands run an example on a lan network, but the same works for other types of connection. For example, if you are connected via the internet (Husarnet), replace `compose.rosbot.lan.yaml` file with `compose.rosbot.husarnet.yaml`.

@@ -1,7 +1,0 @@
-image: map.png
-mode: trinary
-resolution: 0.04
-origin: [-1.29, -1.82, 0]
-negate: 0
-occupied_thresh: 0.65
-free_thresh: 0.25
