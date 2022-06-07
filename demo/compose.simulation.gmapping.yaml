@@ -20,8 +20,7 @@ services:
       - ./config:/ros2_ws/src/husarion_nav2/config
     command: >
       ros2 launch husarion_nav2 navigation2_bringup.launch.py
-        use_slam:=False 
-        use_auto_localization:=False
+        use_slam:=True 
         use_sim_time:=True
 
   bridge:
