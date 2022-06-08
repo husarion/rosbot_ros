@@ -1,5 +1,3 @@
-version: "2.3"
-
 services:
 
   # ROS Noetic + ROS 2 Galactic

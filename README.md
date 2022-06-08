@@ -3,8 +3,8 @@
 ROS packages for ROSbot 2.0 and ROSbot 2.0 Pro.
 
 
-# Quick start (real ROSbot) ## 
-## Prerequisites ###
+# Quick Start (Real ROSbot) ## 
+## 1. Prerequisites - Firmware ###
 
 Make sure the right version of firmware for STM32F4 MCU is flashed on ROSbot. To flash the right firmware, open ROSbot's terminal or connect via `ssh` and execute this command:
  - for differential drive (regular wheels):
@@ -15,7 +15,7 @@ docker run --privileged --rm husarion/rosbot:melodic ./flash_firmware.sh diff
 ```bash
 docker run --privileged --rm husarion/rosbot:melodic ./flash_firmware.sh mecanum
 ```
-## Control ROSbot from RViz running on your laptop - Simultaneous Localization And Mapping
+## 2. SLAM - Control ROSbot from RViz Running on Laptop
 ### In LAN:
 Connect your ROSbot and laptop to the same Wi-Fi network, navigate to `demo/` folder and execute:
 
@@ -23,16 +23,16 @@ Connect your ROSbot and laptop to the same Wi-Fi network, navigate to `demo/` fo
 
     ```bash
     xhost local:root
-    docker compose -f compose.pc-gpu.yaml -f compose.pc.lan.yaml up
+    docker compose -f compose.pc.rviz2-gpu.yaml -f compose.pc.lan.yaml up
     ```
     >**Tip:**
     >
-    >If your computer is not equipped with GPU you can replace `compose.pc-gpu.yaml` file with `compose.pc-cpu.yaml`
+    >If your computer is not equipped with GPU you can replace `compose.pc.rviz2-gpu.yaml` file with `compose.pc.rviz2-cpu.yaml`
 
 - On ROSbot:
 
     ```bash
-    docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2-slam.yaml -f compose.rosbot.lan.yaml up
+    docker compose -f compose.rosbot.yaml -f compose.rosbot.lan.yaml -f compose.galactic-nav2-slam.yaml up
     ```
 
 Prepare map with Rviz2 using `2D Goal Pose`.
@@ -46,19 +46,19 @@ Prepare map with Rviz2 using `2D Goal Pose`.
 
     ```bash
     xhost local:root
-    docker compose -f compose.pc-gpu.yaml -f compose.pc.husarnet.yaml up
+    docker compose -f compose.pc.rviz2-gpu.yaml -f compose.pc.husarnet.yaml up
     ```
 
 - On ROSbot:
 
     ```bash
-    docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2-slam.yaml -f compose.rosbot.lan.yaml up
+    docker compose -f compose.rosbot.yaml -f compose.rosbot.husarnet.yaml -f compose.galactic-nav2-slam.yaml up
     ```
 
 4. Prepare map with Rviz2 using `2D Goal Pose`.
 
 
-### No network: run everything on  the ROSbot
+### No Network: Run Everything on the ROSbot
 1. Connect the screen, mouse and keyboard to the rear panel of the ROSbot, and open a terminal app.
 2. Navigate to `demo/` folder and execute: 
 
@@ -66,12 +66,12 @@ Prepare map with Rviz2 using `2D Goal Pose`.
 
   ```bash
   xhost local:root
-  docker compose -f compose.pc.yaml -f compose.rosbot.yaml up
+  docker compose -f compose.rosbot.yaml -f compose.galactic-nav2-slam.yaml -f compose.pc.rviz2-gpu.yaml up
   ```
 
 3. Prepare map with Rviz2 using `2D Goal Pose`.
 
-## Saving the Map
+## 3. Saving the Map
 If the map is ready, open a new terminal and run this commands:
 
 - On ROSbot:
@@ -83,17 +83,17 @@ If the map is ready, open a new terminal and run this commands:
   cd /ros2_ws/src/husarion_nav2/config
   ros2 run nav2_map_server map_saver_cli --fmt pgn -f map
   ```
-Your map has been saved in docker volume and is now in the `config/` folder.
+Your map has been saved in docker volume and is now in the `demo/config/` folder.
 
-## Control ROSbot from RViz running on your laptop (amcl localization)
+## 4. AMCL Localization - Control ROSbot from RViz Running on Laptop
 In order for the robot to be able to use the previously prepared map for localization and navigating, launch:
 
   - On laptop:
       >**Tip:**
-      >
-      >If your computer is not equipped with GPU you can replace `compose.pc-gpu.yaml` file with `compose.pc-cpu.yaml`
+    >
+    >If your computer is not equipped with GPU you can replace `compose.pc.rviz2-gpu.yaml` file with `compose.pc.rviz2-cpu.yaml`
       
-      Navigate to `/demo` folder and comment out the line of the `compose.pc-***.yaml` file so that the `rviz` node uses the `rosbot_pro_localization.rviz` configuration file. It should looks like this:
+      Navigate to `/demo` folder and comment out the line of the `compose.pc.rviz2-***.yaml` file so that the `rviz` node uses the `rosbot_pro_localization.rviz` configuration file. It should looks like this:
 
       ```yaml
     # ROS Galactic
@@ -111,14 +111,14 @@ In order for the robot to be able to use the previously prepared map for localiz
 
       ```bash
       xhost local:root
-      docker compose -f compose.pc-gpu.yaml -f compose.pc.lan.yaml up
+      docker compose -f compose.pc.rviz2-gpu.yaml -f compose.pc.lan.yaml up
       ```
       
 
   - On ROSbot:
 
       ```bash
-      docker compose -f compose.rosbot.yaml -f compose.rosbot.nav2-amcl.yaml -f compose.rosbot.lan.yaml up
+      docker compose -f compose.rosbot.yaml -f compose.rosbot.lan.yaml -f compose.rosbot.nav2-amcl.yaml up
       ```
 
 The above commands run an example on a lan network, but the same works for other types of connection. For example, if you are connected via the internet (Husarnet), replace `compose.rosbot.lan.yaml` file with `compose.rosbot.husarnet.yaml`.
@@ -169,7 +169,7 @@ From this moment you can use rosbot simulations. Please remember that each time,
 source ~/ros_workspace/devel/setup.sh
 ```
 
-## Creating, saving and loading the Map with Gazebo ##
+## Creating, Saving and Loading the Map with Gazebo ##
 
 Run the following commands below. Use the teleop to move the robot around to create an accurate and thorough map.
 
@@ -199,22 +199,30 @@ In Terminal 1, launch the Gazebo simulation
 roslaunch rosbot_description rosbot_rviz_amcl.launch
 ```
 
-## Creating, saving and loading the Map with Gazebo and Docker ##
+## Creating, Saving and Loading the Map with Gazebo and Docker ##
 The only thing you need is Docker, so make sure you have [Docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and [Docker Compose v2](https://docs.docker.com/compose/cli-command/#install-on-linux).
 
-To launch simulations, if you haven't done so already, you have to copy project git repository and run `compose.simulation.gmapping.yaml` located in the `demo` folder. Execute in a termianl on your laptop:
+To launch simulation, if you haven't done so already, you have to copy project git repository and run `compose` files located in the `demo` folder. Appropriate compose files configuration  will launch `Gazebo`, `rviz` or `rviz2` node and a package providing navigation and localization algorithms. 
 
-```bash
+
+### Gmapping + AMCL (Melodic)
+To launch `Gmapping` with Gazebo, execute this lines in a termianl on your laptop:
+```
 git clone https://github.com/husarion/rosbot_description.git
+git checkout ros1
 cd demo/
 
 xhost local:root
-docker compose -f compose.simulation.gmapping.yaml up --build
+docker compose -f compose.simulation.yaml -f compose.pc.rviz-gpu.yaml -f compose.melodic-gmapping.yaml up --build
 ```
+
+>**Tip:**
+    >
+    >If your computer is not equipped with GPU you can replace `compose.pc.rviz-gpu.yaml` file with `compose.pc.rviz-cpu.yaml`
 
 In another termianl, start teleop and drive the ROSbot, observe in Rviz as the map is created:
 ```bash
-docker exec -it rosbot_ros_simulation bash
+docker exec -it rosbot-simulation bash
 
 source /opt/ros/melodic/setup.bash
 source devel/setup.sh
@@ -226,15 +234,54 @@ When you are satisfied with created map, you can save it. Save the map to some g
 rosrun map_server map_saver -f /ros_ws/src/rosbot_navigation/maps/test_map
 ```
 
-Close all previous terminals and run the following commands below. Once loaded, use rviz to set 2D Nav Goal and the robot will autonomously reach the indicated position. Navigate to `demo/` folder and execute:
+Now to make saved map loading possible you have to close all previous terminals and run the following commands below. Once loaded, use rviz to set 2D Nav Goal and the robot will autonomously reach the indicated position. 
+
+Navigate to `/demo` folder and comment out the line of the `compose.pc.rviz-***.yaml` file so that the `rviz` node uses the `amcl.rviz` configuration file. It should looks like this:
+
+```yaml
+# ROS Galactic
+rviz:
+    image: husarion/rosbot:melodic-simulation
+    ...
+
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix:rw
+        # - ./../src/rosbot_description/rviz/rosbot.rviz:/root/.rviz/default.rviz
+        - ./../src/rosbot_description/rviz/amcl.rviz:/root/.rviz/default.rviz
+```
+
+Next, run compose files: 
+
 ```bash
 xhost local:root
-docker compose -f compose.simulation.amcl.yaml up --build
+docker compose -f compose.simulation.yaml -f compose.pc.rviz-gpu.yaml -f compose.melodic-amcl.yaml up --build
+```
+
+### Nav2 + SlamToolbox (Galactic)
+To launch `Navigation2` and `SlamToolbox` with Gazebo, execute this lines in a termianl on your laptop:
+
+```bash
+git clone https://github.com/husarion/rosbot_description.git
+git checkout ros1
+cd demo/
+
+xhost local:root
+docker compose -f compose.simulation.yaml -f compose.pc.rviz2-gpu.yaml -f compose.galactic-nav2-slam.yaml up --build
+```
+
+Prepare map with Rviz2 using `2D Goal Pose` and [save the map](#3-saving-the-map).
+
+Next, see what the `compose.pc.rviz2-xxx.yaml` file should look like ([link](#4-amcl-localization---control-rosbot-from-rviz-running-on-laptop)) and  launch `Navigation2 stack` with `AMLC`:
+```bash
+xhost local:root
+docker compose -f compose.simulation.yaml -f compose.pc.rviz2-gpu.yaml -f compose.galactic-nav2-amcl.yaml up --build
 ```
 
 >**Tip:**
 >
->If you have any problems with laser scan it probably means that you don't have a dedicated graphic card (or lack appropriate drivers). If that's the case then you'll have to change couple of things in `/rosbot_description/urdf/rosbot_gazebo` file: <br><br>
+>1. If your computer is not equipped with GPU you can replace `compose.pc.rviz-gpu.yaml` file with `compose.pc.rviz-cpu.yaml`
+>
+>2. If you have any problems with laser scan it probably means that you don't have a dedicated graphic card (or lack appropriate drivers). If that's the case then you'll have to change couple of things in `/rosbot_description/urdf/rosbot_gazebo` file: <br><br>
 >Find:   `<!-- If you cant't use your GPU comment RpLidar using GPU and uncomment RpLidar using CPU gazebo plugin. -->`
 next coment RpLidar using GPU using `<!-- -->` from `<gazebo>` to `</gazebo>` like below:
 > ```xml

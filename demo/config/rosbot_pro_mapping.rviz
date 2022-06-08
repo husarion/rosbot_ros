@@ -67,7 +67,7 @@ Visualization Manager:
     - Alpha: 0.699999988079071
       Class: rviz_default_plugins/Map
       Color Scheme: costmap
-      Draw Behind: false
+      Draw Behind: true
       Enabled: true
       Name: LocalCostmap
       Topic:
@@ -113,9 +113,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 47
+      Max Intensity: 0
       Min Color: 0; 0; 0
-      Min Intensity: 47
+      Min Intensity: 0
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
@@ -206,15 +206,37 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
+        body_link:
+          Value: true
+        camera_depth_frame:
+          Value: true
         camera_link:
           Value: true
-        imu_link:
+        camera_rgb_frame:
+          Value: true
+        front_left_wheel:
+          Value: true
+        front_right_wheel:
           Value: true
         laser:
           Value: true
         map:
           Value: true
         odom:
+          Value: true
+        range_fl:
+          Value: true
+        range_fr:
+          Value: true
+        range_rl:
+          Value: true
+        range_rr:
+          Value: true
+        rear_left_wheel:
+          Value: true
+        rear_right_wheel:
+          Value: true
+        top:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -225,12 +247,32 @@ Visualization Manager:
         map:
           odom:
             base_link:
-              camera_link:
-                {}
-              imu_link:
-                {}
-              laser:
-                {}
+              body_link:
+                camera_link:
+                  camera_depth_frame:
+                    {}
+                  camera_rgb_frame:
+                    {}
+                front_left_wheel:
+                  {}
+                front_right_wheel:
+                  {}
+                laser:
+                  {}
+                range_fl:
+                  {}
+                range_fr:
+                  {}
+                range_rl:
+                  {}
+                range_rr:
+                  {}
+                rear_left_wheel:
+                  {}
+                rear_right_wheel:
+                  {}
+                top:
+                  {}
       Update Interval: 0
       Value: true
   Enabled: true

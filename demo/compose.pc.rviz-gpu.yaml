@@ -1,0 +1,19 @@
+services:
+
+  # ROS Melodic
+  rviz:
+    image: husarion/rosbot:melodic-simulation
+    container_name: rviz-gpu
+    privileged: true 
+    restart: on-failure
+    runtime: nvidia
+    environment:
+      - DISPLAY
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - ROS_MASTER_URI=http://ros-master:11311
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./../src/rosbot_description/rviz/rosbot.rviz:/root/.rviz/default.rviz
+      # - ./../src/rosbot_description/rviz/amcl.rviz:/root/.rviz/default.rviz
+    command: rosrun rviz rviz

@@ -1,0 +1,14 @@
+services:
+
+  # ROS Melodic
+  navigation:
+    image: husarion/rosbot:melodic-simulation
+    container_name: gmapping-melodic
+    restart: on-failure
+    environment:
+      - ROS_MASTER_URI=http://ros-master:11311
+    volumes:
+      - ./../src/rosbot_navigation/maps:/ros_ws/src/rosbot_navigation/maps
+    command: roslaunch rosbot_description gmapping.launch
+
+  
