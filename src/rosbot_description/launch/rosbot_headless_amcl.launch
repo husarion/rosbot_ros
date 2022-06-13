@@ -1,6 +1,7 @@
+<?xml version="1.0"?>
+
 <!-- No GUI simulation launch for testing purposes -->
 
-<?xml version="1.0"?>
 <launch>
 
   <include file="$(find rosbot_description)/launch/rosbot.launch">
