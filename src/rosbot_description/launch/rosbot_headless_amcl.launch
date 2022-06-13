@@ -1,0 +1,13 @@
+<!-- No GUI simulation launch for testing purposes -->
+
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find rosbot_description)/launch/rosbot.launch">
+    <arg name="gui" value="false"/>
+    <arg name="world" value="$(find rosbot_gazebo)/worlds/maze.world"/>
+  </include>
+
+  <include file="$(find rosbot_description)/launch/gmapping.launch"></include>
+
+</launch>
