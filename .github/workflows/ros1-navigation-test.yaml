@@ -18,6 +18,8 @@ jobs:
       uses: actions/checkout@v2
     
     - name: Build and run tests
-      run: docker-compose -f demo/compose.simulation.amcl.yaml -f compose.simulation.test.yaml up
+      run: docker compose -f demo/compose.simulation.amcl.yaml -f demo/compose.simulation.test.yaml up
+      
+
     
     

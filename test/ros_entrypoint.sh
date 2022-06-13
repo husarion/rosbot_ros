@@ -7,5 +7,3 @@ source "/opt/ros/melodic/setup.bash"
 source "devel/setup.bash"
 
 /wait4master.sh
-
-exec "$@"
