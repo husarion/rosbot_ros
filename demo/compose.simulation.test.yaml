@@ -1,0 +1,10 @@
+services:
+# ROS Melodic
+  rosbot_test:
+    build: /test
+    image: rosbot_test:latest
+    container_name: rosbot-test
+    network_mode: "host"
+    command: wait4master.sh
+
+    

@@ -1,0 +1,23 @@
+name: Test ROS1 Navigation
+
+on:
+  push:
+    branches:
+      -'ros1'
+  schedule:
+    - cron: '0 12 * * 1'
+
+jobs:
+  test-navigation:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Build and run tests
+      run: docker-compose -f demo/compose.simulation.amcl.yaml -f compose.simulation.test.yaml up
+    
+    
