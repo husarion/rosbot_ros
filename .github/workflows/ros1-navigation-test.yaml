@@ -1,7 +1,6 @@
 name: Test ROS1 Navigation
 
-on:
-  workflow_dispatch:
+on: [workflow_dispatch]
 
 jobs:
   test-navigation:
