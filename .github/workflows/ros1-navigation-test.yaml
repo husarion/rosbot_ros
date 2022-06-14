@@ -1,12 +1,7 @@
 name: Test ROS1 Navigation
 
 on:
-  push:
-    branches:
-      - 'ros1'
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 12 * * 1'
 
 jobs:
   test-navigation:
