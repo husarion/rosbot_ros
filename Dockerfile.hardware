@@ -52,6 +52,7 @@ RUN apt update && apt install -y \
         ros-$ROS_DISTRO-rosserial-server \
         ros-$ROS_DISTRO-rosserial-client \
         ros-$ROS_DISTRO-rosserial-msgs \
+        ros-$ROS_DISTRO-move-base-msgs \
         ros-$ROS_DISTRO-robot-localization && \
     python3 -m pip install --upgrade pyserial && \
     # setup python GPIO

@@ -12,4 +12,4 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility,display
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    command: roslaunch rosbot_description rosbo_rviz_amcl.launch
+    command: roslaunch rosbot_description rosbot_rviz_amcl.launch
