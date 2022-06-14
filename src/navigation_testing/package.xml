@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>navigation_testing</name>
+  <version>0.0.0</version>
+  <description>The navigation_testing package</description>
+
+  <maintainer email="support@husarion.com">root</maintainer>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>rostest</build_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  
+  <test_depend>rostest</test_depend>
+
+
+
+  <export>
+
+  </export>
+</package>
