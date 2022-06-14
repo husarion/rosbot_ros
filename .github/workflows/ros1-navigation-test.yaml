@@ -1,6 +1,11 @@
 name: Test ROS1 Navigation
 
-on: [workflow_dispatch]
+on:
+  push:
+    branches:
+      -'ros1'
+  schedule:
+    - cron: '30 11 * * 1'
 
 jobs:
   test-navigation:
