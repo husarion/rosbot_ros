@@ -9,6 +9,6 @@
     <arg name="world" value="$(find rosbot_gazebo)/worlds/maze.world"/>
   </include>
 
-  <include file="$(find rosbot_description)/launch/gmapping.launch"></include>
+  <include file="$(find rosbot_navigation)/launch/amcl_demo.launch"></include>
 
 </launch>
