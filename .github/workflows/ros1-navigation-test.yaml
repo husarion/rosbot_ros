@@ -1,12 +1,9 @@
 name: Test ROS1 Navigation
 
 on:
-  push:
-    branches:
-      - 'ros1'
   schedule:
-    - cron: '30 11 * * 1'
-
+    - cron:  '0 12 * * 1'
+    
 jobs:
   test-navigation:
     runs-on: ubuntu-20.04
