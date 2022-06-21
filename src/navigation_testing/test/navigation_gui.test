@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="gui" default="true"/>
+
+  <include file="$(find rosbot_description)/launch/rosbot_headless_amcl.launch">
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+  <test test-name="navigation" type="navigation_test.py" pkg="navigation_testing" time-limit="600.0"/>
+  <rosparam command="load" file="$(find navigation_testing)/config/nav_test.yaml" subst_value="true"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro '$(find rosbot_description)/urdf/rosbot.xacro'"/>
+
+  <!-- Show in Rviz   -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosbot_description)/rviz/rosbot.rviz" required="true" output="screen"/>
+  
+</launch>
