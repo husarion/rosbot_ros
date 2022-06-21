@@ -283,5 +283,3 @@ next coment RpLidar using GPU using `<!-- -->` from `<gazebo>` to `</gazebo>` li
 ><visualize>true</visualize>
 >```
 >in the same plug in.
-# Testing
-Every Thursday at 11:30 and on every push on ros1 branch, a test ensuring proper navigation will be launched. If ROSbot is able to navigate to a point on the other side of a wall in udner 30 seconds the test will result in success. Testing environment is ```maze.world```. For more information refere to ```navigation_testing``` package.
