@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dds>
+    <profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+        <transport_descriptors>
+            <transport_descriptor>
+                <transport_id>udpv6_transport</transport_id>
+                <type>UDPv6</type>
+                <maxInitialPeersRange>40</maxInitialPeersRange>
+                <!-- <non_blocking_send>true</non_blocking_send> -->
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <participant profile_name="husarnet_simple_profile" is_default_profile="true">
+            <rtps>
+                <userTransports>
+                    <transport_id>udpv6_transport</transport_id>
+                </userTransports>
+                <useBuiltinTransports>false</useBuiltinTransports>
+                <defaultUnicastLocatorList>
+                    <locator>
+                        <udpv6>
+                            <address>rviz</address>
+                        </udpv6>
+                    </locator>
+                    <locator>
+                        <udpv6>
+                            <address>rosbot</address>
+                        </udpv6>
+                    </locator>
+                </defaultUnicastLocatorList>
+                <builtin>
+                    <initialPeersList>
+                        <locator>
+                            <udpv6>
+                                <address>rviz</address>
+                            </udpv6>
+                        </locator>
+                        <locator>
+                            <udpv6>
+                                <address>rosbot</address>
+                            </udpv6>
+                        </locator>
+                    </initialPeersList>
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv6>
+                                <address>rviz</address>
+                            </udpv6>
+                        </locator>
+                        <locator>
+                            <udpv6>
+                                <address>rosbot</address>
+                            </udpv6>
+                        </locator>
+                    </metatrafficUnicastLocatorList>     
+                </builtin>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>
