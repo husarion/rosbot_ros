@@ -3,7 +3,7 @@ name: Build/Publish Docker Image
 on:
   push:
     branches:
-      - 'ros1'
+      - 'melodic'
   pull_request:
     types: [closed]
   

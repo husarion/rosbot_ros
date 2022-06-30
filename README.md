@@ -1,4 +1,4 @@
-# rosbot_description #
+# rosbot_ros #
 
 ROS packages for ROSbot 2.0 and ROSbot 2.0 Pro.
 
@@ -140,7 +140,7 @@ Clone this repository to your workspace:
 
 ```bash
 cd ~/ros_workspace/src
-git clone https://github.com/husarion/rosbot_description.git
+git clone https://github.com/husarion/rosbot_ros.git
 ```
 
 Install depencencies:
@@ -182,7 +182,7 @@ roslaunch rosbot_navigation rosbot_teleop.launch
 When you are satisfied with created map, you can save it. Open new terminal and save the map to some given path: 
 
 ```bash
-rosrun map_server map_saver -f ~/ros_workspace/src/rosbot_description/src/rosbot_navigation/maps/test_map
+rosrun map_server map_saver -f ~/ros_workspace/src/rosbot_ros/src/rosbot_navigation/maps/test_map
 ```
 
 Now to make saved map loading possible you have to close all previous terminals and run the following commands below. Once loaded, use rviz to set 2D Nav Goal and the robot will autonomously reach the indicated position
@@ -202,8 +202,7 @@ To launch simulation, if you haven't done so already, you have to copy project g
 To launch `Navigation2` and `SlamToolbox` with Gazebo, execute this lines in a termianl on your laptop:
 
 ```bash
-git clone https://github.com/husarion/rosbot_description.git
-git checkout ros1
+git clone https://github.com/husarion/rosbot_ros.git
 cd demo/
 
 xhost local:root
