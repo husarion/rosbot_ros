@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<!-- No GUI simulation launch for testing purposes -->
+
+<launch>
+
+    <arg name="gui" default="false"/>
+
+  <include file="$(find rosbot_description)/launch/rosbot.launch">
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="world" value="$(find rosbot_gazebo)/worlds/maze.world"/>
+  </include>
+
+  <include file="$(find rosbot_navigation)/launch/amcl_demo.launch">
+    <arg name="map_file" default="$(find rosbot_navigation)/maps/maze_map.yaml"/>
+  </include>
+
+</launch>

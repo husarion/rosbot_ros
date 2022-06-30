@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+  
+  <include file="$(find rosbot_description)/launch/rosbot_headless_amcl.launch"></include>
+  
+  <test test-name="navigation" type="navigation_test.py" pkg="navigation_testing" time-limit="600.0"/>
+  <rosparam command="load" file="$(find navigation_testing)/config/nav_test.yaml" subst_value="true"/>
+  
+</launch>

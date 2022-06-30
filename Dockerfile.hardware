@@ -1,0 +1,91 @@
+# Building firmware.bin ... 
+
+FROM --platform=linux/amd64 ubuntu:18.04 as stm32_fw
+
+WORKDIR /app
+
+RUN apt update && apt install -y \
+        python3 \
+        python3-pip \
+        git \
+        tree && \
+    pip3 install -U platformio
+
+COPY .mbedignore ~/.platformio/packages/framework-mbed/features/.mbedignore
+
+RUN git clone https://github.com/husarion/rosbot-stm32-firmware.git && \
+    cd /app/rosbot-stm32-firmware && \
+    git submodule update --init --recursive && \
+    export LC_ALL=C.UTF-8 && \
+    export LANG=C.UTF-8 && \
+    pio project init -e core2_diff -O \
+        "build_flags= \
+        -I\$PROJECTSRC_DIR/TARGET_CORE2 \
+        -DPIO_FRAMEWORK_MBED_RTOS_PRESENT \
+        -DPIO_FRAMEWORK_EVENT_QUEUE_PRESENT \
+        -DMBED_BUILD_PROFILE_RELEASE \
+        -DROS_NOETIC_MSGS=0 \
+        -DKINEMATIC_TYPE=0" && \
+    pio project init -e core2_mec -O \
+        "build_flags= \
+        -I\$PROJECTSRC_DIR/TARGET_CORE2 \
+        -DPIO_FRAMEWORK_MBED_RTOS_PRESENT \
+        -DPIO_FRAMEWORK_EVENT_QUEUE_PRESENT \
+        -DMBED_BUILD_PROFILE_RELEASE \
+        -DROS_NOETIC_MSGS=0 \
+        -DKINEMATIC_TYPE=1" && \
+    pio run 
+
+
+# Creating the ROS 2 image ...
+FROM ros:melodic-ros-core
+
+# select bash as default shell
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR /ros_ws
+
+RUN apt update && apt install -y \
+        python3-pip \
+        git \
+        ros-$ROS_DISTRO-rosserial-python \ 
+        ros-$ROS_DISTRO-rosserial-server \
+        ros-$ROS_DISTRO-rosserial-client \
+        ros-$ROS_DISTRO-rosserial-msgs \
+        ros-$ROS_DISTRO-move-base-msgs \
+        ros-$ROS_DISTRO-robot-localization && \
+    python3 -m pip install --upgrade pyserial && \
+    # setup python GPIO
+    git clone https://github.com/vsergeev/python-periphery.git --branch=v1.1.2 /python-periphery && \
+    cd /python-periphery && \
+    python3 setup.py install --record files.txt && \
+    # setup GPIO for tinkerboard
+    git clone https://github.com/TinkerBoard/gpio_lib_python.git /gpio_lib_python && \
+    cd /gpio_lib_python && \
+    python3 setup.py install --record files.txt && \
+    # clone and build CORE2 firmware installer
+    git clone https://github.com/husarion/stm32loader.git /stm32loader && \
+    cd /stm32loader && \
+    python3 setup.py install
+
+COPY . .
+
+# copy firmware built in previous stage
+COPY --from=stm32_fw /app/rosbot-stm32-firmware/.pio/build/core2_diff/firmware.bin /root/firmware_diff.bin
+COPY --from=stm32_fw /app/rosbot-stm32-firmware/.pio/build/core2_mec/firmware.bin /root/firmware_mecanum.bin
+
+# clone robot github repositories and clear ubuntu packages
+RUN mkdir -p ros_ws/src && \
+    git clone https://github.com/husarion/rosbot_ekf.git --branch=master src/rosbot_ekf && \
+    source /opt/ros/$ROS_DISTRO/setup.bash && \
+    catkin_make -DCATKIN_ENABLE_TESTING=0 -DCMAKE_BUILD_TYPE=Release && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# copy scripts
+COPY ./flash_firmware.sh .
+
+# replace entrypoint
+ENTRYPOINT ["/ros_ws/ros_entrypoint.sh"]
+
+CMD ["bash"]

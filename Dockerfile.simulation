@@ -1,0 +1,28 @@
+FROM osrf/ros:melodic-desktop
+
+# select bash as default shell
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR /ros_ws
+
+COPY . .
+
+# install dependencies
+RUN apt-get update && apt-get upgrade -y && \
+    apt install -y python3-pip && \
+    pip3 install -U argcomplete && \
+    source /opt/ros/$ROS_DISTRO/setup.bash && \
+    cd /ros_ws/src && \
+    catkin_init_workspace && \
+    cd /ros_ws && \
+    rosdep update --rosdistro $ROS_DISTRO && \
+    rosdep install --from-paths src --ignore-src -r -y --rosdistro $ROS_DISTRO && \
+    catkin_make -DCMAKE_BUILD_TYPE=Release && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# replace entrypoint
+ENTRYPOINT ["/ros_ws/ros_entrypoint.sh"]
+
+CMD ["bash"]

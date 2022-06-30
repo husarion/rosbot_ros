@@ -1,0 +1,22 @@
+name: Test ROS1 Navigation
+
+on:
+  schedule:
+    - cron:  '0 18 * * 1'
+    
+jobs:
+  test-navigation:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Build and run tests
+      run: docker run --rm husarion/rosbot:melodic-simulation rostest navigation_testing navigation.test
+      
+
+    
+    

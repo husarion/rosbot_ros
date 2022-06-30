@@ -1,0 +1,12 @@
+services:
+
+  # ROS Galactic
+  rviz:
+    image: husarion/rviz2
+    restart: on-failure
+    volumes: 
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./config/rosbot_pro_mapping.rviz:/root/.rviz2/default.rviz
+      # - ./config/rosbot_pro_localization.rviz:/root/.rviz2/default.rviz
+    environment:
+      - DISPLAY

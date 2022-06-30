@@ -1,0 +1,3 @@
+test_timeout: 60.0
+goal_x: 0
+goal_y: -2
