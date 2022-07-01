@@ -4,7 +4,7 @@
   <arg name="world" default="empty"/>
 
 
-  <include file="$(find rosbot_description)/launch/rosbot_gazebo.launch"></include>
+  <include file="$(find rosbot_bringup)/launch/rosbot_gazebo.launch"></include>
 
   <include file="$(find rosbot_gazebo)/launch/rosbot_world.launch">
     <arg name="gui" value="$(arg gui)"/>

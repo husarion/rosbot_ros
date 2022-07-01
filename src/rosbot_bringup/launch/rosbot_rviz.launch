@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-  <include file="$(find rosbot_description)/launch/rosbot.launch">
+  <include file="$(find rosbot_bringup)/launch/rosbot.launch">
   <arg name="gui" value="true"/>
   <arg name="world" value="$(find rosbot_gazebo)/worlds/turtlebot_playground.world"/>
   </include>

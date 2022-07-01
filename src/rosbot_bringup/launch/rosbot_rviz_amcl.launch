@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find rosbot_bringup)/launch/rosbot_rviz.launch"></include>
+
+  <include file="$(find rosbot_bringup)/launch/amcl_demo.launch"></include>
+
+</launch>
