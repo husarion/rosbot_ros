@@ -40,4 +40,4 @@ services:
       - ROS_MASTER_URI=http://ros-master:11311
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    command: roslaunch rosbot_description rosbot.launch 
+    command: roslaunch rosbot_bringup rosbot_docker.launch --wait 
