@@ -1,8 +1,3 @@
-# Quick Start
-# $ docker compose -f compose.rosbot.yaml -f compose.rosbot.husarnet.yaml up
-
-version: "2.3"
-
 services:
     
   navigation:
