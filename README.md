@@ -2,120 +2,8 @@
 
 ROS packages for ROSbot 2.0 and ROSbot 2.0 Pro.
 
-
-# Quick start (real ROSbot) ## 
-## Prerequisites ###
-
-The only thing you need is Docker, so make sure you have [Docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and [Docker Compose v2](https://docs.docker.com/compose/cli-command/#install-on-linux).
-
-Make sure the right version of firmware for STM32F4 MCU is flashed on ROSbot. To flash the right firmware, open ROSbot's terminal or connect via `ssh` and execute this command:
- - for differential drive (regular wheels):
-```bash
-docker run --privileged --rm husarion/rosbot:melodic ./flash_firmware.sh diff
-```
-- for omnidirectional wheeled ROSbot (mecanum wheels):
-```bash
-docker run --privileged --rm husarion/rosbot:melodic ./flash_firmware.sh mecanum
-```
-## Control ROSbot from RViz running on your laptop - Simultaneous Localization And Mapping
-### In LAN:
-1. Create `demo/.env` file based on the `demo/.env.template` and complete the necessary information.
-
-2. Connect your ROSbot and laptop to the same Wi-Fi network, navigate to `demo/` folder and execute:
-
-- On laptop:
-
-    ```bash
-    xhost local:root
-    docker compose -f compose.rviz.yaml -f compose.rviz.lan.yaml up
-
-- On ROSbot:
-
-    ```bash
-    docker compose -f compose.rosbot.yaml -f compose.rosbot.slam-toolbox.yaml -f compose.rosbot.lan.yaml up
-    ```
-
-Prepare map with Rviz2 using `2D Goal Pose`.
-
-### Over The Internet (Husarnet)
-1. Connect your ROSbot and laptop to the same or different networks
-2. Create `demo/.env` file based on the `demo/.env.template` and paste your own Husarnet Join Code here
-3. Navigate to `demo/` folder and execute: 
-
-- On laptop:
-
-    ```bash
-    xhost local:root
-    docker compose -f compose.rviz.yaml -f compose.rviz.husarnet.yaml up
-    ```
-
-- On ROSbot:
-
-    ```bash
-    docker compose -f compose.rosbot.yaml -f compose.rosbot.slam-toolbox.yaml -f compose.rosbot.lan.yaml up
-    ```
-
-4. Prepare map with Rviz2 using `2D Goal Pose`.
-
-
-### No network: run everything on  the ROSbot
-1. Connect the screen, mouse and keyboard to the rear panel of the ROSbot, and open a terminal app.
-2. Navigate to `demo/` folder and execute: 
-
-- On ROSbot:
-
-  ```bash
-  xhost local:root
-  docker compose -f compose.rviz.yaml -f compose.rosbot.yaml -f compose.rosbot.slam-toolbox.yaml up
-  ```
-
-3. Prepare map with Rviz2 using `2D Goal Pose`.
-
-## Saving the Map
-If the map is ready, open a new terminal, navigate to `demo/` folder and execute: 
-
-- On ROSbot:
-
-  ```bash
-  ./map-save.sh
-  ```
-Your map has been saved in docker volume and is now in the `maps/` folder.
-
-## Control ROSbot from RViz running on your laptop (amcl localization)
-In order for the robot to be able to use the previously prepared map for localization and navigating, launch:
-
-  - On laptop:
-      
-      Navigate to `/demo` folder and comment out the line of the `compose.rviz.yaml` file so that the `rviz` node uses the `rosbot_pro_localization.rviz` configuration file. It should looks like this:
-
-      ```yaml
-    # ROS Galactic
-    rviz:
-        image: husarion/rviz2
-        ...
-
-        volumes: 
-            - /tmp/.X11-unix:/tmp/.X11-unix:rw
-            # - ./config/rosbot_pro_mapping.rviz:/root/.rviz2/default.rviz
-            - ./config/rosbot_pro_localization.rviz:/root/.rviz2/default.rviz
-    
-      ```
-
-      Next, run compose files: 
-
-      ```bash
-      xhost local:root
-      docker compose -f compose.rviz.yaml -f compose.rviz.lan.yaml up
-      ```
-      
-
-  - On ROSbot:
-
-      ```bash
-      docker compose -f compose.rosbot.yaml -f compose.rosbot.amcl.yaml -f compose.rosbot.lan.yaml up
-      ```
-
-The above commands run an example on a lan network, but the same works for other types of connection. For example, if you are connected via the internet (Husarnet), replace `compose.rosbot.lan.yaml` file with `compose.rosbot.husarnet.yaml`.
+Demonstrations of **docker-compose** configurations are shown in [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros1/demo) repo.
+It presents how to run an autonomous mapping and navigation demo with ROSbot and Navigation2 stack.
 
 # Quick start (simulation) #
 
@@ -143,7 +31,7 @@ cd ~/ros_workspace/src
 git clone https://github.com/husarion/rosbot_ros.git
 ```
 
-Install depencencies:
+Install dependencies:
 
 ```bash
 cd ~/ros_workspace
@@ -192,32 +80,6 @@ In Terminal 1, launch the Gazebo simulation
 ```bash
 roslaunch rosbot_description rosbot_rviz_amcl.launch
 ```
-
-## Creating, Saving and Loading the Map with Gazebo and Docker
-The only thing you need is Docker, so make sure you have [Docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and [Docker Compose v2](https://docs.docker.com/compose/cli-command/#install-on-linux).
-
-To launch simulation, if you haven't done so already, you have to copy project git repository and run compose files located in the demo folder. Appropriate compose files configuration will launch Gazebo, rviz or rviz2 node and a package providing navigation and localization algorithms.
-
-### Nav2 + SlamToolbox (Galactic)
-To launch `Navigation2` and `SlamToolbox` with Gazebo, execute this lines in a termianl on your laptop:
-
-```bash
-git clone https://github.com/husarion/rosbot_ros.git
-cd demo/
-
-xhost local:root
-docker compose -f compose.simulation.yaml -f compose.rviz.yaml -f compose.rosbot.slam-toolbox.yaml up --build
-```
-
-Prepare map with Rviz2 using `2D Goal Pose` and [save the map](#3-saving-the-map).
-
-Next, see what the `compose.rviz.yaml` file should look like ([link](#4-amcl-localization---control-rosbot-from-rviz-running-on-laptop)) and  launch `Navigation2 stack` with `AMLC`:
-
-```bash
-xhost local:root
-docker compose -f compose.simulation.yaml -f compose.rviz.yaml -f compose.rosbot.amcl.yaml up --build
-```
-
 
 >**Tip:**
 >

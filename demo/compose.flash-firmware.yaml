@@ -1,7 +1,0 @@
-services:
-  
-  # ROS Melodic
-  core2-flash:
-    image: husarion/rosbot:latest
-    privileged: true
-    command: ./flash_firmware.sh diff # for mecanum wheels: ./flash_firmware.sh mecanum
