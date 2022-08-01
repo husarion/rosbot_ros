@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 
-<robot name="rosbot" 
+<robot name="rosbot"
   xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:arg name="robot_namespace" default=""/>
@@ -11,7 +11,7 @@
   <xacro:include filename="$(find rosbot_description)/urdf/materials.xacro" />
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot.gazebo" />
 
-  <link name="base_link"></link> 
+  <link name="base_link"></link>
   <joint name="base_link_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="base_link"/>
@@ -24,13 +24,9 @@
     <inertial>
       <mass value="5"/>
       <origin xyz="0 0 0.04" rpy=" 0 0 0"/>
-      <inertia 
-      ixx="0.01" ixy="0.01" ixz="0" 
-      iyy="0.01" iyz="0.01" 
-      izz="0.01" 
-      />
+      <inertia ixx="0.01" ixy="0.01" ixz="0" iyy="0.01" iyz="0.01" izz="0.01" />
     </inertial>
-  
+
 
     <collision>
       <origin xyz="0 0 0.02" rpy="0 0 0"/>
@@ -62,11 +58,7 @@
     <inertial>
       <mass value="0.01"/>
       <origin xyz="0 0 0.055" rpy=" 0 0 0"/>
-      <inertia 
-      ixx="0.0" ixy="0" ixz="0" 
-      iyy="0.0" iyz="0" 
-      izz="0.0" 
-      />
+      <inertia ixx="0.0" ixy="0" ixz="0" iyy="0.0" iyz="0" izz="0.0" />
     </inertial>
     <visual>
       <origin xyz="0 0 0.055" rpy=" 1.5707 0 1.5707"/>
@@ -102,10 +94,7 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <mass value="0.5"/>
-      <inertia 
-      ixx="0.001" ixy="0.0" ixz="0.0" 
-      iyy="0.001" iyz="0.0" 
-      izz="0.001"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
 
@@ -134,10 +123,7 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <mass value="0.5"/>
-      <inertia 
-      ixx="0.001" ixy="0.0" ixz="0.0" 
-      iyy="0.001" iyz="0.0" 
-      izz="0.001"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
 
@@ -166,10 +152,7 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <mass value="0.5"/>
-      <inertia 
-      ixx="0.001" ixy="0.0" ixz="0.0" 
-      iyy="0.001" iyz="0.0" 
-      izz="0.001"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
 
@@ -198,10 +181,7 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <mass value="0.5"/>
-      <inertia 
-      ixx="0.001" ixy="0.0" ixz="0.0" 
-      iyy="0.001" iyz="0.0" 
-      izz="0.001"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
 
