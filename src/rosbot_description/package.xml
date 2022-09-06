@@ -4,7 +4,7 @@
   <name>rosbot_description</name>
   <version>0.0.2</version>
   <description>Rosbot description package</description>
-  <maintainer email="support@husarion.com">Husarion</maintainer>
+  <maintainer email="jakub.delicat@husarion.com">Jakub Delicat</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

@@ -13,6 +13,8 @@ def generate_launch_description():
     rosbot_description = get_package_share_directory('rosbot_description')
     xacro_file = os.path.join(
         rosbot_description, 'models', 'rosbot', 'rosbot.urdf.xacro')
+    ekf_config = os.path.join(
+        rosbot_description, 'config', 'ekf.yaml')
 
     robot_description = {
         'robot_description': Command([
@@ -95,12 +97,22 @@ def generate_launch_description():
         )
     )
 
+    robot_localization_node = Node(
+       package='robot_localization',
+       executable='ekf_node',
+       name='ekf_filter_node',
+       output='screen',
+       parameters=[ekf_config]
+    )
+
+
     actions = [
         control_node,
         robot_state_publisher_node,
+        robot_localization_node,
         joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
-        delay_imu_broadcaster_spawner_after_robot_controller_spawner
+        delay_imu_broadcaster_spawner_after_robot_controller_spawner,
     ]
 
     return LaunchDescription(actions)
