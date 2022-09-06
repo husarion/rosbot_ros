@@ -1,4 +1,0 @@
-serial_node:
-  ros__parameters:
-    port: /dev/ttyS1
-    baud: 525000
