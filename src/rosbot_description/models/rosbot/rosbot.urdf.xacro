@@ -15,7 +15,7 @@
   <xacro:include filename="$(find rosbot_description)/models/rosbot_base/components/orbbec_astra.gazebo.xacro" ns="camera" />
   <xacro:camera.orbbec_astra parent_link="camera_link" xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
 
-  <xacro:include filename="$(find rosbot_description)/models/rosbot_base/ros2_control.urdf.xacro" />
+  <xacro:include filename="$(find rosbot_hardware_interfaces)/urdf/ros2_control.urdf.xacro" />
   <xacro:ros2_control_system/>
 
 </robot>
