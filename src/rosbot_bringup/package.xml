@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>rosbot_description</name>
-  <version>0.0.2</version>
-  <description>Rosbot description package</description>
+  <name>rosbot_bringup</name>
+  <version>0.0.0</version>
+  <description>Rosbot bringup package</description>
   <maintainer email="jakub.delicat@husarion.com">Jakub Delicat</maintainer>
   <license>Apache License 2.0</license>
 
@@ -12,7 +12,9 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <depend>robot_state_publisher</depend>
+  <depend>rosbot_description</depend>
+  <depend>rosbot_hardware_interfaces</depend>
+
 
   <export>
     <build_type>ament_cmake</build_type>
