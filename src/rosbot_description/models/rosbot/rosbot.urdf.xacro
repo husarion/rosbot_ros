@@ -10,7 +10,7 @@
   <xacro:husarion.rosbot_robot use_sim="$(arg use_sim)" />
 
   <xacro:include filename="$(find rosbot_description)/models/rosbot_base/components/rplidar_a2.gazebo.xacro" ns="lidar" />
-  <xacro:lidar.rplidar_a2 parent_link="cover_link" xyz="0.02 0.0 0.0" rpy="0.0 0.0 0.0" use_gpu="$(arg use_gpu)" />
+  <xacro:lidar.rplidar_a2 parent_link="cover_link" xyz="0.02 0.0 0.0" rpy="0.0 0.0 ${pi}" use_gpu="$(arg use_gpu)" />
 
   <xacro:include filename="$(find rosbot_description)/models/rosbot_base/components/orbbec_astra.gazebo.xacro" ns="camera" />
   <xacro:camera.orbbec_astra parent_link="camera_link" xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
