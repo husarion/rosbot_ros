@@ -2,8 +2,8 @@
 ekf_filter_node:
     ros__parameters:
         predict_to_current_time: false
-        frequency: 100.0
-        sensor_timeout: 0.04
+        frequency: 30.0
+        sensor_timeout: 0.06
         two_d_mode: true
         print_diagnostics: true
         publish_tf: true
