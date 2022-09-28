@@ -7,7 +7,6 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rosbot_hardware_interfaces REQUIRED)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -26,7 +25,6 @@ if(BUILD_TESTING)
 endif()
 
 ament_export_dependencies(
-  rosbot_hardware_interfaces
   robot_state_publisher
 )
 

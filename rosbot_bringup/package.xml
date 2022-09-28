@@ -13,7 +13,6 @@
   <test_depend>ament_lint_common</test_depend>
 
   <depend>rosbot_description</depend>
-  <depend>rosbot_hardware_interfaces</depend>
 
 
   <export>
