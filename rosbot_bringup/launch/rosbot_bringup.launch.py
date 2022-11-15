@@ -1,7 +1,7 @@
 from launch import LaunchDescription
 from launch.substitutions import Command
 from launch_ros.actions import Node
-from launch.substitutions import Command,  PathJoinSubstitution
+from launch.substitutions import Command, PathJoinSubstitution
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnProcessExit
@@ -9,12 +9,11 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch.actions import RegisterEventHandler
-import os
 
 
 def generate_launch_description():
-    rosbot_description = get_package_share_directory('rosbot_description')
-    rosbot_bringup = get_package_share_directory('rosbot_bringup')
+    rosbot_description = get_package_share_directory("rosbot_description")
+    rosbot_bringup = get_package_share_directory("rosbot_bringup")
 
     rosbot_description_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -28,15 +27,11 @@ def generate_launch_description():
         )
     )
 
-    xacro_file = os.path.join(
-        rosbot_description, 'models', 'rosbot', 'rosbot.urdf.xacro')
-    ekf_config = os.path.join(
-        rosbot_bringup, 'config', 'ekf.yaml')
+    xacro_file = PathJoinSubstitution([rosbot_description, "urdf", "rosbot.urdf.xacro"])
+    ekf_config = PathJoinSubstitution([rosbot_bringup, "config", "ekf.yaml"])
 
     robot_description = {
-        'robot_description': Command([
-            'xacro --verbosity 0 ', xacro_file
-        ])
+        "robot_description": Command(["xacro --verbosity 0 ", xacro_file])
     }
 
     robot_controllers = PathJoinSubstitution(
@@ -115,11 +110,11 @@ def generate_launch_description():
     )
 
     robot_localization_node = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_filter_node',
-        output='screen',
-        parameters=[ekf_config]
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_filter_node",
+        output="screen",
+        parameters=[ekf_config],
     )
 
     actions = [
