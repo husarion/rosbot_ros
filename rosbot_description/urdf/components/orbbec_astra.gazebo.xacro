@@ -13,7 +13,7 @@
         <geometry>
           <mesh filename="file://$(find rosbot_description)/meshes/components/astra.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <origin xyz="-0.01 0 0.025" rpy="${pi/2} 0 ${pi/2}" />
+        <origin xyz="-0.01 0 0.0277" rpy="${pi/2} 0 ${pi/2}" />
         <material name="Black">
           <color rgba="0.0 0.0 0.0 1.0" />
         </material>

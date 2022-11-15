@@ -33,7 +33,7 @@
         <geometry>
           <mesh filename="file://$(find rosbot_description)/meshes/components/rplidar.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <origin xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 ${pi/2}" />
+        <origin xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 ${-pi/2}" />
         <material name="Black">
           <color rgba="0.0 0.0 0.0 1.0" />
         </material>
