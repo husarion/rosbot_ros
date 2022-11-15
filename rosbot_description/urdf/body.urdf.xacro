@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- body defining macro -->
+  <xacro:macro name="body" params="wheel_radius">
+
+    <link name="base_link" />
+
+    <joint name="base_to_body_joint" type="fixed">
+      <origin xyz="0.0 0.0 ${wheel_radius}" rpy="0.0 0.0 0.0" />
+      <parent link="base_link" />
+      <child link="body_link" />
+    </joint>
+
+    <link name="body_link">
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find rosbot_description)/meshes/body.stl" scale="0.001 0.001 0.001" />
+        </geometry>
+        <origin xyz="0.0 0.0 -0.0173" rpy="${pi/2} 0.0 ${pi/2}" />
+        <material name="White">
+          <color rgba="1.0 1.0 1.0 1.0" />
+        </material>
+      </visual>
+
+      <collision>
+        <geometry>
+          <box size="0.197 0.150 0.080" />
+        </geometry>
+        <origin xyz="0.0 0.0 ${0.040-0.02}" rpy="0.0 0.0 0.0" />
+      </collision>
+
+      <inertial>
+        <mass value="2.0" />
+        <inertia ixx="0.001" ixy="0.000" ixz="0.000" iyy="0.001" iyz="0.000" izz="0.001" />
+      </inertial>
+    </link>
+    <gazebo reference="body_link">
+      <material>Gazebo/White</material>
+    </gazebo>
+
+    <joint name="body_to_cover_joint" type="fixed">
+      <origin xyz="0.0 0.0 0.0603" rpy="0.0 0.0 0.0" />
+      <parent link="body_link" />
+      <child link="cover_link" />
+    </joint>
+
+    <link name="cover_link">
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find rosbot_description)/meshes/cover.stl" scale="0.001 0.001 0.001" />
+        </geometry>
+        <origin xyz="0.0 0.0 -0.002" rpy="${pi/2} 0.0 ${pi/2}" />
+        <material name="Red">
+          <color rgba="0.8 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <gazebo reference="cover_link">
+        <material>Gazebo/Red</material>
+      </gazebo>
+
+      <inertial>
+        <mass value="0.000001" />
+        <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="0.0" />
+      </inertial>
+    </link>
+    
+    <joint name="body_to_imu_joint" type="fixed">
+      <origin xyz="0.003 -0.0495 0.04332" rpy="0.0 0.0 0.0" />
+      <parent link="body_link" />
+      <child link="imu_link" />
+    </joint>
+
+    <link name="imu_link">
+      <inertial>
+        <mass value="0.001" />
+        <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+      </inertial>
+    </link>
+
+    <joint name="body_to_camera_joint" type="fixed">
+      <origin xyz="-0.0141 0.0 0.125" rpy="0.0 0.0 0.0" />
+      <parent link="body_link" />
+      <child link="camera_link" />
+    </joint>
+
+    <link name="camera_link">
+      <inertial>
+        <mass value="0.000001" />
+        <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+      </inertial>
+    </link>
+
+    <joint name="fl_range_joint" type="fixed">
+      <axis xyz="0 1 0" />
+      <origin xyz="0.0926 0.05 0.015" rpy="0 0 0.218 " />
+      <parent link="body_link" />
+      <child link="fl_range" />
+    </joint>
+    <link name="fl_range"></link>
+
+    <joint name="fr_range_joint" type="fixed">
+      <axis xyz="0 1 0" />
+      <origin xyz="0.0926 -0.05 0.015" rpy="0 0 -0.218 " />
+      <parent link="body_link" />
+      <child link="fr_range" />
+    </joint>
+    <link name="fr_range"></link>
+
+    <joint name="rl_range_joint" type="fixed">
+      <axis xyz="0 1 0" />
+      <origin xyz="-0.0926 0.05 0.0115" rpy="0 0 2.924 " />
+      <parent link="body_link" />
+      <child link="rl_range" />
+    </joint>
+    <link name="rl_range"></link>
+
+    <joint name="rr_range_joint" type="fixed">
+      <axis xyz="0 1 0" />
+      <origin xyz="-0.0926 -0.05 0.0115" rpy="0 0 3.360" />
+      <parent link="body_link" />
+      <child link="rr_range" />
+    </joint>
+    <link name="rr_range"></link>
+  
+  </xacro:macro>
+</robot>

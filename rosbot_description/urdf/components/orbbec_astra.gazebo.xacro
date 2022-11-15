@@ -1,54 +1,55 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:macro name="orbbec_astra" params="xyz rpy parent_link:=base_link">
+
+    <joint name="body_to_orbbec_astra_joint" type="fixed">
+      <origin xyz="${xyz}" rpy="${rpy}" />
+      <parent link="${parent_link}" />
+      <child link="orbbec_astra_link" />
+    </joint>
+
     <link name="orbbec_astra_link">
       <visual>
         <geometry>
-            <mesh filename="file://$(find rosbot_description)/models/rosbot_base/meshes/components/astra.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find rosbot_description)/meshes/components/astra.stl" scale="0.001 0.001 0.001" />
         </geometry>
-        <origin xyz="-0.01 0 0.025" rpy="${pi/2} 0 ${pi/2}"/>
-        <material name="Black" />
+        <origin xyz="-0.01 0 0.0277" rpy="${pi/2} 0 ${pi/2}" />
+        <material name="Black">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
       </visual>
 
       <collision>
         <geometry>
           <box size="0.165 0.04 0.05" />
         </geometry>
-        <origin xyz="-0.01 0 0.025" rpy="0 0 ${pi/2}"/>
+        <origin xyz="-0.01 0 0.025" rpy="0 0 ${pi/2}" />
       </collision>
 
       <inertial>
-          <mass value="0.105" />
-          <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+        <mass value="0.105" />
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
       </inertial>
     </link>
 
-    <link name="orbbec_astra_depth_link"></link>
-    <link name="orbbec_astra_depth_refference_link"></link>
-
-    <joint name="body_link_to_orbbec_astra_link_joint" type="fixed">
-      <origin xyz="${xyz}" rpy="${rpy}" />
-      <parent link="${parent_link}" />
-      <child link="orbbec_astra_link" />
-    </joint>
-
-    <joint name="orbbec_astra_depth_link_joint" type="fixed">
+    <joint name="orbbec_astra_depth_joint" type="fixed">
       <origin xyz="0.01 0 0.035" rpy="0.0 ${pi/2} 0.0" />
       <parent link="orbbec_astra_link" />
       <child link="orbbec_astra_depth_link" />
     </joint>
-
-    <joint name="orbbec_astra_depth_link_refference_joint" type="fixed">
-      <origin xyz="0.0 0.0 0.0" rpy="${pi/2} ${-pi/2} 0.0" />
-      <parent link="orbbec_astra_depth_link" />
-      <child link="orbbec_astra_depth_refference_link" />
-    </joint>
-
+    <link name="orbbec_astra_depth_link"></link>
     <gazebo reference="orbbec_astra_link">
       <material>Gazebo/DarkGrey</material>
     </gazebo>
 
-    <gazebo reference="orbbec_astra_depth_refference_link">
+    <joint name="orbbec_astra_depth_reference_joint" type="fixed">
+      <origin xyz="0.0 0.0 0.0" rpy="${pi/2} ${-pi/2} 0.0" />
+      <parent link="orbbec_astra_depth_link" />
+      <child link="orbbec_astra_depth_reference_link" />
+    </joint>
+    <link name="orbbec_astra_depth_reference_link"></link>
+
+    <gazebo reference="orbbec_astra_depth_reference_link">
       <sensor type="depth" name="orbbec_astra_camera">
         <always_on>1</always_on>
         <update_rate>10</update_rate>
@@ -83,5 +84,6 @@
         </plugin>
       </sensor>
     </gazebo>
+
   </xacro:macro>
 </robot>

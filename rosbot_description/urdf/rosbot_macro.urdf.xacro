@@ -1,0 +1,136 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+  <xacro:macro name="rosbot_robot" params="use_sim">
+
+    <xacro:property name="wheel_radius" value="0.0425" />
+
+    <!-- INCLUDE ROBOT PARTS DEFINITIONS -->
+    <xacro:include filename="$(find rosbot_description)/urdf/body.urdf.xacro" ns="body" />
+    <xacro:include filename="$(find rosbot_description)/urdf/wheel.urdf.xacro" ns="wheel" />
+
+    <!-- BODY DECLARATION -->
+    <xacro:body.body wheel_radius="${wheel_radius}" />
+
+    <!-- WHEEL DECLARATION -->
+    <xacro:wheel.wheel wheel_type="differential" wheel_radius="${wheel_radius}" prefix="fl" />
+    <xacro:wheel.wheel wheel_type="differential" wheel_radius="${wheel_radius}" prefix="fr" />
+    <xacro:wheel.wheel wheel_type="differential" wheel_radius="${wheel_radius}" prefix="rl" />
+    <xacro:wheel.wheel wheel_type="differential" wheel_radius="${wheel_radius}" prefix="rr" />
+
+    <!-- ROS2 CONTROL -->
+    <xacro:unless value="$(arg use_sim)">
+      <ros2_control name="imu" type="sensor">
+        <hardware>
+          <plugin>rosbot_hardware_interfaces/RosbotImuSensor</plugin>
+          <param name="connection_timeout_ms">120000</param>
+          <param name="connection_check_period_ms">500</param>
+        </hardware>
+        <sensor name="imu">
+          <state_interface name="orientation.x" />
+          <state_interface name="orientation.y" />
+          <state_interface name="orientation.z" />
+          <state_interface name="orientation.w" />
+          <state_interface name="angular_velocity.x" />
+          <state_interface name="angular_velocity.y" />
+          <state_interface name="angular_velocity.z" />
+          <state_interface name="linear_acceleration.x" />
+          <state_interface name="linear_acceleration.y" />
+          <state_interface name="linear_acceleration.z" />
+        </sensor>
+      </ros2_control>
+    </xacro:unless>
+
+    <ros2_control name="wheels" type="system">
+      <hardware>
+        <xacro:unless value="$(arg use_sim)">
+          <plugin>rosbot_hardware_interfaces/RosbotSystem</plugin>
+          <param name="connection_timeout_ms">120000</param>
+          <param name="connection_check_period_ms">500</param>
+
+          <!-- for some reason diff drive controller publishes velocities for motors in rad/s, but expects feedback in m/s
+            both commands and feedback from digital board are in rad/s, so it is necessary to convert it
+            maybe will be resolved (https://github.com/ros-controls/ros2_controllers/issues/411), then it can be removed -->
+          <param name="wheel_radius">${wheel_radius}</param>
+
+          <!-- order of velocity commands to be published in motors_cmd Float32MultiArray msg -->
+          <param name="velocity_command_joint_order">
+                rr_wheel_joint,
+                rl_wheel_joint,
+                fr_wheel_joint,
+                fl_wheel_joint
+          </param>
+        </xacro:unless>
+      </hardware>
+
+      <joint name="fl_wheel_joint">
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+      </joint>
+      <joint name="fr_wheel_joint">
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+      </joint>
+      <joint name="rl_wheel_joint">
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+      </joint>
+      <joint name="rr_wheel_joint">
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+      </joint>
+    </ros2_control>
+
+    <!-- GAZEBO PLUGINS DECLARATION -->
+    <xacro:if value="${use_sim}">
+      <!-- Controll robot wheels -->
+      <gazebo>
+        <plugin name='skid_steer_drive' filename='libgazebo_ros_diff_drive.so'>
+          <ros></ros>
+          <update_rate>10</update_rate>
+          <num_wheel_pairs>2</num_wheel_pairs>
+          <left_joint>fl_wheel_joint</left_joint>
+          <right_joint>fr_wheel_joint</right_joint>
+          <left_joint>rl_wheel_joint</left_joint>
+          <right_joint>rr_wheel_joint</right_joint>
+          <wheel_separation>0.192</wheel_separation>
+          <wheel_separation>0.192</wheel_separation>
+          <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
+          <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
+          <max_wheel_torque>1.5</max_wheel_torque>
+          <max_wheel_acceleration>1.0</max_wheel_acceleration>
+          <publish_odom>true</publish_odom>
+          <publish_odom_tf>true</publish_odom_tf>
+          <publish_wheel_tf>true</publish_wheel_tf>
+          <odometry_frame>odom</odometry_frame>
+          <robot_base_frame>base_link</robot_base_frame>
+        </plugin>
+      </gazebo>
+      <!-- publish joint states -->
+      <gazebo>
+        <plugin name="joint_states" filename="libgazebo_ros_joint_state_publisher.so">
+          <joint_name>fl_wheel_joint</joint_name>
+          <joint_name>fr_wheel_joint</joint_name>
+          <joint_name>rl_wheel_joint</joint_name>
+          <joint_name>rr_wheel_joint</joint_name>
+        </plugin>
+      </gazebo>
+      <!-- publish IMU -->
+      <gazebo reference="imu_link">
+        <sensor type="imu" name="imu">
+          <always_on>true</always_on>
+          <update_rate>25</update_rate>
+          <plugin name="bno055_imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+            <ros>
+              <argument>~/out:=imu/data/raw</argument>
+            </ros>
+          </plugin>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+    
+  </xacro:macro>
+</robot>
