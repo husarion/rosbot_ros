@@ -64,57 +64,59 @@
 
     <link name="${tf_prefix_ext}${frame_id}"></link>
 
-    <gazebo reference="${tf_prefix_ext}${frame_id}">
-      <sensor type="${ray_type}" name="${tf_prefix_ext}rplidar_a2_sensor">
-        <topic>${topic}</topic>
+    <xacro:unless value="${simulation_engine == 'webots'}">
+      <gazebo reference="${tf_prefix_ext}${frame_id}">
+        <sensor type="${ray_type}" name="${tf_prefix_ext}rplidar_a2_sensor">
+          <topic>${topic}</topic>
 
-        <frame_id>${tf_prefix_ext}${frame_id}</frame_id>
-        <ignition_frame_id>${tf_prefix_ext}${frame_id}</ignition_frame_id>
+          <frame_id>${tf_prefix_ext}${frame_id}</frame_id>
+          <ignition_frame_id>${tf_prefix_ext}${frame_id}</ignition_frame_id>
 
 
-        <update_rate>10</update_rate>
-        <ray>
-          <scan>
-            <horizontal>
-              <samples>400</samples>
-              <resolution>1</resolution>
-              <min_angle>-${pi}</min_angle>
-              <max_angle>${pi}</max_angle>
-            </horizontal>
-          </scan>
-          <range>
-            <min>0.2</min>
-            <max>16.0</max>
-            <resolution>0.08</resolution>
-          </range>
+          <update_rate>10</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>400</samples>
+                <resolution>1</resolution>
+                <min_angle>-${pi}</min_angle>
+                <max_angle>${pi}</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.2</min>
+              <max>16.0</max>
+              <resolution>0.08</resolution>
+            </range>
 
-          <noise>
-            <type>gaussian</type>
-            <mean>0.05</mean>
-            <stddev>0.01</stddev>
-          </noise>
-        </ray>
-        <always_on>1</always_on>
-        <visualize>false</visualize>
-      </sensor>
-    </gazebo>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.05</mean>
+              <stddev>0.01</stddev>
+            </noise>
+          </ray>
+          <always_on>1</always_on>
+          <visualize>false</visualize>
+        </sensor>
+      </gazebo>
 
-    <gazebo>
-      <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
-        <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors">
-          <render_engine>ogre2</render_engine>
-        </plugin>
-      </xacro:if>
-      <xacro:if value="${simulation_engine == 'gazebo-classic'}">
-        <plugin name="scan" filename="libgazebo_ros_ray_sensor.so">
-          <ros>
-            <namespace>/</namespace>
-            <argument>~/out:=${topic}</argument>
-          </ros>
-          <output_type>sensor_msgs/LaserScan</output_type>
-          <frame_name>${tf_prefix_ext}${frame_id}</frame_name>
-        </plugin>
-      </xacro:if>
-    </gazebo>
+      <gazebo>
+        <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
+          <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+          </plugin>
+        </xacro:if>
+        <xacro:if value="${simulation_engine == 'gazebo-classic'}">
+          <plugin name="scan" filename="libgazebo_ros_ray_sensor.so">
+            <ros>
+              <namespace>/</namespace>
+              <argument>~/out:=${topic}</argument>
+            </ros>
+            <output_type>sensor_msgs/LaserScan</output_type>
+            <frame_name>${tf_prefix_ext}${frame_id}</frame_name>
+          </plugin>
+        </xacro:if>
+      </gazebo>
+    </xacro:unless>
   </xacro:macro>
 </robot>

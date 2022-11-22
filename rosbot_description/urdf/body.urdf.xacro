@@ -63,7 +63,7 @@
         <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="0.0" />
       </inertial>
     </link>
-    
+
     <joint name="body_to_imu_joint" type="fixed">
       <origin xyz="0.003 -0.0495 0.04332" rpy="0.0 0.0 0.0" />
       <parent link="body_link" />
@@ -121,6 +121,6 @@
       <child link="rr_range" />
     </joint>
     <link name="rr_range"></link>
-  
+
   </xacro:macro>
 </robot>

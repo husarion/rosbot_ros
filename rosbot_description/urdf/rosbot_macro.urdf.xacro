@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="use_sim">
+  <xacro:macro name="rosbot_robot" params="use_sim simulation_engine">
 
     <xacro:property name="wheel_radius" value="0.0425" />
 
@@ -57,9 +57,15 @@
                 rr_wheel_joint,
                 rl_wheel_joint,
                 fr_wheel_joint,
-                fl_wheel_joint
+                fl_wheel_jointunless
           </param>
         </xacro:unless>
+
+        <xacro:if value="$(arg use_sim)">
+          <xacro:if value="${simulation_engine == 'webots'}">
+            <plugin>webots_ros2_control::Ros2ControlSystem</plugin>
+          </xacro:if>
+        </xacro:if>
       </hardware>
 
       <joint name="fl_wheel_joint">
@@ -86,51 +92,92 @@
 
     <!-- GAZEBO PLUGINS DECLARATION -->
     <xacro:if value="${use_sim}">
-      <!-- Controll robot wheels -->
-      <gazebo>
-        <plugin name='skid_steer_drive' filename='libgazebo_ros_diff_drive.so'>
-          <ros></ros>
-          <update_rate>10</update_rate>
-          <num_wheel_pairs>2</num_wheel_pairs>
-          <left_joint>fl_wheel_joint</left_joint>
-          <right_joint>fr_wheel_joint</right_joint>
-          <left_joint>rl_wheel_joint</left_joint>
-          <right_joint>rr_wheel_joint</right_joint>
-          <wheel_separation>0.192</wheel_separation>
-          <wheel_separation>0.192</wheel_separation>
-          <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
-          <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
-          <max_wheel_torque>1.5</max_wheel_torque>
-          <max_wheel_acceleration>1.0</max_wheel_acceleration>
-          <publish_odom>true</publish_odom>
-          <publish_odom_tf>true</publish_odom_tf>
-          <publish_wheel_tf>true</publish_wheel_tf>
-          <odometry_frame>odom</odometry_frame>
-          <robot_base_frame>base_link</robot_base_frame>
-        </plugin>
-      </gazebo>
-      <!-- publish joint states -->
-      <gazebo>
-        <plugin name="joint_states" filename="libgazebo_ros_joint_state_publisher.so">
-          <joint_name>fl_wheel_joint</joint_name>
-          <joint_name>fr_wheel_joint</joint_name>
-          <joint_name>rl_wheel_joint</joint_name>
-          <joint_name>rr_wheel_joint</joint_name>
-        </plugin>
-      </gazebo>
-      <!-- publish IMU -->
-      <gazebo reference="imu_link">
-        <sensor type="imu" name="imu">
-          <always_on>true</always_on>
-          <update_rate>25</update_rate>
-          <plugin name="bno055_imu_plugin" filename="libgazebo_ros_imu_sensor.so">
-            <ros>
-              <argument>~/out:=imu/data/raw</argument>
-            </ros>
+      <xacro:unless value="${simulation_engine == 'webots'}">
+        <!-- Control robot wheels -->
+        <gazebo>
+          <plugin name='skid_steer_drive' filename='libgazebo_ros_diff_drive.so'>
+            <ros></ros>
+            <update_rate>10</update_rate>
+            <num_wheel_pairs>2</num_wheel_pairs>
+            <left_joint>fl_wheel_joint</left_joint>
+            <right_joint>fr_wheel_joint</right_joint>
+            <left_joint>rl_wheel_joint</left_joint>
+            <right_joint>rr_wheel_joint</right_joint>
+            <wheel_separation>0.192</wheel_separation>
+            <wheel_separation>0.192</wheel_separation>
+            <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
+            <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
+            <max_wheel_torque>1.5</max_wheel_torque>
+            <max_wheel_acceleration>1.0</max_wheel_acceleration>
+            <publish_odom>true</publish_odom>
+            <publish_odom_tf>true</publish_odom_tf>
+            <publish_wheel_tf>true</publish_wheel_tf>
+            <odometry_frame>odom</odometry_frame>
+            <robot_base_frame>base_link</robot_base_frame>
           </plugin>
-        </sensor>
-      </gazebo>
+        </gazebo>
+        <!-- publish joint states -->
+        <gazebo>
+          <plugin name="joint_states" filename="libgazebo_ros_joint_state_publisher.so">
+            <joint_name>fl_wheel_joint</joint_name>
+            <joint_name>fr_wheel_joint</joint_name>
+            <joint_name>rl_wheel_joint</joint_name>
+            <joint_name>rr_wheel_joint</joint_name>
+          </plugin>
+        </gazebo>
+        <!-- publish IMU -->
+        <gazebo reference="imu_link">
+          <sensor type="imu" name="imu">
+            <always_on>true</always_on>
+            <update_rate>25</update_rate>
+            <plugin name="bno055_imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+              <ros>
+                <argument>~/out:=imu/data/raw</argument>
+              </ros>
+            </plugin>
+          </sensor>
+        </gazebo>
+      </xacro:unless>
+
+      <xacro:if value="${simulation_engine == 'webots'}">
+        <webots>
+          <plugin type="webots_ros2_control::Ros2Control" />
+          <device reference="laser" type="Lidar">
+            <ros>
+              <topicName>/scan</topicName>
+            </ros>
+          </device>
+          <device reference="fl_range" type="DistanceSensor">
+            <ros>
+              <topicName>/range/fl</topicName>
+            </ros>
+          </device>
+          <device reference="fr_range" type="DistanceSensor">
+            <ros>
+              <topicName>/range/fr</topicName>
+            </ros>
+          </device>
+          <device reference="rl_range" type="DistanceSensor">
+            <ros>
+              <topicName>/range/rl</topicName>
+            </ros>
+          </device>
+          <device reference="rr_range" type="DistanceSensor">
+            <ros>
+              <topicName>/range/rr</topicName>
+            </ros>
+          </device>
+          <plugin type="webots_ros2_driver::Ros2IMU">
+            <enabled>true</enabled>
+            <topicName>/imu_broadcaster/imu</topicName>
+            <alwaysOn>true</alwaysOn>
+            <frameName>imu_link</frameName>
+            <gyroName>imu gyro</gyroName>
+            <accelerometerName>imu accelerometer</accelerometerName>
+            <inertialUnitName>imu inertial_unit</inertialUnitName>
+          </plugin>
+        </webots>
+      </xacro:if>
     </xacro:if>
-    
   </xacro:macro>
 </robot>
