@@ -145,6 +145,7 @@
           <device reference="laser" type="Lidar">
             <ros>
               <topicName>/scan</topicName>
+              <updateRate>12</updateRate>
             </ros>
           </device>
           <device reference="fl_range" type="DistanceSensor">
