@@ -57,7 +57,7 @@
                 rr_wheel_joint,
                 rl_wheel_joint,
                 fr_wheel_joint,
-                fl_wheel_jointunless
+                fl_wheel_joint
           </param>
         </xacro:unless>
 
@@ -92,7 +92,7 @@
 
     <!-- GAZEBO PLUGINS DECLARATION -->
     <xacro:if value="${use_sim}">
-      <xacro:unless value="${simulation_engine == 'webots'}">
+      <xacro:if value="${simulation_engine == 'gazebo-classic'}">
         <!-- Control robot wheels -->
         <gazebo>
           <plugin name='skid_steer_drive' filename='libgazebo_ros_diff_drive.so'>
@@ -137,7 +137,7 @@
             </plugin>
           </sensor>
         </gazebo>
-      </xacro:unless>
+      </xacro:if>
 
       <xacro:if value="${simulation_engine == 'webots'}">
         <webots>
