@@ -49,7 +49,7 @@
     </joint>
     <link name="orbbec_astra_depth_reference_link"></link>
 
-    <xacro:unless value="${simulation_engine == 'webots'}">
+    <xacro:if value="${simulation_engine == 'gazebo-classic'}">
       <gazebo reference="orbbec_astra_depth_reference_link">
         <sensor type="depth" name="orbbec_astra_camera">
           <always_on>1</always_on>
@@ -85,7 +85,7 @@
           </plugin>
         </sensor>
       </gazebo>
-    </xacro:unless>
+    </xacro:if>
 
   </xacro:macro>
 </robot>
