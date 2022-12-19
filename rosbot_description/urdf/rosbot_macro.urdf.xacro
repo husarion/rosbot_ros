@@ -47,11 +47,6 @@
           <param name="connection_timeout_ms">120000</param>
           <param name="connection_check_period_ms">500</param>
 
-          <!-- for some reason diff drive controller publishes velocities for motors in rad/s, but expects feedback in m/s
-            both commands and feedback from digital board are in rad/s, so it is necessary to convert it
-            maybe will be resolved (https://github.com/ros-controls/ros2_controllers/issues/411), then it can be removed -->
-          <param name="wheel_radius">${wheel_radius}</param>
-
           <!-- order of velocity commands to be published in motors_cmd Float32MultiArray msg -->
           <param name="velocity_command_joint_order">
                 rr_wheel_joint,
