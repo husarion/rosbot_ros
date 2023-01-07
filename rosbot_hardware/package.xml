@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>rosbot_bringup</name>
+  <name>rosbot_hardware</name>
   <version>0.0.2</version>
 
-  <description>Rosbot bringup package</description>
+  <description>Hardware configuration for ROSbot XL</description>
   <license>Apache License 2.0</license>
 
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
-  <maintainer email="support@husarion.com">Husarion</maintainer>
+  <maintainer email="contact@husarion.com">Husarion</maintainer>
 
   <url type="website">https://husarion.com/</url>
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
@@ -16,9 +16,20 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>rosbot_description</exec_depend>
+
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-  <exec_depend>rosbot_hardware</exec_depend>
+
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>imu_sensor_broadcaster</exec_depend>
+  <exec_depend>diff_drive_controller</exec_depend>
+
+  <exec_depend>rosbot_hardware_interfaces</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

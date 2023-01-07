@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_description</name>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
 
   <description>Rosbot description package</description>
   <license>Apache License 2.0</license>
@@ -16,11 +16,6 @@
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_common</test_depend>
-
-  <depend>robot_state_publisher</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
