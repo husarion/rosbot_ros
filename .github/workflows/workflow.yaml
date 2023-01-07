@@ -1,0 +1,61 @@
+name: Trigger rosbot-docker to build an image and bump version
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Version to bump (major, minor, patch)"
+        default: "patch"
+        required: true
+  pull_request:
+    branches: master
+    types: [closed]
+
+jobs:
+  get-bump:
+    name: Get version bump
+    runs-on: ubuntu-22.04
+    outputs:
+      bump: ${{ env.BUMP }}
+    steps:
+      - if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        name: Get version bump
+        id: get-version-bump
+        uses: husarion-ci/action-get-version-bump@v0.3.0
+      - if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        run: echo "BUMP=${{ steps.get-version-bump.outputs.bump }}" >> $GITHUB_ENV
+      - if: github.event_name == 'workflow_dispatch'
+        run: echo "BUMP=${{ github.event.inputs.name }}" >> $GITHUB_ENV
+
+  catkin-release:
+    name: Bump version
+    runs-on: ubuntu-22.04
+    needs: get-bump
+    outputs:
+      new_version: ${{ steps.catkin-release.outputs.new_version }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Catkin release
+        id: catkin-release
+        uses: husarion-ci/action-catkin-release@v0.1.4
+        with:
+          bump: ${{ needs.get-bump.outputs.bump }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_user: action-bot
+          git_email: action-bot@action-bot.com
+
+  build-and-push-docker-image:
+    name: Create new docker image
+    runs-on: ubuntu-22.04
+    needs: catkin-release
+    steps:
+      - name: trigger the endpoint
+        run: >
+          curl -X POST
+          -H "Accept: application/vnd.github+json"
+          -H "Authorization: Bearer ${{ secrets.GH_PAT }}"
+          https://api.github.com/repos/husarion/rosbot-docker/dispatches
+          -d '{"event_type":"ros-package-update"}'
