@@ -8,7 +8,7 @@ on:
         default: "patch"
         required: true
   pull_request:
-    branches: humble
+    branches: update-workflow
     types: [closed]
 
 jobs:
