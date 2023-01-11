@@ -16,6 +16,7 @@ ROS2 hardware controllers configuration for ROSbots.
 
 ## Demo
 In [rosbot-mapping](https://github.com/husarion/rosbot-mapping) you will find an example how to use ROSbot with the slam_toolbox.
+
 In [rosbot-navigation](https://github.com/husarion/rosbot-navigation) you will find an example how to use ROSbot with the navigation stack.
 
 ## ROS API
