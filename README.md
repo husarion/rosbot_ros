@@ -15,9 +15,9 @@ URDF model used as a source of transforms on the physical robot. It was written 
 ROS2 hardware controllers configuration for ROSbots.
 
 ## Demo
-In [rosbot-mapping](https://github.com/husarion/rosbot-mapping) you will find an example how to use ROSbot with the slam_toolbox.
-
-In [rosbot-navigation](https://github.com/husarion/rosbot-navigation) you will find an example how to use ROSbot with the navigation stack.
+Template projects and demos:
+- [rosbot-mapping](https://github.com/husarion/rosbot-mapping) you will find an example how to use ROSbot with the slam_toolbox.
+- [rosbot-navigation](https://github.com/husarion/rosbot-navigation) you will find an example how to use ROSbot with the navigation stack.
 
 ## ROS API
 Available in [ROS_API.md](./ROS_API.md)
