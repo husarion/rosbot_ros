@@ -3,7 +3,7 @@ Use `rosbot_bringup.launch.py` from `rosbot_bringup` to start all base functiona
 - `ekf_node` from `robot_localization`, it is used to fuse wheel odometry and IMU data. Parameters are defined in `ekf.yaml` in `rosbot_bringup/config`. It subscribes to `/rosbot_base_controller/odom` and `/imu_broadcaster/imu` published by ros2 controllers and publishes fused odometry on `/odometry/filtered` topic
 
   **Subscribes**
-  - `/rosbot_xl_base_controller/odom` (_nav_msgs/Odometry_)
+  - `/rosbot_base_controller/odom` (_nav_msgs/Odometry_)
   - `/imu_broadcaster/imu` (_sensor_msgs/Imu_)
 
   **Publishes**
