@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_bringup</name>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <description>Rosbot bringup package</description>
   <maintainer email="jakub.delicat@husarion.com">Jakub Delicat</maintainer>
   <license>Apache License 2.0</license>
