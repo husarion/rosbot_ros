@@ -18,4 +18,4 @@ ROS2 hardware controllers configuration for ROSbots.
 Bellow you can find demos with ROSbots:
 - in [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros2) you will find a simple example how to use ROSbot.
 - in [rosbot-mapping](https://github.com/husarion/rosbot-mapping) you will find an example how to use ROSbot with the [slam_toolbox](https://github.com/SteveMacenski/slam_toolbox/).
-- in [rosbot-navigation](https://github.com/husarion/rosbot-navigation) you will find an simple example how to use ROSbot with the [navigation2](https://github.com/ros-planning/navigation2) stack.
+- in [rosbot-navigation](https://github.com/husarion/rosbot-navigation) you will find an example how to use ROSbot with the [navigation2](https://github.com/ros-planning/navigation2) stack.
