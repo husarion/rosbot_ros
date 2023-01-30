@@ -8,7 +8,7 @@
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
   <xacro:husarion.rosbot_robot use_sim="$(arg use_sim)" simulation_engine="$(arg simulation_engine)"/>
 
-  <xacro:include filename="$(find rosbot_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
+  <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
   <xacro:lidar.slamtec_rplidar_a2
     parent_link="cover_link"
     xyz="0.02 0.0 0.0"
