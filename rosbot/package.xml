@@ -18,7 +18,7 @@
 
   <depend>rosbot_bringup</depend>
   <depend>rosbot_description</depend>
-  <depend>rosbot_hardware</depend>
+  <depend>rosbot_controller</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

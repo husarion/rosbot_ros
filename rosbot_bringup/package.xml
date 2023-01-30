@@ -17,7 +17,8 @@
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-  <exec_depend>rosbot_hardware</exec_depend>
+  <exec_depend>rosbot_controller</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

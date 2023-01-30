@@ -17,6 +17,10 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <build_depend>xacro</build_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>ros_components_description</exec_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

@@ -8,14 +8,14 @@ from launch.substitutions import PathJoinSubstitution
 
 
 def generate_launch_description():
-    rosbot_hardware = get_package_share_directory("rosbot_hardware")
+    rosbot_controller = get_package_share_directory("rosbot_controller")
     rosbot_bringup = get_package_share_directory("rosbot_bringup")
 
-    rosbot_hardware_launch = IncludeLaunchDescription(
+    rosbot_controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
-                    rosbot_hardware,
+                    rosbot_controller,
                     "launch",
                     "controller.launch.py",
                 ]
@@ -34,7 +34,7 @@ def generate_launch_description():
     )
 
     actions = [
-        rosbot_hardware_launch,
+        rosbot_controller_launch,
         robot_localization_node,
     ]
 

@@ -45,7 +45,7 @@ def generate_launch_description():
 
     robot_controllers = PathJoinSubstitution(
         [
-            FindPackageShare("rosbot_hardware"),
+            FindPackageShare("rosbot_controller"),
             "config",
             "rosbot_controllers.yaml",
         ]
