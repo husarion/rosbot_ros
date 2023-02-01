@@ -2,6 +2,13 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#38 <https://github.com/husarion/rosbot_ros/issues/38>`_ from husarion/refactor-project-struct
+  Refactor project struct
+* Merge remote-tracking branch 'origin/humble' into add-ros-components-description
+* Contributors: Jakub Delicat
+
 0.2.1 (2023-01-18)
 ------------------
 
