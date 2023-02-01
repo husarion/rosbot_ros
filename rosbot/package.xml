@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>rosbot_bringup</name>
-  <version>0.2.1</version>
-  <description>Rosbot bringup package</description>
+  <name>rosbot</name>
+  <version>0.0.2</version>
+
+  <description>Meta package that contains all packages of Rosbot XL</description>
   <license>Apache License 2.0</license>
 
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
@@ -15,10 +16,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>launch</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
-  <exec_depend>rosbot_controller</exec_depend>
-  <exec_depend>robot_localization</exec_depend>
+  <depend>rosbot_bringup</depend>
+  <depend>rosbot_description</depend>
+  <depend>rosbot_controller</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

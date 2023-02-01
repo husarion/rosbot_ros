@@ -8,15 +8,19 @@
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
   <xacro:husarion.rosbot_robot use_sim="$(arg use_sim)" simulation_engine="$(arg simulation_engine)"/>
 
-  <xacro:include filename="$(find rosbot_description)/urdf/components/rplidar_a2.gazebo.xacro" ns="lidar" />
-  <xacro:lidar.rplidar_a2
+  <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
+  <xacro:lidar.slamtec_rplidar_a2
     parent_link="cover_link"
     xyz="0.02 0.0 0.0"
-    rpy="0.0 0.0 ${-pi}"
+    rpy="0.0 0.0 0.0"
     use_gpu="$(arg use_gpu)"
     simulation_engine="$(arg simulation_engine)" />
 
-  <xacro:include filename="$(find rosbot_description)/urdf/components/orbbec_astra.gazebo.xacro" ns="camera" />
-  <xacro:camera.orbbec_astra parent_link="camera_link" xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" simulation_engine="$(arg simulation_engine)"/>
+  <xacro:include filename="$(find ros_components_description)/urdf/orbbec_astra.urdf.xacro" ns="camera" />
+  <xacro:camera.orbbec_astra
+    parent_link="camera_link"
+    xyz="0.0 0.0 0.0"
+    rpy="0.0 0.0 0.0"
+    simulation_engine="$(arg simulation_engine)" />
 
 </robot>

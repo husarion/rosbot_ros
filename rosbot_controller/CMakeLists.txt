@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(rosbot_bringup)
+project(rosbot_controller)
 
 find_package(ament_cmake REQUIRED)
 
