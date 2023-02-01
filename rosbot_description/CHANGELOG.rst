@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2023-02-01)
+------------------
 * Merge pull request `#38 <https://github.com/husarion/rosbot_ros/issues/38>`_ from husarion/refactor-project-struct
   Refactor project struct
 * Merge remote-tracking branch 'origin/humble' into add-ros-components-description
