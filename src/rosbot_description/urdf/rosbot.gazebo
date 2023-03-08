@@ -88,10 +88,10 @@
         <updateRate>10.0</updateRate>
         <cameraName>camera</cameraName>
         <frameName>camera_depth_frame</frameName>
-        <imageTopicName>rgb/image_raw</imageTopicName>
+        <imageTopicName>color/image_raw</imageTopicName>
         <depthImageTopicName>depth/image_raw</depthImageTopicName>
         <pointCloudTopicName>depth/points</pointCloudTopicName>
-        <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+        <cameraInfoTopicName>color/camera_info</cameraInfoTopicName>
         <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
         <pointCloudCutoff>0.4</pointCloudCutoff>
         <hackBaseline>0.07</hackBaseline>
