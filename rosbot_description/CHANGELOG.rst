@@ -2,6 +2,12 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#42 <https://github.com/husarion/rosbot_ros/issues/42>`_ from husarion/webots
+  Moved webots topics remappings to husarion/webots_ros2
+* Contributors: Jakub Delicat
+
 0.3.0 (2023-02-01)
 ------------------
 * Merge pull request `#38 <https://github.com/husarion/rosbot_ros/issues/38>`_ from husarion/refactor-project-struct

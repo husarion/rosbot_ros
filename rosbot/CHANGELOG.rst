@@ -2,6 +2,9 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.0 (2023-02-01)
 ------------------
 * Merge pull request `#41 <https://github.com/husarion/rosbot_ros/issues/41>`_ from husarion/refactor-project-struct
