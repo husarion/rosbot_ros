@@ -137,32 +137,6 @@
       <xacro:if value="${simulation_engine == 'webots'}">
         <webots>
           <plugin type="webots_ros2_control::Ros2Control" />
-          <device reference="laser" type="Lidar">
-            <ros>
-              <topicName>/scan</topicName>
-              <updateRate>12</updateRate>
-            </ros>
-          </device>
-          <device reference="fl_range" type="DistanceSensor">
-            <ros>
-              <topicName>/range/fl</topicName>
-            </ros>
-          </device>
-          <device reference="fr_range" type="DistanceSensor">
-            <ros>
-              <topicName>/range/fr</topicName>
-            </ros>
-          </device>
-          <device reference="rl_range" type="DistanceSensor">
-            <ros>
-              <topicName>/range/rl</topicName>
-            </ros>
-          </device>
-          <device reference="rr_range" type="DistanceSensor">
-            <ros>
-              <topicName>/range/rr</topicName>
-            </ros>
-          </device>
           <plugin type="webots_ros2_driver::Ros2IMU">
             <enabled>true</enabled>
             <topicName>/imu_broadcaster/imu</topicName>
