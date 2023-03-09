@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2023-03-09)
+------------------
 * Merge pull request `#42 <https://github.com/husarion/rosbot_ros/issues/42>`_ from husarion/webots
   Moved webots topics remappings to husarion/webots_ros2
 * Contributors: Jakub Delicat
