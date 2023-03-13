@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
+  <arg name="world" default="image_teaching"/>
+
   <include file="$(find rosbot_bringup)/launch/rosbot_gazebo.launch"/>
 
-  <include file="$(find rosbot_gazebo)/launch/rosbot_world_teaching.launch"/>
+  <include file="$(find rosbot_gazebo)/launch/rosbot_world.launch">
+    <arg name="world" value="$(find rosbot_gazebo)/worlds/$(arg world).world"/>
+  </include>
 
 </launch>
