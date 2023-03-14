@@ -1,0 +1,12 @@
+repositories:
+  gazebosim/gz_ros2_control:
+    type: git
+    url: https://github.com/ros-controls/gz_ros2_control.git
+    # on branch humble hardware isn't activated
+    # recently on master API breaking change was introduced, it is necessay to use commit before this change
+    version: b296ff2f5c3758b637a70bd496fe6ed875ab03ce
+
+  husarion/gazebo_worlds:
+    type: git
+    url: https://github.com/husarion/gazebo_worlds.git
+    version: main

@@ -17,10 +17,12 @@
 
 from launch import LaunchDescription
 from launch.actions import RegisterEventHandler, DeclareLaunchArgument
-from ament_index_python.packages import get_package_share_directory
+from launch.conditions import UnlessCondition
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     Command,
+    FindExecutable,
+    PythonExpression,
     PathJoinSubstitution,
     LaunchConfiguration,
 )
@@ -37,11 +39,41 @@ def generate_launch_description():
         description="Whether simulation is used",
     )
 
-    rosbot_description = get_package_share_directory("rosbot_description")
-    xacro_file = PathJoinSubstitution([rosbot_description, "urdf", "rosbot.urdf.xacro"])
-    robot_description = {
-        "robot_description": Command(["xacro --verbosity 0 ", xacro_file])
-    }
+    simulation_engine = LaunchConfiguration("simulation_engine")
+    declare_simulation_engine_arg = DeclareLaunchArgument(
+        "simulation_engine",
+        default_value="webots",
+        description="Which simulation engine to be used",
+        choices=["ignition-gazebo", "gazebo-classic", "webots"]
+    )
+
+    controller_manager_name = PythonExpression(
+        [
+            "'/simulation_controller_manager' if ",
+            use_sim,
+            " else '/controller_manager'",
+        ]
+    )
+
+    # Get URDF via xacro
+    robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [
+                    FindPackageShare("rosbot_description"),
+                    "urdf",
+                    "rosbot.urdf.xacro",
+                ]
+            ),
+            " use_sim:=",
+            use_sim,
+            " simulation_engine:=",
+            simulation_engine,
+        ]
+    )
+    robot_description = {"robot_description": robot_description_content}
 
 
     robot_controllers = PathJoinSubstitution(
@@ -62,6 +94,7 @@ def generate_launch_description():
             ("~/motors_response", "/_motors_response"),
             ("/rosbot_base_controller/cmd_vel_unstamped", "/cmd_vel"),
         ],
+        condition=UnlessCondition(use_sim),
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -70,7 +103,7 @@ def generate_launch_description():
         arguments=[
             "joint_state_broadcaster",
             "--controller-manager",
-            "/controller_manager",
+            controller_manager_name,
             "--controller-manager-timeout",
             "120",
         ],
@@ -82,7 +115,7 @@ def generate_launch_description():
         arguments=[
             "rosbot_base_controller",
             "--controller-manager",
-            "/controller_manager",
+            controller_manager_name,
             "--controller-manager-timeout",
             "120",
         ],
@@ -104,7 +137,7 @@ def generate_launch_description():
         arguments=[
             "imu_broadcaster",
             "--controller-manager",
-            "/controller_manager",
+            controller_manager_name,
             "--controller-manager-timeout",
             "120",
         ],
@@ -127,6 +160,7 @@ def generate_launch_description():
 
     actions = [
         declare_use_sim_arg,
+        declare_simulation_engine_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         control_node,
         robot_state_publisher_node,

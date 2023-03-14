@@ -31,7 +31,7 @@
 
       <inertial>
         <mass value="2.0" />
-        <inertia ixx="0.001" ixy="0.000" ixz="0.000" iyy="0.001" iyz="0.000" izz="0.001" />
+        <inertia ixx="0.00721" ixy="0" ixz="0" iyy="0.01035" iyz="0" izz="0.01006" />
       </inertial>
     </link>
     <gazebo reference="body_link">
@@ -57,11 +57,6 @@
       <gazebo reference="cover_link">
         <material>Gazebo/Red</material>
       </gazebo>
-
-      <inertial>
-        <mass value="0.000001" />
-        <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="0.0" />
-      </inertial>
     </link>
 
     <joint name="body_to_imu_joint" type="fixed">
@@ -70,12 +65,7 @@
       <child link="imu_link" />
     </joint>
 
-    <link name="imu_link">
-      <inertial>
-        <mass value="0.001" />
-        <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
-      </inertial>
-    </link>
+    <link name="imu_link" />
 
     <joint name="body_to_camera_joint" type="fixed">
       <origin xyz="-0.0141 0.0 0.125" rpy="0.0 0.0 0.0" />
@@ -83,12 +73,7 @@
       <child link="camera_link" />
     </joint>
 
-    <link name="camera_link">
-      <inertial>
-        <mass value="0.000001" />
-        <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
-      </inertial>
-    </link>
+    <link name="camera_link" />
 
     <joint name="fl_range_joint" type="fixed">
       <axis xyz="0 1 0" />
@@ -96,7 +81,8 @@
       <parent link="body_link" />
       <child link="fl_range" />
     </joint>
-    <link name="fl_range"></link>
+
+    <link name="fl_range" />
 
     <joint name="fr_range_joint" type="fixed">
       <axis xyz="0 1 0" />
@@ -104,7 +90,8 @@
       <parent link="body_link" />
       <child link="fr_range" />
     </joint>
-    <link name="fr_range"></link>
+
+    <link name="fr_range" />
 
     <joint name="rl_range_joint" type="fixed">
       <axis xyz="0 1 0" />
@@ -112,7 +99,8 @@
       <parent link="body_link" />
       <child link="rl_range" />
     </joint>
-    <link name="rl_range"></link>
+
+    <link name="rl_range" />
 
     <joint name="rr_range_joint" type="fixed">
       <axis xyz="0 1 0" />
@@ -120,7 +108,8 @@
       <parent link="body_link" />
       <child link="rr_range" />
     </joint>
-    <link name="rr_range"></link>
+    
+    <link name="rr_range" />
 
   </xacro:macro>
 </robot>
