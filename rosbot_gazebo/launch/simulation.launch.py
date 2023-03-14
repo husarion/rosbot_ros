@@ -99,7 +99,3 @@ def generate_launch_description():
             bringup_launch,
         ]
     )
-
-
-if __name__ == "__main__":
-    generate_launch_description()
