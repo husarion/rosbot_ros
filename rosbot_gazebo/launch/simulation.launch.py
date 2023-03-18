@@ -24,6 +24,13 @@ def generate_launch_description():
     declare_world_arg = DeclareLaunchArgument(
         "world", default_value=["-r ", world_file], description="SDF world file"
     )
+    
+    use_gpu = LaunchConfiguration("use_gpu")
+    declare_use_gpu_arg = DeclareLaunchArgument(
+        "use_gpu",
+        default_value="False",
+        description="Whether GPU acceleration is used",
+    )
 
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -84,6 +91,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "use_sim": "True",
+            "use_gpu": use_gpu,
             "simulation_engine": "ignition-gazebo"
         }.items(),
     )
@@ -91,6 +99,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             declare_world_arg,
+            declare_use_gpu_arg,
             # Sets use_sim_time for all nodes started below (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
             gz_sim,

@@ -17,6 +17,13 @@ def generate_launch_description():
         default_value="False",
         description="Whether simulation is used",
     )
+    
+    use_gpu = LaunchConfiguration("use_gpu")
+    declare_use_gpu_arg = DeclareLaunchArgument(
+        "use_gpu",
+        default_value="False",
+        description="Whether GPU acceleration is used",
+    )
 
     simulation_engine = LaunchConfiguration("simulation_engine")
     declare_simulation_engine_arg = DeclareLaunchArgument(
@@ -42,6 +49,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "use_sim": use_sim,
+            "use_gpu": use_gpu,
             "simulation_engine": simulation_engine,
         }.items(),
     )
@@ -58,6 +66,7 @@ def generate_launch_description():
 
     actions = [
         declare_use_sim_arg,
+        declare_use_gpu_arg,
         declare_simulation_engine_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         rosbot_controller_launch,
