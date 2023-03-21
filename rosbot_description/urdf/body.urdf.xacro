@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- body defining macro -->
-  <xacro:macro name="body" params="wheel_radius">
+  <xacro:macro name="body" params="wheel_radius mecanum">
 
     <link name="base_link" />
 

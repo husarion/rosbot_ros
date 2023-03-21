@@ -21,6 +21,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     Command,
+    PythonExpression,
+    FindExecutable,
     PathJoinSubstitution,
     LaunchConfiguration,
 )
@@ -30,6 +32,13 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    mecanum = LaunchConfiguration("mecanum")
+    declare_mecanum_arg = DeclareLaunchArgument(
+        "mecanum",
+        default_value="False",
+        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
+    )
+
     use_sim = LaunchConfiguration("use_sim")
     declare_use_sim_arg = DeclareLaunchArgument(
         "use_sim",
@@ -37,18 +46,39 @@ def generate_launch_description():
         description="Whether simulation is used",
     )
 
-    rosbot_description = get_package_share_directory("rosbot_description")
-    xacro_file = PathJoinSubstitution([rosbot_description, "urdf", "rosbot.urdf.xacro"])
-    robot_description = {
-        "robot_description": Command(["xacro --verbosity 0 ", xacro_file])
-    }
+    controller_config_name = PythonExpression(
+        [
+            "'mecanum_drive_controller.yaml' if ",
+            mecanum,
+            " else 'diff_drive_controller.yaml'",
+        ]
+    )
 
+    # Get URDF via xacro
+    robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [
+                    FindPackageShare("rosbot_description"),
+                    "urdf",
+                    "rosbot.urdf.xacro",
+                ]
+            ),
+            " mecanum:=",
+            mecanum,
+            " use_sim:=",
+            use_sim,
+        ]
+    )
+    robot_description = {"robot_description": robot_description_content}
 
     robot_controllers = PathJoinSubstitution(
         [
             FindPackageShare("rosbot_controller"),
             "config",
-            "rosbot_controllers.yaml",
+            controller_config_name,
         ]
     )
 
@@ -126,6 +156,7 @@ def generate_launch_description():
     )
 
     actions = [
+        declare_mecanum_arg,
         declare_use_sim_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         control_node,
