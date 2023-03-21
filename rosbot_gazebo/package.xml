@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>rosbot_bringup</name>
+  <name>rosbot_gazebo</name>
   <version>0.4.0</version>
-  <description>Rosbot bringup package</description>
+
+  <description>The rosbot_gazebo package</description>
   <license>Apache License 2.0</license>
 
-  <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
+  <author email="krzysztof.wojciechowski@husarion.com">Krzysztof Wojciechowski</author>
   <maintainer email="support@husarion.com">Husarion</maintainer>
 
   <url type="website">https://husarion.com/</url>
@@ -15,10 +16,18 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>rosbot_bringup</exec_depend>
+
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-  <exec_depend>rosbot_controller</exec_depend>
-  <exec_depend>robot_localization</exec_depend>
+
+  <exec_depend>husarion_office_gz</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <!-- Ignition dependency is specified in the ros_gz_sim package,
+    version can chosen using GZ_VERSION (or IGNITION_VERSION) env variable,
+    for details refer to the ros_gz_sim package -->
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ign_ros2_control</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

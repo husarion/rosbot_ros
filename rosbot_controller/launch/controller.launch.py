@@ -17,7 +17,7 @@
 
 from launch import LaunchDescription
 from launch.actions import RegisterEventHandler, DeclareLaunchArgument
-from ament_index_python.packages import get_package_share_directory
+from launch.conditions import UnlessCondition
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     Command,
@@ -46,11 +46,34 @@ def generate_launch_description():
         description="Whether simulation is used",
     )
 
+    use_gpu = LaunchConfiguration("use_gpu")
+    declare_use_gpu_arg = DeclareLaunchArgument(
+        "use_gpu",
+        default_value="False",
+        description="Whether GPU acceleration is used",
+    )
+
+    simulation_engine = LaunchConfiguration("simulation_engine")
+    declare_simulation_engine_arg = DeclareLaunchArgument(
+        "simulation_engine",
+        default_value="webots",
+        description="Which simulation engine to be used",
+        choices=["ignition-gazebo", "gazebo-classic", "webots"]
+    )
+
     controller_config_name = PythonExpression(
         [
             "'mecanum_drive_controller.yaml' if ",
             mecanum,
             " else 'diff_drive_controller.yaml'",
+        ]
+    )
+
+    controller_manager_name = PythonExpression(
+        [
+            "'/simulation_controller_manager' if ",
+            use_sim,
+            " else '/controller_manager'",
         ]
     )
 
@@ -70,6 +93,10 @@ def generate_launch_description():
             mecanum,
             " use_sim:=",
             use_sim,
+            " use_gpu:=",
+            use_gpu,
+            " simulation_engine:=",
+            simulation_engine,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -92,6 +119,13 @@ def generate_launch_description():
             ("~/motors_response", "/_motors_response"),
             ("/rosbot_base_controller/cmd_vel_unstamped", "/cmd_vel"),
         ],
+        condition=UnlessCondition(use_sim),
+    )
+
+    robot_state_pub_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        parameters=[robot_description],
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -100,7 +134,7 @@ def generate_launch_description():
         arguments=[
             "joint_state_broadcaster",
             "--controller-manager",
-            "/controller_manager",
+            controller_manager_name,
             "--controller-manager-timeout",
             "120",
         ],
@@ -112,7 +146,7 @@ def generate_launch_description():
         arguments=[
             "rosbot_base_controller",
             "--controller-manager",
-            "/controller_manager",
+            controller_manager_name,
             "--controller-manager-timeout",
             "120",
         ],
@@ -134,7 +168,7 @@ def generate_launch_description():
         arguments=[
             "imu_broadcaster",
             "--controller-manager",
-            "/controller_manager",
+            controller_manager_name,
             "--controller-manager-timeout",
             "120",
         ],
@@ -149,18 +183,14 @@ def generate_launch_description():
         )
     )
 
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[robot_description],
-    )
-
     actions = [
         declare_mecanum_arg,
         declare_use_sim_arg,
+        declare_use_gpu_arg,
+        declare_simulation_engine_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         control_node,
-        robot_state_publisher_node,
+        robot_state_pub_node,
         joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
         delay_imu_broadcaster_spawner_after_robot_controller_spawner,

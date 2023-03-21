@@ -2,6 +2,19 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.0 (2023-03-09)
+------------------
+* Merge pull request `#42 <https://github.com/husarion/rosbot_ros/issues/42>`_ from husarion/webots
+  Moved webots topics remappings to husarion/webots_ros2
+* Contributors: Jakub Delicat
+
+0.3.0 (2023-02-01)
+------------------
+* Merge pull request `#38 <https://github.com/husarion/rosbot_ros/issues/38>`_ from husarion/refactor-project-struct
+  Refactor project struct
+* Merge remote-tracking branch 'origin/humble' into add-ros-components-description
+* Contributors: Jakub Delicat
+
 0.2.1 (2023-01-18)
 ------------------
 
