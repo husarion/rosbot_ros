@@ -28,7 +28,7 @@ def generate_launch_description():
     use_gpu = LaunchConfiguration("use_gpu")
     declare_use_gpu_arg = DeclareLaunchArgument(
         "use_gpu",
-        default_value="False",
+        default_value="True",
         description="Whether GPU acceleration is used",
     )
 
