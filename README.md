@@ -11,6 +11,9 @@ Package that contains launch, which starts all base functionalities. Also config
 ### `rosbot_description`
 URDF model used as a source of transforms on the physical robot. It was written to be compatible with ROS Industrial and preconfigured for ROS2 control.
 
+### `rosbot_gazebo`
+Launch files for Ignition Gazebo working with ROS2 control.
+
 ### `rosbot_controller`
 ROS2 hardware controllers configuration for ROSbots.
 

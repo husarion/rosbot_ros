@@ -91,7 +91,7 @@
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-    
+
       <xacro:if value="${use_sim}">
         <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
           <sensor name="imu">
@@ -115,7 +115,12 @@
       <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
         <gazebo>
           <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-            <parameters>$(find rosbot_controller)/config/rosbot_controllers.yaml</parameters>
+            <xacro:if value="${mecanum}">
+              <parameters>$(find rosbot_controller)/config/mecanum_drive_controller.yaml</parameters>
+            </xacro:if>
+            <xacro:unless value="${mecanum}">
+              <parameters>$(find rosbot_controller)/config/diff_drive_controller.yaml</parameters>
+            </xacro:unless>
             <controller_manager_prefix_node_name>simulation</controller_manager_prefix_node_name>
             <ros>
               <remapping>/rosbot_base_controller/cmd_vel_unstamped:=/cmd_vel</remapping>

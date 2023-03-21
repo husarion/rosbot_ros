@@ -1,7 +1,21 @@
 controller_manager:
   ros__parameters:
     use_sim_time: false
-    update_rate: 25 # Hz
+    update_rate: 20 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    rosbot_base_controller:
+      type: mecanum_drive_controller/MecanumDriveController
+    imu_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+
+# Separate controller manager used for simulation - only difference is
+# the use_sim_time parameter (it is the easiest way to do it with ign ros2 control)
+simulation_controller_manager:
+  ros__parameters:
+    use_sim_time: true
+    update_rate: 20 # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster

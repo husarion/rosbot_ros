@@ -2,8 +2,8 @@ simulation_ignition_ros_control:
   ros__parameters:
     use_sim_time: true
 
-# Separate controller manager used for simulation - only difference is 
-# the use_sim_time parameter (it is the easiest way to do it with ign ros2 control)  
+# Separate controller manager used for simulation - only difference is
+# the use_sim_time parameter (it is the easiest way to do it with ign ros2 control)
 simulation_controller_manager:
   ros__parameters:
     use_sim_time: true
