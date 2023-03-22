@@ -43,7 +43,7 @@ jobs:
         uses: husarion-ci/action-catkin-release@v0.1.4
         with:
           bump: ${{ needs.get-bump.outputs.bump }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
           git_user: action-bot
           git_email: action-bot@action-bot.com
 
