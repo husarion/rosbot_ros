@@ -2,6 +2,12 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#43 <https://github.com/husarion/rosbot_ros/issues/43>`_ from Kotochleb/humble-add-ignition-support
+  Add ignition support
+* Contributors: Jakub Delicat
+
 0.4.0 (2023-03-09)
 ------------------
 * Merge pull request `#42 <https://github.com/husarion/rosbot_ros/issues/42>`_ from husarion/webots
