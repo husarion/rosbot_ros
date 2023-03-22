@@ -17,10 +17,10 @@
     <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" />
 
     <!-- WHEEL DECLARATION -->
-    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="fr" mecanum="${mecanum}" use_sim="${use_sim}" />
-    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="fl" mecanum="${mecanum}" use_sim="${use_sim}" />
-    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="rl" mecanum="${mecanum}" use_sim="${use_sim}" />
-    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="rr" mecanum="${mecanum}" use_sim="${use_sim}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="fr" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="fl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="rl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="rr" mecanum="${mecanum}" />
 
     <!-- ROS2 CONTROL -->
     <xacro:unless value="$(arg use_sim)">

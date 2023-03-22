@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- wheel defining macro -->
-  <xacro:macro name="wheel" params="wheel_radius prefix mecanum use_sim">
+  <xacro:macro name="wheel" params="wheel_radius prefix mecanum">
 
     <xacro:property name="wheel_separation_x" value="0.106" />
 
     <xacro:if value="${mecanum}">
       <xacro:property name="wheel_file" value="mecanum" />
       <xacro:property name="wheel_thickness" value="0.0455" />
-      <!-- Normal wheel inertia and mass. Mecanum not implemented yet. -->
-      <xacro:property name="mass" value="0.1" />
+      <xacro:property name="mass" value="0.153" />
 
+      <!-- Normal wheel inertia. Mecanum not implemented yet. -->
       <xacro:property name="ixx" value="0.00007" />
       <xacro:property name="iyy" value="0.0001263" />
       <xacro:property name="izz" value="0.00007" />
@@ -35,28 +35,28 @@
       <xacro:property name="y" value="${wheel_separation_y/2}" />
       <xacro:property name="mesh" value="file://$(find rosbot_description)/meshes/${wheel_file}_b.dae" />
       <xacro:property name="visual_rotation" value="${pi}" />
-      <xacro:property name="fdir" value="1 -1 0" />
+      <xacro:property name="fdir" value="1.0 -1.0 0.0" />
     </xacro:if>
     <xacro:if value="${prefix == 'fr'}">
       <xacro:property name="x" value="${wheel_separation_x/2}" />
       <xacro:property name="y" value="${-wheel_separation_y/2}" />
       <xacro:property name="mesh" value="file://$(find rosbot_description)/meshes/${wheel_file}_a.dae" />
       <xacro:property name="visual_rotation" value="${pi}" />
-      <xacro:property name="fdir" value="1 1 0" />
+      <xacro:property name="fdir" value="1.0 1.0 0.0" />
     </xacro:if>
     <xacro:if value="${prefix == 'rl'}">
       <xacro:property name="x" value="${-wheel_separation_x/2}" />
       <xacro:property name="y" value="${wheel_separation_y/2}" />
       <xacro:property name="mesh" value="file://$(find rosbot_description)/meshes/${wheel_file}_a.dae" />
       <xacro:property name="visual_rotation" value="${0.0}" />
-      <xacro:property name="fdir" value="1 1 0" />
+      <xacro:property name="fdir" value="1.0 1.0 0.0" />
     </xacro:if>
     <xacro:if value="${prefix == 'rr'}">
       <xacro:property name="x" value="${-wheel_separation_x/2}" />
       <xacro:property name="y" value="${-wheel_separation_y/2}" />
       <xacro:property name="mesh" value="file://$(find rosbot_description)/meshes/${wheel_file}_b.dae" />
       <xacro:property name="visual_rotation" value="${0.0}" />
-      <xacro:property name="fdir" value="1 -1 0" />
+      <xacro:property name="fdir" value="1.0 -1.0 0.0" />
     </xacro:if>
 
     <joint name="${prefix}_wheel_joint" type="continuous">
@@ -71,9 +71,9 @@
     <link name="${prefix}_wheel_link">
       <visual>
         <geometry>
-          <mesh filename="${mesh}" scale="1 1 1" />
+          <mesh filename="${mesh}" scale="1.0 1.0 1.0" />
         </geometry>
-        <origin xyz="0.0 0.0 0.0" rpy="0 0 ${visual_rotation}" />
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${visual_rotation}" />
       </visual>
 
       <collision>
@@ -91,21 +91,19 @@
       </inertial>
     </link>
 
-    <xacro:if value="${use_sim}">
-      <gazebo reference="${prefix}_wheel_link" xmlns:ignition="http://ignitionrobotics.org/schema">
-        <collision>
-          <surface>
-            <friction>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>0.0</mu2>
-                <fdir1 ignition:expressed_in="base_link">${fdir}</fdir1>
-              </ode>
-            </friction>
-          </surface>
-        </collision>
-      </gazebo>
-    </xacro:if>
+    <gazebo reference="${prefix}_wheel_link" xmlns:ignition="http://ignitionrobotics.org/schema">
+      <collision>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>0.0</mu2>
+              <fdir1 ignition:expressed_in="base_link">${fdir}</fdir1>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </gazebo>
 
   </xacro:macro>
 </robot>
