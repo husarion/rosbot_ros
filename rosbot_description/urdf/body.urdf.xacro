@@ -76,10 +76,10 @@
 
     <link name="camera_link" />
 
-    <xacro:range_sensor.vl53lox xyz="0.0926  0.05 0.015"   parent="body_link" z="12.5"  prefix="fl" />
-    <xacro:range_sensor.vl53lox xyz="0.0926 -0.05 0.015"   parent="body_link" z="-12.5" prefix="fr" />
-    <xacro:range_sensor.vl53lox xyz="-0.0926 0.05 0.0115"  parent="body_link" z="167.5" prefix="rl" />
-    <xacro:range_sensor.vl53lox xyz="-0.0926 -0.05 0.0115" parent="body_link" z="192.5" prefix="rr" />
+    <xacro:range_sensor.vl53lox xyz="0.0926  0.05 0.015"   parent="body_link" rpy="0.0 0.0 ${12.5  * pi/180}"  prefix="fl" />
+    <xacro:range_sensor.vl53lox xyz="0.0926 -0.05 0.015"   parent="body_link" rpy="0.0 0.0 ${-12.5 * pi/180}" prefix="fr" />
+    <xacro:range_sensor.vl53lox xyz="-0.0926 0.05 0.0115"  parent="body_link" rpy="0.0 0.0 ${167.5 * pi/180}" prefix="rl" />
+    <xacro:range_sensor.vl53lox xyz="-0.0926 -0.05 0.0115" parent="body_link" rpy="0.0 0.0 ${192.5 * pi/180}" prefix="rr" />
 
   </xacro:macro>
 </robot>
