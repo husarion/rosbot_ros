@@ -10,10 +10,9 @@
       <xacro:property name="wheel_thickness" value="0.0455" />
       <xacro:property name="mass" value="0.153" />
 
-      <!-- Normal wheel inertia. Mecanum not implemented yet. -->
-      <xacro:property name="ixx" value="0.00007" />
-      <xacro:property name="iyy" value="0.0001263" />
-      <xacro:property name="izz" value="0.00007" />
+      <xacro:property name="ixx" value="0.000111" />
+      <xacro:property name="iyy" value="0.000111" />
+      <xacro:property name="izz" value="0.000169" />
 
       <xacro:property name="wheel_separation_y" value="0.205" />
     </xacro:if>
@@ -21,11 +20,11 @@
     <xacro:unless value="${mecanum}">
       <xacro:property name="wheel_file" value="wheel" />
       <xacro:property name="wheel_thickness" value="0.036" />
-      <xacro:property name="mass" value="0.1" />
+      <xacro:property name="mass" value="0.074" />
 
-      <xacro:property name="ixx" value="0.00007" />
-      <xacro:property name="iyy" value="0.0001263" />
-      <xacro:property name="izz" value="0.00007" />
+      <xacro:property name="ixx" value="0.000041" />
+      <xacro:property name="iyy" value="0.000041" />
+      <xacro:property name="izz" value="0.000067" />
 
       <xacro:property name="wheel_separation_y" value="0.192" />
     </xacro:unless>
