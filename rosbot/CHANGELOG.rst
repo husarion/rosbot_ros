@@ -2,8 +2,8 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.1 (2023-04-03)
+------------------
 * Merge pull request `#46 <https://github.com/husarion/rosbot_ros/issues/46>`_ from husarion/fix-ros-build-flag
   Change build flag to HUSARION_ROS_BUILD
 * Contributors: Jakub Delicat
