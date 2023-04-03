@@ -2,6 +2,12 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#46 <https://github.com/husarion/rosbot_ros/issues/46>`_ from husarion/fix-ros-build-flag
+  Change build flag to HUSARION_ROS_BUILD
+* Contributors: Jakub Delicat
+
 0.5.0 (2023-03-22)
 ------------------
 * Merge pull request `#43 <https://github.com/husarion/rosbot_ros/issues/43>`_ from Kotochleb/humble-add-ignition-support

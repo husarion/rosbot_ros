@@ -2,6 +2,9 @@
 Changelog for package rosbot_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.5.0 (2023-03-22)
 ------------------
 * Merge pull request `#44 <https://github.com/husarion/rosbot_ros/issues/44>`_ from Kotochleb/humble-add-use-gpu
