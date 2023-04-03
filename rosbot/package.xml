@@ -20,7 +20,7 @@
   <depend>rosbot_description</depend>
   <depend>rosbot_controller</depend>
 
-  <depend condition="($HUSARION_ROS_BUILD_TYPE == simulation) and ($SIMULATION_ENGINE == ignition-gazebo)">
+  <depend condition="($HUSARION_ROS_BUILD == simulation) and ($SIMULATION_ENGINE == ignition-gazebo)">
     rosbot_gazebo
   </depend>
 
