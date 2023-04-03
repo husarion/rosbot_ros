@@ -31,10 +31,11 @@
       </collision>
 
       <inertial>
-        <mass value="2.0" />
-        <inertia ixx="0.00721" ixy="0" ixz="0"
-                               iyy="0.01035" iyz="0"
-                                             izz="0.01006" />
+        <mass value="1.728" />
+        <inertia ixx="0.004162" ixy="0.0"     ixz="0.0"
+                                iyy="0.00651" iyz="0.0"
+                                              izz="0.008828" />
+        <origin xyz="0.0 0.0 ${0.040-0.02}" rpy="0.0 0.0 0.0" />
       </inertial>
     </link>
     <gazebo reference="body_link">
