@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="mecanum use_sim simulation_engine">
+  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine">
 
     <xacro:if value="${mecanum}">
       <xacro:property name="wheel_radius" value="0.0470" />
@@ -14,7 +14,7 @@
     <xacro:include filename="$(find rosbot_description)/urdf/wheel.urdf.xacro" ns="wheel" />
 
     <!-- BODY DECLARATION -->
-    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" />
+    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" use_gpu="${use_gpu}" />
 
     <!-- WHEEL DECLARATION -->
     <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="fr" mecanum="${mecanum}" />
@@ -147,7 +147,7 @@
           <gazebo>
             <plugin name='skid_steer_drive' filename='libgazebo_ros_diff_drive.so'>
               <ros></ros>
-              <update_rate>10</update_rate>
+              <update_rate>10.0</update_rate>
               <num_wheel_pairs>2</num_wheel_pairs>
               <left_joint>fl_wheel_joint</left_joint>
               <right_joint>fr_wheel_joint</right_joint>

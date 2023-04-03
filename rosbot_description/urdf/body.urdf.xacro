@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- body defining macro -->
-  <xacro:macro name="body" params="wheel_radius mecanum">
+  <xacro:macro name="body" params="wheel_radius mecanum use_gpu">
     <xacro:include filename="$(find rosbot_description)/urdf/components/vl53lox.urdf.xacro" ns="range_sensor" />
 
     <link name="base_link" />
@@ -32,7 +32,9 @@
 
       <inertial>
         <mass value="2.0" />
-        <inertia ixx="0.00721" ixy="0" ixz="0" iyy="0.01035" iyz="0" izz="0.01006" />
+        <inertia ixx="0.00721" ixy="0" ixz="0"
+                               iyy="0.01035" iyz="0"
+                                             izz="0.01006" />
       </inertial>
     </link>
     <gazebo reference="body_link">
@@ -76,10 +78,10 @@
 
     <link name="camera_link" />
 
-    <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926  0.05 0.015"   rpy="0.0 0.0 ${12.5/180.0*pi}" prefix="fl" />
-    <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926 -0.05 0.015"   rpy="0.0 0.0 ${-12.5/180.0*pi}" prefix="fr" />
-    <xacro:range_sensor.vl53lox parent="body_link" xyz="-0.0926 0.05 0.0115"  rpy="0.0 0.0 ${167.5/180.0*pi}" prefix="rl" />
-    <xacro:range_sensor.vl53lox parent="body_link" xyz="-0.0926 -0.05 0.0115" rpy="0.0 0.0 ${192.5/180.0*pi}" prefix="rr" />
+    <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926  0.05 0.015"   rpy="0.0 0.0 ${radians(12.5)}"  prefix="fl" use_gpu="${use_gpu}" />
+    <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926 -0.05 0.015"   rpy="0.0 0.0 ${radians(-12.5)}" prefix="fr" use_gpu="${use_gpu}" />
+    <xacro:range_sensor.vl53lox parent="body_link" xyz="-0.0926 0.05 0.0115"  rpy="0.0 0.0 ${radians(167.5)}" prefix="rl" use_gpu="${use_gpu}" />
+    <xacro:range_sensor.vl53lox parent="body_link" xyz="-0.0926 -0.05 0.0115" rpy="0.0 0.0 ${radians(192.5)}" prefix="rr" use_gpu="${use_gpu}" />
 
   </xacro:macro>
 </robot>

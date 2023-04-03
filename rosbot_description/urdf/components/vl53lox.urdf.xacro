@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- vl53lox defining macro -->
-  <xacro:macro name="vl53lox" params="parent xyz rpy prefix">
+  <xacro:macro name="vl53lox" params="parent xyz rpy prefix use_gpu">
 
     <joint name="${parent}_${prefix}_range_joint" type="fixed">
         <origin xyz="${xyz}" rpy="${rpy}" />
@@ -11,5 +11,52 @@
 
     <link name="${prefix}_range" />
 
+    <!-- <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
+      <xacro:if value="${use_gpu}">
+        <xacro:property name="ray_type" value="gpu_lidar" />
+      </xacro:if>
+      <xacro:unless value="${use_gpu}">
+
+          <xacro:property name="ray_type" value="lidar" />
+      </xacro:unless>
+
+      <gazebo reference="${prefix}_range">
+        <sensor type="${ray_type}" name="${prefix}_range">
+
+          <topic>${prefix}_range</topic>
+          <frame_id>${prefix}_range</frame_id>
+          <ignition_frame_id>${prefix}_range</ignition_frame_id>
+
+          <update_rate>10.0</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>1</samples>
+                <resolution>1</resolution>
+                <min_angle>-0.1</min_angle>
+                <max_angle>0.1</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.01</min>
+              <max>0.9</max>
+              <resolution>1</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.001</stddev>
+            </noise>
+          </ray>
+          <always_on>1</always_on>
+          <visualize>true</visualize>
+        </sensor>
+      </gazebo>
+      <gazebo>
+        <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors">
+          <render_engine>ogre2</render_engine>
+        </plugin>
+      </gazebo>
+    </xacro:if> -->
   </xacro:macro>
 </robot>
