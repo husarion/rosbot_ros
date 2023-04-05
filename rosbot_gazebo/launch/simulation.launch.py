@@ -76,10 +76,6 @@ def generate_launch_description():
         name="ros_gz_bridge",
         arguments=[
             "/scan" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
-            # "/range/fr" + "@sensor_msgs/msg/Range" + "[ignition.msgs.LaserScan",
-            # "/range/fl" + "@sensor_msgs/msg/Range" + "[ignition.msgs.LaserScan",
-            # "/range/rr" + "@sensor_msgs/msg/Range" + "[ignition.msgs.LaserScan",
-            # "/range/rl" + "@sensor_msgs/msg/Range" + "[ignition.msgs.LaserScan",
             "/camera/camera_info" + "@sensor_msgs/msg/CameraInfo" + "[ignition.msgs.CameraInfo",
             "/camera/depth_image" + "@sensor_msgs/msg/Image" + "[ignition.msgs.Image",
             "/camera/image" + "@sensor_msgs/msg/Image" + "[ignition.msgs.Image",

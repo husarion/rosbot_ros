@@ -27,7 +27,7 @@
         <geometry>
           <box size="0.197 0.150 0.080" />
         </geometry>
-        <origin xyz="0.0 0.0 ${0.040-0.02}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 ${0.040 - 0.02}" rpy="0.0 0.0 0.0" />
       </collision>
 
       <inertial>
@@ -35,7 +35,7 @@
         <inertia ixx="0.004162" ixy="0.0"     ixz="0.0"
                                 iyy="0.00651" iyz="0.0"
                                               izz="0.008828" />
-        <origin xyz="0.0 0.0 ${0.040-0.02}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 ${0.040 - 0.02}" rpy="0.0 0.0 0.0" />
       </inertial>
     </link>
     <gazebo reference="body_link">
