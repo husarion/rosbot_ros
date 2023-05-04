@@ -2,6 +2,13 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#45 <https://github.com/husarion/rosbot_ros/issues/45>`_ from husarion/add-mecanum-wheels
+  Add mecanum wheels in real robot and simulation
+* Merge remote-tracking branch 'origin/humble' into add-mecanum-wheels
+* Contributors: Jakub Delicat
+
 0.5.1 (2023-04-03)
 ------------------
 
