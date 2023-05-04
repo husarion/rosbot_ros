@@ -2,8 +2,8 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.0 (2023-05-04)
+------------------
 * Merge pull request `#45 <https://github.com/husarion/rosbot_ros/issues/45>`_ from husarion/add-mecanum-wheels
   Add mecanum wheels in real robot and simulation
 * Merge remote-tracking branch 'origin/humble' into add-mecanum-wheels
