@@ -21,8 +21,8 @@ from launch.conditions import UnlessCondition
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     Command,
-    FindExecutable,
     PythonExpression,
+    FindExecutable,
     PathJoinSubstitution,
     LaunchConfiguration,
 )
@@ -32,13 +32,20 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    mecanum = LaunchConfiguration("mecanum")
+    declare_mecanum_arg = DeclareLaunchArgument(
+        "mecanum",
+        default_value="False",
+        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
+    )
+
     use_sim = LaunchConfiguration("use_sim")
     declare_use_sim_arg = DeclareLaunchArgument(
         "use_sim",
         default_value="False",
         description="Whether simulation is used",
     )
-    
+
     use_gpu = LaunchConfiguration("use_gpu")
     declare_use_gpu_arg = DeclareLaunchArgument(
         "use_gpu",
@@ -52,6 +59,14 @@ def generate_launch_description():
         default_value="webots",
         description="Which simulation engine to be used",
         choices=["ignition-gazebo", "gazebo-classic", "webots"]
+    )
+
+    controller_config_name = PythonExpression(
+        [
+            "'mecanum_drive_controller.yaml' if ",
+            mecanum,
+            " else 'diff_drive_controller.yaml'",
+        ]
     )
 
     controller_manager_name = PythonExpression(
@@ -74,6 +89,8 @@ def generate_launch_description():
                     "rosbot.urdf.xacro",
                 ]
             ),
+            " mecanum:=",
+            mecanum,
             " use_sim:=",
             use_sim,
             " use_gpu:=",
@@ -84,12 +101,11 @@ def generate_launch_description():
     )
     robot_description = {"robot_description": robot_description_content}
 
-
     robot_controllers = PathJoinSubstitution(
         [
             FindPackageShare("rosbot_controller"),
             "config",
-            "rosbot_controllers.yaml",
+            controller_config_name,
         ]
     )
 
@@ -104,6 +120,12 @@ def generate_launch_description():
             ("/rosbot_base_controller/cmd_vel_unstamped", "/cmd_vel"),
         ],
         condition=UnlessCondition(use_sim),
+    )
+
+    robot_state_pub_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        parameters=[robot_description],
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -161,19 +183,14 @@ def generate_launch_description():
         )
     )
 
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[robot_description],
-    )
-
     actions = [
+        declare_mecanum_arg,
         declare_use_sim_arg,
         declare_use_gpu_arg,
         declare_simulation_engine_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         control_node,
-        robot_state_publisher_node,
+        robot_state_pub_node,
         joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
         delay_imu_broadcaster_spawner_after_robot_controller_spawner,

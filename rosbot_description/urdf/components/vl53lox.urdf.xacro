@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- vl53lox defining macro -->
+  <xacro:macro name="vl53lox" params="parent xyz rpy prefix">
+
+    <joint name="${parent}_${prefix}_range_joint" type="fixed">
+        <origin xyz="${xyz}" rpy="${rpy}" />
+        <parent link="${parent}" />
+        <child link="${prefix}_range" />
+    </joint>
+
+    <link name="${prefix}_range" />
+
+  </xacro:macro>
+</robot>

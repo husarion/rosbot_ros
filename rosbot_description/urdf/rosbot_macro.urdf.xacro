@@ -1,21 +1,26 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="use_sim simulation_engine">
+  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine">
 
-    <xacro:property name="wheel_radius" value="0.0425" />
+    <xacro:if value="${mecanum}">
+      <xacro:property name="wheel_radius" value="0.0470" />
+    </xacro:if>
+    <xacro:unless value="${mecanum}">
+      <xacro:property name="wheel_radius" value="0.0425" />
+    </xacro:unless>
 
     <!-- INCLUDE ROBOT PARTS DEFINITIONS -->
     <xacro:include filename="$(find rosbot_description)/urdf/body.urdf.xacro" ns="body" />
     <xacro:include filename="$(find rosbot_description)/urdf/wheel.urdf.xacro" ns="wheel" />
 
     <!-- BODY DECLARATION -->
-    <xacro:body.body wheel_radius="${wheel_radius}" />
+    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" use_gpu="${use_gpu}" />
 
     <!-- WHEEL DECLARATION -->
-    <xacro:wheel.wheel wheel_type="differential" wheel_radius="${wheel_radius}" prefix="fl" />
-    <xacro:wheel.wheel wheel_type="differential" wheel_radius="${wheel_radius}" prefix="fr" />
-    <xacro:wheel.wheel wheel_type="differential" wheel_radius="${wheel_radius}" prefix="rl" />
-    <xacro:wheel.wheel wheel_type="differential" wheel_radius="${wheel_radius}" prefix="rr" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="fr" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="fl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="rl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" prefix="rr" mecanum="${mecanum}" />
 
     <!-- ROS2 CONTROL -->
     <xacro:unless value="$(arg use_sim)">
@@ -86,7 +91,7 @@
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-    
+
       <xacro:if value="${use_sim}">
         <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
           <sensor name="imu">
@@ -110,7 +115,12 @@
       <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
         <gazebo>
           <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-            <parameters>$(find rosbot_controller)/config/rosbot_controllers.yaml</parameters>
+            <xacro:if value="${mecanum}">
+              <parameters>$(find rosbot_controller)/config/mecanum_drive_controller.yaml</parameters>
+            </xacro:if>
+            <xacro:unless value="${mecanum}">
+              <parameters>$(find rosbot_controller)/config/diff_drive_controller.yaml</parameters>
+            </xacro:unless>
             <controller_manager_prefix_node_name>simulation</controller_manager_prefix_node_name>
             <ros>
               <remapping>/rosbot_base_controller/cmd_vel_unstamped:=/cmd_vel</remapping>
@@ -133,28 +143,30 @@
 
       <xacro:if value="${simulation_engine == 'gazebo-classic'}">
         <!-- Control robot wheels -->
-        <gazebo>
-          <plugin name='skid_steer_drive' filename='libgazebo_ros_diff_drive.so'>
-            <ros></ros>
-            <update_rate>10</update_rate>
-            <num_wheel_pairs>2</num_wheel_pairs>
-            <left_joint>fl_wheel_joint</left_joint>
-            <right_joint>fr_wheel_joint</right_joint>
-            <left_joint>rl_wheel_joint</left_joint>
-            <right_joint>rr_wheel_joint</right_joint>
-            <wheel_separation>0.192</wheel_separation>
-            <wheel_separation>0.192</wheel_separation>
-            <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
-            <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
-            <max_wheel_torque>1.5</max_wheel_torque>
-            <max_wheel_acceleration>1.0</max_wheel_acceleration>
-            <publish_odom>true</publish_odom>
-            <publish_odom_tf>true</publish_odom_tf>
-            <publish_wheel_tf>true</publish_wheel_tf>
-            <odometry_frame>odom</odometry_frame>
-            <robot_base_frame>base_link</robot_base_frame>
-          </plugin>
-        </gazebo>
+        <xacro:unless value="${mecanum}">
+          <gazebo>
+            <plugin name='skid_steer_drive' filename='libgazebo_ros_diff_drive.so'>
+              <ros></ros>
+              <update_rate>10.0</update_rate>
+              <num_wheel_pairs>2</num_wheel_pairs>
+              <left_joint>fl_wheel_joint</left_joint>
+              <right_joint>fr_wheel_joint</right_joint>
+              <left_joint>rl_wheel_joint</left_joint>
+              <right_joint>rr_wheel_joint</right_joint>
+              <wheel_separation>0.192</wheel_separation>
+              <wheel_separation>0.192</wheel_separation>
+              <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
+              <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
+              <max_wheel_torque>1.5</max_wheel_torque>
+              <max_wheel_acceleration>1.0</max_wheel_acceleration>
+              <publish_odom>true</publish_odom>
+              <publish_odom_tf>true</publish_odom_tf>
+              <publish_wheel_tf>true</publish_wheel_tf>
+              <odometry_frame>odom</odometry_frame>
+              <robot_base_frame>base_link</robot_base_frame>
+            </plugin>
+          </gazebo>
+        </xacro:unless>
         <!-- publish joint states -->
         <gazebo>
           <plugin name="joint_states" filename="libgazebo_ros_joint_state_publisher.so">

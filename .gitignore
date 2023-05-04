@@ -3,3 +3,10 @@ build
 install
 log
 *.pyc
+
+# ROSbots submodules
+rosbot_hardware_interfaces/
+ros_components_description/
+rosbot_controllers/
+husarion/gazebo_worlds
+gazebosim/gz_ros2_control

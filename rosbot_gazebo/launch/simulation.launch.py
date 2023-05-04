@@ -17,6 +17,12 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
+    mecanum = LaunchConfiguration("mecanum")
+    declare_mecanum_arg = DeclareLaunchArgument(
+        "mecanum",
+        default_value="False",
+        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
+    )
 
     map_package = get_package_share_directory("husarion_office_gz")
     world_file = PathJoinSubstitution([map_package, "worlds", "husarion_world.sdf"])
@@ -24,7 +30,7 @@ def generate_launch_description():
     declare_world_arg = DeclareLaunchArgument(
         "world", default_value=["-r ", world_file], description="SDF world file"
     )
-    
+
     use_gpu = LaunchConfiguration("use_gpu")
     declare_use_gpu_arg = DeclareLaunchArgument(
         "use_gpu",
@@ -90,6 +96,7 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
+            "mecanum": mecanum,
             "use_sim": "True",
             "use_gpu": use_gpu,
             "simulation_engine": "ignition-gazebo"
@@ -98,6 +105,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            declare_mecanum_arg,
             declare_world_arg,
             declare_use_gpu_arg,
             # Sets use_sim_time for all nodes started below (doesn't work for nodes started from ignition gazebo)

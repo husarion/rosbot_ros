@@ -9,7 +9,6 @@ from launch.substitutions import (
     PathJoinSubstitution
 )
 
-
 def generate_launch_description():
     use_sim = LaunchConfiguration("use_sim")
     declare_use_sim_arg = DeclareLaunchArgument(
@@ -17,7 +16,7 @@ def generate_launch_description():
         default_value="False",
         description="Whether simulation is used",
     )
-    
+
     use_gpu = LaunchConfiguration("use_gpu")
     declare_use_gpu_arg = DeclareLaunchArgument(
         "use_gpu",
@@ -37,7 +36,14 @@ def generate_launch_description():
     rosbot_controller = get_package_share_directory("rosbot_controller")
     rosbot_bringup = get_package_share_directory("rosbot_bringup")
 
-    rosbot_controller_launch = IncludeLaunchDescription(
+    mecanum = LaunchConfiguration("mecanum")
+    declare_mecanum_arg = DeclareLaunchArgument(
+        "mecanum",
+        default_value="False",
+        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
+    )
+
+    controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
@@ -49,6 +55,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "use_sim": use_sim,
+            "mecanum": mecanum,
             "use_gpu": use_gpu,
             "simulation_engine": simulation_engine,
         }.items(),
@@ -65,11 +72,12 @@ def generate_launch_description():
     )
 
     actions = [
+        declare_mecanum_arg,
         declare_use_sim_arg,
         declare_use_gpu_arg,
         declare_simulation_engine_arg,
         SetParameter(name="use_sim_time", value=use_sim),
-        rosbot_controller_launch,
+        controller_launch,
         robot_localization_node
     ]
 

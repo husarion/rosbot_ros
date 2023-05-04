@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- body defining macro -->
-  <xacro:macro name="body" params="wheel_radius">
+  <xacro:macro name="body" params="wheel_radius mecanum use_gpu">
+    <xacro:include filename="$(find rosbot_description)/urdf/components/vl53lox.urdf.xacro" ns="range_sensor" />
 
     <link name="base_link" />
 
@@ -26,12 +27,15 @@
         <geometry>
           <box size="0.197 0.150 0.080" />
         </geometry>
-        <origin xyz="0.0 0.0 ${0.040-0.02}" rpy="0.0 0.0 0.0" />
+        <origin xyz="0.0 0.0 ${0.040 - 0.02}" rpy="0.0 0.0 0.0" />
       </collision>
 
       <inertial>
-        <mass value="2.0" />
-        <inertia ixx="0.00721" ixy="0" ixz="0" iyy="0.01035" iyz="0" izz="0.01006" />
+        <mass value="1.728" />
+        <inertia ixx="0.004162" ixy="0.0"     ixz="0.0"
+                                iyy="0.00651" iyz="0.0"
+                                              izz="0.008828" />
+        <origin xyz="0.0 0.0 ${0.040 - 0.02}" rpy="0.0 0.0 0.0" />
       </inertial>
     </link>
     <gazebo reference="body_link">
@@ -75,41 +79,10 @@
 
     <link name="camera_link" />
 
-    <joint name="fl_range_joint" type="fixed">
-      <axis xyz="0 1 0" />
-      <origin xyz="0.0926 0.05 0.015" rpy="0 0 0.218 " />
-      <parent link="body_link" />
-      <child link="fl_range" />
-    </joint>
-
-    <link name="fl_range" />
-
-    <joint name="fr_range_joint" type="fixed">
-      <axis xyz="0 1 0" />
-      <origin xyz="0.0926 -0.05 0.015" rpy="0 0 -0.218 " />
-      <parent link="body_link" />
-      <child link="fr_range" />
-    </joint>
-
-    <link name="fr_range" />
-
-    <joint name="rl_range_joint" type="fixed">
-      <axis xyz="0 1 0" />
-      <origin xyz="-0.0926 0.05 0.0115" rpy="0 0 2.924 " />
-      <parent link="body_link" />
-      <child link="rl_range" />
-    </joint>
-
-    <link name="rl_range" />
-
-    <joint name="rr_range_joint" type="fixed">
-      <axis xyz="0 1 0" />
-      <origin xyz="-0.0926 -0.05 0.0115" rpy="0 0 3.360" />
-      <parent link="body_link" />
-      <child link="rr_range" />
-    </joint>
-    
-    <link name="rr_range" />
+    <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926  0.05 0.015"   rpy="0.0 0.0 ${radians(12.5)}"  prefix="fl" />
+    <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926 -0.05 0.015"   rpy="0.0 0.0 ${radians(-12.5)}" prefix="fr" />
+    <xacro:range_sensor.vl53lox parent="body_link" xyz="-0.0926 0.05 0.0115"  rpy="0.0 0.0 ${radians(167.5)}" prefix="rl" />
+    <xacro:range_sensor.vl53lox parent="body_link" xyz="-0.0926 -0.05 0.0115" rpy="0.0 0.0 ${radians(192.5)}" prefix="rr" />
 
   </xacro:macro>
 </robot>
