@@ -27,7 +27,7 @@ mkdir -p rosbot_ws/src
 cd rosbot_ws
 git clone https://github.com/husarion/rosbot_ros src/
 sudo apt-get update
-sudo apt-get install -y python3-colcon-common-extensions python3-rosdep python3-vcstool python3-rosdep2
+sudo apt-get install -y python3-colcon-common-extensions python3-vcstool python3-rosdep
 ```
 
 ### Build
@@ -38,24 +38,25 @@ vcs import src < src/rosbot/rosbot_simulation.repos
 rosdep init
 rosdep update --rosdistro humble
 rosdep install -r --from-paths src --ignore-src --rosdistro humble -y
+source /opt/ros/humble/setup.bash
 colcon build
 ```
 
-# Install and run
-### Installation
+# Source and run
+### Source
 Inside `rosbot_ws` catalog:
 ```bash
-source install/setbup.bash
+source install/setup.bash
 ```
 
 ### Running hardware
-After installation:
+After source:
 ```bash
 ros2 launch rosbot_bringup bringup.launch.py
 ```
 
 ### Running simulation
-After installation:
+After source:
 ```bash
 ros2 launch rosbot_gazebo simulation.launch.py
 ```
