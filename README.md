@@ -45,7 +45,7 @@ colcon build
 ### Installation
 Inside `rosbot_ws` catalog:
 ```bash
-source install/setbup.bash
+source install/setup.bash
 ```
 
 ### Running hardware
