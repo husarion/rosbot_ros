@@ -50,7 +50,7 @@ source install/setup.bash
 ```
 
 ### Running hardware
-After source:
+After sourcing:
 ```bash
 ros2 launch rosbot_bringup bringup.launch.py
 ```
