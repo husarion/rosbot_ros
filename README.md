@@ -56,7 +56,7 @@ ros2 launch rosbot_bringup bringup.launch.py
 ```
 
 ### Running simulation
-After source:
+After sourcing:
 ```bash
 ros2 launch rosbot_gazebo simulation.launch.py
 ```
