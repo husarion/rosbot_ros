@@ -2,6 +2,9 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.6.0 (2023-05-04)
 ------------------
 * Merge pull request `#45 <https://github.com/husarion/rosbot_ros/issues/45>`_ from husarion/add-mecanum-wheels
