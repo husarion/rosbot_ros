@@ -51,12 +51,10 @@ rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build
 ```
-Sourcing:
-```
-source install/setup.bash
-```
+
 Running:
 ```
+source install/setup.bash
 ros2 launch rosbot_bringup bringup.launch.py
 ```
 
@@ -77,13 +75,9 @@ rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build
 ```
 
-Sourcing:
-```
-source install/setup.bash
-```
-
 Running:
 ```
+source install/setup.bash
 ros2 launch rosbot_gazebo simulation.launch.py
 ```
 
