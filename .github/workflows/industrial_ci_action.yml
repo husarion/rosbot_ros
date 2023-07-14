@@ -9,11 +9,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ROS_REPO: [humble]
         ROS_DISTRO: [humble]
     runs-on: ubuntu-latest
     steps:
       - uses: 'ros-industrial/industrial_ci@master'
         env:
-          ROS_REPO: ${{matrix.ROS_REPO}}
           ROS_DISTRO: ${{matrix.ROS_DISTRO}}
