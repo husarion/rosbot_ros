@@ -2,6 +2,12 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#57 <https://github.com/husarion/rosbot_ros/issues/57>`_ from husarion/ros2-ign-camera-fix
+  Unify astra URDF | workaround pointloud frame
+* Contributors: Jakub Delicat
+
 0.6.1 (2023-05-19)
 ------------------
 
