@@ -18,7 +18,7 @@ jobs:
       - name: Clone installation requirements
         run : /bin/bash -c "python3 -m pip install -U vcstool &&
               vcs import . < ./rosbot/rosbot_hardware.repos && \
-              vcs import . < ./rosbot/rosbot_simulation.repos"
+              vcs import . < ./rosbot/rosbot_simulation.repos "
       - uses: ros-industrial/industrial_ci@master
         env:
           ROS_DISTRO: ${{matrix.ROS_DISTRO}}
