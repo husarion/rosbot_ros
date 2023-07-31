@@ -12,6 +12,7 @@ jobs:
         ROS_DISTRO: [humble]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: 'ros-industrial/industrial_ci@master'
         env:
           ROS_DISTRO: ${{matrix.ROS_DISTRO}}
