@@ -23,7 +23,7 @@ Available in [ROS_API.md](./ROS_API.md)
 
 ## Usage on hardware
 
-To run the software on real ROSbot 2, also communication with Digital Board will be necessary.
+To run the software on real ROSbot 2R, 2 PRO, also communication with the CORE2 will be necessary.
 First update your firmware to make sure that you use the latest version, then run the `micro-ROS` agent.
 For detailed instructions refer to the [rosbot_ros2_firmware repository](https://github.com/husarion/rosbot_ros2_firmware).
 
