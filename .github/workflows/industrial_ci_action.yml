@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Clone installation requirements
-        run : sudo apt-get install -y python3-vcstool && \
+        run : sudo apt-get update -y && sudo apt-get install -y python3-vcstool && \
               vcs import . < ./rosbot/rosbot_hardware.repos && \
               vcs import . < ./rosbot/rosbot_simulation.repos
       - uses: ros-industrial/industrial_ci@master
