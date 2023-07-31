@@ -2,8 +2,8 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2023-07-31)
+------------------
 * Merge remote-tracking branch 'origin/humble' into ros2-ign-camera-fix
 * Merge pull request `#56 <https://github.com/husarion/rosbot_ros/issues/56>`_ from husarion/delihus-patch-1
   Update ekf.yaml
