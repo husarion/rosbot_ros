@@ -17,6 +17,16 @@ Launch files for Ignition Gazebo working with ROS2 control.
 ### `rosbot_controller`
 ROS2 hardware controllers configuration for ROSbots.
 
+## ROS API
+
+Available in [ROS_API.md](./ROS_API.md)
+
+## Usage on hardware
+
+To run the software on real ROSbot 2R, 2 PRO, also communication with the CORE2 will be necessary.
+First update your firmware to make sure that you use the latest version, then run the `micro-ROS` agent.
+For detailed instructions refer to the [rosbot_ros2_firmware repository](https://github.com/husarion/rosbot_ros2_firmware).
+
 ## Source build
 
 ### Prerequisites
@@ -51,6 +61,10 @@ rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build
 ```
+
+> **Prerequisites**
+> 
+> Before starting the software on the robot please make sure that you're using the latest firmware and run the `micro-ROS` agent (as described in the *Usage on hardware* step).
 
 Running:
 ```
