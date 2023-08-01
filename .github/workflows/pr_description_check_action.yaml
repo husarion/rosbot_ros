@@ -9,4 +9,4 @@ jobs:
       uses: JJ/github-pr-contains-action@releases/v10
       with:
         github-token: ${{github.token}}
-        bodyContains: 'bump::patch|bump::minor|bump::major'
+        bodyContains: '(bump::patch|bump::minor|bump::major)'
