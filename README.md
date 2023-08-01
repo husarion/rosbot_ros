@@ -87,4 +87,3 @@ Bellow you can find demos with ROSbots:
 - in [rosbot-sensors](https://github.com/husarion/rosbot-sensors) you will find an example how to visualize all ROSbot sensors.
 - in [rosbot-mapping](https://github.com/husarion/rosbot-mapping) you will find an example how to use ROSbot with the [slam_toolbox](https://github.com/SteveMacenski/slam_toolbox/).
 - in [rosbot-navigation](https://github.com/husarion/rosbot-navigation) you will find an example how to use ROSbot with the [navigation2](https://github.com/ros-planning/navigation2) stack.
-- test
