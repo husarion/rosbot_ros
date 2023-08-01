@@ -1,4 +1,4 @@
-name: "Check PR content"
+name: "Check PR description bump"
 on: [pull_request]
 
 jobs:
