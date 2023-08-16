@@ -2,6 +2,9 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.7.0 (2023-07-31)
 ------------------
 * Merge remote-tracking branch 'origin/humble' into ros2-ign-camera-fix

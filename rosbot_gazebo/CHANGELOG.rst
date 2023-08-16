@@ -2,6 +2,9 @@
 Changelog for package rosbot_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.7.0 (2023-07-31)
 ------------------
 * Merge pull request `#57 <https://github.com/husarion/rosbot_ros/issues/57>`_ from husarion/ros2-ign-camera-fix
