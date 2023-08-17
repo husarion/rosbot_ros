@@ -73,6 +73,17 @@ ros2 launch rosbot_bringup bringup.launch.py
 ```
 
 ### Build and run Gazebo simulation
+Prerequirements:
+
+> **Warning**
+> The simulation is compatible with the Gazebo Fortress LTS version. Use [this installation guide ](https://gazebosim.org/docs/fortress/install_ubuntu#binary-installation-on-ubuntu) to install the proper version and remove the another versions e. g. Gazebo Garden:
+> `sudo apt remove gz-garden && sudo apt autoremove`
+> Look at [the table](https://gazebosim.org/docs/garden/ros_installation#summary-of-compatible-ros-and-gazebo-combinations) to see the compatible ROS 2 and Gazebo versions.
+
+If you have installed multiple versions of Gazebo use the global variable to select the correct one:
+```bash
+export GZ_VERSION=fortress
+```
 
 Building:
 ```
