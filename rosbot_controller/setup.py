@@ -19,7 +19,7 @@ setup(
     zip_safe=True,
     maintainer='Husarion',
     maintainer_email='contact@husarion.com',
-    description='ROSbot 2, 2R, PRO description package',
+    description='Hardware configuration for ROSbot 2, 2R, PRO',
     license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
