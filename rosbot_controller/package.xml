@@ -4,7 +4,7 @@
   <name>rosbot_controller</name>
   <version>0.8.0</version>
 
-  <description>Hardware configuration for ROSbot XL</description>
+  <description>Hardware configuration for ROSbot 2, 2R, PRO</description>
   <license>Apache License 2.0</license>
 
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
@@ -31,7 +31,12 @@
 
   <exec_depend>rosbot_hardware_interfaces</exec_depend>
 
+  <test_depend>python3-pytest</test_depend>
+  <test_depend>xacro</test_depend>
+  <test_depend>ros_components_description</test_depend>
+  <test_depend>rosbot_description</test_depend>
+
   <export>
-    <build_type>ament_cmake</build_type>
+    <build_type>ament_python</build_type>
   </export>
 </package>
