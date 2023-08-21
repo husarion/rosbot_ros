@@ -19,7 +19,6 @@
   <exec_depend>robot_localization</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
-  <test_depend>python3-threading</test_depend>
   <test_depend>launch</test_depend>
   <test_depend>launch_ros</test_depend>
   <test_depend>launch_pytest</test_depend>
