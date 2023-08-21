@@ -25,7 +25,6 @@ from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 
-from .controllers_test_node import ControllersTestNode
 # Import submodule from this directory
 import sys
 import os
