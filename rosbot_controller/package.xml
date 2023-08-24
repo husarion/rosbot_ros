@@ -31,11 +31,6 @@
 
   <exec_depend>rosbot_hardware_interfaces</exec_depend>
 
-  <test_depend>python3-pytest</test_depend>
-  <test_depend>xacro</test_depend>
-  <test_depend>ros_components_description</test_depend>
-  <test_depend>rosbot_description</test_depend>
-
   <export>
     <build_type>ament_python</build_type>
   </export>
