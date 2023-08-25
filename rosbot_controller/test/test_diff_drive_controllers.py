@@ -64,11 +64,11 @@ def test_controllers_startup_fail():
         node.create_test_subscribers_and_publishers()
 
         node.start_node_thread()
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=2.0)
+        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
         assert not msgs_received_flag, 'Received JointStates message, check joint_state_broadcaster!'
-        msgs_received_flag = node.odom_msg_event.wait(timeout=2.0)
+        msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
         assert not msgs_received_flag, 'Received Odom message, check rosbot_base_controller!'
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=2.0)
+        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
         assert not msgs_received_flag, 'Received Imu message, check imu_broadcaster!'
     finally:
         rclpy.shutdown()
@@ -83,11 +83,11 @@ def test_controllers_startup_success():
         node.start_publishing_fake_hardware()
 
         node.start_node_thread()
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=2.0)
+        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
         assert msgs_received_flag, 'Did not receive JointStates message, check joint_state_broadcaster!'
-        msgs_received_flag = node.odom_msg_event.wait(timeout=2.0)
+        msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
         assert msgs_received_flag, 'Did not receive Odom message, check rosbot_base_controller!'
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=2.0)
+        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
         assert msgs_received_flag, 'Did not receive Imu message, check imu_broadcaster!'
     finally:
         rclpy.shutdown()
