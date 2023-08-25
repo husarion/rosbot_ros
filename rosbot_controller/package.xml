@@ -37,6 +37,10 @@
   <test_depend>launch_pytest</test_depend>
   <test_depend>sensor_msgs</test_depend>
   <test_depend>nav_msgs</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <test_depend>xacro</test_depend>
+  <test_depend>ros_components_description</test_depend>
+  <test_depend>rosbot_description</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
