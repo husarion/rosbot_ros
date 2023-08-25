@@ -16,8 +16,6 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>rosbot_description</exec_depend>
-
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
 
@@ -25,22 +23,32 @@
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
 
+  <exec_depend>rosbot_description</exec_depend>
+  <exec_depend>ros_components_description</exec_depend>
+  <exec_depend>rosbot_hardware_interfaces</exec_depend>
+
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>imu_sensor_broadcaster</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
-
-  <exec_depend>rosbot_hardware_interfaces</exec_depend>
+  <exec_depend>mecanum_drive_controller</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
   <test_depend>launch</test_depend>
   <test_depend>launch_ros</test_depend>
   <test_depend>launch_pytest</test_depend>
+
+  <test_depend>xacro</test_depend>
   <test_depend>sensor_msgs</test_depend>
   <test_depend>nav_msgs</test_depend>
-  <test_depend>python3-pytest</test_depend>
-  <test_depend>xacro</test_depend>
-  <test_depend>ros_components_description</test_depend>
+
   <test_depend>rosbot_description</test_depend>
+  <test_depend>ros_components_description</test_depend>
+
+  <test_depend>controller_manager</test_depend>
+  <test_depend>joint_state_broadcaster</test_depend>
+  <test_depend>imu_sensor_broadcaster</test_depend>
+  <test_depend>diff_drive_controller</test_depend>
+  <test_depend>mecanum_drive_controller</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
