@@ -22,10 +22,10 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState, Imu
 from nav_msgs.msg import Odometry
 
-ROSBOT_HARDWARE_PUBLISHERS_RATE = 10.0
-
 
 class ControllersTestNode(Node):
+    ROSBOT_HARDWARE_PUBLISHERS_RATE = 10.0
+
     __test__ = False
 
     def __init__(self, name='test_node'):
@@ -79,7 +79,7 @@ class ControllersTestNode(Node):
 
     def start_publishing_fake_hardware(self):
         self.timer = self.create_timer(
-            1/ROSBOT_HARDWARE_PUBLISHERS_RATE, self.publish_fake_hardware_messages)
+            1.0/self.ROSBOT_HARDWARE_PUBLISHERS_RATE, self.publish_fake_hardware_messages)
 
     def publish_fake_hardware_messages(self):
         imu_msg = Imu()
