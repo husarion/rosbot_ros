@@ -2,6 +2,12 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.1 (2023-08-31)
+------------------
+* Merge pull request `#66 <https://github.com/husarion/rosbot_ros/issues/66>`_ from husarion/humble-update-simulation-dependencies
+  Rename gazebo_worlds to husarion_office_gz
+* Contributors: Jakub Delicat
+
 0.8.0 (2023-08-16)
 ------------------
 
