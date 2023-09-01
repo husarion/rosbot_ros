@@ -1,3 +1,17 @@
+# Copyright 2023 Husarion
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from launch import LaunchDescription
 from launch.actions import (
     IncludeLaunchDescription,
@@ -19,7 +33,10 @@ def generate_launch_description():
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
-        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
+        description=(
+            "Whether to use mecanum drive controller "
+            "(otherwise diff drive controller is used)"
+        ),
     )
 
     map_package = get_package_share_directory("husarion_office_gz")
@@ -83,7 +100,7 @@ def generate_launch_description():
             + "@sensor_msgs/msg/PointCloud2"
             + "[ignition.msgs.PointCloudPacked",
             "/clock" + "@rosgraph_msgs/msg/Clock" + "[ignition.msgs.Clock",
-            # an IR sensor or a sonar are not implemented yet https://github.com/gazebosim/gz-sensors/issues/19
+            # an IR sensor is not implemented yet https://github.com/gazebosim/gz-sensors/issues/19
             "/range/fl" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
             "/range/fr" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
             "/range/rl" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
@@ -140,7 +157,8 @@ def generate_launch_description():
             declare_mecanum_arg,
             declare_world_arg,
             declare_use_gpu_arg,
-            # Sets use_sim_time for all nodes started below (doesn't work for nodes started from ignition gazebo)
+            # Sets use_sim_time for all nodes started below
+            # (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
             gz_sim,
             ign_bridge,
