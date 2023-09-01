@@ -2,6 +2,9 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.2 (2023-09-01)
+------------------
+
 0.8.1 (2023-08-31)
 ------------------
 * Merge pull request `#66 <https://github.com/husarion/rosbot_ros/issues/66>`_ from husarion/humble-update-simulation-dependencies
