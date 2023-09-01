@@ -58,7 +58,7 @@ def generate_launch_description():
         "simulation_engine",
         default_value="webots",
         description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "gazebo-classic", "webots"]
+        choices=["ignition-gazebo", "gazebo-classic", "webots"],
     )
 
     controller_config_name = PythonExpression(
