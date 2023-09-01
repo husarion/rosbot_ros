@@ -1,4 +1,4 @@
-name: Lint
+name: Black python lint
 
 on:
     workflow_call:
@@ -11,3 +11,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: psf/black@stable
+        with:
+            options: ""
