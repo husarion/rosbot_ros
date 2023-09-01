@@ -65,7 +65,7 @@ def test_controllers_startup_fail():
         assert (
             not msgs_received_flag
         ), "Received Odom message, check rosbot_base_controller!"
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
+        msgs_received_flag = node.imu_msg_event.wait(timeout=10.0)
         assert not msgs_received_flag, "Received Imu message, check imu_broadcaster!"
     finally:
         rclpy.shutdown()

@@ -24,36 +24,25 @@ from sensor_msgs.msg import JointState, Imu
 from nav_msgs.msg import Odometry
 
 
-class ControllersTestNode(Node):
+class BringupTestNode(Node):
     ROSBOT_HARDWARE_PUBLISHERS_RATE = 10.0
 
     __test__ = False
 
     def __init__(self, name="test_node"):
         super().__init__(name)
-        self.joint_state_msg_event = Event()
         self.odom_msg_event = Event()
-        self.imu_msg_event = Event()
 
     def create_test_subscribers_and_publishers(self):
-        self.joint_state_sub = self.create_subscription(
-            JointState, "/joint_states", self.joint_states_callback, 10
-        )
-
-        self.odom_sub = self.create_subscription(
-            Odometry, "/rosbot_base_controller/odom", self.odometry_callback, 10
-        )
-
-        self.imu_sub = self.create_subscription(
-            Imu, "/imu_broadcaster/imu", self.joint_states_callback, 10
-        )
-
         self.imu_publisher = self.create_publisher(Imu, "_imu/data_raw", 10)
 
         self.joint_states_publisher = self.create_publisher(
             JointState, "_motors_response", 10
         )
 
+        self.odom_sub = self.create_subscription(
+            Odometry, "/odometry/filtered", self.odometry_callback, 10
+        )
         self.timer = None
 
     def start_node_thread(self):
@@ -62,14 +51,8 @@ class ControllersTestNode(Node):
         )
         self.ros_spin_thread.start()
 
-    def joint_states_callback(self, data):
-        self.joint_state_msg_event.set()
-
     def odometry_callback(self, data):
         self.odom_msg_event.set()
-
-    def imu_callback(self, data):
-        self.imu_msg_event.set()
 
     def start_publishing_fake_hardware(self):
         self.timer = self.create_timer(

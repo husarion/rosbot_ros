@@ -23,25 +23,25 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from controllers_test_node import ControllersTestNode
+from bringup_test_node import BringupTestNode
 
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_controller = get_package_share_directory("rosbot_controller")
+    rosbot_bringup = get_package_share_directory("rosbot_bringup")
     bringup_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
-                    rosbot_controller,
+                    rosbot_bringup,
                     "launch",
-                    "controller.launch.py",
+                    "bringup.launch.py",
                 ]
             )
         ),
         launch_arguments={
             "use_sim": "False",
-            "mecanum": "False",
+            "mecanum": "True",
             "use_gpu": "False",
         }.items(),
     )
@@ -50,45 +50,17 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_controllers_startup_fail():
+def test_bringup_startup_success():
     rclpy.init()
     try:
-        node = ControllersTestNode("test_controllers_bringup")
-        node.create_test_subscribers_and_publishers()
-
-        node.start_node_thread()
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
-        assert (
-            not msgs_received_flag
-        ), "Received JointStates message, check joint_state_broadcaster!"
-        msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
-        assert (
-            not msgs_received_flag
-        ), "Received Odom message, check rosbot_base_controller!"
-        msgs_received_flag = node.imu_msg_event.wait(timeout=10.0)
-        assert not msgs_received_flag, "Received Imu message, check imu_broadcaster!"
-    finally:
-        rclpy.shutdown()
-
-
-@pytest.mark.launch(fixture=generate_test_description)
-def test_controllers_startup_success():
-    rclpy.init()
-    try:
-        node = ControllersTestNode("test_controllers_bringup")
+        node = BringupTestNode("test_bringup")
         node.create_test_subscribers_and_publishers()
         node.start_publishing_fake_hardware()
 
         node.start_node_thread()
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
-        assert (
-            msgs_received_flag
-        ), "Did not receive JointStates message, check joint_state_broadcaster!"
         msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
         assert (
             msgs_received_flag
-        ), "Did not receive Odom message, check rosbot_base_controller!"
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
-        assert msgs_received_flag, "Did not receive Imu message, check imu_broadcaster!"
+        ), "Did not receive Odom message, check robot_localization node!"
     finally:
         rclpy.shutdown()
