@@ -4,7 +4,7 @@
   <name>rosbot_description</name>
   <version>0.8.1</version>
 
-  <description>Rosbot description package</description>
+  <description>ROSbot 2, 2R, PRO description package</description>
   <license>Apache License 2.0</license>
 
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
@@ -16,10 +16,6 @@
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <build_depend>xacro</build_depend>
-  <exec_depend>xacro</exec_depend>
-  <exec_depend>ros_components_description</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

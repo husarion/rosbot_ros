@@ -32,7 +32,6 @@ def generate_launch_description():
         choices=["ignition-gazebo", "gazebo-classic", "webots"]
     )
 
-
     rosbot_controller = get_package_share_directory("rosbot_controller")
     rosbot_bringup = get_package_share_directory("rosbot_bringup")
 
