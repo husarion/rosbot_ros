@@ -33,6 +33,7 @@
   <test_depend>launch_pytest</test_depend>
 
   <test_depend>tf_transformations</test_depend>
+  <test_depend>python-transforms3d-pip</test_depend>
   <test_depend>nav_msgs</test_depend>
   <test_depend>geometry_msgs</test_depend>
 
