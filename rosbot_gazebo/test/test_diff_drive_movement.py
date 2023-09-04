@@ -53,7 +53,7 @@ def generate_test_description():
 def test_simulation_movement_diff_drive():
     rclpy.init()
     try:
-        node = SimulationTestNode("test_bringup", 0.8, 0.0, 1.57 / 2.0)
+        node = SimulationTestNode("test_bringup", 0.8, 0.0, 1.57 / 4.0)
         node.create_test_subscribers_and_publishers()
 
         node.start_node_thread()
