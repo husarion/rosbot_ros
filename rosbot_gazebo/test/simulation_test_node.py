@@ -68,7 +68,9 @@ class SimulationTestNode(Node):
             pose.orientation.w,
         )
         r, p, y = tf_transformations.euler_from_quaternion(q)
-        print(pose.position.x)
+
+        print(f"x: {pose.position.x}, y: {pose.position.y}, yaw: {y}")
+
         if pose.position.x > self.goal_x_distance:
             self.goal_x_event.set()
 
