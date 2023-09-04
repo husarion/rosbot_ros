@@ -85,6 +85,6 @@ class SimulationTestNode(Node):
         twist_msg = Twist()
         twist_msg.linear.x = self.goal_x_distance / 2.0
         twist_msg.linear.y = self.goal_y_distance / 2.0
-        twist_msg.angular.z = self.goal_theta_angle / 1.0
+        twist_msg.angular.z = self.goal_theta_angle * 4.0
 
         self.cmd_vel_publisher.publish(twist_msg)
