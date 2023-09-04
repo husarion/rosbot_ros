@@ -77,7 +77,7 @@ class SimulationTestNode(Node):
         if pose.position.y > self.goal_y_distance:
             self.goal_y_event.set()
 
-        if y > self.goal_x_distance:
+        if y > self.goal_theta_angle:
             self.goal_theta_event.set()
 
     def publish_cmd_vel_messages(self):

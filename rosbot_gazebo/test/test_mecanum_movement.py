@@ -50,7 +50,7 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_simulation_startup_success():
+def test_simulation_movement_mecanum():
     rclpy.init()
     try:
         node = SimulationTestNode("test_bringup", 0.8, 0.8, 0.0)
