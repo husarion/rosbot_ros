@@ -8,5 +8,5 @@ log
 rosbot_hardware_interfaces/
 ros_components_description/
 rosbot_controllers/
-husarion/gazebo_worlds
+husarion/husarion_office_gz
 gazebosim/gz_ros2_control
