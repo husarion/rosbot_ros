@@ -19,6 +19,7 @@ from launch.actions import (
 )
 from launch.substitutions import (
     PathJoinSubstitution,
+    PythonExpression,
     LaunchConfiguration,
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -39,12 +40,30 @@ def generate_launch_description():
         ),
     )
 
-    map_package = get_package_share_directory("husarion_office_gz")
-    world_file = PathJoinSubstitution([map_package, "worlds", "husarion_world.sdf"])
+    world_package = get_package_share_directory("husarion_office_gz")
+    world_file = PathJoinSubstitution([world_package, "worlds", "husarion_world.sdf"])
     world_cfg = LaunchConfiguration("world")
     declare_world_arg = DeclareLaunchArgument(
-        "world", default_value=["-r ", world_file], description="SDF world file"
+        "world", default_value=world_file, description="SDF world file"
     )
+
+    headless = LaunchConfiguration("headless")
+    declare_headless_arg = DeclareLaunchArgument(
+        "headless",
+        default_value="False",
+        description=(
+            "Run Gazebo Ignition in the headless mode"
+        )
+    )
+
+    headless_cfg = PythonExpression(
+        [
+            "'--headless-rendering -s -r' if ",
+            headless,
+            " else '-r'",
+        ]
+    )
+    gz_args = [headless_cfg, " ", world_cfg ]
 
     use_gpu = LaunchConfiguration("use_gpu")
     declare_use_gpu_arg = DeclareLaunchArgument(
@@ -63,7 +82,7 @@ def generate_launch_description():
                 ]
             )
         ),
-        launch_arguments={"gz_args": world_cfg}.items(),
+        launch_arguments={"gz_args": gz_args}.items(),
     )
 
     gz_spawn_entity = Node(
@@ -156,6 +175,7 @@ def generate_launch_description():
         [
             declare_mecanum_arg,
             declare_world_arg,
+            declare_headless_arg,
             declare_use_gpu_arg,
             # Sets use_sim_time for all nodes started below
             # (doesn't work for nodes started from ignition gazebo)
