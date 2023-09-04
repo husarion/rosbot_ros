@@ -51,9 +51,7 @@ def generate_launch_description():
     declare_headless_arg = DeclareLaunchArgument(
         "headless",
         default_value="False",
-        description=(
-            "Run Gazebo Ignition in the headless mode"
-        )
+        description=("Run Gazebo Ignition in the headless mode"),
     )
 
     headless_cfg = PythonExpression(
@@ -63,7 +61,7 @@ def generate_launch_description():
             " else '-r'",
         ]
     )
-    gz_args = [headless_cfg, " ", world_cfg ]
+    gz_args = [headless_cfg, " ", world_cfg]
 
     use_gpu = LaunchConfiguration("use_gpu")
     declare_use_gpu_arg = DeclareLaunchArgument(
@@ -82,7 +80,10 @@ def generate_launch_description():
                 ]
             )
         ),
-        launch_arguments={"gz_args": gz_args}.items(),
+        launch_arguments={
+            "gz_args": gz_args,
+            "on_exit_shutdown": "True",
+        }.items(),
     )
 
     gz_spawn_entity = Node(
@@ -104,6 +105,7 @@ def generate_launch_description():
         ],
         output="screen",
     )
+
     ign_bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",

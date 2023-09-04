@@ -27,6 +27,15 @@
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>ign_ros2_control</exec_depend>
 
+  <test_depend>python3-pytest</test_depend>
+  <test_depend>launch</test_depend>
+  <test_depend>launch_ros</test_depend>
+  <test_depend>launch_pytest</test_depend>
+
+  <test_depend>tf_transformations</test_depend>
+  <test_depend>nav_msgs</test_depend>
+  <test_depend>geometry_msgs</test_depend>
+
   <export>
     <build_type>ament_python</build_type>
   </export>
