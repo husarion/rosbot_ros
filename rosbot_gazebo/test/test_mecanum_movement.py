@@ -53,13 +53,17 @@ def generate_test_description():
 def test_simulation_xy_movement_mecanum():
     rclpy.init()
     try:
-        node = SimulationTestNode("test_bringup", 0.8, 0.8, 0.0)
+        node = SimulationTestNode("test_bringup", 0.0, 0.8, 0.0)
+        node.create_test_subscribers_and_publishers()
+        node.start_node_thread()
+        msgs_received_flag = node.goal_y_event.wait(timeout=60.0)
+        assert msgs_received_flag, "ROSbot can't move by x axis!"
+        node.destroy_node()
+
+        node = SimulationTestNode("test_bringup", 0.8, 0.0, 0.0)
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
         msgs_received_flag = node.goal_x_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot can't move by x axis!"
-
-        msgs_received_flag = node.goal_y_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot can't move by y axis!"
         node.destroy_node()
 
