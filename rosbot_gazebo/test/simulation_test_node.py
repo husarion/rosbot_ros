@@ -28,21 +28,23 @@ import tf_transformations
 class SimulationTestNode(Node):
     __test__ = False
 
-    def __init__(
-        self,
-        name="test_node",
-        goal_x_distance=0.0,
-        goal_y_distance=0.0,
-        goal_theta_angle=0.0,
-    ):
+    def __init__(self, name="test_node"):
         super().__init__(name)
-        self.goal_x_distance = goal_x_distance
-        self.goal_y_distance = goal_y_distance
-        self.goal_theta_angle = goal_theta_angle
+        self.goal_x_distance = 0.0
+        self.goal_y_distance = 0.0
+        self.goal_theta_angle = 0.0
 
         self.goal_x_event = Event()
         self.goal_y_event = Event()
         self.goal_theta_event = Event()
+
+    def set_and_publish_velocities(
+        self, goal_x_distance, goal_y_distance, goal_theta_angle
+    ):
+        self.goal_x_distance = goal_x_distance
+        self.goal_y_distance = goal_y_distance
+        self.goal_theta_angle = goal_theta_angle
+        self.publish_cmd_vel_messages()
 
     def create_test_subscribers_and_publishers(self):
         self.cmd_vel_publisher = self.create_publisher(Twist, "cmd_vel", 10)
