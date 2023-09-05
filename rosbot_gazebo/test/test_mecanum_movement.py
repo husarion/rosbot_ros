@@ -53,17 +53,21 @@ def generate_test_description():
 def test_simulation_movement_mecanum():
     rclpy.init()
     try:
-        node = SimulationTestNode("test_bringup", 0.8, 0.8, 0.0)
+        node = SimulationTestNode("test_bringup", 0.6, 0.6, 0.0)
         node.create_test_subscribers_and_publishers()
-
         node.start_node_thread()
         msgs_received_flag = node.goal_x_event.wait(timeout=30.0)
         assert msgs_received_flag, "ROSbot can't move by x axis!"
 
         msgs_received_flag = node.goal_y_event.wait(timeout=30.0)
         assert msgs_received_flag, "ROSbot can't move by y axis!"
+        node.destroy_node()
 
+        node = SimulationTestNode("test_bringup", 0.0, 0.0, 1.57)
+        node.create_test_subscribers_and_publishers()
+        node.start_node_thread()
         msgs_received_flag = node.goal_theta_event.wait(timeout=30.0)
         assert msgs_received_flag, "ROSbot can't rotate!"
+        node.destroy_node()
     finally:
         rclpy.shutdown()
