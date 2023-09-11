@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import rclpy
+import tf_transformations
 
 from threading import Event
 from threading import Thread
@@ -22,10 +23,11 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-import tf_transformations
+from sensor_msgs.msg import LaserScan
 
 
 class SimulationTestNode(Node):
+    MINIMAL_LASER_SCAN_RANGE = 0.1
     __test__ = False
 
     def __init__(self, name="test_node"):
@@ -37,6 +39,7 @@ class SimulationTestNode(Node):
         self.goal_x_event = Event()
         self.goal_y_event = Event()
         self.goal_theta_event = Event()
+        self.scan_event = Event()
 
     def set_and_publish_velocities(
         self, goal_x_distance, goal_y_distance, goal_theta_angle
@@ -52,6 +55,11 @@ class SimulationTestNode(Node):
         self.odom_sub = self.create_subscription(
             Odometry, "/odometry/filtered", self.odometry_callback, 10
         )
+
+        self.scan_sub = self.create_subscription(
+            LaserScan, "/scan", self.scan_callback, 10
+        )
+
         self.timer = None
 
     def start_node_thread(self):
@@ -82,6 +90,12 @@ class SimulationTestNode(Node):
 
         if yaw > self.goal_theta_angle:
             self.goal_theta_event.set()
+
+    def scan_callback(self, data: LaserScan):
+        if min(data.ranges) < self.MINIMAL_LASER_SCAN_RANGE:
+            print(f"Ranges: {data.ranges}")
+            return
+        self.scan_event.set()
 
     def publish_cmd_vel_messages(self):
         twist_msg = Twist()
