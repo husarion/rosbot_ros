@@ -28,7 +28,7 @@ class ControllersTestNode(Node):
 
     __test__ = False
 
-    def __init__(self, name='test_node'):
+    def __init__(self, name="test_node"):
         super().__init__(name)
         self.joint_state_msg_event = Event()
         self.odom_msg_event = Event()
@@ -36,36 +36,29 @@ class ControllersTestNode(Node):
 
     def create_test_subscribers_and_publishers(self):
         self.joint_state_sub = self.create_subscription(
-            JointState,
-            '/joint_states',
-            self.joint_states_callback,
-            10
+            JointState, "/joint_states", self.joint_states_callback, 10
         )
 
         self.odom_sub = self.create_subscription(
-            Odometry,
-            '/rosbot_base_controller/odom',
-            self.odometry_callback,
-            10
+            Odometry, "/rosbot_base_controller/odom", self.odometry_callback, 10
         )
 
         self.imu_sub = self.create_subscription(
-            Imu,
-            '/imu_broadcaster/imu',
-            self.joint_states_callback,
-            10
+            Imu, "/imu_broadcaster/imu", self.joint_states_callback, 10
         )
 
-        self.imu_publisher = self.create_publisher(Imu, '_imu/data_raw', 10)
+        self.imu_publisher = self.create_publisher(Imu, "_imu/data_raw", 10)
 
         self.joint_states_publisher = self.create_publisher(
-            JointState, '_motors_response', 10)
+            JointState, "_motors_response", 10
+        )
 
         self.timer = None
 
     def start_node_thread(self):
         self.ros_spin_thread = Thread(
-            target=lambda node: rclpy.spin(node), args=(self,))
+            target=lambda node: rclpy.spin(node), args=(self,)
+        )
         self.ros_spin_thread.start()
 
     def joint_states_callback(self, data):
@@ -79,17 +72,23 @@ class ControllersTestNode(Node):
 
     def start_publishing_fake_hardware(self):
         self.timer = self.create_timer(
-            1.0/self.ROSBOT_HARDWARE_PUBLISHERS_RATE, self.publish_fake_hardware_messages)
+            1.0 / self.ROSBOT_HARDWARE_PUBLISHERS_RATE,
+            self.publish_fake_hardware_messages,
+        )
 
     def publish_fake_hardware_messages(self):
         imu_msg = Imu()
         imu_msg.header.stamp = self.get_clock().now().to_msg()
-        imu_msg.header.frame_id = 'imu_link'
+        imu_msg.header.frame_id = "imu_link"
 
         joint_state_msg = JointState()
         joint_state_msg.header.stamp = self.get_clock().now().to_msg()
         joint_state_msg.name = [
-            'fl_wheel_joint', 'fr_wheel_joint', 'rl_wheel_joint', 'rr_wheel_joint']
+            "fl_wheel_joint",
+            "fr_wheel_joint",
+            "rl_wheel_joint",
+            "rr_wheel_joint",
+        ]
         joint_state_msg.position = [0.0, 0.0, 0.0, 0.0]
         joint_state_msg.velocity = [0.0, 0.0, 0.0, 0.0]
 

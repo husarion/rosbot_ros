@@ -1,13 +1,11 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node, SetParameter
-from launch.substitutions import  PathJoinSubstitution
+from launch.substitutions import PathJoinSubstitution
 from ament_index_python.packages import get_package_share_directory
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import (
-    LaunchConfiguration,
-    PathJoinSubstitution
-)
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+
 
 def generate_launch_description():
     use_sim = LaunchConfiguration("use_sim")
@@ -29,7 +27,7 @@ def generate_launch_description():
         "simulation_engine",
         default_value="webots",
         description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "gazebo-classic", "webots"]
+        choices=["ignition-gazebo", "gazebo-classic", "webots"],
     )
 
     rosbot_controller = get_package_share_directory("rosbot_controller")
@@ -77,7 +75,7 @@ def generate_launch_description():
         declare_simulation_engine_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         controller_launch,
-        robot_localization_node
+        robot_localization_node,
     ]
 
     return LaunchDescription(actions)

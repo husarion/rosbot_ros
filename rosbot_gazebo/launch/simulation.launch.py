@@ -25,8 +25,7 @@ def generate_launch_description():
     )
 
     map_package = get_package_share_directory("husarion_office_gz")
-    world_file = PathJoinSubstitution(
-        [map_package, "worlds", "husarion_world.sdf"])
+    world_file = PathJoinSubstitution([map_package, "worlds", "husarion_world.sdf"])
     world_cfg = LaunchConfiguration("world")
     declare_world_arg = DeclareLaunchArgument(
         "world", default_value=["-r ", world_file], description="SDF world file"
@@ -76,16 +75,15 @@ def generate_launch_description():
         executable="parameter_bridge",
         name="ros_gz_bridge",
         arguments=[
-            "/scan" + "@sensor_msgs/msg/LaserScan" +
-                "[ignition.msgs.LaserScan",
-            "/camera/camera_info" + "@sensor_msgs/msg/CameraInfo" +
-                "[ignition.msgs.CameraInfo",
-            "/camera/depth_image" + "@sensor_msgs/msg/Image" +
-                "[ignition.msgs.Image",
-            "/camera/image" + "@sensor_msgs/msg/Image" +
-                "[ignition.msgs.Image",
-            "/camera/points" + "@sensor_msgs/msg/PointCloud2" +
-                "[ignition.msgs.PointCloudPacked",
+            "/scan" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
+            "/camera/camera_info"
+            + "@sensor_msgs/msg/CameraInfo"
+            + "[ignition.msgs.CameraInfo",
+            "/camera/depth_image" + "@sensor_msgs/msg/Image" + "[ignition.msgs.Image",
+            "/camera/image" + "@sensor_msgs/msg/Image" + "[ignition.msgs.Image",
+            "/camera/points"
+            + "@sensor_msgs/msg/PointCloud2"
+            + "[ignition.msgs.PointCloudPacked",
             "/clock" + "@rosgraph_msgs/msg/Clock" + "[ignition.msgs.Clock",
             # an IR sensor or a sonar are not implemented yet https://github.com/gazebosim/gz-sensors/issues/19
             "/range/fl" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
@@ -116,19 +114,28 @@ def generate_launch_description():
             "mecanum": mecanum,
             "use_sim": "True",
             "use_gpu": use_gpu,
-            "simulation_engine": "ignition-gazebo"
+            "simulation_engine": "ignition-gazebo",
         }.items(),
     )
 
     # The frame of the pointcloud from ignition gazebo 6 isn't provided by <frame_id>.
     # See https://github.com/gazebosim/gz-sensors/issues/239
-    depth_cam_frame_fixer = Node(package='tf2_ros',
-                                executable='static_transform_publisher',
-                                name='depth_to_camera',
-                                output='log',
-                                arguments=['0.0', '0.0', '0.0', '1.57', '-1.57', '0.0',
-                                            'camera_depth_optical_frame', 'rosbot/base_link/camera_orbbec_astra_camera'
-                                            ])
+    depth_cam_frame_fixer = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="depth_to_camera",
+        output="log",
+        arguments=[
+            "0.0",
+            "0.0",
+            "0.0",
+            "1.57",
+            "-1.57",
+            "0.0",
+            "camera_depth_optical_frame",
+            "rosbot/base_link/camera_orbbec_astra_camera",
+        ],
+    )
 
     return LaunchDescription(
         [
@@ -141,6 +148,6 @@ def generate_launch_description():
             ign_bridge,
             gz_spawn_entity,
             bringup_launch,
-            depth_cam_frame_fixer
+            depth_cam_frame_fixer,
         ]
     )

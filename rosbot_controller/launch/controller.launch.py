@@ -36,7 +36,10 @@ def generate_launch_description():
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
-        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
+        description=(
+            "Whether to use mecanum drive controller "
+            "(otherwise diff drive controller is used)"
+        ),
     )
 
     use_sim = LaunchConfiguration("use_sim")
@@ -58,7 +61,7 @@ def generate_launch_description():
         "simulation_engine",
         default_value="webots",
         description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "gazebo-classic", "webots"]
+        choices=["ignition-gazebo", "gazebo-classic", "webots"],
     )
 
     controller_config_name = PythonExpression(
