@@ -8,5 +8,8 @@ log
 rosbot_hardware_interfaces/
 ros_components_description/
 rosbot_controllers/
-husarion/husarion_office_gz
+husarion/gazebo_worlds
 gazebosim/gz_ros2_control
+
+# pyspelling
+*.dic

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright 2020 ros2_control Development Team
 # Copyright 2023 Husarion
 #

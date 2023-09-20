@@ -6,7 +6,7 @@ ROS2 packages for ROSbot 2R and ROSbot 2 PRO.
 Metapackage that contains dependencies to other repositories.
 
 ### `rosbot_bringup`
-Package that contains launch, which starts all base functionalities. Also configs for [robot_localization](https://github.com/cra-ros-pkg/robot_localization) and [ros2_controllers](https://github.com/ros-controls/ros2_controllers) are defined there.
+Package that contains launch, which starts all base functionalities. Also configuration for [robot_localization](https://github.com/cra-ros-pkg/robot_localization) and [ros2_controllers](https://github.com/ros-controls/ros2_controllers) are defined there.
 
 ### `rosbot_description`
 URDF model used as a source of transforms on the physical robot. It was written to be compatible with ROS Industrial and preconfigured for ROS2 control.
@@ -31,7 +31,7 @@ For detailed instructions refer to the [rosbot_ros2_firmware repository](https:/
 
 ### Prerequisites
 
-Install `colcon`, `vsc` and `rosdep`:
+Install `colcon`, `vcs` and `rosdep`:
 ```
 sudo apt-get update
 sudo apt-get install -y python3-colcon-common-extensions python3-vcstool python3-rosdep
@@ -63,7 +63,7 @@ colcon build
 ```
 
 > **Prerequisites**
-> 
+>
 > Before starting the software on the robot please make sure that you're using the latest firmware and run the `micro-ROS` agent (as described in the *Usage on hardware* step).
 
 Running:
@@ -73,7 +73,7 @@ ros2 launch rosbot_bringup bringup.launch.py
 ```
 
 ### Build and run Gazebo simulation
-Prerequirements:
+Prerequisites:
 
 > **Warning**
 > The simulation is compatible with the Gazebo Fortress LTS version. Use [this installation guide ](https://gazebosim.org/docs/fortress/install_ubuntu#binary-installation-on-ubuntu) to install the proper version and remove the another versions e. g. Gazebo Garden:

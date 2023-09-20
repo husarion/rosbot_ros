@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from launch import LaunchDescription
 from launch.actions import (
     IncludeLaunchDescription,
