@@ -2,6 +2,12 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.3 (2023-09-20)
+------------------
+* Merge remote-tracking branch 'origin/humble' into test-black
+* Merge remote-tracking branch 'origin/humble' into test-bringup
+* Contributors: Jakub Delicat
+
 0.8.2 (2023-09-01)
 ------------------
 

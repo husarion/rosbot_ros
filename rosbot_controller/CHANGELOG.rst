@@ -2,6 +2,15 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.3 (2023-09-20)
+------------------
+* Merge pull request `#67 <https://github.com/husarion/rosbot_ros/issues/67>`_ from husarion/test-black
+  Add black, flake8 and pep257 tests
+* Merge remote-tracking branch 'origin/humble' into test-black
+* Merge remote-tracking branch 'origin/humble' into test-bringup
+* Merge branch 'test-description' into test-bringup
+* Contributors: Jakub Delicat, rafal-gorecki
+
 0.8.2 (2023-09-01)
 ------------------
 
