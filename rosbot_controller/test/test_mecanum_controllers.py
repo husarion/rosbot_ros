@@ -60,13 +60,15 @@ def test_controllers_startup_fail():
         msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
         assert (
             not msgs_received_flag
-        ), "Received JointStates message, check joint_state_broadcaster!"
+        ), "Expected JointStates message not received. Check joint_state_broadcaster!"
         msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
         assert (
             not msgs_received_flag
-        ), "Received Odom message, check rosbot_base_controller!"
+        ), "Expected Odom message not received. Check rosbot_base_controller!"
         msgs_received_flag = node.imu_msg_event.wait(timeout=10.0)
-        assert not msgs_received_flag, "Received Imu message, check imu_broadcaster!"
+        assert (
+            not msgs_received_flag
+        ), "Expected Imu message not received. Check imu_broadcaster!"
     finally:
         rclpy.shutdown()
 
@@ -83,12 +85,14 @@ def test_controllers_startup_success():
         msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
         assert (
             msgs_received_flag
-        ), "Did not receive JointStates message, check joint_state_broadcaster!"
+        ), "Expected JointStates message but it was not received. Check joint_state_broadcaster!"
         msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
         assert (
             msgs_received_flag
-        ), "Did not receive Odom message, check rosbot_base_controller!"
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
-        assert msgs_received_flag, "Did not receive Imu message, check imu_broadcaster!"
+        ), "Expected Odom message but it was not received. Check rosbot_base_controller!"
+        msgs_received_flag = node.imu_msg_event.wait(timeout=10.0)
+        assert (
+            msgs_received_flag
+        ), "Expected Imu message but it was not received. Check imu_broadcaster!"
     finally:
         rclpy.shutdown()
