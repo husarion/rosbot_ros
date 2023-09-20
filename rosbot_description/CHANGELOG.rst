@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.8.3 (2023-09-20)
+------------------
 * Merge remote-tracking branch 'origin/humble' into test-black
 * Merge remote-tracking branch 'origin/humble' into test-bringup
 * Merge branch 'test-description' into test-bringup
