@@ -61,6 +61,7 @@ def test_bringup_startup_success():
         msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
         assert (
             msgs_received_flag
-        ), "Did not receive Odom message, check robot_localization node!"
+        ), "Expected Odom message but it was not received. Check robot_localization!"
+
     finally:
         rclpy.shutdown()
