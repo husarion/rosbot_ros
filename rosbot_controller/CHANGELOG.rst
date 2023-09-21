@@ -2,6 +2,25 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.4 (2023-09-21)
+------------------
+* Merge pull request `#69 <https://github.com/husarion/rosbot_ros/issues/69>`_ from husarion/test-ekf
+  Test ekf
+* Merge branch 'humble' into test-ekf
+* Merge pull request `#68 <https://github.com/husarion/rosbot_ros/issues/68>`_ from husarion/test-spellcheck
+  Test spellcheck
+* Merge branch 'humble' into test-spellcheck
+* Contributors: rafal-gorecki
+
+0.8.3 (2023-09-20)
+------------------
+* Merge pull request `#67 <https://github.com/husarion/rosbot_ros/issues/67>`_ from husarion/test-black
+  Add black, flake8 and pep257 tests
+* Merge remote-tracking branch 'origin/humble' into test-black
+* Merge remote-tracking branch 'origin/humble' into test-bringup
+* Merge branch 'test-description' into test-bringup
+* Contributors: Jakub Delicat, rafal-gorecki
+
 0.8.2 (2023-09-01)
 ------------------
 

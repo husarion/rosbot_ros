@@ -1,10 +1,7 @@
 name: Industrial CI
 on:
   workflow_call:
-  pull_request:
   push:
-    branches:
-      - humble
 
 jobs:
   industrial_ci:
