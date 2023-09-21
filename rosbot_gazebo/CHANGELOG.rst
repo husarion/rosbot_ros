@@ -2,6 +2,14 @@
 Changelog for package rosbot_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'humble' into test-ekf
+* Merge pull request `#68 <https://github.com/husarion/rosbot_ros/issues/68>`_ from husarion/test-spellcheck
+  Test spellcheck
+* Merge branch 'humble' into test-spellcheck
+* Contributors: rafal-gorecki
+
 0.8.3 (2023-09-20)
 ------------------
 * Merge pull request `#67 <https://github.com/husarion/rosbot_ros/issues/67>`_ from husarion/test-black

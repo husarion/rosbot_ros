@@ -2,6 +2,12 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'humble' into test-ekf
+* Merge branch 'humble' into test-spellcheck
+* Contributors: rafal-gorecki
+
 0.8.3 (2023-09-20)
 ------------------
 * Merge remote-tracking branch 'origin/humble' into test-black
