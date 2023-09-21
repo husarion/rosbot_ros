@@ -27,12 +27,18 @@ import tf_transformations
 
 class SimulationTestNode(Node):
     __test__ = False
+    DISTANCE_TO_LINEAR_VELOCITY_SCALE = 1.0
+    DISTANCE_TO_ANGULAR_VELOCITY_SCALE = 6.0
 
     def __init__(self, name="test_node"):
         super().__init__(name)
         self.goal_x_distance = 0.0
         self.goal_y_distance = 0.0
         self.goal_theta_angle = 0.0
+
+        self.velocity_x = 0.0
+        self.velocity_y = 0.0
+        self.velocity_theta = 0.0
 
         self.goal_x_event = Event()
         self.goal_y_event = Event()
@@ -44,6 +50,10 @@ class SimulationTestNode(Node):
         self.goal_x_distance = goal_x_distance
         self.goal_y_distance = goal_y_distance
         self.goal_theta_angle = goal_theta_angle
+
+        self.velocity_x = self.DISTANCE_TO_LINEAR_VELOCITY_SCALE * goal_x_distance
+        self.velocity_y = self.DISTANCE_TO_LINEAR_VELOCITY_SCALE * goal_y_distance
+        self.velocity_theta = self.DISTANCE_TO_ANGULAR_VELOCITY_SCALE * goal_theta_angle
         self.publish_cmd_vel_messages()
 
     def create_test_subscribers_and_publishers(self):
@@ -85,8 +95,8 @@ class SimulationTestNode(Node):
 
     def publish_cmd_vel_messages(self):
         twist_msg = Twist()
-        twist_msg.linear.x = self.goal_x_distance
-        twist_msg.linear.y = self.goal_y_distance
-        twist_msg.angular.z = self.goal_theta_angle * 6.0
+        twist_msg.linear.x = self.velocity_x
+        twist_msg.linear.y = self.velocity_y
+        twist_msg.angular.z = self.velocity_theta
 
         self.cmd_vel_publisher.publish(twist_msg)
