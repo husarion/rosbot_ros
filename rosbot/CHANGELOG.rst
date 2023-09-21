@@ -2,8 +2,8 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.8.4 (2023-09-21)
+------------------
 * Merge branch 'humble' into test-ekf
 * Merge branch 'humble' into test-spellcheck
 * Contributors: rafal-gorecki

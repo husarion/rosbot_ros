@@ -2,8 +2,8 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.8.4 (2023-09-21)
+------------------
 * Merge pull request `#69 <https://github.com/husarion/rosbot_ros/issues/69>`_ from husarion/test-ekf
   Test ekf
 * Merge branch 'humble' into test-ekf
