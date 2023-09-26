@@ -58,15 +58,15 @@ def test_simulation_xy_movement_mecanum():
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
 
-        node.set_and_publish_velocities(0.8, 0.0, 0.0)
+        node.set_and_publish_destination_goal(0.8, 0.0, 0.0)
         msgs_received_flag = node.goal_x_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot can't move by x axis!"
 
-        node.set_and_publish_velocities(0.0, 0.8, 0.0)
+        node.set_and_publish_destination_goal(0.0, 0.8, 0.0)
         msgs_received_flag = node.goal_y_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot can't move by y axis!"
 
-        node.set_and_publish_velocities(0.0, 0.0, 1.57)
+        node.set_and_publish_destination_goal(0.0, 0.0, 1.57)
         msgs_received_flag = node.goal_theta_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot can't rotate!"
 

@@ -44,16 +44,16 @@ class SimulationTestNode(Node):
         self.goal_y_event = Event()
         self.goal_theta_event = Event()
 
-    def set_and_publish_velocities(
-        self, goal_x_distance, goal_y_distance, goal_theta_angle
+    def set_and_publish_destination_goal(
+        self, goal_x_distance, goal_y_distance, goal_yaw_angle
     ):
         self.goal_x_distance = goal_x_distance
         self.goal_y_distance = goal_y_distance
-        self.goal_theta_angle = goal_theta_angle
+        self.goal_theta_angle = goal_yaw_angle
 
         self.velocity_x = self.DISTANCE_TO_LINEAR_VELOCITY_SCALE * goal_x_distance
         self.velocity_y = self.DISTANCE_TO_LINEAR_VELOCITY_SCALE * goal_y_distance
-        self.velocity_theta = self.DISTANCE_TO_ANGULAR_VELOCITY_SCALE * goal_theta_angle
+        self.velocity_theta = self.DISTANCE_TO_ANGULAR_VELOCITY_SCALE * goal_yaw_angle
         self.publish_cmd_vel_messages()
 
     def create_test_subscribers_and_publishers(self):
