@@ -28,7 +28,7 @@ Clone this repository to your workspace:
 
 ```bash
 cd ~/ros_workspace/src
-git clone https://github.com/husarion/rosbot_ros.git
+git clone https://github.com/husarion/rosbot_ros.git -b noetic
 ```
 
 Install dependencies:
