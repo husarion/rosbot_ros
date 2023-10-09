@@ -14,7 +14,7 @@
 
 import subprocess
 
-# The pytests cannot kill properly the Gazebo Ignition's tasks what blocks launching
+# The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
 # several tests in a row.
 
 

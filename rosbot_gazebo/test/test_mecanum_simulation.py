@@ -43,7 +43,7 @@ def generate_test_description():
         ),
         launch_arguments={
             "mecanum": "True",
-            "headless": "True",
+            "headless": "False",
         }.items(),
     )
 
@@ -51,7 +51,7 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_simulation_xy_movement_mecanum():
+def test_mecanum_simulation():
     rclpy.init()
     try:
         node = SimulationTestNode("test_bringup")
