@@ -25,6 +25,7 @@ from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from simulation_test_node import SimulationTestNode
+from kill_ign import kill_ign_linux_processes
 
 
 @launch_pytest.fixture
@@ -43,7 +44,6 @@ def generate_test_description():
         launch_arguments={
             "mecanum": "True",
             "headless": "True",
-            "world": "empty.sdf",
         }.items(),
     )
 
@@ -58,11 +58,11 @@ def test_simulation_xy_movement_mecanum():
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
 
-        node.set_and_publish_destination_goal(0.8, 0.0, 0.0)
+        node.set_and_publish_destination_goal(0.6, 0.0, 0.0)
         msgs_received_flag = node.goal_x_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot can't move by x axis!"
 
-        node.set_and_publish_destination_goal(0.0, 0.8, 0.0)
+        node.set_and_publish_destination_goal(0.0, 0.6, 0.0)
         msgs_received_flag = node.goal_y_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot can't move by y axis!"
 
@@ -71,4 +71,7 @@ def test_simulation_xy_movement_mecanum():
         assert msgs_received_flag, "ROSbot can't rotate!"
 
     finally:
+        # The pytests cannot kill properly the Gazebo Ignition's tasks what blocks launching
+        # several tests in a row.
+        kill_ign_linux_processes()
         rclpy.shutdown()

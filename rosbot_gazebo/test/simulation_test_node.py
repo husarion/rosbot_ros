@@ -84,13 +84,13 @@ class SimulationTestNode(Node):
         print(f"x: {pose.position.x}, y: {pose.position.y}, yaw: {yaw}")
         print(f"roll: {roll}, pitch: {pitch}, yaw: {yaw}")
 
-        if pose.position.x > self.goal_x_distance:
+        if pose.position.x > self.goal_x_distance and self.goal_x_distance != 0.0:
             self.goal_x_event.set()
 
-        if pose.position.y > self.goal_y_distance:
+        if pose.position.y > self.goal_y_distance and self.goal_y_distance != 0.0:
             self.goal_y_event.set()
 
-        if yaw > self.goal_theta_angle:
+        if yaw > self.goal_theta_angle and self.goal_theta_angle != 0.0:
             self.goal_theta_event.set()
 
     def publish_cmd_vel_messages(self):
