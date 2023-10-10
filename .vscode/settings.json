@@ -1,0 +1,11 @@
+{
+    "cSpell.customDictionaries": {
+        "project-words": {
+            "name": "Workspace Dictionary for Github Action",
+            "path": "${workspaceRoot}/.wordlist.txt",
+            "addWords": true
+        },
+        "custom": true,
+        "internal-terms": false
+    }
+}
