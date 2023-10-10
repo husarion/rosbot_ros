@@ -21,7 +21,7 @@ import subprocess
 def kill_ign_linux_processes():
     try:
         result = subprocess.run(
-            ["pgrep", "-f", "ign gazebo gui"],
+            ["pgrep", "-f", "ign gazebo"],
             capture_output=True,
             text=True,
             check=True,
