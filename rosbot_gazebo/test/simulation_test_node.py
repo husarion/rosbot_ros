@@ -29,6 +29,8 @@ from sensor_msgs.msg import LaserScan
 class SimulationTestNode(Node):
     MINIMAL_LASER_SCAN_RANGE = 0.1
     __test__ = False
+    DISTANCE_TO_LINEAR_VELOCITY_SCALE = 1.0
+    DISTANCE_TO_ANGULAR_VELOCITY_SCALE = 6.0
 
     def __init__(self, name="test_node"):
         super().__init__(name)
@@ -36,17 +38,25 @@ class SimulationTestNode(Node):
         self.goal_y_distance = 0.0
         self.goal_theta_angle = 0.0
 
+        self.velocity_x = 0.0
+        self.velocity_y = 0.0
+        self.velocity_theta = 0.0
+
         self.goal_x_event = Event()
         self.goal_y_event = Event()
         self.goal_theta_event = Event()
         self.scan_event = Event()
 
-    def set_and_publish_velocities(
-        self, goal_x_distance, goal_y_distance, goal_theta_angle
+    def set_and_publish_destination_goal(
+        self, goal_x_distance, goal_y_distance, goal_yaw_angle
     ):
         self.goal_x_distance = goal_x_distance
         self.goal_y_distance = goal_y_distance
-        self.goal_theta_angle = goal_theta_angle
+        self.goal_theta_angle = goal_yaw_angle
+
+        self.velocity_x = self.DISTANCE_TO_LINEAR_VELOCITY_SCALE * goal_x_distance
+        self.velocity_y = self.DISTANCE_TO_LINEAR_VELOCITY_SCALE * goal_y_distance
+        self.velocity_theta = self.DISTANCE_TO_ANGULAR_VELOCITY_SCALE * goal_yaw_angle
         self.publish_cmd_vel_messages()
 
     def create_test_subscribers_and_publishers(self):
@@ -82,13 +92,13 @@ class SimulationTestNode(Node):
         print(f"x: {pose.position.x}, y: {pose.position.y}, yaw: {yaw}")
         print(f"roll: {roll}, pitch: {pitch}, yaw: {yaw}")
 
-        if pose.position.x > self.goal_x_distance:
+        if pose.position.x > self.goal_x_distance and self.goal_x_distance != 0.0:
             self.goal_x_event.set()
 
-        if pose.position.y > self.goal_y_distance:
+        if pose.position.y > self.goal_y_distance and self.goal_y_distance != 0.0:
             self.goal_y_event.set()
 
-        if yaw > self.goal_theta_angle:
+        if yaw > self.goal_theta_angle and self.goal_theta_angle != 0.0:
             self.goal_theta_event.set()
 
     def scan_callback(self, data: LaserScan):
@@ -99,8 +109,8 @@ class SimulationTestNode(Node):
 
     def publish_cmd_vel_messages(self):
         twist_msg = Twist()
-        twist_msg.linear.x = self.goal_x_distance
-        twist_msg.linear.y = self.goal_y_distance
-        twist_msg.angular.z = self.goal_theta_angle * 6.0
+        twist_msg.linear.x = self.velocity_x
+        twist_msg.linear.y = self.velocity_y
+        twist_msg.angular.z = self.velocity_theta
 
         self.cmd_vel_publisher.publish(twist_msg)

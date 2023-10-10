@@ -23,45 +23,55 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from bringup_test_node import BringupTestNode
+
+from simulation_test_node import SimulationTestNode
+from kill_ign import kill_ign_linux_processes
 
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_bringup = get_package_share_directory("rosbot_bringup")
-    bringup_launch = IncludeLaunchDescription(
+    rosbot_gazebo = get_package_share_directory("rosbot_gazebo")
+    simulation_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
-                    rosbot_bringup,
+                    rosbot_gazebo,
                     "launch",
-                    "bringup.launch.py",
+                    "simulation.launch.py",
                 ]
             )
         ),
         launch_arguments={
-            "use_sim": "False",
-            "mecanum": "False",
-            "use_gpu": "False",
+            "mecanum": "True",
+            "headless": "True",
         }.items(),
     )
 
-    return LaunchDescription([bringup_launch])
+    return LaunchDescription([simulation_launch])
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_bringup_startup_success():
+def test_mecanum_simulation():
     rclpy.init()
     try:
-        node = BringupTestNode("test_bringup")
+        node = SimulationTestNode("test_bringup")
         node.create_test_subscribers_and_publishers()
-        node.start_publishing_fake_hardware()
-
         node.start_node_thread()
-        msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
-        assert (
-            msgs_received_flag
-        ), "Expected Odom message but it was not received. Check robot_localization!"
+
+        node.set_and_publish_destination_goal(0.6, 0.0, 0.0)
+        msgs_received_flag = node.goal_x_event.wait(timeout=60.0)
+        assert msgs_received_flag, "ROSbot can't move by x axis!"
+
+        node.set_and_publish_destination_goal(0.0, 0.6, 0.0)
+        msgs_received_flag = node.goal_y_event.wait(timeout=60.0)
+        assert msgs_received_flag, "ROSbot can't move by y axis!"
+
+        node.set_and_publish_destination_goal(0.0, 0.0, 1.57)
+        msgs_received_flag = node.goal_theta_event.wait(timeout=60.0)
+        assert msgs_received_flag, "ROSbot can't rotate!"
 
     finally:
+        # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
+        # several tests in a row.
+        kill_ign_linux_processes()
         rclpy.shutdown()

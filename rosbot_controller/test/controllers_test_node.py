@@ -45,7 +45,7 @@ class ControllersTestNode(Node):
         )
 
         self.imu_sub = self.create_subscription(
-            Imu, "/imu_broadcaster/imu", self.joint_states_callback, 10
+            Imu, "/imu_broadcaster/imu", self.imu_callback, 10
         )
 
         self.imu_publisher = self.create_publisher(Imu, "_imu/data_raw", 10)
