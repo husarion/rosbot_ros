@@ -106,6 +106,23 @@ source install/setup.bash
 ros2 launch rosbot_gazebo simulation.launch.py
 ```
 
+## Testing package
+
+### Industrial CI
+```
+colcon test
+```
+If tests finish with errors print logs:
+```
+colcon test-result --verbose
+```
+
+### Format python code with [Black](https://github.com/psf/black)
+```
+cd src/
+black rosbot*
+```
+
 ## Demo
 Bellow you can find demos with ROSbots:
 - in [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros2) you will find a simple example how to drive ROSbot with `teleop_twist_keyboard`.
