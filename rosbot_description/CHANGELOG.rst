@@ -2,6 +2,14 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#70 <https://github.com/husarion/rosbot_ros/issues/70>`_ from husarion/test-gazebo
+  Test gazebo
+* Merge remote-tracking branch 'origin/test-gazebo' into test-gazebo
+* Merge branch 'humble' into test-gazebo
+* Contributors: Jakub Delicat, rafal-gorecki
+
 0.8.4 (2023-09-21)
 ------------------
 * Merge branch 'humble' into test-ekf
