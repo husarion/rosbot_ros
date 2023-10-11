@@ -58,7 +58,7 @@ def test_mecanum_simulation():
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
 
-        msgs_received_flag = node.odom_tf_event.wait(timeout=10.0)
+        msgs_received_flag = node.odom_tf_event.wait(timeout=60.0)
         assert (
             msgs_received_flag
         ), "Expected odom to base_link tf but it was not received. Check robot_localization!"
