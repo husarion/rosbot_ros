@@ -77,6 +77,9 @@ def test_mecanum_simulation():
         msgs_received_flag = node.goal_yaw_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot does not rotate properly!"
 
+        msgs_received_flag = node.scan_event.wait(timeout=60.0)
+        assert msgs_received_flag, "ROSbot's lidar does not work properly!"
+
     finally:
         # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
         # several tests in a row.

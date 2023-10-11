@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import rclpy
-import tf_transformations
 
 from threading import Event
 from threading import Thread
@@ -31,7 +30,6 @@ from tf2_ros.transform_listener import TransformListener
 
 
 class SimulationTestNode(Node):
-    MINIMAL_LASER_SCAN_RANGE = 0.1
     __test__ = False
     XY_TOLERANCE = 0.05
     YAW_TOLERANCE = 0.1
@@ -105,9 +103,6 @@ class SimulationTestNode(Node):
         self.lookup_transform_odom()
 
     def scan_callback(self, data: LaserScan):
-        if min(data.ranges) < self.MINIMAL_LASER_SCAN_RANGE:
-            print(f"Ranges: {data.ranges}")
-            return
         self.scan_event.set()
 
     def publish_cmd_vel_messages(self):
