@@ -25,39 +25,39 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+
 
 class SimulationTestNode(Node):
     MINIMAL_LASER_SCAN_RANGE = 0.1
     __test__ = False
-    DISTANCE_TO_LINEAR_VELOCITY_SCALE = 1.0
-    DISTANCE_TO_ANGULAR_VELOCITY_SCALE = 6.0
+    XY_TOLERANCE = 0.05
+    YAW_TOLERANCE = 0.1
 
     def __init__(self, name="test_node"):
         super().__init__(name)
-        self.goal_x_distance = 0.0
-        self.goal_y_distance = 0.0
-        self.goal_theta_angle = 0.0
-
-        self.velocity_x = 0.0
-        self.velocity_y = 0.0
-        self.velocity_theta = 0.0
+        self.v_x = 0.0
+        self.v_y = 0.0
+        self.v_yaw = 0.0
 
         self.goal_x_event = Event()
         self.goal_y_event = Event()
-        self.goal_theta_event = Event()
+        self.goal_yaw_event = Event()
+        self.odom_tf_event = Event()
         self.scan_event = Event()
 
-    def set_and_publish_destination_goal(
-        self, goal_x_distance, goal_y_distance, goal_yaw_angle
-    ):
-        self.goal_x_distance = goal_x_distance
-        self.goal_y_distance = goal_y_distance
-        self.goal_theta_angle = goal_yaw_angle
+    def clear_events(self):
+        self.goal_x_event.clear()
+        self.goal_y_event.clear()
+        self.goal_yaw_event.clear()
 
-        self.velocity_x = self.DISTANCE_TO_LINEAR_VELOCITY_SCALE * goal_x_distance
-        self.velocity_y = self.DISTANCE_TO_LINEAR_VELOCITY_SCALE * goal_y_distance
-        self.velocity_theta = self.DISTANCE_TO_ANGULAR_VELOCITY_SCALE * goal_yaw_angle
-        self.publish_cmd_vel_messages()
+    def set_destination_speed(self, v_x, v_y, v_yaw):
+        self.clear_events()
+        self.v_x = v_x
+        self.v_y = v_y
+        self.v_yaw = v_yaw
 
     def create_test_subscribers_and_publishers(self):
         self.cmd_vel_publisher = self.create_publisher(Twist, "cmd_vel", 10)
@@ -69,6 +69,8 @@ class SimulationTestNode(Node):
         self.scan_sub = self.create_subscription(
             LaserScan, "/scan", self.scan_callback, 10
         )
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
         self.timer = None
 
@@ -77,29 +79,30 @@ class SimulationTestNode(Node):
             target=lambda node: rclpy.spin(node), args=(self,)
         )
         self.ros_spin_thread.start()
-        self.timer = self.create_timer(1.0 / 10.0, self.publish_cmd_vel_messages)
+        self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def odometry_callback(self, data: Odometry):
-        pose = data.pose.pose
-        q = (
-            pose.orientation.x,
-            pose.orientation.y,
-            pose.orientation.z,
-            pose.orientation.w,
-        )
-        roll, pitch, yaw = tf_transformations.euler_from_quaternion(q)
+        twist = data.twist.twist
 
-        print(f"x: {pose.position.x}, y: {pose.position.y}, yaw: {yaw}")
-        print(f"roll: {roll}, pitch: {pitch}, yaw: {yaw}")
-
-        if pose.position.x > self.goal_x_distance and self.goal_x_distance != 0.0:
+        if abs(twist.linear.x - self.v_x) < self.XY_TOLERANCE:
             self.goal_x_event.set()
 
-        if pose.position.y > self.goal_y_distance and self.goal_y_distance != 0.0:
+        if abs(twist.linear.y - self.v_y) < self.XY_TOLERANCE:
             self.goal_y_event.set()
 
-        if yaw > self.goal_theta_angle and self.goal_theta_angle != 0.0:
-            self.goal_theta_event.set()
+        if abs(twist.angular.z - self.v_yaw) < self.YAW_TOLERANCE:
+            self.goal_yaw_event.set()
+
+    def lookup_transform_odom(self):
+        try:
+            self.tf_buffer.lookup_transform("odom", "base_link", rclpy.time.Time())
+            self.odom_tf_event.set()
+        except TransformException as ex:
+            self.get_logger().error(f"Could not transform odom to base_link: {ex}")
+
+    def timer_callback(self):
+        self.publish_cmd_vel_messages()
+        self.lookup_transform_odom()
 
     def scan_callback(self, data: LaserScan):
         if min(data.ranges) < self.MINIMAL_LASER_SCAN_RANGE:
@@ -109,8 +112,9 @@ class SimulationTestNode(Node):
 
     def publish_cmd_vel_messages(self):
         twist_msg = Twist()
-        twist_msg.linear.x = self.velocity_x
-        twist_msg.linear.y = self.velocity_y
-        twist_msg.angular.z = self.velocity_theta
+
+        twist_msg.linear.x = self.v_x
+        twist_msg.linear.y = self.v_y
+        twist_msg.angular.z = self.v_yaw
 
         self.cmd_vel_publisher.publish(twist_msg)

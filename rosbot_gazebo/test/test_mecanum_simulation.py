@@ -58,17 +58,24 @@ def test_mecanum_simulation():
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
 
-        node.set_and_publish_destination_goal(0.6, 0.0, 0.0)
+        msgs_received_flag = node.odom_tf_event.wait(timeout=60.0)
+        assert (
+            msgs_received_flag
+        ), "Expected odom to base_link tf but it was not received. Check robot_localization!"
+
+        # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+        #   rosbot_controller/config/mecanum_drive_controller.yaml
+        node.set_destination_speed(0.9, 0.0, 0.0)
         msgs_received_flag = node.goal_x_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot can't move by x axis!"
+        assert msgs_received_flag, "ROSbot does not move properly in x direction!"
 
-        node.set_and_publish_destination_goal(0.0, 0.6, 0.0)
+        node.set_destination_speed(0.0, 0.9, 0.0)
         msgs_received_flag = node.goal_y_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot can't move by y axis!"
+        assert msgs_received_flag, "ROSbot does not move properly in y direction!"
 
-        node.set_and_publish_destination_goal(0.0, 0.0, 1.57)
-        msgs_received_flag = node.goal_theta_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot can't rotate!"
+        node.set_destination_speed(0.0, 0.0, 3.0)
+        msgs_received_flag = node.goal_yaw_event.wait(timeout=60.0)
+        assert msgs_received_flag, "ROSbot does not rotate properly!"
 
     finally:
         # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching

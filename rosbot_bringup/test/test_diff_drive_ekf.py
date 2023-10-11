@@ -58,10 +58,10 @@ def test_bringup_startup_success():
         node.start_publishing_fake_hardware()
 
         node.start_node_thread()
-        msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
+        msgs_received_flag = node.odom_tf_event.wait(timeout=10.0)
         assert (
             msgs_received_flag
-        ), "Expected Odom message but it was not received. Check robot_localization!"
+        ), "Expected odom to base_link tf but it was not received. Check robot_localization!"
 
     finally:
         rclpy.shutdown()

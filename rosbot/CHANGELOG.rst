@@ -2,6 +2,12 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.5 (2023-10-11)
+------------------
+* Merge remote-tracking branch 'origin/test-gazebo' into test-gazebo
+* Merge branch 'humble' into test-gazebo
+* Contributors: Jakub Delicat, rafal-gorecki
+
 0.8.4 (2023-09-21)
 ------------------
 * Merge branch 'humble' into test-ekf

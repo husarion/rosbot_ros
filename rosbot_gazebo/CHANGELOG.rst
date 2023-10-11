@@ -2,6 +2,16 @@
 Changelog for package rosbot_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.5 (2023-10-11)
+------------------
+* Merge pull request `#70 <https://github.com/husarion/rosbot_ros/issues/70>`_ from husarion/test-gazebo
+  Test gazebo
+* Merge pull request `#74 <https://github.com/husarion/rosbot_ros/issues/74>`_ from husarion/rafal-suggestions
+  rafal-sugestions
+* Merge remote-tracking branch 'origin/test-gazebo' into test-gazebo
+* Merge branch 'humble' into test-gazebo
+* Contributors: Jakub Delicat, rafal-gorecki
+
 0.8.4 (2023-09-21)
 ------------------
 * Merge branch 'humble' into test-ekf
