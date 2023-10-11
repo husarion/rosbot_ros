@@ -43,7 +43,7 @@ def generate_test_description():
         ),
         launch_arguments={
             "mecanum": "True",
-            "headless": "False",
+            "headless": "True",
         }.items(),
     )
 

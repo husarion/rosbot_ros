@@ -42,7 +42,7 @@ def generate_test_description():
             )
         ),
         launch_arguments={
-            "headless": "False",
+            "headless": "True",
         }.items(),
     )
 
