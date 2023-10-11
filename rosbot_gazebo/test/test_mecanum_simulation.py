@@ -58,15 +58,17 @@ def test_mecanum_simulation():
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
 
-        node.set_destination_speed(0.2, 0.0, 0.0)
+        # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+        #   rosbot_controller/config/mecanum_drive_controller.yaml
+        node.set_destination_speed(0.9, 0.0, 0.0)
         msgs_received_flag = node.goal_x_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot does not move properly in x direction!"
 
-        node.set_destination_speed(0.0, 0.2, 0.0)
+        node.set_destination_speed(0.0, 0.9, 0.0)
         msgs_received_flag = node.goal_y_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot does not move properly in y direction!"
 
-        node.set_destination_speed(0.0, 0.0, 1.00)
+        node.set_destination_speed(0.0, 0.0, 3.0)
         msgs_received_flag = node.goal_yaw_event.wait(timeout=60.0)
         assert msgs_received_flag, "ROSbot does not rotate properly!"
 
