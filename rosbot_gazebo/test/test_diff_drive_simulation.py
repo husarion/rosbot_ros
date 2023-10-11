@@ -42,7 +42,7 @@ def generate_test_description():
             )
         ),
         launch_arguments={
-            "headless": "True",
+            "headless": "False",
         }.items(),
     )
 
@@ -57,13 +57,13 @@ def test_diff_drive_simulation():
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
 
-        node.set_and_publish_destination_goal(0.6, 0.0, 0.0)
+        node.set_destination_speed(0.2, 0.0, 0.0)
         msgs_received_flag = node.goal_x_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot can't move by x axis!"
+        assert msgs_received_flag, "ROSbot does not move properly in x direction!"
 
-        node.set_and_publish_destination_goal(0.0, 0.0, 1.57)
-        msgs_received_flag = node.goal_theta_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot can't rotate!"
+        node.set_destination_speed(0.0, 0.0, 1.57)
+        msgs_received_flag = node.goal_yaw_event.wait(timeout=60.0)
+        assert msgs_received_flag, "ROSbot does not rotate properly!"
 
     finally:
         # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
