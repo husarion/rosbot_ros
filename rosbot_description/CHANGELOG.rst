@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.8.5 (2023-10-11)
+------------------
 * Merge pull request `#70 <https://github.com/husarion/rosbot_ros/issues/70>`_ from husarion/test-gazebo
   Test gazebo
 * Merge remote-tracking branch 'origin/test-gazebo' into test-gazebo
