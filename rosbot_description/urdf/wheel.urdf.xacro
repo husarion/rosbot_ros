@@ -63,7 +63,7 @@
       <child link="${prefix}_wheel_link" />
       <origin xyz="${x} ${y} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 1.0 0.0" />
-      <limit effort="1.5" velocity="5.0" />
+      <limit effort="1.5" velocity="24.0" />
       <dynamics damping="0.001" friction="0.001" />
     </joint>
 

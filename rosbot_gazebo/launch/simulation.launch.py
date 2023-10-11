@@ -1,3 +1,17 @@
+# Copyright 2023 Husarion
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from launch import LaunchDescription
 from launch.actions import (
     IncludeLaunchDescription,
@@ -5,6 +19,7 @@ from launch.actions import (
 )
 from launch.substitutions import (
     PathJoinSubstitution,
+    PythonExpression,
     LaunchConfiguration,
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -19,15 +34,34 @@ def generate_launch_description():
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
-        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
+        description=(
+            "Whether to use mecanum drive controller "
+            "(otherwise diff drive controller is used)"
+        ),
     )
 
-    map_package = get_package_share_directory("husarion_office_gz")
-    world_file = PathJoinSubstitution([map_package, "worlds", "husarion_world.sdf"])
+    world_package = get_package_share_directory("husarion_office_gz")
+    world_file = PathJoinSubstitution([world_package, "worlds", "husarion_world.sdf"])
     world_cfg = LaunchConfiguration("world")
     declare_world_arg = DeclareLaunchArgument(
-        "world", default_value=["-r ", world_file], description="SDF world file"
+        "world", default_value=world_file, description="SDF world file"
     )
+
+    headless = LaunchConfiguration("headless")
+    declare_headless_arg = DeclareLaunchArgument(
+        "headless",
+        default_value="False",
+        description=("Run Gazebo Ignition in the headless mode"),
+    )
+
+    headless_cfg = PythonExpression(
+        [
+            "'--headless-rendering -s -r' if ",
+            headless,
+            " else '-r'",
+        ]
+    )
+    gz_args = [headless_cfg, " ", world_cfg]
 
     use_gpu = LaunchConfiguration("use_gpu")
     declare_use_gpu_arg = DeclareLaunchArgument(
@@ -46,7 +80,10 @@ def generate_launch_description():
                 ]
             )
         ),
-        launch_arguments={"gz_args": world_cfg}.items(),
+        launch_arguments={
+            "gz_args": gz_args,
+            "on_exit_shutdown": "True",
+        }.items(),
     )
 
     gz_spawn_entity = Node(
@@ -68,26 +105,23 @@ def generate_launch_description():
         ],
         output="screen",
     )
+
     ign_bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
         name="ros_gz_bridge",
         arguments=[
-            "/scan" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
-            "/camera/camera_info"
-            + "@sensor_msgs/msg/CameraInfo"
-            + "[ignition.msgs.CameraInfo",
-            "/camera/depth_image" + "@sensor_msgs/msg/Image" + "[ignition.msgs.Image",
-            "/camera/image" + "@sensor_msgs/msg/Image" + "[ignition.msgs.Image",
-            "/camera/points"
-            + "@sensor_msgs/msg/PointCloud2"
-            + "[ignition.msgs.PointCloudPacked",
-            "/clock" + "@rosgraph_msgs/msg/Clock" + "[ignition.msgs.Clock",
-            # an IR sensor or a sonar are not implemented yet https://github.com/gazebosim/gz-sensors/issues/19
-            "/range/fl" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
-            "/range/fr" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
-            "/range/rl" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
-            "/range/rr" + "@sensor_msgs/msg/LaserScan" + "[ignition.msgs.LaserScan",
+            "/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
+            "/camera/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo",
+            "/camera/depth_image@sensor_msgs/msg/Image[ignition.msgs.Image",
+            "/camera/image@sensor_msgs/msg/Image[ignition.msgs.Image",
+            "/camera/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked",
+            "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
+            # an IR sensor is not implemented yet https://github.com/gazebosim/gz-sensors/issues/19
+            "/range/fl@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
+            "/range/fr@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
+            "/range/rl@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
+            "/range/rr@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
         ],
         remappings=[
             ("/camera/camera_info", "/camera/color/camera_info"),
@@ -139,8 +173,10 @@ def generate_launch_description():
         [
             declare_mecanum_arg,
             declare_world_arg,
+            declare_headless_arg,
             declare_use_gpu_arg,
-            # Sets use_sim_time for all nodes started below (doesn't work for nodes started from ignition gazebo)
+            # Sets use_sim_time for all nodes started below
+            # (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
             gz_sim,
             ign_bridge,
