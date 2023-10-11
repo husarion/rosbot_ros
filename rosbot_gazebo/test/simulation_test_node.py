@@ -23,6 +23,10 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+
 
 class SimulationTestNode(Node):
     __test__ = False
@@ -38,6 +42,7 @@ class SimulationTestNode(Node):
         self.goal_x_event = Event()
         self.goal_y_event = Event()
         self.goal_yaw_event = Event()
+        self.odom_tf_event = Event()
 
     def clear_events(self):
         self.goal_x_event.clear()
@@ -56,6 +61,10 @@ class SimulationTestNode(Node):
         self.odom_sub = self.create_subscription(
             Odometry, "/odometry/filtered", self.odometry_callback, 10
         )
+
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+
         self.timer = None
 
     def start_node_thread(self):
@@ -63,7 +72,7 @@ class SimulationTestNode(Node):
             target=lambda node: rclpy.spin(node), args=(self,)
         )
         self.ros_spin_thread.start()
-        self.timer = self.create_timer(1.0 / 10.0, self.publish_cmd_vel_messages)
+        self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def odometry_callback(self, data: Odometry):
         twist = data.twist.twist
@@ -76,6 +85,17 @@ class SimulationTestNode(Node):
 
         if abs(twist.angular.z - self.v_yaw) < self.YAW_TOLERANCE:
             self.goal_yaw_event.set()
+
+    def lookup_transform_odom(self):
+        try:
+            self.tf_buffer.lookup_transform("odom", "base_link", rclpy.time.Time())
+            self.odom_tf_event.set()
+        except TransformException as ex:
+            self.get_logger().error(f"Could not transform odom to base_link: {ex}")
+
+    def timer_callback(self):
+        self.publish_cmd_vel_messages()
+        self.lookup_transform_odom()
 
     def publish_cmd_vel_messages(self):
         twist_msg = Twist()
