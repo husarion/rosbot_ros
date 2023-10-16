@@ -103,7 +103,8 @@ class SimulationTestNode(Node):
         self.lookup_transform_odom()
 
     def scan_callback(self, data: LaserScan):
-        self.scan_event.set()
+        if data.ranges:
+            self.scan_event.set()
 
     def publish_cmd_vel_messages(self):
         twist_msg = Twist()
