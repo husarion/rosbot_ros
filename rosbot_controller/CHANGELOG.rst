@@ -2,6 +2,9 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.8.5 (2023-10-11)
 ------------------
 * Merge remote-tracking branch 'origin/test-gazebo' into test-gazebo
