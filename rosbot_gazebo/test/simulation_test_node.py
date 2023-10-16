@@ -22,6 +22,7 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
 
 from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
@@ -43,6 +44,7 @@ class SimulationTestNode(Node):
         self.goal_y_event = Event()
         self.goal_yaw_event = Event()
         self.odom_tf_event = Event()
+        self.scan_event = Event()
 
     def clear_events(self):
         self.goal_x_event.clear()
@@ -62,6 +64,9 @@ class SimulationTestNode(Node):
             Odometry, "/odometry/filtered", self.odometry_callback, 10
         )
 
+        self.scan_sub = self.create_subscription(
+            LaserScan, "/scan", self.scan_callback, 10
+        )
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
@@ -96,6 +101,10 @@ class SimulationTestNode(Node):
     def timer_callback(self):
         self.publish_cmd_vel_messages()
         self.lookup_transform_odom()
+
+    def scan_callback(self, data: LaserScan):
+        if data.ranges:
+            self.scan_event.set()
 
     def publish_cmd_vel_messages(self):
         twist_msg = Twist()
