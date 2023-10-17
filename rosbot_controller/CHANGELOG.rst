@@ -2,6 +2,15 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.0 (2023-10-16)
+------------------
+
+0.8.5 (2023-10-11)
+------------------
+* Merge remote-tracking branch 'origin/test-gazebo' into test-gazebo
+* Merge branch 'humble' into test-gazebo
+* Contributors: Jakub Delicat, rafal-gorecki
+
 0.8.4 (2023-09-21)
 ------------------
 * Merge pull request `#69 <https://github.com/husarion/rosbot_ros/issues/69>`_ from husarion/test-ekf
