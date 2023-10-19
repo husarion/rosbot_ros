@@ -113,7 +113,7 @@ ros2 launch rosbot_gazebo simulation.launch.py
 colcon test
 ```
 
-> [!NOTE]  
+> [!NOTE]
 > Command `colcon test` does not build the code. Remember to build your code after changes.
 
 If tests finish with errors print logs:
