@@ -7,5 +7,6 @@
         },
         "custom": true,
         "internal-terms": false
-    }
+    },
+    "files.insertFinalNewline": true
 }

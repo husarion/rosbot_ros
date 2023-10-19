@@ -4,6 +4,7 @@
         "ms-python.black-formatter",
         "streetsidesoftware.code-spell-checker",
         "kevinrose.vsc-python-indent",
-        "ms-python.python"
+        "ms-python.python",
+        "shardulm94.trailing-spaces"
     ]
 }
