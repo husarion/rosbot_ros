@@ -51,8 +51,7 @@ def generate_launch_description():
         "mecanum",
         default_value="False",
         description=(
-            "Whether to use mecanum drive controller "
-            "(otherwise diff drive controller is used)"
+            "Whether to use mecanum drive controller " "(otherwise diff drive controller is used)"
         ),
     )
 
