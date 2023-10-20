@@ -23,7 +23,7 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from rosbot_controller.test.test_utils import ControllersTestNode
+from test_utils import ControllersTestNode
 
 
 @launch_pytest.fixture
