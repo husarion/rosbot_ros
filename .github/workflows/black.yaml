@@ -11,4 +11,5 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - uses: psf/black@stable
-              black_args: --line-length=99
+              with:
+                  black_args: --line-length=99
