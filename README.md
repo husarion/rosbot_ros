@@ -108,6 +108,22 @@ ros2 launch rosbot_gazebo simulation.launch.py
 
 ## Testing package
 
+### pre-commit
+[pre-commit configuration](.pre-commit-config.yaml) prepares plenty of tests helping for developing and contributing. Usage:
+
+```bash
+# install pre-commit
+pip install pre-commit
+
+# initialize pre-commit workspace
+pre-commit install
+
+# manually run tests
+pre-commit run -a
+```
+
+After initialization [pre-commit configuration](.pre-commit-config.yaml) will applied on every commit.
+
 ### Industrial CI
 ```
 colcon test
