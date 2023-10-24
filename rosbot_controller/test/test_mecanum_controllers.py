@@ -23,7 +23,7 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from controllers_test_node import ControllersTestNode
+from test_utils import ControllersTestNode
 
 
 @launch_pytest.fixture
@@ -66,9 +66,7 @@ def test_controllers_startup_fail():
             not msgs_received_flag
         ), "Expected Odom message not received. Check rosbot_base_controller!"
         msgs_received_flag = node.imu_msg_event.wait(timeout=10.0)
-        assert (
-            not msgs_received_flag
-        ), "Expected Imu message not received. Check imu_broadcaster!"
+        assert not msgs_received_flag, "Expected Imu message not received. Check imu_broadcaster!"
     finally:
         rclpy.shutdown()
 

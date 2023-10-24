@@ -25,9 +25,7 @@ def test_rosbot_description_parsing():
     simulation_engine_values = ["ignition-gazebo", "webots"]  # 'gazebo-classic'
 
     all_combinations = list(
-        itertools.product(
-            mecanum_values, use_sim_values, use_gpu_values, simulation_engine_values
-        )
+        itertools.product(mecanum_values, use_sim_values, use_gpu_values, simulation_engine_values)
     )
 
     for combination in all_combinations:

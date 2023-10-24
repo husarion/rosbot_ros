@@ -1,8 +1,10 @@
 .vscode
+*.pyc
+
+# ROS 2 build folders
 build
 install
 log
-*.pyc
 
 # ROSbots submodules
 rosbot_hardware_interfaces/

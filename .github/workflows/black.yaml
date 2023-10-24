@@ -1,3 +1,4 @@
+---
 name: Black python lint
 
 on:
@@ -5,8 +6,10 @@ on:
     push:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: psf/black@stable
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: psf/black@stable
+              with:
+                  options: --line-length=99
