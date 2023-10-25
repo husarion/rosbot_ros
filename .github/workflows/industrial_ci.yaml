@@ -2,10 +2,33 @@
 name: Industrial CI
 on:
     workflow_call:
+    workflow_dispatch:
     push:
 
+
 jobs:
-    industrial_ci:
+    black:
+        name: Black
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: psf/black@stable
+              with:
+                  options: --line-length=99
+
+    spellcheck:
+        name: Spellcheck
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: rojopolis/spellcheck-github-actions@0.33.1
+              name: Spellcheck
+
+    ros_industrial_ci:
+        name: ROS Industrial CI
+        needs:
+            - black
+            - spellcheck
         strategy:
             fail-fast: false
             matrix:
@@ -15,7 +38,7 @@ jobs:
             - uses: actions/checkout@v3
             - name: Clone installation requirements
               shell: bash
-              run: python3 -m pip install -U vcstool && vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
+              run: python3 -m pip install -U vcstool && vcs import . < ./rosbot_xl/rosbot_xl_hardware.repos && vcs import . < ./rosbot_xl/rosbot_xl_simulation.repos
             - uses: ros-industrial/industrial_ci@master
               env:
                   ROS_DISTRO: ${{matrix.ROS_DISTRO}}

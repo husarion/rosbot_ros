@@ -50,7 +50,7 @@ def generate_launch_description():
     declare_headless_arg = DeclareLaunchArgument(
         "headless",
         default_value="False",
-        description=("Run Gazebo Ignition in the headless mode"),
+        description="Run Gazebo Ignition in the headless mode",
     )
 
     headless_cfg = PythonExpression(
