@@ -38,7 +38,7 @@ jobs:
             - uses: actions/checkout@v3
             - name: Clone installation requirements
               shell: bash
-              run: python3 -m pip install -U vcstool && vcs import . < ./rosbot_xl/rosbot_xl_hardware.repos && vcs import . < ./rosbot_xl/rosbot_xl_simulation.repos
+              run: python3 -m pip install -U vcstool && vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
             - uses: ros-industrial/industrial_ci@master
               env:
                   ROS_DISTRO: ${{matrix.ROS_DISTRO}}
