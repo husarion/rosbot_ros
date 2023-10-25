@@ -32,16 +32,17 @@ repos:
             files: ^.github|./\.yaml
 
     - repo: https://github.com/psf/black
-      rev: 22.12.0
+      rev: 23.10.1
       hooks:
         - id: black
-          args: ["--line-length=99"]
+          args: ["--line-length=99", "--experimental-string-processing"]
 
     - repo: https://github.com/PyCQA/flake8
       rev: 6.1.0
       hooks:
         - id: flake8
-          args: ["--ignore=E501"] # ignore too long line, black checks it
+          args: ["--ignore=E501,W503"] # ignore too long line and line break before binary operator,
+                                       # black checks it
 
     - repo: local
       hooks:

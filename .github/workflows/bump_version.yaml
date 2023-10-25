@@ -1,6 +1,5 @@
 ---
-name: Trigger rosbot-docker to build an image and bump version
-
+name: Bump version
 on:
     workflow_dispatch:
         inputs:
@@ -13,10 +12,14 @@ on:
         types: [closed]
 
 jobs:
+    industrial_ci:
+        name: Industrial CI
+        uses: ./.github/workflows/industrial_ci.yaml
+
     get-bump:
-        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
         name: Get version bump
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
+        needs: industrial_ci
         outputs:
             bump: ${{ env.BUMP }}
         steps:
@@ -30,9 +33,8 @@ jobs:
               run: echo "BUMP=${{ github.event.inputs.name }}" >> $GITHUB_ENV
 
     catkin-release:
-        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
         name: Bump version
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         needs: get-bump
         outputs:
             new_version: ${{ steps.catkin-release.outputs.new_version }}
@@ -49,9 +51,8 @@ jobs:
                   git_email: action-bot@action-bot.com
 
     build-and-push-docker-image:
-        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
         name: Create new docker image
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         needs: catkin-release
         steps:
             - name: trigger the endpoint
