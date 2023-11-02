@@ -35,8 +35,7 @@ def generate_launch_description():
         "mecanum",
         default_value="False",
         description=(
-            "Whether to use mecanum drive controller "
-            "(otherwise diff drive controller is used)"
+            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
         ),
     )
 
@@ -51,7 +50,7 @@ def generate_launch_description():
     declare_headless_arg = DeclareLaunchArgument(
         "headless",
         default_value="False",
-        description=("Run Gazebo Ignition in the headless mode"),
+        description="Run Gazebo Ignition in the headless mode",
     )
 
     headless_cfg = PythonExpression(

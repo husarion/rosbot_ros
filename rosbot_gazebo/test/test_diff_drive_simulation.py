@@ -24,8 +24,8 @@ from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-from simulation_test_node import SimulationTestNode
-from kill_ign import kill_ign_linux_processes
+from test_utils import SimulationTestNode
+from test_ign_kill_utils import kill_ign_linux_processes
 
 
 @launch_pytest.fixture
