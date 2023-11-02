@@ -28,9 +28,9 @@ imu_broadcaster:
   ros__parameters:
     sensor_name: "imu"
     frame_id: "imu_link"
-    static_covariance_orientation: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] # Values measured experimentally
-    static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.8e-3] # Values measured experimentally
-    static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0, 0.0] # Values measured experimentally
+    static_covariance_orientation: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values based on diff_drive
+    static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0, 0.0] # Values based on diff_drive
 
 rosbot_base_controller:
   ros__parameters:
