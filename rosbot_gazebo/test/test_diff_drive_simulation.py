@@ -67,12 +67,16 @@ def test_diff_drive_simulation():
         node.set_destination_speed(0.9, 0.0, 0.0)
         controller_flag = node.controller_odom_event.wait(timeout=20.0)
         ekf_flag = node.ekf_odom_event.wait(timeout=20.0)
-        assert controller_flag and ekf_flag, "ROSbot does not move properly in x direction!"
+        assert (
+            controller_flag
+        ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
+        assert ekf_flag, "ROSbot does not move properly in x direction. Check ekf_filter_node!"
 
         node.set_destination_speed(0.0, 0.0, 3.0)
         controller_flag = node.controller_odom_event.wait(timeout=20.0)
         ekf_flag = node.ekf_odom_event.wait(timeout=20.0)
-        assert controller_flag and ekf_flag, "ROSbot does not rotate properly!"
+        assert controller_flag, "ROSbot does not rotate properly. Check rosbot_base_controller!"
+        assert ekf_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
 
         flag = node.scan_event.wait(timeout=20.0)
         assert flag, "ROSbot's lidar does not work properly!"
