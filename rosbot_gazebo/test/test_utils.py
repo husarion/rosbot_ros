@@ -85,7 +85,7 @@ class SimulationTestNode(Node):
             return abs(value1) < eps and abs(value2) < eps
 
         def are_close_to_each_other(true_value, dest_value, tolerance=self.ACCURACY):
-            acceptable_range = true_value * (tolerance / 100)
+            acceptable_range = dest_value * tolerance
             return abs(true_value - dest_value) <= acceptable_range
 
         if (are_close_to_zero(self.v_x, twist.linear.x)) or are_close_to_each_other(
