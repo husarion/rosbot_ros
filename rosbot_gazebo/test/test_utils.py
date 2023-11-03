@@ -40,19 +40,17 @@ class SimulationTestNode(Node):
         self.v_y = 0.0
         self.v_yaw = 0.0
 
-        self.goal_x_event = Event()
-        self.goal_y_event = Event()
-        self.goal_yaw_event = Event()
+        self.controller_odom_event = Event()
+        self.ekf_odom_event = Event()
         self.odom_tf_event = Event()
         self.scan_event = Event()
 
-    def clear_events(self):
-        self.goal_x_event.clear()
-        self.goal_y_event.clear()
-        self.goal_yaw_event.clear()
+    def clear_odom_events(self):
+        self.controller_odom_event.clear()
+        self.ekf_odom_event.clear()
 
     def set_destination_speed(self, v_x, v_y, v_yaw):
-        self.clear_events()
+        self.clear_odom_events()
         self.v_x = v_x
         self.v_y = v_y
         self.v_yaw = v_yaw
@@ -60,8 +58,12 @@ class SimulationTestNode(Node):
     def create_test_subscribers_and_publishers(self):
         self.cmd_vel_publisher = self.create_publisher(Twist, "cmd_vel", 10)
 
-        self.odom_sub = self.create_subscription(
-            Odometry, "/odometry/filtered", self.odometry_callback, 10
+        self.controller_odom_sub = self.create_subscription(
+            Odometry, "/rosbot_base_controller/odom", self.controller_callback, 10
+        )
+
+        self.ekf_odom_sub = self.create_subscription(
+            Odometry, "/odometry/filtered", self.ekf_callback, 10
         )
 
         self.scan_sub = self.create_subscription(LaserScan, "/scan", self.scan_callback, 10)
@@ -75,17 +77,26 @@ class SimulationTestNode(Node):
         self.ros_spin_thread.start()
         self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
-    def odometry_callback(self, data: Odometry):
-        twist = data.twist.twist
-
+    def is_twist_ok(self, twist: Twist):
+        x_ok, y_ok, yaw_ok = False, False, False
         if abs(twist.linear.x - self.v_x) < self.XY_TOLERANCE:
-            self.goal_x_event.set()
+            x_ok = True
 
         if abs(twist.linear.y - self.v_y) < self.XY_TOLERANCE:
-            self.goal_y_event.set()
+            y_ok = True
 
         if abs(twist.angular.z - self.v_yaw) < self.YAW_TOLERANCE:
-            self.goal_yaw_event.set()
+            yaw_ok = True
+
+        return x_ok and y_ok and yaw_ok
+
+    def controller_callback(self, data: Odometry):
+        if self.is_twist_ok(data.twist.twist):
+            self.controller_odom_event.set()
+
+    def ekf_callback(self, data: Odometry):
+        if self.is_twist_ok(data.twist.twist):
+            self.ekf_odom_event.set()
 
     def lookup_transform_odom(self):
         try:
