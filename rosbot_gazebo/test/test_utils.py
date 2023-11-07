@@ -79,20 +79,14 @@ class SimulationTestNode(Node):
         self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def is_twist_ok(self, twist: Twist):
-        x_ok, y_ok, yaw_ok = False, False, False
-
         def are_close_to_each_other(true_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
             acceptable_range = dest_value * tolerance
             return abs(true_value - dest_value) <= acceptable_range + eps
 
-        if are_close_to_each_other(twist.linear.x, self.v_x):
-            x_ok = True
+        x_ok = are_close_to_each_other(twist.linear.x, self.v_x)
+        y_ok = are_close_to_each_other(twist.linear.y, self.v_y)
+        yaw_ok = are_close_to_each_other(twist.angular.z, self.v_yaw)
 
-        if are_close_to_each_other(twist.linear.y, self.v_y):
-            y_ok = True
-
-        if are_close_to_each_other(twist.angular.z, self.v_yaw):
-            yaw_ok = True
         return x_ok and y_ok and yaw_ok
 
     def controller_callback(self, data: Odometry):
