@@ -58,27 +58,37 @@ def test_mecanum_simulation():
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
 
-        msgs_received_flag = node.odom_tf_event.wait(timeout=60.0)
+        flag = node.odom_tf_event.wait(timeout=60.0)
         assert (
-            msgs_received_flag
+            flag
         ), "Expected odom to base_link tf but it was not received. Check robot_localization!"
 
         # 0.9 m/s and 3.0 rad/s are controller's limits defined in
         #   rosbot_controller/config/mecanum_drive_controller.yaml
         node.set_destination_speed(0.9, 0.0, 0.0)
-        msgs_received_flag = node.goal_x_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot does not move properly in x direction!"
+        controller_flag = node.controller_odom_event.wait(timeout=20.0)
+        ekf_flag = node.ekf_odom_event.wait(timeout=20.0)
+        assert (
+            controller_flag
+        ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
+        assert ekf_flag, "ROSbot does not move properly in x direction. Check ekf_filter_node!"
 
         node.set_destination_speed(0.0, 0.9, 0.0)
-        msgs_received_flag = node.goal_y_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot does not move properly in y direction!"
+        controller_flag = node.controller_odom_event.wait(timeout=20.0)
+        ekf_flag = node.ekf_odom_event.wait(timeout=20.0)
+        assert (
+            controller_flag
+        ), "ROSbot does not move properly in y direction. Check rosbot_base_controller!"
+        assert ekf_flag, "ROSbot does not move properly in y direction. Check ekf_filter_node!"
 
         node.set_destination_speed(0.0, 0.0, 3.0)
-        msgs_received_flag = node.goal_yaw_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot does not rotate properly!"
+        controller_flag = node.controller_odom_event.wait(timeout=20.0)
+        ekf_flag = node.ekf_odom_event.wait(timeout=20.0)
+        assert controller_flag, "ROSbot does not rotate properly. Check rosbot_base_controller!"
+        assert ekf_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
 
-        msgs_received_flag = node.scan_event.wait(timeout=60.0)
-        assert msgs_received_flag, "ROSbot's lidar does not work properly!"
+        flag = node.scan_event.wait(timeout=20.0)
+        assert flag, "ROSbot's lidar does not work properly!"
 
     finally:
         # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching

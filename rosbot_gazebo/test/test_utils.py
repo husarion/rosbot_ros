@@ -31,8 +31,9 @@ from tf2_ros.transform_listener import TransformListener
 
 class SimulationTestNode(Node):
     __test__ = False
-    XY_TOLERANCE = 0.05
-    YAW_TOLERANCE = 0.1
+    # The inaccuracies in measurement uncertainties and wheel slippage
+    # cause the rosbot_base_controller to determine inaccurate odometry.
+    ACCURACY = 0.10  # 10% accuracy
 
     def __init__(self, name="test_node"):
         super().__init__(name)
@@ -40,19 +41,17 @@ class SimulationTestNode(Node):
         self.v_y = 0.0
         self.v_yaw = 0.0
 
-        self.goal_x_event = Event()
-        self.goal_y_event = Event()
-        self.goal_yaw_event = Event()
+        self.controller_odom_event = Event()
+        self.ekf_odom_event = Event()
         self.odom_tf_event = Event()
         self.scan_event = Event()
 
-    def clear_events(self):
-        self.goal_x_event.clear()
-        self.goal_y_event.clear()
-        self.goal_yaw_event.clear()
+    def clear_odom_events(self):
+        self.controller_odom_event.clear()
+        self.ekf_odom_event.clear()
 
     def set_destination_speed(self, v_x, v_y, v_yaw):
-        self.clear_events()
+        self.clear_odom_events()
         self.v_x = v_x
         self.v_y = v_y
         self.v_yaw = v_yaw
@@ -60,8 +59,12 @@ class SimulationTestNode(Node):
     def create_test_subscribers_and_publishers(self):
         self.cmd_vel_publisher = self.create_publisher(Twist, "cmd_vel", 10)
 
-        self.odom_sub = self.create_subscription(
-            Odometry, "/odometry/filtered", self.odometry_callback, 10
+        self.controller_odom_sub = self.create_subscription(
+            Odometry, "/rosbot_base_controller/odom", self.controller_callback, 10
+        )
+
+        self.ekf_odom_sub = self.create_subscription(
+            Odometry, "/odometry/filtered", self.ekf_callback, 10
         )
 
         self.scan_sub = self.create_subscription(LaserScan, "/scan", self.scan_callback, 10)
@@ -75,17 +78,24 @@ class SimulationTestNode(Node):
         self.ros_spin_thread.start()
         self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
-    def odometry_callback(self, data: Odometry):
-        twist = data.twist.twist
+    def is_twist_ok(self, twist: Twist):
+        def are_close_to_each_other(true_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
+            acceptable_range = dest_value * tolerance
+            return abs(true_value - dest_value) <= acceptable_range + eps
 
-        if abs(twist.linear.x - self.v_x) < self.XY_TOLERANCE:
-            self.goal_x_event.set()
+        x_ok = are_close_to_each_other(twist.linear.x, self.v_x)
+        y_ok = are_close_to_each_other(twist.linear.y, self.v_y)
+        yaw_ok = are_close_to_each_other(twist.angular.z, self.v_yaw)
 
-        if abs(twist.linear.y - self.v_y) < self.XY_TOLERANCE:
-            self.goal_y_event.set()
+        return x_ok and y_ok and yaw_ok
 
-        if abs(twist.angular.z - self.v_yaw) < self.YAW_TOLERANCE:
-            self.goal_yaw_event.set()
+    def controller_callback(self, data: Odometry):
+        if self.is_twist_ok(data.twist.twist):
+            self.controller_odom_event.set()
+
+    def ekf_callback(self, data: Odometry):
+        if self.is_twist_ok(data.twist.twist):
+            self.ekf_odom_event.set()
 
     def lookup_transform_odom(self):
         try:
