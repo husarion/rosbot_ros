@@ -1,7 +1,7 @@
 # Ref: http://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html
 
 ## ekf config file ###
-ekf_filter_node:
+/**/ekf_filter_node:
     ros__parameters:
         frequency: 25.0
         sensor_timeout: 0.05
@@ -10,6 +10,7 @@ ekf_filter_node:
         transform_time_offset: 0.0
         transform_timeout: 0.05
 
+        # All transforms are overwritten in launch file due to the namespace argument
         map_frame: map
         odom_frame: odom
         base_link_frame: base_link
@@ -17,7 +18,8 @@ ekf_filter_node:
         publish_tf: true
         publish_acceleration: false
 
-        odom0: /rosbot_base_controller/odom
+        # The odometry topic name is overwritten in launch file due to the namespace argument
+        odom0: rosbot_base_controller/odom
         odom0_config: [false, false, false, # X , Y , Z
                       false, false, false, # roll , pitch ,yaw
                       true, true, false, # dX , dY , dZ
@@ -29,7 +31,8 @@ ekf_filter_node:
         odom0_differential: false
         odom0_relative: true
 
-        imu0: /imu_broadcaster/imu
+        # The IMU topic name is overwritten in launch file due to the namespace argument
+        imu0: imu_broadcaster/imu
         imu0_config: [false, false, false, # X , Y , Z
                       false, false, true, # roll , pitch ,yaw
                       false, false, false, # dX , dY , dZ

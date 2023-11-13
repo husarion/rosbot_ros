@@ -17,10 +17,20 @@ from launch_ros.actions import Node, SetParameter
 from ament_index_python.packages import get_package_share_directory
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 
 
 def generate_launch_description():
+    namespace = LaunchConfiguration("namespace")
+    namespace_tf_prefix = PythonExpression(
+        ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "_'"]
+    )
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="Namespace for all topics and tfs",
+    )
+
     use_sim = LaunchConfiguration("use_sim")
     declare_use_sim_arg = DeclareLaunchArgument(
         "use_sim",
@@ -70,6 +80,7 @@ def generate_launch_description():
             "mecanum": mecanum,
             "use_gpu": use_gpu,
             "simulation_engine": simulation_engine,
+            "namespace": namespace,
         }.items(),
     )
 
@@ -80,10 +91,34 @@ def generate_launch_description():
         executable="ekf_node",
         name="ekf_filter_node",
         output="screen",
-        parameters=[ekf_config],
+        parameters=[
+            ekf_config,
+            {
+                "map_frame": LaunchConfiguration(
+                    "ekf_map_frame", default=[namespace_tf_prefix, "map"]
+                )
+            },
+            {
+                "odom_frame": LaunchConfiguration(
+                    "ekf_odom_frame", default=[namespace_tf_prefix, "odom"]
+                )
+            },
+            {
+                "base_link_frame": LaunchConfiguration(
+                    "ekf_base_link_frame", default=[namespace_tf_prefix, "base_link"]
+                )
+            },
+            {
+                "world_frame": LaunchConfiguration(
+                    "ekf_world_frame", default=[namespace_tf_prefix, "odom"]
+                )
+            },
+        ],
+        namespace=namespace,
     )
 
     actions = [
+        declare_namespace_arg,
         declare_mecanum_arg,
         declare_use_sim_arg,
         declare_use_gpu_arg,

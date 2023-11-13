@@ -65,6 +65,7 @@
       <xacro:property name="fdir" value="1.0 -1.0 0.0" />
     </xacro:if>
 
+    <!-- Namespaces have not been implemented in microros jet -->
     <joint name="${tf_prefix_ext}${side}_wheel_joint" type="continuous">
       <parent link="${tf_prefix_ext}body_link" />
       <child link="${tf_prefix_ext}${side}_wheel_link" />

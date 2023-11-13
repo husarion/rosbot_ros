@@ -84,15 +84,12 @@ def generate_launch_description():
         ]
     )
 
-    controller_manager_name = LaunchConfiguration("controller_manager_name")
     namespace_for_controller_name = PythonExpression(
         ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
     )
-
-    declare_controller_manager_name_arg = DeclareLaunchArgument(
+    controller_manager_name = LaunchConfiguration(
         "controller_manager_name",
-        default_value=[namespace_for_controller_name, controller_manager_type_name],
-        description="ros2_control controller manager name",
+        default=[namespace_for_controller_name, controller_manager_type_name],
     )
 
     # Get URDF via xacro
@@ -132,7 +129,29 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description, robot_controllers],
+        parameters=[
+            robot_description,
+            robot_controllers,
+            # imu_broadcaster frame_id override
+            {"frame_id": LaunchConfiguration("imu_frame", default=[namespace, "_imu_link"])},
+            {
+                "tf_frame_prefix": LaunchConfiguration(
+                    "diff_drive_tf_frame_prefix", default=[namespace]
+                )
+            },
+            {
+                "left_wheel_names": LaunchConfiguration(
+                    "left_wheels_joints",
+                    default=["[", namespace, "_fl_wheel_joint,", namespace, "_rl_wheel_joint]"],
+                )
+            },
+            {
+                "right_wheel_names": LaunchConfiguration(
+                    "right_wheels_joints",
+                    default=["[", namespace, "_fr_wheel_joint,", namespace, "_rr_wheel_joint]"],
+                )
+            },
+        ],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
@@ -216,7 +235,6 @@ def generate_launch_description():
             declare_use_sim_arg,
             declare_use_gpu_arg,
             declare_simulation_engine_arg,
-            declare_controller_manager_name_arg,
             SetParameter("use_sim_time", value=use_sim),
             control_node,
             robot_state_pub_node,

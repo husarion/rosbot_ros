@@ -60,12 +60,13 @@
           <param name="connection_timeout_ms">120000</param>
           <param name="connection_check_period_ms">500</param>
 
+          <!-- Namespaces have not been implemented in microros jet -->
           <!-- order of velocity commands to be published in motors_cmd Float32MultiArray msg -->
           <param name="velocity_command_joint_order">
-                ${tf_prefix_ext}rr_wheel_joint,
-                ${tf_prefix_ext}rl_wheel_joint,
-                ${tf_prefix_ext}fr_wheel_joint,
-                ${tf_prefix_ext}fl_wheel_joint
+                rr_wheel_joint,
+                rl_wheel_joint,
+                fr_wheel_joint,
+                fl_wheel_joint
           </param>
         </xacro:unless>
 
@@ -79,22 +80,23 @@
         </xacro:if>
       </hardware>
 
-      <joint name="${tf_prefix_ext}fl_wheel_joint">
+       <!-- Namespaces have not been implemented in microros jet -->
+      <joint name="fl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${tf_prefix_ext}fr_wheel_joint">
+      <joint name="fr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${tf_prefix_ext}rl_wheel_joint">
+      <joint name="rl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${tf_prefix_ext}rr_wheel_joint">
+      <joint name="rr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
