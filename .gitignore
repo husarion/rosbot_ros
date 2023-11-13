@@ -12,6 +12,7 @@ ros_components_description/
 rosbot_controllers/
 husarion/husarion_office_gz
 gazebosim/gz_ros2_control
+ros2_controllers
 
 # pyspelling
 *.dic
