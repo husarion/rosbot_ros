@@ -5,23 +5,39 @@
   <xacro:arg name="use_gpu" default="false" />
   <xacro:arg name="mecanum" default="false" />
   <xacro:arg name="simulation_engine" default="" />
+  <xacro:arg name="tf_prefix" default="None" />
+  <xacro:property name="tf_prefix" value="$(arg tf_prefix)" />
+
+  <xacro:if value="${tf_prefix == 'None'}">
+    <xacro:property name="tf_prefix_ext" value="" />
+  </xacro:if>
+  <xacro:unless value="${ tf_prefix == 'None'}">
+    <xacro:property name="tf_prefix_ext" value="${tf_prefix}_" />
+  </xacro:unless>
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
-  <xacro:husarion.rosbot_robot mecanum="$(arg mecanum)" use_sim="$(arg use_sim)" use_gpu="$(arg use_gpu)" simulation_engine="$(arg simulation_engine)"/>
+  <xacro:husarion.rosbot_robot
+    mecanum="$(arg mecanum)"
+    use_sim="$(arg use_sim)"
+    use_gpu="$(arg use_gpu)"
+    simulation_engine="$(arg simulation_engine)"
+    tf_prefix="$(arg tf_prefix)" />
 
   <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
   <xacro:lidar.slamtec_rplidar_a2
-    parent_link="cover_link"
+    parent_link="${tf_prefix_ext}cover_link"
     xyz="0.02 0.0 0.0"
     rpy="0.0 0.0 0.0"
     use_gpu="$(arg use_gpu)"
-    simulation_engine="$(arg simulation_engine)" />
+    simulation_engine="$(arg simulation_engine)"
+    tf_prefix="$(arg tf_prefix)" />
 
   <xacro:include filename="$(find ros_components_description)/urdf/orbbec_astra.urdf.xacro" ns="camera" />
   <xacro:camera.orbbec_astra
-    parent_link="camera_link"
+    parent_link="${tf_prefix_ext}camera_link"
     xyz="0.0 0.0 0.0"
     rpy="0.0 0.0 0.0"
-    simulation_engine="$(arg simulation_engine)" />
+    simulation_engine="$(arg simulation_engine)"
+    tf_prefix="$(arg tf_prefix)" />
 
 </robot>

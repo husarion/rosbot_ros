@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- body defining macro -->
-  <xacro:macro name="body" params="wheel_radius mecanum use_gpu">
+  <xacro:macro name="body" params="wheel_radius mecanum use_gpu tf_prefix">
     <xacro:include filename="$(find rosbot_description)/urdf/components/vl53lox.urdf.xacro" ns="range_sensor" />
 
-    <link name="base_link" />
+    <xacro:if value="${tf_prefix == 'None'}">
+      <xacro:property name="tf_prefix_ext" value="" />
+    </xacro:if>
+    <xacro:unless value="${tf_prefix == 'None'}">
+      <xacro:property name="tf_prefix_ext" value="${tf_prefix}_" />
+    </xacro:unless>
 
-    <joint name="base_to_body_joint" type="fixed">
+    <link name="${tf_prefix_ext}base_link" />
+
+    <joint name="${tf_prefix_ext}base_to_${tf_prefix_ext}body_joint" type="fixed">
       <origin xyz="0.0 0.0 ${wheel_radius}" rpy="0.0 0.0 0.0" />
-      <parent link="base_link" />
-      <child link="body_link" />
+      <parent link="${tf_prefix_ext}base_link" />
+      <child link="${tf_prefix_ext}body_link" />
     </joint>
 
-    <link name="body_link">
+    <link name="${tf_prefix_ext}body_link">
       <visual>
         <geometry>
           <mesh filename="file://$(find rosbot_description)/meshes/body.stl" scale="0.001 0.001 0.001" />
@@ -38,17 +45,17 @@
         <origin xyz="0.0 0.0 ${0.040 - 0.02}" rpy="0.0 0.0 0.0" />
       </inertial>
     </link>
-    <gazebo reference="body_link">
+    <gazebo reference="${tf_prefix_ext}body_link">
       <material>Gazebo/White</material>
     </gazebo>
 
-    <joint name="body_to_cover_joint" type="fixed">
+    <joint name="${tf_prefix_ext}body_to_${tf_prefix_ext}cover_joint" type="fixed">
       <origin xyz="0.0 0.0 0.0603" rpy="0.0 0.0 0.0" />
-      <parent link="body_link" />
-      <child link="cover_link" />
+      <parent link="${tf_prefix_ext}body_link" />
+      <child link="${tf_prefix_ext}cover_link" />
     </joint>
 
-    <link name="cover_link">
+    <link name="${tf_prefix_ext}cover_link">
       <visual>
         <geometry>
           <mesh filename="file://$(find rosbot_description)/meshes/cover.stl" scale="0.001 0.001 0.001" />
@@ -58,31 +65,31 @@
           <color rgba="0.8 0.0 0.0 1.0" />
         </material>
       </visual>
-      <gazebo reference="cover_link">
+      <gazebo reference="${tf_prefix_ext}cover_link">
         <material>Gazebo/Red</material>
       </gazebo>
     </link>
 
-    <joint name="body_to_imu_joint" type="fixed">
+    <joint name="${tf_prefix_ext}body_to_${tf_prefix_ext}imu_joint" type="fixed">
       <origin xyz="0.003 -0.0495 0.04332" rpy="0.0 0.0 0.0" />
-      <parent link="body_link" />
-      <child link="imu_link" />
+      <parent link="${tf_prefix_ext}body_link" />
+      <child link="${tf_prefix_ext}imu_link" />
     </joint>
 
-    <link name="imu_link" />
+    <link name="${tf_prefix_ext}imu_link" />
 
-    <joint name="body_to_camera_joint" type="fixed">
+    <joint name="${tf_prefix_ext}body_to_${tf_prefix_ext}camera_joint" type="fixed">
       <origin xyz="-0.0141 0.0 0.125" rpy="0.0 0.0 0.0" />
-      <parent link="body_link" />
-      <child link="camera_link" />
+      <parent link="${tf_prefix_ext}body_link" />
+      <child link="${tf_prefix_ext}camera_link" />
     </joint>
 
-    <link name="camera_link" />
+    <link name="${tf_prefix_ext}camera_link" />
 
-    <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926  0.05 0.015"   rpy="0.0 0.0 ${radians(12.5)}"  prefix="fl" />
-    <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926 -0.05 0.015"   rpy="0.0 0.0 ${radians(-12.5)}" prefix="fr" />
-    <xacro:range_sensor.vl53lox parent="body_link" xyz="-0.0926 0.05 0.0115"  rpy="0.0 0.0 ${radians(167.5)}" prefix="rl" />
-    <xacro:range_sensor.vl53lox parent="body_link" xyz="-0.0926 -0.05 0.0115" rpy="0.0 0.0 ${radians(192.5)}" prefix="rr" />
+    <xacro:range_sensor.vl53lox parent="${tf_prefix_ext}body_link" xyz="0.0926  0.05 0.015"   rpy="0.0 0.0 ${radians(12.5)}"  side="fl" tf_prefix="${tf_prefix}" />
+    <xacro:range_sensor.vl53lox parent="${tf_prefix_ext}body_link" xyz="0.0926 -0.05 0.015"   rpy="0.0 0.0 ${radians(-12.5)}" side="fr" tf_prefix="${tf_prefix}" />
+    <xacro:range_sensor.vl53lox parent="${tf_prefix_ext}body_link" xyz="-0.0926 0.05 0.0115"  rpy="0.0 0.0 ${radians(167.5)}" side="rl" tf_prefix="${tf_prefix}" />
+    <xacro:range_sensor.vl53lox parent="${tf_prefix_ext}body_link" xyz="-0.0926 -0.05 0.0115" rpy="0.0 0.0 ${radians(192.5)}" side="rr" tf_prefix="${tf_prefix}" />
 
   </xacro:macro>
 </robot>

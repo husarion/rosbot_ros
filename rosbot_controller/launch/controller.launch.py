@@ -115,6 +115,8 @@ def generate_launch_description():
             use_gpu,
             " simulation_engine:=",
             simulation_engine,
+            " tf_prefix:=",
+            namespace,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -215,7 +217,7 @@ def generate_launch_description():
             declare_use_gpu_arg,
             declare_simulation_engine_arg,
             declare_controller_manager_name_arg,
-            SetParameter("use_sim_time"),
+            SetParameter("use_sim_time", value=use_sim),
             control_node,
             robot_state_pub_node,
             joint_state_broadcaster_spawner,

@@ -1,25 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- vl53lox defining macro -->
-  <xacro:macro name="vl53lox" params="parent xyz rpy prefix">
+  <xacro:macro name="vl53lox" params="parent xyz rpy side tf_prefix">
 
-    <joint name="${parent}_${prefix}_range_joint" type="fixed">
+    <xacro:if value="${tf_prefix == 'None'}">
+      <xacro:property name="tf_prefix_ext" value="" />
+    </xacro:if>
+    <xacro:unless value="${tf_prefix == 'None'}">
+      <xacro:property name="tf_prefix_ext" value="${tf_prefix}_" />
+    </xacro:unless>
+
+    <joint name="${parent.rstrip('_link')}_${tf_prefix_ext}${side}_range_joint" type="fixed">
       <origin xyz="${xyz}" rpy="${rpy}" />
       <parent link="${parent}" />
-      <child link="${prefix}_range" />
+      <child link="${tf_prefix_ext}${side}_range" />
     </joint>
 
-    <link name="${prefix}_range" />
+    <link name="${tf_prefix_ext}${side}_range" />
 
     <!-- an IR sensor or a sonar are not implemented yet
     https://github.com/gazebosim/gz-sensors/issues/19 -->
     <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
-      <gazebo reference="${prefix}_range">
-        <sensor name="${prefix}_range" type='gpu_lidar'>
+      <gazebo reference="${tf_prefix_ext}${side}_range">
+        <sensor name="${tf_prefix_ext}${side}_range" type='gpu_lidar'>
 
-          <topic>/range/${prefix}</topic>
-          <frame_id>${prefix}_range</frame_id>
-          <ignition_frame_id>${prefix}_range</ignition_frame_id>
+          <topic>/range/${side}</topic>
+          <frame_id>${tf_prefix_ext}${side}_range</frame_id>
+          <ignition_frame_id>${tf_prefix_ext}${side}_range</ignition_frame_id>
 
           <update_rate>5.0</update_rate>
           <ray>
