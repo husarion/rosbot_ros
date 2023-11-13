@@ -23,23 +23,50 @@ def test_rosbot_description_parsing():
     use_sim_values = ["true", "false"]
     use_gpu_values = ["true", "false"]
     simulation_engine_values = ["ignition-gazebo", "webots"]  # 'gazebo-classic'
+    tf_prefixes = ["rosbot2r", "rosbot2pro", "husarion", "", "None"]
 
     all_combinations = list(
-        itertools.product(mecanum_values, use_sim_values, use_gpu_values, simulation_engine_values)
+        itertools.product(
+            mecanum_values, use_sim_values, use_gpu_values, simulation_engine_values, tf_prefixes
+        )
     )
 
     for combination in all_combinations:
-        mecanum, use_sim, use_gpu, simulation_engine = combination
+        mecanum, use_sim, use_gpu, simulation_engine, tf_prefix = combination
         mappings = {
             "mecanum": mecanum,
             "use_sim": use_sim,
             "use_gpu": use_gpu,
             "simulation_engine": simulation_engine,
+            "tf_prefix": tf_prefix,
         }
         rosbot_description = get_package_share_directory("rosbot_description")
         xacro_path = os.path.join(rosbot_description, "urdf/rosbot.urdf.xacro")
         try:
-            xacro.process_file(xacro_path, mappings=mappings)
+            urdf = xacro.process_file(xacro_path, mappings=mappings)
+
+            namespace = tf_prefix
+
+            links = urdf.getElementsByTagName("link")
+            for link in links:
+                link_name = link.getAttribute("name")
+                if namespace != "None":
+                    if tf_prefix not in link_name:
+                        assert False, f"Link name '{link_name}' does not contain '{namespace}'"
+                else:
+                    if tf_prefix in link_name:
+                        assert False, f"Link name '{link_name}' does not contain '{namespace}'"
+
+            joints = urdf.getElementsByTagName("joint")
+            for joint in joints:
+                joint_name = joint.getAttribute("name")
+                if namespace != "None":
+                    if tf_prefix not in joint_name:
+                        assert False, f"Joint name '{joint_name}' does not contain '{namespace}'"
+                else:
+                    if tf_prefix in joint_name:
+                        assert False, f"Joint name '{joint_name}' does not contain '{namespace}'"
+
         except xacro.XacroException as e:
             assert False, (
                 f"xacro parsing failed: {str(e)} for mecanum: {mecanum}, use_sim:"
