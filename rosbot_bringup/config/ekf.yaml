@@ -21,7 +21,7 @@ ekf_filter_node:
         odom0_config: [false, false, false, # X , Y , Z
                       false, false, false, # roll , pitch ,yaw
                       true, true, false, # dX , dY , dZ
-                      false, false, false, # droll , dpitch ,dyaw
+                      false, false, true, # droll , dpitch ,dyaw
                       false, false, false] # ddX , ddY , ddZ
 
         odom0_queue_size: 2
@@ -33,7 +33,7 @@ ekf_filter_node:
         imu0_config: [false, false, false, # X , Y , Z
                       false, false, true, # roll , pitch ,yaw
                       false, false, false, # dX , dY , dZ
-                      false, false, false, # droll , dpitch ,dyaw
+                      false, false, true, # droll , dpitch ,dyaw
                       false, false, false] # ddX , ddY , ddZ
         imu0_queue_size: 5
         imu0_nodelay: true
@@ -56,9 +56,9 @@ ekf_filter_node:
                                     0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   3e-3,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
                                     0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   3e-3,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
                                     0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   3e-3,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                                    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   5e-3,  0.0,   0.0,   0.0,   0.0,   0.0,
-                                    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   5e-3,  0.0,   0.0,   0.0,   0.0,
-                                    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   5e-3,  0.0,   0.0,   0.0,
+                                    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   4e-2,  0.0,   0.0,   0.0,   0.0,   0.0,
+                                    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   4e-2,  0.0,   0.0,   0.0,   0.0,
+                                    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   4e-2,  0.0,   0.0,   0.0,
                                     0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   1e-5,  0.0,   0.0,
                                     0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   1e-5,  0.0,
                                     0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   1e-5]
