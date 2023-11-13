@@ -136,19 +136,7 @@ def generate_launch_description():
             {"frame_id": LaunchConfiguration("imu_frame", default=[namespace, "_imu_link"])},
             {
                 "tf_frame_prefix": LaunchConfiguration(
-                    "diff_drive_tf_frame_prefix", default=[namespace]
-                )
-            },
-            {
-                "left_wheel_names": LaunchConfiguration(
-                    "left_wheels_joints",
-                    default=["[", namespace, "_fl_wheel_joint,", namespace, "_rl_wheel_joint]"],
-                )
-            },
-            {
-                "right_wheel_names": LaunchConfiguration(
-                    "right_wheels_joints",
-                    default=["[", namespace, "_fr_wheel_joint,", namespace, "_rr_wheel_joint]"],
+                    "rosbot_base_tf_frame_prefix", default=[namespace]
                 )
             },
         ],

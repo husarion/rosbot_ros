@@ -68,6 +68,7 @@
                 fr_wheel_joint,
                 fl_wheel_joint
           </param>
+          <param name="tf_prefix">${tf_prefix_ext}</param>
         </xacro:unless>
 
         <xacro:if value="$(arg use_sim)">
@@ -81,22 +82,22 @@
       </hardware>
 
        <!-- Namespaces have not been implemented in microros jet -->
-      <joint name="fl_wheel_joint">
+      <joint name="${tf_prefix_ext}fl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="fr_wheel_joint">
+      <joint name="${tf_prefix_ext}fr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="rl_wheel_joint">
+      <joint name="${tf_prefix_ext}rl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="rr_wheel_joint">
+      <joint name="${tf_prefix_ext}rr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
