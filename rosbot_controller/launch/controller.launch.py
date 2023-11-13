@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler, DeclareLaunchArgument
+from launch.actions import RegisterEventHandler, DeclareLaunchArgument, GroupAction
 from launch.conditions import UnlessCondition
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
@@ -30,6 +30,13 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    namespace = LaunchConfiguration("namespace")
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="Namespace for all topics and tfs",
+    )
+
     mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
@@ -69,12 +76,23 @@ def generate_launch_description():
         ]
     )
 
-    controller_manager_name = PythonExpression(
+    controller_manager_type_name = PythonExpression(
         [
-            "'/simulation_controller_manager' if ",
+            "'simulation_controller_manager' if ",
             use_sim,
-            " else '/controller_manager'",
+            " else 'controller_manager'",
         ]
+    )
+    controller_manager_name = LaunchConfiguration("controller_manager_name")
+    namespace_for_controller_name = PythonExpression(
+        ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
+    )
+
+    namespace_for_controller_name
+    declare_controller_manager_name_arg = DeclareLaunchArgument(
+        "controller_manager_name",
+        default_value=[namespace_for_controller_name, controller_manager_type_name],
+        description="ros2_control controller manager name",
     )
 
     # Get URDF via xacro
@@ -114,12 +132,13 @@ def generate_launch_description():
         executable="ros2_control_node",
         parameters=[robot_description, robot_controllers],
         remappings=[
-            ("/imu_sensor_node/imu", "/_imu/data_raw"),
+            ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
-            ("/rosbot_base_controller/cmd_vel_unstamped", "/cmd_vel"),
+            ("rosbot_base_controller/cmd_vel_unstamped", "cmd_vel"),
         ],
         condition=UnlessCondition(use_sim),
+        namespace=namespace,
     )
 
     robot_state_pub_node = Node(
@@ -137,6 +156,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "120",
+            "--namespace",
+            namespace,
         ],
     )
 
@@ -149,6 +170,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "120",
+            "--namespace",
+            namespace,
         ],
     )
 
@@ -169,6 +192,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "120",
+            "--namespace",
+            namespace,
         ],
     )
 
@@ -181,12 +206,16 @@ def generate_launch_description():
         )
     )
 
-    actions = [
+    args_declarations_actions = [
+        declare_namespace_arg,
         declare_mecanum_arg,
         declare_use_sim_arg,
         declare_use_gpu_arg,
         declare_simulation_engine_arg,
-        SetParameter(name="use_sim_time", value=use_sim),
+        declare_controller_manager_name_arg,
+    ]
+
+    nodes_actions = [
         control_node,
         robot_state_pub_node,
         joint_state_broadcaster_spawner,
@@ -194,4 +223,15 @@ def generate_launch_description():
         delay_imu_broadcaster_spawner_after_robot_controller_spawner,
     ]
 
-    return LaunchDescription(actions)
+    return LaunchDescription(
+        args_declarations_actions
+        + [
+            GroupAction(
+                actions=[
+                    # PushRosNamespace(namespace),
+                    SetParameter(name="use_sim_time", value=use_sim),
+                ]
+                + nodes_actions
+            )
+        ]
+    )

@@ -4,7 +4,7 @@ simulation_ignition_ros_control:
 
 # Separate controller manager used for simulation - only difference is
 # the use_sim_time parameter (it is the easiest way to do it with ign ros2 control)
-simulation_controller_manager:
+/**/simulation_controller_manager:
   ros__parameters:
     use_sim_time: true
     update_rate: 20 # Hz
@@ -17,7 +17,7 @@ simulation_controller_manager:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
 
 
-controller_manager:
+/**/controller_manager:
   ros__parameters:
     use_sim_time: false
     update_rate: 20 # Hz
@@ -29,7 +29,7 @@ controller_manager:
     imu_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
 
-imu_broadcaster:
+/**/imu_broadcaster:
   ros__parameters:
     sensor_name: imu
     frame_id: imu_link
@@ -37,7 +37,7 @@ imu_broadcaster:
     static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values measured experimentally
     static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0, 0.0] # Values measured experimentally
 
-rosbot_base_controller:
+/**/rosbot_base_controller:
   ros__parameters:
     left_wheel_names: ["fl_wheel_joint", "rl_wheel_joint"]
     right_wheel_names: ["fr_wheel_joint", "rr_wheel_joint"]
