@@ -36,6 +36,9 @@ def generate_launch_description():
         default_value="",
         description="Namespace for all topics and tfs",
     )
+    namespace_tf_prefix = PythonExpression(
+        ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "_'"]
+    )
 
     mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
@@ -133,7 +136,11 @@ def generate_launch_description():
             robot_description,
             robot_controllers,
             # imu_broadcaster frame_id override
-            {"frame_id": LaunchConfiguration("imu_frame", default=[namespace, "_imu_link"])},
+            {
+                "frame_id": LaunchConfiguration(
+                    "imu_frame", default=[namespace_tf_prefix, "imu_link"]
+                )
+            },
             {
                 "tf_frame_prefix": LaunchConfiguration(
                     "rosbot_base_tf_frame_prefix", default=[namespace]

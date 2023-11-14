@@ -27,8 +27,8 @@
 /**/imu_broadcaster:
   ros__parameters:
     sensor_name: imu
-     # All transforms are overwritten in launch file due to the namespace argument
-    # frame_id: imu_link
+    tf_frame_prefix_enable: True
+    frame_id: imu_link
     static_covariance_orientation: [1.9e-3, 0.0, 0.0, 0.0, 1.9e-3, 0.0, 0.0, 0.0, 1.9e-3] # Values taken from datasheet
     static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values based on diff_drive
     static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0, 0.0] # Values based on diff_drive
