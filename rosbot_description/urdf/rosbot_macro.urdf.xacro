@@ -60,7 +60,8 @@
           <param name="connection_timeout_ms">120000</param>
           <param name="connection_check_period_ms">500</param>
 
-          <!-- Namespaces have not been implemented in microros jet -->
+          <!-- Firmware from https://github.com/husarion/rosbot_ros2_firmware could not override this names -->
+          <!-- The tf_prefix param adds correct tf_prefix -->
           <!-- order of velocity commands to be published in motors_cmd Float32MultiArray msg -->
           <param name="velocity_command_joint_order">
                 rr_wheel_joint,
@@ -81,7 +82,6 @@
         </xacro:if>
       </hardware>
 
-       <!-- Namespaces have not been implemented in microros jet -->
       <joint name="${tf_prefix_ext}fl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />

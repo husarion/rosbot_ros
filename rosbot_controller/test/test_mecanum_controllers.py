@@ -58,17 +58,17 @@ def test_controllers_startup_fail():
         node.create_test_subscribers_and_publishers()
 
         node.start_node_thread()
-        msgs_received_flag = node.joint_state_msg_event.wait(timeout=20.0)
+        msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
         assert not msgs_received_flag, (
             "Received JointStates message that should not have appeared. Check whether other"
             " robots are connected to your network.!"
         )
-        msgs_received_flag = node.odom_msg_event.wait(timeout=20.0)
+        msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
         assert not msgs_received_flag, (
             "Received Odom message that should not have appeared. Check whether other robots are"
             " connected to your network.!"
         )
-        msgs_received_flag = node.imu_msg_event.wait(timeout=20.0)
+        msgs_received_flag = node.imu_msg_event.wait(timeout=10.0)
         assert not msgs_received_flag, (
             "Received Imu message that should not have appeared. Check whether other robots are"
             " connected to your network.!"
