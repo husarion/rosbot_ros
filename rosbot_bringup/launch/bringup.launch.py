@@ -12,19 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch import LaunchDescription
+from launch import LaunchDescription, LaunchContext
 from launch_ros.actions import Node, SetParameter
 from ament_index_python.packages import get_package_share_directory
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+
+
+def launch_ekf(context: LaunchContext, *args, **kwargs):
+    rosbot_bringup = get_package_share_directory("rosbot_bringup")
+    ekf_config = PathJoinSubstitution([rosbot_bringup, "config", "ekf.yaml"])
+
+    namespace = context.perform_substitution(LaunchConfiguration("namespace"))
+    namespace = namespace + "/" if namespace else ""
+
+    robot_localization_node = Node(
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_filter_node",
+        output="screen",
+        parameters=[
+            ekf_config,
+            {"map_frame": namespace + "map"},
+            {"odom_frame": namespace + "odom"},
+            {"base_link_frame": namespace + "base_link"},
+            {"world_frame": namespace + "odom"},
+        ],
+        namespace=namespace,
+    )
+
+    return [robot_localization_node]
 
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
-    namespace_tf_prefix = PythonExpression(
-        ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "_'"]
-    )
+
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
@@ -54,7 +77,6 @@ def generate_launch_description():
     )
 
     rosbot_controller = get_package_share_directory("rosbot_controller")
-    rosbot_bringup = get_package_share_directory("rosbot_bringup")
 
     mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
@@ -84,48 +106,15 @@ def generate_launch_description():
         }.items(),
     )
 
-    ekf_config = PathJoinSubstitution([rosbot_bringup, "config", "ekf.yaml"])
-
-    robot_localization_node = Node(
-        package="robot_localization",
-        executable="ekf_node",
-        name="ekf_filter_node",
-        output="screen",
-        parameters=[
-            ekf_config,
-            {
-                "map_frame": LaunchConfiguration(
-                    "ekf_map_frame", default=[namespace_tf_prefix, "map"]
-                )
-            },
-            {
-                "odom_frame": LaunchConfiguration(
-                    "ekf_odom_frame", default=[namespace_tf_prefix, "odom"]
-                )
-            },
-            {
-                "base_link_frame": LaunchConfiguration(
-                    "ekf_base_link_frame", default=[namespace_tf_prefix, "base_link"]
-                )
-            },
-            {
-                "world_frame": LaunchConfiguration(
-                    "ekf_world_frame", default=[namespace_tf_prefix, "odom"]
-                )
-            },
-        ],
-        namespace=namespace,
+    return LaunchDescription(
+        [
+            declare_namespace_arg,
+            declare_mecanum_arg,
+            declare_use_sim_arg,
+            declare_use_gpu_arg,
+            declare_simulation_engine_arg,
+            SetParameter(name="use_sim_time", value=use_sim),
+            controller_launch,
+            OpaqueFunction(function=launch_ekf),
+        ]
     )
-
-    actions = [
-        declare_namespace_arg,
-        declare_mecanum_arg,
-        declare_use_sim_arg,
-        declare_use_gpu_arg,
-        declare_simulation_engine_arg,
-        SetParameter(name="use_sim_time", value=use_sim),
-        controller_launch,
-        robot_localization_node,
-    ]
-
-    return LaunchDescription(actions)

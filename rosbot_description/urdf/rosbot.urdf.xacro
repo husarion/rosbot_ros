@@ -1,20 +1,19 @@
 <?xml version='1.0'?>
 <robot name="rosbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <!-- Default arguments -->
   <xacro:arg name="use_sim" default="false" />
   <xacro:arg name="use_gpu" default="false" />
   <xacro:arg name="mecanum" default="false" />
   <xacro:arg name="simulation_engine" default="" />
-  <xacro:arg name="tf_prefix" default="None" />
-  <xacro:property name="tf_prefix" value="$(arg tf_prefix)" />
+  <xacro:arg name="tf_prefix" default="" />
 
-  <xacro:if value="${tf_prefix == 'None'}">
-    <xacro:property name="tf_prefix_ext" value="" />
+  <xacro:property name="prefix" value="$(arg tf_prefix)" lazy_eval="false"/>
+  <xacro:if value="${prefix != ''}">
+    <xacro:property name="prefix" value="${prefix}_" />
   </xacro:if>
-  <xacro:unless value="${ tf_prefix == 'None'}">
-    <xacro:property name="tf_prefix_ext" value="${tf_prefix}_" />
-  </xacro:unless>
 
+  <!-- Include rosbot_macro.urdf.xacro -->
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
   <xacro:husarion.rosbot_robot
     mecanum="$(arg mecanum)"
@@ -23,18 +22,20 @@
     simulation_engine="$(arg simulation_engine)"
     tf_prefix="$(arg tf_prefix)" />
 
+  <!-- Include slamtec_rplidar_a2.urdf.xacro -->
   <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
   <xacro:lidar.slamtec_rplidar_a2
-    parent_link="${tf_prefix_ext}cover_link"
+    parent_link="${prefix}cover_link"
     xyz="0.02 0.0 0.0"
     rpy="0.0 0.0 0.0"
     use_gpu="$(arg use_gpu)"
     simulation_engine="$(arg simulation_engine)"
     tf_prefix="$(arg tf_prefix)" />
 
+  <!-- Include orbbec_astra.urdf.xacro -->
   <xacro:include filename="$(find ros_components_description)/urdf/orbbec_astra.urdf.xacro" ns="camera" />
   <xacro:camera.orbbec_astra
-    parent_link="${tf_prefix_ext}camera_link"
+    parent_link="${prefix}camera_link"
     xyz="0.0 0.0 0.0"
     rpy="0.0 0.0 0.0"
     simulation_engine="$(arg simulation_engine)"

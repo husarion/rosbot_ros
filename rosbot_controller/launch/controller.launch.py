@@ -84,15 +84,14 @@ def generate_launch_description():
         ]
     )
 
-    namespace_for_controller_name = PythonExpression(
+    namespace_ext = PythonExpression(
         ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
     )
     controller_manager_name = LaunchConfiguration(
         "controller_manager_name",
-        default=[namespace_for_controller_name, controller_manager_type_name],
+        default=[namespace_ext, controller_manager_type_name],
     )
 
-    # Get URDF via xacro
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -112,8 +111,6 @@ def generate_launch_description():
             use_gpu,
             " simulation_engine:=",
             simulation_engine,
-            " tf_prefix:=",
-            namespace,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -151,7 +148,7 @@ def generate_launch_description():
     robot_state_pub_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        parameters=[robot_description],
+        parameters=[robot_description, {"frame_prefix": namespace_ext}],
         namespace=namespace,
     )
 

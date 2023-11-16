@@ -9,13 +9,10 @@
       <xacro:property name="wheel_radius" value="0.0425" />
     </xacro:unless>
 
-    <xacro:if value="${tf_prefix == 'None'}">
-      <xacro:property name="tf_prefix_ext" value="" />
+    <xacro:property name="prefix" value="$(arg tf_prefix)" lazy_eval="false"/>
+    <xacro:if value="${prefix != ''}">
+      <xacro:property name="prefix" value="${prefix}_" />
     </xacro:if>
-    <xacro:unless value="${tf_prefix == 'None'}">
-      <xacro:property name="tf_prefix_ext" value="${tf_prefix}_" />
-    </xacro:unless>
-
 
     <!-- INCLUDE ROBOT PARTS DEFINITIONS -->
     <xacro:include filename="$(find rosbot_description)/urdf/body.urdf.xacro" ns="body" />
@@ -69,7 +66,7 @@
                 fr_wheel_joint,
                 fl_wheel_joint
           </param>
-          <param name="tf_prefix">${tf_prefix_ext}</param>
+          <param name="tf_prefix">${prefix}</param>
         </xacro:unless>
 
         <xacro:if value="$(arg use_sim)">
@@ -82,22 +79,22 @@
         </xacro:if>
       </hardware>
 
-      <joint name="${tf_prefix_ext}fl_wheel_joint">
+      <joint name="${prefix}fl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${tf_prefix_ext}fr_wheel_joint">
+      <joint name="${prefix}fr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${tf_prefix_ext}rl_wheel_joint">
+      <joint name="${prefix}rl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${tf_prefix_ext}rr_wheel_joint">
+      <joint name="${prefix}rr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
@@ -138,7 +135,7 @@
             </ros>
           </plugin>
         </gazebo>
-        <gazebo reference="${tf_prefix_ext}imu_link">
+        <gazebo reference="${prefix}imu_link">
           <sensor name="imu" type="imu">
             <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"></plugin>
             <always_on>true</always_on>
@@ -146,8 +143,8 @@
             <topic>imu/data_raw</topic>
             <visualize>false</visualize>
             <enable_metrics>false</enable_metrics>
-            <frame_id>${tf_prefix_ext}imu_link</frame_id>
-            <ignition_frame_id>${tf_prefix_ext}imu_link</ignition_frame_id>
+            <frame_id>${prefix}imu_link</frame_id>
+            <ignition_frame_id>${prefix}imu_link</ignition_frame_id>
           </sensor>
         </gazebo>
       </xacro:if>
@@ -160,10 +157,10 @@
               <ros></ros>
               <update_rate>10.0</update_rate>
               <num_wheel_pairs>2</num_wheel_pairs>
-              <left_joint>${tf_prefix_ext}fl_wheel_joint</left_joint>
-              <right_joint>${tf_prefix_ext}fr_wheel_joint</right_joint>
-              <left_joint>${tf_prefix_ext}rl_wheel_joint</left_joint>
-              <right_joint>${tf_prefix_ext}rr_wheel_joint</right_joint>
+              <left_joint>${prefix}fl_wheel_joint</left_joint>
+              <right_joint>${prefix}fr_wheel_joint</right_joint>
+              <left_joint>${prefix}rl_wheel_joint</left_joint>
+              <right_joint>${prefix}rr_wheel_joint</right_joint>
               <wheel_separation>0.192</wheel_separation>
               <wheel_separation>0.192</wheel_separation>
               <wheel_diameter>${wheel_radius*2.0}</wheel_diameter>
@@ -173,22 +170,22 @@
               <publish_odom>true</publish_odom>
               <publish_odom_tf>true</publish_odom_tf>
               <publish_wheel_tf>true</publish_wheel_tf>
-              <odometry_frame>${tf_prefix_ext}odom</odometry_frame>
-              <robot_base_frame>${tf_prefix_ext}base_link</robot_base_frame>
+              <odometry_frame>${prefix}odom</odometry_frame>
+              <robot_base_frame>${prefix}base_link</robot_base_frame>
             </plugin>
           </gazebo>
         </xacro:unless>
         <!-- publish joint states -->
         <gazebo>
           <plugin name="joint_states" filename="libgazebo_ros_joint_state_publisher.so">
-            <joint_name>${tf_prefix_ext}fl_wheel_joint</joint_name>
-            <joint_name>${tf_prefix_ext}fr_wheel_joint</joint_name>
-            <joint_name>${tf_prefix_ext}rl_wheel_joint</joint_name>
-            <joint_name>${tf_prefix_ext}rr_wheel_joint</joint_name>
+            <joint_name>${prefix}fl_wheel_joint</joint_name>
+            <joint_name>${prefix}fr_wheel_joint</joint_name>
+            <joint_name>${prefix}rl_wheel_joint</joint_name>
+            <joint_name>${prefix}rr_wheel_joint</joint_name>
           </plugin>
         </gazebo>
         <!-- publish IMU -->
-        <gazebo reference="${tf_prefix_ext}imu_link">
+        <gazebo reference="${prefix}imu_link">
           <sensor type="imu" name="imu">
             <always_on>true</always_on>
             <update_rate>25</update_rate>

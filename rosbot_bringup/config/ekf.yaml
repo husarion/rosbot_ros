@@ -18,7 +18,6 @@
         publish_tf: true
         publish_acceleration: false
 
-        # The odometry topic name is overwritten in launch file due to the namespace argument
         odom0: rosbot_base_controller/odom
         odom0_config: [false, false, false, # X , Y , Z
                       false, false, false, # roll , pitch ,yaw
@@ -31,7 +30,6 @@
         odom0_differential: false
         odom0_relative: true
 
-        # The IMU topic name is overwritten in launch file due to the namespace argument
         imu0: imu_broadcaster/imu
         imu0_config: [false, false, false, # X , Y , Z
                       false, false, true, # roll , pitch ,yaw
