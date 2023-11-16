@@ -50,21 +50,15 @@ def test_rosbot_description_parsing():
             links = urdf.getElementsByTagName("link")
             for link in links:
                 link_name = link.getAttribute("name")
-                if namespace != "None":
+                if namespace != "":
                     if tf_prefix not in link_name:
-                        assert False, f"Link name '{link_name}' does not contain '{namespace}'"
-                else:
-                    if tf_prefix in link_name:
                         assert False, f"Link name '{link_name}' does not contain '{namespace}'"
 
             joints = urdf.getElementsByTagName("joint")
             for joint in joints:
                 joint_name = joint.getAttribute("name")
-                if namespace != "None":
+                if namespace != "":
                     if tf_prefix not in joint_name:
-                        assert False, f"Joint name '{joint_name}' does not contain '{namespace}'"
-                else:
-                    if tf_prefix in joint_name:
                         assert False, f"Joint name '{joint_name}' does not contain '{namespace}'"
 
         except xacro.XacroException as e:

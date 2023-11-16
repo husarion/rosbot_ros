@@ -10,7 +10,7 @@
 
   <xacro:property name="prefix" value="$(arg tf_prefix)" lazy_eval="false"/>
   <xacro:if value="${prefix != ''}">
-    <xacro:property name="prefix" value="${prefix}_" />
+    <xacro:property name="prefix" value="$(arg tf_prefix)_" />
   </xacro:if>
 
   <!-- Include rosbot_macro.urdf.xacro -->

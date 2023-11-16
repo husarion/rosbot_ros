@@ -9,9 +9,9 @@
       <xacro:property name="wheel_radius" value="0.0425" />
     </xacro:unless>
 
-    <xacro:property name="prefix" value="$(arg tf_prefix)" lazy_eval="false"/>
+    <xacro:property name="prefix" value="${tf_prefix}" lazy_eval="false"/>
     <xacro:if value="${prefix != ''}">
-      <xacro:property name="prefix" value="${prefix}_" />
+      <xacro:property name="prefix" value="${tf_prefix}_" />
     </xacro:if>
 
     <!-- INCLUDE ROBOT PARTS DEFINITIONS -->
