@@ -7,6 +7,7 @@
   <xacro:arg name="mecanum" default="false" />
   <xacro:arg name="simulation_engine" default="" />
   <xacro:arg name="tf_prefix" default="" />
+  <xacro:arg name="namespace" default="" />
 
   <xacro:property name="prefix" value="$(arg tf_prefix)" lazy_eval="false"/>
   <xacro:if value="${prefix != ''}">
@@ -20,7 +21,8 @@
     use_sim="$(arg use_sim)"
     use_gpu="$(arg use_gpu)"
     simulation_engine="$(arg simulation_engine)"
-    tf_prefix="$(arg tf_prefix)" />
+    tf_prefix="$(arg tf_prefix)"
+    namespace="$(arg namespace)" />
 
   <!-- Include slamtec_rplidar_a2.urdf.xacro -->
   <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />

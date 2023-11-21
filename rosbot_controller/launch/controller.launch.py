@@ -111,6 +111,8 @@ def generate_launch_description():
             use_gpu,
             " simulation_engine:=",
             simulation_engine,
+            " namespace:=",
+            namespace,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -129,11 +131,7 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_controllers,
-            {
-                "tf_frame_prefix": LaunchConfiguration(
-                    "rosbot_base_tf_frame_prefix", default=[namespace]
-                )
-            },
+            {"tf_frame_prefix": namespace},
         ],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),

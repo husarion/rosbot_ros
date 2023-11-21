@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu tf_prefix simulation_engine">
+  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu tf_prefix namespace simulation_engine">
 
     <xacro:if value="${mecanum}">
       <xacro:property name="wheel_radius" value="0.0470" />
@@ -8,6 +8,11 @@
     <xacro:unless value="${mecanum}">
       <xacro:property name="wheel_radius" value="0.0425" />
     </xacro:unless>
+
+    <xacro:property name="namespace" value="$(arg namespace)" lazy_eval="false"/>
+    <xacro:if value="${namespace != ''}">
+      <xacro:property name="namespace" value="$(arg namespace)/" />
+    </xacro:if>
 
     <xacro:property name="prefix" value="${tf_prefix}" lazy_eval="false"/>
     <xacro:if value="${prefix != ''}">
@@ -66,7 +71,7 @@
                 fr_wheel_joint,
                 fl_wheel_joint
           </param>
-          <param name="tf_prefix">${prefix}</param>
+          <param name="tf_prefix">${namespace}${prefix}</param>
         </xacro:unless>
 
         <xacro:if value="$(arg use_sim)">
@@ -79,22 +84,22 @@
         </xacro:if>
       </hardware>
 
-      <joint name="${prefix}fl_wheel_joint">
+      <joint name="${namespace}${prefix}fl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${prefix}fr_wheel_joint">
+      <joint name="${namespace}${prefix}fr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${prefix}rl_wheel_joint">
+      <joint name="${namespace}${prefix}rl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${prefix}rr_wheel_joint">
+      <joint name="${namespace}${prefix}rr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
