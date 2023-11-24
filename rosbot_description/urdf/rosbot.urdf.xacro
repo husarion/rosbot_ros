@@ -6,7 +6,7 @@
   <xacro:arg name="use_gpu" default="false" />
   <xacro:arg name="mecanum" default="false" />
   <xacro:arg name="simulation_engine" default="" />
-  <xacro:arg name="tf_prefix" default="" />
+  <xacro:arg name="tf_prefix" default="None" />
   <xacro:arg name="namespace" default="" />
 
   <xacro:property name="prefix" value="$(arg tf_prefix)" lazy_eval="false"/>
