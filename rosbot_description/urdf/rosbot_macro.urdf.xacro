@@ -14,10 +14,14 @@
       <xacro:property name="namespace" value="$(arg namespace)/" />
     </xacro:if>
 
-    <xacro:property name="prefix" value="${tf_prefix}" lazy_eval="false"/>
-    <xacro:if value="${prefix != ''}">
-      <xacro:property name="prefix" value="${tf_prefix}_" />
+
+    <xacro:if value="${tf_prefix == 'None'}">
+      <xacro:property name="prefix" value="" />
     </xacro:if>
+    <xacro:unless value="${tf_prefix == 'None'}">
+      <xacro:property name="prefix" value="${tf_prefix}_" />
+    </xacro:unless>
+
 
     <!-- INCLUDE ROBOT PARTS DEFINITIONS -->
     <xacro:include filename="$(find rosbot_description)/urdf/body.urdf.xacro" ns="body" />

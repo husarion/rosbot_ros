@@ -4,10 +4,12 @@
   <xacro:macro name="body" params="wheel_radius mecanum use_gpu tf_prefix">
     <xacro:include filename="$(find rosbot_description)/urdf/components/vl53lox.urdf.xacro" ns="range_sensor" />
 
-    <xacro:property name="prefix" value="${tf_prefix}" lazy_eval="false"/>
-    <xacro:if value="${prefix != ''}">
-      <xacro:property name="prefix" value="${tf_prefix}_" />
+    <xacro:if value="${tf_prefix == 'None'}">
+      <xacro:property name="prefix" value="" />
     </xacro:if>
+    <xacro:unless value="${tf_prefix == 'None'}">
+      <xacro:property name="prefix" value="${tf_prefix}_" />
+    </xacro:unless>
 
     <link name="${prefix}base_link" />
 

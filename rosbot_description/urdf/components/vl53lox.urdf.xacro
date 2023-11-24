@@ -3,10 +3,12 @@
   <!-- vl53lox defining macro -->
   <xacro:macro name="vl53lox" params="parent xyz rpy side tf_prefix">
 
-  <xacro:property name="prefix" value="${tf_prefix}" lazy_eval="false" />
-  <xacro:if value="${prefix != ''}">
-    <xacro:property name="prefix" value="${tf_prefix}_" />
-  </xacro:if>
+    <xacro:if value="${tf_prefix == 'None'}">
+      <xacro:property name="prefix" value="" />
+    </xacro:if>
+    <xacro:unless value="${tf_prefix == 'None'}">
+      <xacro:property name="prefix" value="${tf_prefix}_" />
+    </xacro:unless>
 
     <joint name="${parent.rstrip('_link')}_${prefix}${side}_range_joint" type="fixed">
       <origin xyz="${xyz}" rpy="${rpy}" />

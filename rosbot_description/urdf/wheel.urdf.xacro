@@ -3,10 +3,12 @@
   <!-- wheel defining macro -->
   <xacro:macro name="wheel" params="wheel_radius side mecanum tf_prefix">
 
-  <xacro:property name="prefix" value="${tf_prefix}" lazy_eval="false" />
-  <xacro:if value="${prefix != ''}">
-    <xacro:property name="prefix" value="${tf_prefix}_" />
-  </xacro:if>
+    <xacro:if value="${tf_prefix == 'None'}">
+      <xacro:property name="prefix" value="" />
+    </xacro:if>
+    <xacro:unless value="${tf_prefix == 'None'}">
+      <xacro:property name="prefix" value="${tf_prefix}_" />
+    </xacro:unless>
 
     <xacro:property name="wheel_separation_x" value="0.106" />
 
