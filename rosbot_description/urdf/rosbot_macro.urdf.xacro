@@ -127,10 +127,10 @@
           <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
             <xacro:if value="${use_multirobot_system}">
               <xacro:if value="${mecanum}">
-                <parameters>$(find rosbot_gazebo)/config/multi_mecanum_drive_controller.yaml</parameters>
+                <parameters>$(find rosbot_bringup)/config/multi_mecanum_drive_controller.yaml</parameters>
               </xacro:if>
               <xacro:unless value="${mecanum}">
-                <parameters>$(find rosbot_gazebo)/config/multi_diff_drive_controller.yaml</parameters>
+                <parameters>$(find rosbot_bringup)/config/multi_diff_drive_controller.yaml</parameters>
               </xacro:unless>
             </xacro:if>
 
