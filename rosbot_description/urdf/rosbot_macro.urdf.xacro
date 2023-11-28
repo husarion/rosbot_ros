@@ -125,26 +125,23 @@
       <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
         <gazebo>
           <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-            <xacro:if value="${use_multirobot_system}">
-              <xacro:if value="${mecanum}">
-                <parameters>$(find rosbot_bringup)/config/multi_mecanum_drive_controller.yaml</parameters>
-              </xacro:if>
-              <xacro:unless value="${mecanum}">
-                <parameters>$(find rosbot_bringup)/config/multi_diff_drive_controller.yaml</parameters>
-              </xacro:unless>
-            </xacro:if>
 
+            <xacro:if value="${use_multirobot_system}">
+              <xacro:property name="controller_config_prefix" value="multi_" />
+            </xacro:if>
             <xacro:unless value="${use_multirobot_system}">
-              <xacro:if value="${mecanum}">
-                <parameters>$(find rosbot_bringup)/config/mecanum_drive_controller.yaml</parameters>
-              </xacro:if>
-              <xacro:unless value="${mecanum}">
-                <parameters>$(find rosbot_bringup)/config/diff_drive_controller.yaml</parameters>
-              </xacro:unless>
+              <xacro:property name="controller_config_prefix" value="simulation_" />
+            </xacro:unless>
+
+            <xacro:if value="${mecanum}">
+              <parameters>$(find rosbot_controller)/config/${controller_config_prefix}mecanum_drive_controller.yaml</parameters>
+            </xacro:if>
+            <xacro:unless value="${mecanum}">
+              <parameters>$(find rosbot_controller)/config/${controller_config_prefix}diff_drive_controller.yaml</parameters>
             </xacro:unless>
 
             <ros>
-              <namespace>${namespace}</namespace>
+              <namespace>${namespace_ext}</namespace>
               <remapping>rosbot_base_controller/cmd_vel_unstamped:=cmd_vel</remapping>
               <remapping>/tf:=tf</remapping>
             </ros>
@@ -161,7 +158,7 @@
             <frame_id>imu_link</frame_id>
             <ignition_frame_id>imu_link</ignition_frame_id>
             <ros>
-              <namespace>${namespace}</namespace>
+              <namespace>${namespace_ext}</namespace>
             </ros>
           </sensor>
         </gazebo>
