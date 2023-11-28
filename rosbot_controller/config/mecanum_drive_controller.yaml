@@ -12,8 +12,9 @@
 
 /**/imu_broadcaster:
   ros__parameters:
-    sensor_name: imu
-    tf_frame_prefix_enable: False
+    tf_frame_prefix_enable: false
+    # Overwritten in controller.launch.py
+    # sensor_name: imu
     frame_id: imu_link
     static_covariance_orientation: [1.9e-3, 0.0, 0.0, 0.0, 1.9e-3, 0.0, 0.0, 0.0, 1.9e-3] # Values taken from datasheet
     static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values based on diff_drive
@@ -21,11 +22,12 @@
 
 /**/rosbot_base_controller:
   ros__parameters:
-    tf_frame_prefix_enable: False
-    front_left_wheel_name: fl_wheel_joint
-    front_right_wheel_name: fr_wheel_joint
-    rear_left_wheel_name: rl_wheel_joint
-    rear_right_wheel_name: rr_wheel_joint
+    tf_frame_prefix_enable: false
+    # Overwritten in controller.launch.py
+    # front_left_wheel_name: fl_wheel_joint
+    # front_right_wheel_name: fr_wheel_joint
+    # rear_left_wheel_name: rl_wheel_joint
+    # rear_right_wheel_name: rr_wheel_joint
 
     wheel_separation_x: 0.106
     wheel_separation_y: 0.192

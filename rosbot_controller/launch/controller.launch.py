@@ -76,12 +76,12 @@ def generate_launch_description():
         ]
     )
 
-    namespace_for_controller_name = PythonExpression(
+    namespace_ext = PythonExpression(
         ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
     )
     controller_manager_name = LaunchConfiguration(
         "controller_manager_name",
-        default=[namespace_for_controller_name, "controller_manager"],
+        default=[namespace_ext, "controller_manager"],
     )
 
     # Get URDF via xacro
@@ -124,6 +124,60 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_controllers,
+            {
+                "left_wheel_names": LaunchConfiguration(
+                    "left_wheels_joints",
+                    default=[
+                        "[",
+                        namespace_ext,
+                        "fl_wheel_joint,",
+                        namespace_ext,
+                        "rl_wheel_joint]",
+                    ],
+                )
+            },
+            {
+                "right_wheel_names": LaunchConfiguration(
+                    "right_wheels_joints",
+                    default=[
+                        "[",
+                        namespace_ext,
+                        "fr_wheel_joint,",
+                        namespace_ext,
+                        "rr_wheel_joint]",
+                    ],
+                )
+            },
+            {
+                "sensor_name": LaunchConfiguration(
+                    "imu_sensor_name",
+                    default=[namespace, "/imu"],
+                )
+            },
+            {
+                "front_left_wheel_name": LaunchConfiguration(
+                    "front_left_wheel_name",
+                    default=[namespace_ext, "fl_wheel_joint"],
+                ),
+            },
+            {
+                "front_right_wheel_name": LaunchConfiguration(
+                    "front_right_wheel_name",
+                    default=[namespace_ext, "fr_wheel_joint"],
+                ),
+            },
+            {
+                "rear_left_wheel_name": LaunchConfiguration(
+                    "rear_left_wheel_name",
+                    default=[namespace_ext, "rl_wheel_joint"],
+                ),
+            },
+            {
+                "rear_right_wheel_name": LaunchConfiguration(
+                    "rear_right_wheel_name",
+                    default=[namespace_ext, "rr_wheel_joint"],
+                ),
+            },
         ],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
