@@ -23,18 +23,26 @@ def test_rosbot_description_parsing():
     use_sim_values = ["true", "false"]
     use_gpu_values = ["true", "false"]
     simulation_engine_values = ["ignition-gazebo", "webots"]  # 'gazebo-classic'
+    use_multirobot_system_values = ["true", "false"]
 
     all_combinations = list(
-        itertools.product(mecanum_values, use_sim_values, use_gpu_values, simulation_engine_values)
+        itertools.product(
+            mecanum_values,
+            use_sim_values,
+            use_gpu_values,
+            simulation_engine_values,
+            use_multirobot_system_values,
+        )
     )
 
     for combination in all_combinations:
-        mecanum, use_sim, use_gpu, simulation_engine = combination
+        mecanum, use_sim, use_gpu, simulation_engine, use_multirobot_system = combination
         mappings = {
             "mecanum": mecanum,
             "use_sim": use_sim,
             "use_gpu": use_gpu,
             "simulation_engine": simulation_engine,
+            "use_multirobot_system": use_multirobot_system,
         }
         rosbot_description = get_package_share_directory("rosbot_description")
         xacro_path = os.path.join(rosbot_description, "urdf/rosbot.urdf.xacro")

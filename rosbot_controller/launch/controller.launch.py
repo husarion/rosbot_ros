@@ -68,6 +68,13 @@ def generate_launch_description():
         choices=["ignition-gazebo", "gazebo-classic", "webots"],
     )
 
+    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
+    declare_use_multirobot_system_arg = DeclareLaunchArgument(
+        "use_multirobot_system",
+        default_value="false",
+        description="Enable correct Ignition Gazebo configuration in URDF",
+    )
+
     controller_config_name = PythonExpression(
         [
             "'mecanum_drive_controller.yaml' if ",
@@ -106,6 +113,8 @@ def generate_launch_description():
             simulation_engine,
             " namespace:=",
             namespace,
+            " use_multirobot_system:=",
+            use_multirobot_system,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -265,6 +274,7 @@ def generate_launch_description():
             declare_use_sim_arg,
             declare_use_gpu_arg,
             declare_simulation_engine_arg,
+            declare_use_multirobot_system_arg,
             SetParameter("use_sim_time", value=use_sim),
             control_node,
             robot_state_pub_node,

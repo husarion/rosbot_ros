@@ -132,12 +132,12 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "use_multirobot_system": use_multirobot_system,
             "mecanum": mecanum,
             "use_sim": "True",
             "use_gpu": use_gpu,
             "simulation_engine": "ignition-gazebo",
             "namespace": namespace,
+            "use_multirobot_system": use_multirobot_system,
         }.items(),
     )
 
