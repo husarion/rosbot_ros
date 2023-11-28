@@ -24,12 +24,19 @@ from launch.substitutions import (
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import SetParameter
 
 from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
+    namespace = LaunchConfiguration("namespace")
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="Namespace for all topics and tfs",
+    )
+
     mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
@@ -85,59 +92,13 @@ def generate_launch_description():
         }.items(),
     )
 
-    gz_spawn_entity = Node(
-        package="ros_gz_sim",
-        executable="create",
-        arguments=[
-            "-name",
-            "rosbot",
-            "-allow_renaming",
-            "true",
-            "-topic",
-            "robot_description",
-            "-x",
-            "0",
-            "-y",
-            "2.0",
-            "-z",
-            "0.2",
-        ],
-        output="screen",
-    )
-
-    ign_bridge = Node(
-        package="ros_gz_bridge",
-        executable="parameter_bridge",
-        name="ros_gz_bridge",
-        arguments=[
-            "/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-            "/camera/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo",
-            "/camera/depth_image@sensor_msgs/msg/Image[ignition.msgs.Image",
-            "/camera/image@sensor_msgs/msg/Image[ignition.msgs.Image",
-            "/camera/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked",
-            "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
-            # an IR sensor is not implemented yet https://github.com/gazebosim/gz-sensors/issues/19
-            "/range/fl@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-            "/range/fr@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-            "/range/rl@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-            "/range/rr@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-        ],
-        remappings=[
-            ("/camera/camera_info", "/camera/color/camera_info"),
-            ("/camera/image", "/camera/color/image_raw"),
-            ("/camera/depth_image", "/camera/depth/image_raw"),
-            ("/camera/points", "/camera/depth/points"),
-        ],
-        output="screen",
-    )
-
-    bringup_launch = IncludeLaunchDescription(
+    spawn_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
-                    get_package_share_directory("rosbot_bringup"),
+                    get_package_share_directory("rosbot_gazebo"),
                     "launch",
-                    "bringup.launch.py",
+                    "spawn.launch.py",
                 ]
             )
         ),
@@ -146,30 +107,19 @@ def generate_launch_description():
             "use_sim": "True",
             "use_gpu": use_gpu,
             "simulation_engine": "ignition-gazebo",
+            "namespace": namespace,
+            "x": LaunchConfiguration("x", default="0.00"),
+            "y": LaunchConfiguration("y", default="2.00"),
+            "z": LaunchConfiguration("z", default="0.20"),
+            "roll": LaunchConfiguration("roll", default="0.00"),
+            "pitch": LaunchConfiguration("pitch", default="0.00"),
+            "yaw": LaunchConfiguration("yaw", default="0.00"),
         }.items(),
-    )
-
-    # The frame of the pointcloud from ignition gazebo 6 isn't provided by <frame_id>.
-    # See https://github.com/gazebosim/gz-sensors/issues/239
-    depth_cam_frame_fixer = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        name="depth_to_camera",
-        output="log",
-        arguments=[
-            "0.0",
-            "0.0",
-            "0.0",
-            "1.57",
-            "-1.57",
-            "0.0",
-            "camera_depth_optical_frame",
-            "rosbot/base_link/camera_orbbec_astra_camera",
-        ],
     )
 
     return LaunchDescription(
         [
+            declare_namespace_arg,
             declare_mecanum_arg,
             declare_world_arg,
             declare_headless_arg,
@@ -178,9 +128,6 @@ def generate_launch_description():
             # (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
             gz_sim,
-            ign_bridge,
-            gz_spawn_entity,
-            bringup_launch,
-            depth_cam_frame_fixer,
+            spawn_launch,
         ]
     )

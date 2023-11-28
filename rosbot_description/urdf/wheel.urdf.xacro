@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- wheel defining macro -->
-  <xacro:macro name="wheel" params="wheel_radius side mecanum tf_prefix">
+  <xacro:macro name="wheel" params="wheel_radius side mecanum namespace=None">
 
-    <xacro:if value="${tf_prefix == 'None'}">
-      <xacro:property name="tf_prefix_ext" value="" />
+    <xacro:if value="${namespace == 'None'}">
+      <xacro:property name="namespace_ext" value="" />
     </xacro:if>
-    <xacro:unless value="${tf_prefix == 'None'}">
-      <xacro:property name="tf_prefix_ext" value="${tf_prefix}_" />
+    <xacro:unless value="${namespace == 'None'}">
+      <xacro:property name="namespace_ext" value="${namespace}/" />
     </xacro:unless>
 
     <xacro:property name="wheel_separation_x" value="0.106" />
@@ -65,16 +65,16 @@
       <xacro:property name="fdir" value="1.0 -1.0 0.0" />
     </xacro:if>
 
-    <joint name="${tf_prefix_ext}${side}_wheel_joint" type="continuous">
-      <parent link="${tf_prefix_ext}body_link" />
-      <child link="${tf_prefix_ext}${side}_wheel_link" />
+    <joint name="${namespace_ext}${side}_wheel_joint" type="continuous">
+      <parent link="body_link" />
+      <child link="${side}_wheel_link" />
       <origin xyz="${x} ${y} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0.0 1.0 0.0" />
       <limit effort="1.5" velocity="24.0" />
       <dynamics damping="0.001" friction="0.001" />
     </joint>
 
-    <link name="${tf_prefix_ext}${side}_wheel_link">
+    <link name="${side}_wheel_link">
       <visual>
         <geometry>
           <mesh filename="${mesh}" scale="1.0 1.0 1.0" />
@@ -97,14 +97,14 @@
       </inertial>
     </link>
 
-    <gazebo reference="${tf_prefix_ext}${side}_wheel_link" xmlns:ignition="http://ignitionrobotics.org/schema">
+    <gazebo reference="${side}_wheel_link" xmlns:ignition="http://ignitionrobotics.org/schema">
       <collision>
         <surface>
           <friction>
             <ode>
               <mu>1.0</mu>
               <mu2>0.0</mu2>
-              <fdir1 ignition:expressed_in="${tf_prefix_ext}base_link">${fdir}</fdir1>
+              <fdir1 ignition:expressed_in="base_link">${fdir}</fdir1>
             </ode>
           </friction>
         </surface>

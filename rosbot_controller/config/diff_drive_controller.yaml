@@ -1,25 +1,6 @@
-simulation_ignition_ros_control:
-  ros__parameters:
-    use_sim_time: true
-
-# Separate controller manager used for simulation - only difference is
-# the use_sim_time parameter (it is the easiest way to do it with ign ros2 control)
-/**/simulation_controller_manager:
-  ros__parameters:
-    use_sim_time: true
-    update_rate: 20 # Hz
-
-    joint_state_broadcaster:
-      type: joint_state_broadcaster/JointStateBroadcaster
-    rosbot_base_controller:
-      type: diff_drive_controller/DiffDriveController
-    imu_broadcaster:
-      type: imu_sensor_broadcaster/IMUSensorBroadcaster
-
-
 /**/controller_manager:
   ros__parameters:
-    use_sim_time: false
+    use_sim_time: False
     update_rate: 20 # Hz
 
     joint_state_broadcaster:
@@ -32,7 +13,7 @@ simulation_ignition_ros_control:
 /**/imu_broadcaster:
   ros__parameters:
     sensor_name: imu
-    tf_frame_prefix_enable: True
+    tf_frame_prefix_enable: False
     frame_id: imu_link
     static_covariance_orientation: [1.9e-3, 0.0, 0.0, 0.0, 1.9e-3, 0.0, 0.0, 0.0, 1.9e-3] # Values taken from datasheet
     static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values measured experimentally
@@ -40,7 +21,8 @@ simulation_ignition_ros_control:
 
 /**/rosbot_base_controller:
   ros__parameters:
-    tf_frame_prefix_enable: True
+    tf_frame_prefix_enable: False
+
     left_wheel_names: ["fl_wheel_joint", "rl_wheel_joint"]
     right_wheel_names: ["fr_wheel_joint", "rr_wheel_joint"]
 

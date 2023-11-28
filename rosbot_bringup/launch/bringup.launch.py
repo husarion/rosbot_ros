@@ -17,14 +17,11 @@ from launch_ros.actions import Node, SetParameter
 from ament_index_python.packages import get_package_share_directory
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
-    namespace_tf_prefix = PythonExpression(
-        ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "_'"]
-    )
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
@@ -91,28 +88,10 @@ def generate_launch_description():
         executable="ekf_node",
         name="ekf_filter_node",
         output="screen",
-        parameters=[
-            ekf_config,
-            {
-                "map_frame": LaunchConfiguration(
-                    "ekf_map_frame", default=[namespace_tf_prefix, "map"]
-                )
-            },
-            {
-                "odom_frame": LaunchConfiguration(
-                    "ekf_odom_frame", default=[namespace_tf_prefix, "odom"]
-                )
-            },
-            {
-                "base_link_frame": LaunchConfiguration(
-                    "ekf_base_link_frame", default=[namespace_tf_prefix, "base_link"]
-                )
-            },
-            {
-                "world_frame": LaunchConfiguration(
-                    "ekf_world_frame", default=[namespace_tf_prefix, "odom"]
-                )
-            },
+        parameters=[ekf_config],
+        remappings=[
+            ("/tf", "tf"),
+            ("/tf_static", "tf_static"),
         ],
         namespace=namespace,
     )

@@ -76,20 +76,12 @@ def generate_launch_description():
         ]
     )
 
-    controller_manager_type_name = PythonExpression(
-        [
-            "'simulation_controller_manager' if ",
-            use_sim,
-            " else 'controller_manager'",
-        ]
-    )
-
     namespace_for_controller_name = PythonExpression(
         ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
     )
     controller_manager_name = LaunchConfiguration(
         "controller_manager_name",
-        default=[namespace_for_controller_name, controller_manager_type_name],
+        default=[namespace_for_controller_name, "controller_manager"],
     )
 
     # Get URDF via xacro
@@ -112,7 +104,7 @@ def generate_launch_description():
             use_gpu,
             " simulation_engine:=",
             simulation_engine,
-            " tf_prefix:=",
+            " namespace:=",
             namespace,
         ]
     )
@@ -132,17 +124,14 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_controllers,
-            {
-                "tf_frame_prefix": LaunchConfiguration(
-                    "rosbot_base_tf_frame_prefix", default=[namespace]
-                )
-            },
         ],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
             ("rosbot_base_controller/cmd_vel_unstamped", "cmd_vel"),
+            ("/tf", "tf"),
+            ("/tf_static", "tf_static"),
         ],
         condition=UnlessCondition(use_sim),
         namespace=namespace,
@@ -152,6 +141,7 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[robot_description],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         namespace=namespace,
     )
 
