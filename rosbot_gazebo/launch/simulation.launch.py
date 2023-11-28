@@ -46,6 +46,13 @@ def generate_launch_description():
         ),
     )
 
+    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
+    declare_use_multirobot_system_arg = DeclareLaunchArgument(
+        "use_multirobot_system",
+        default_value="false",
+        description="Enable correct Ignition Gazebo configuration in URDF",
+    )
+
     world_package = get_package_share_directory("husarion_office_gz")
     world_file = PathJoinSubstitution([world_package, "worlds", "husarion_world.sdf"])
     world_cfg = LaunchConfiguration("world")
@@ -62,9 +69,9 @@ def generate_launch_description():
 
     headless_cfg = PythonExpression(
         [
-            "'--headless-rendering -s -r' if ",
+            "'--headless-rendering -s -v 4 -r' if ",
             headless,
-            " else '-r'",
+            " else '-r -v 4 '",
         ]
     )
     gz_args = [headless_cfg, " ", world_cfg]
@@ -104,6 +111,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "mecanum": mecanum,
+            "use_multirobot_system": use_multirobot_system,
             "use_sim": "True",
             "use_gpu": use_gpu,
             "simulation_engine": "ignition-gazebo",
@@ -120,6 +128,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             declare_namespace_arg,
+            declare_use_multirobot_system_arg,
             declare_mecanum_arg,
             declare_world_arg,
             declare_headless_arg,

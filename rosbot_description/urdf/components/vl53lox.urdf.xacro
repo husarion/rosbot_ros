@@ -13,7 +13,7 @@
 
     <!-- an IR sensor or a sonar are not implemented yet
     https://github.com/gazebosim/gz-sensors/issues/19 -->
-    <!-- <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
+    <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
       <gazebo reference="${prefix}_range">
         <sensor name="${prefix}_range" type='gpu_lidar'>
 
@@ -45,8 +45,11 @@
           <always_on>true</always_on>
           <visualize>false</visualize>
         </sensor>
+        <plugin filename="libignition-gazebo-sensors-system.so"  name="ignition::gazebo::systems::Sensors">
+          <render_engine>ogre2</render_engine>
+        </plugin>
       </gazebo>
-    </xacro:if> -->
+    </xacro:if>
 
   </xacro:macro>
 </robot>

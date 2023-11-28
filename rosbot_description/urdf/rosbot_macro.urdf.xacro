@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace">
+  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace use_multirobot_system">
 
     <xacro:if value="${namespace == 'None'}">
       <xacro:property name="namespace_ext" value="" />
@@ -21,7 +21,7 @@
     <xacro:include filename="$(find rosbot_description)/urdf/wheel.urdf.xacro" ns="wheel" />
 
     <!-- BODY DECLARATION -->
-    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" use_gpu="${use_gpu}" />
+    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" use_gpu="${use_gpu}" use_multirobot_system="${use_multirobot_system}"/>
 
     <!-- WHEEL DECLARATION -->
     <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fr" mecanum="${mecanum}" namespace="${namespace}" />
@@ -125,23 +125,23 @@
       <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
         <gazebo>
           <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-            <xacro:unless value="${namespace == 'None'}">
+            <xacro:if value="${use_multirobot_system}">
               <xacro:if value="${mecanum}">
                 <parameters>$(find rosbot_gazebo)/config/multi_mecanum_drive_controller.yaml</parameters>
               </xacro:if>
               <xacro:unless value="${mecanum}">
                 <parameters>$(find rosbot_gazebo)/config/multi_diff_drive_controller.yaml</parameters>
               </xacro:unless>
-            </xacro:unless>
+            </xacro:if>
 
-            <xacro:if value="${namespace == 'None'}">
+            <xacro:unless value="${use_multirobot_system}">
               <xacro:if value="${mecanum}">
                 <parameters>$(find rosbot_bringup)/config/mecanum_drive_controller.yaml</parameters>
               </xacro:if>
               <xacro:unless value="${mecanum}">
                 <parameters>$(find rosbot_bringup)/config/diff_drive_controller.yaml</parameters>
               </xacro:unless>
-            </xacro:if>
+            </xacro:unless>
 
             <ros>
               <namespace>${namespace}</namespace>
@@ -155,7 +155,7 @@
             <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"></plugin>
             <always_on>true</always_on>
             <update_rate>25</update_rate>
-            <topic>imu/data_raw</topic>
+            <topic>${namespace_ext}imu/data_raw</topic>
             <visualize>false</visualize>
             <enable_metrics>false</enable_metrics>
             <frame_id>imu_link</frame_id>

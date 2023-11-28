@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- body defining macro -->
-  <xacro:macro name="body" params="wheel_radius mecanum use_gpu">
+  <xacro:macro name="body" params="wheel_radius mecanum use_gpu use_multirobot_system">
     <xacro:include filename="$(find rosbot_description)/urdf/components/vl53lox.urdf.xacro" ns="range_sensor" />
 
     <link name="base_link" />
