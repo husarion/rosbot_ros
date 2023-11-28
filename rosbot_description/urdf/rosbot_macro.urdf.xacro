@@ -102,7 +102,7 @@
         <state_interface name="velocity" />
       </joint>
 
-      <!-- <xacro:if value="${use_sim}">
+      <xacro:if value="${use_sim}">
         <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
           <sensor name="${namespace_ext}imu">
             <state_interface name="orientation.x" />
@@ -117,7 +117,7 @@
             <state_interface name="linear_acceleration.z" />
           </sensor>
         </xacro:if>
-      </xacro:if> -->
+      </xacro:if>
     </ros2_control>
 
     <!-- GAZEBO PLUGINS DECLARATION -->
@@ -150,7 +150,7 @@
             </ros>
           </plugin>
         </gazebo>
-        <!-- <gazebo reference="imu_link">
+        <gazebo reference="imu_link">
           <sensor name="${namespace_ext}imu" type="imu">
             <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"></plugin>
             <always_on>true</always_on>
@@ -164,7 +164,7 @@
               <namespace>${namespace}</namespace>
             </ros>
           </sensor>
-        </gazebo>-->
+        </gazebo>
       </xacro:if>
 
       <xacro:if value="${simulation_engine == 'gazebo-classic'}">
