@@ -151,7 +151,7 @@ def generate_launch_description():
             {
                 "sensor_name": LaunchConfiguration(
                     "imu_sensor_name",
-                    default=[namespace, "/imu"],
+                    default=[namespace_ext, "imu"],
                 )
             },
             {
