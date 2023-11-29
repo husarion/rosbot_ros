@@ -67,15 +67,12 @@
           <param name="connection_check_period_ms">500</param>
 
           <!-- Firmware from https://github.com/husarion/rosbot_ros2_firmware could not override this names -->
-          <!-- The tf_prefix parameter adds correct tf_prefix -->
-          <!-- order of velocity commands to be published in motors_cmd Float32MultiArray msg -->
           <param name="velocity_command_joint_order">
                 rr_wheel_joint,
                 rl_wheel_joint,
                 fr_wheel_joint,
                 fl_wheel_joint
           </param>
-          <param name="tf_prefix">${namespace_ext}</param>
         </xacro:unless>
 
         <xacro:if value="$(arg use_sim)">
