@@ -61,7 +61,7 @@ def generate_test_description():
         ),
         launch_arguments={
             "use_sim": "False",
-            "mecanum": "True",
+            "mecanum": "False",
             "use_gpu": "False",
             "namespace": robot_names[1],
         }.items(),
@@ -73,7 +73,7 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_namespaced_controllers_startup_success():
+def test_multirobot_controllers_startup_success():
     for robot_name in robot_names:
         rclpy.init()
         try:
