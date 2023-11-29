@@ -43,7 +43,6 @@ def generate_test_description():
             "use_sim": "False",
             "mecanum": "True",
             "use_gpu": "False",
-            "namespace": "rosbot2r",
         }.items(),
     )
 

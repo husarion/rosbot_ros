@@ -43,6 +43,7 @@ def generate_test_description():
             "use_sim": "False",
             "mecanum": "False",
             "use_gpu": "False",
+            "namespace": "rosbot2r",
         }.items(),
     )
 
@@ -50,10 +51,10 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_controllers_startup_fail():
+def test_namespaced_controllers_startup_fail():
     rclpy.init()
     try:
-        node = ControllersTestNode("test_controllers_bringup")
+        node = ControllersTestNode("test_controllers_bringup", namespace="rosbot2r")
         node.create_test_subscribers_and_publishers()
 
         node.start_node_thread()
@@ -77,10 +78,10 @@ def test_controllers_startup_fail():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_controllers_startup_success():
+def test_namespaced_controllers_startup_success():
     rclpy.init()
     try:
-        node = ControllersTestNode("test_controllers_bringup")
+        node = ControllersTestNode("test_controllers_bringup", namespace="rosbot2r")
         node.create_test_subscribers_and_publishers()
         node.start_publishing_fake_hardware()
 
