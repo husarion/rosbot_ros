@@ -25,51 +25,38 @@ from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from test_utils import BringupTestNode
 
-robot_names = ["rosbot1", "rosbot2"]
+robot_names = ["rosbot1", "rosbot2", "rosbot3", "rosbot4"]
 
 
 @launch_pytest.fixture
 def generate_test_description():
     rosbot_bringup = get_package_share_directory("rosbot_bringup")
-    bringup_rosbot1_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    rosbot_bringup,
-                    "launch",
-                    "bringup.launch.py",
-                ]
-            )
-        ),
-        launch_arguments={
-            "use_sim": "False",
-            "mecanum": "False",
-            "use_gpu": "False",
-            "namespace": robot_names[0],
-        }.items(),
-    )
+    actions = []
+    for i in range(robot_names):
+        bringup_launch = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution(
+                    [
+                        rosbot_bringup,
+                        "launch",
+                        "bringup.launch.py",
+                    ]
+                )
+            ),
+            launch_arguments={
+                "use_sim": "False",
+                "mecanum": "False",
+                "use_gpu": "False",
+                "namespace": robot_names[i],
+            }.items(),
+        )
+        if i > 0:
+            delayed_bringup_launch = TimerAction(period=i * 10.0, actions=[bringup_launch])
+            actions.append(delayed_bringup_launch)
+        else:
+            actions.append(bringup_launch)
 
-    bringup_rosbot2_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    rosbot_bringup,
-                    "launch",
-                    "bringup.launch.py",
-                ]
-            )
-        ),
-        launch_arguments={
-            "use_sim": "False",
-            "mecanum": "True",
-            "use_gpu": "False",
-            "namespace": robot_names[1],
-        }.items(),
-    )
-
-    delayed_spawn_robot2 = TimerAction(period=10.0, actions=[bringup_rosbot2_launch])
-
-    return LaunchDescription([bringup_rosbot1_launch, delayed_spawn_robot2])
+    return LaunchDescription(actions)
 
 
 @pytest.mark.launch(fixture=generate_test_description)
@@ -77,7 +64,7 @@ def test_multirobot_bringup_startup_success():
     for robot_name in robot_names:
         rclpy.init()
         try:
-            node = BringupTestNode(f"test_bringup_{robot_name}", namespace=robot_name)
+            node = BringupTestNode("test_bringup", namespace=robot_name)
             node.create_test_subscribers_and_publishers()
             node.start_publishing_fake_hardware()
 
