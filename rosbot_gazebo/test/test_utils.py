@@ -41,14 +41,14 @@ class SimulationTestNode(Node):
         self.v_y = 0.0
         self.v_yaw = 0.0
 
-        self.controller_odom_event = Event()
-        self.ekf_odom_event = Event()
+        self.controller_odom_flag = False
+        self.ekf_odom_flag = False
         self.odom_tf_event = Event()
         self.scan_event = Event()
 
     def clear_odom_events(self):
-        self.controller_odom_event.clear()
-        self.ekf_odom_event.clear()
+        self.controller_odom_flag = False
+        self.ekf_odom_flag = False
 
     def set_destination_speed(self, v_x, v_y, v_yaw):
         self.clear_odom_events()
@@ -91,11 +91,15 @@ class SimulationTestNode(Node):
 
     def controller_callback(self, data: Odometry):
         if self.is_twist_ok(data.twist.twist):
-            self.controller_odom_event.set()
+            self.controller_odom_flag = True
+        else:
+            self.controller_odom_flag = False
 
     def ekf_callback(self, data: Odometry):
         if self.is_twist_ok(data.twist.twist):
-            self.ekf_odom_event.set()
+            self.ekf_odom_flag = True
+        else:
+            self.controller_odom_flag = False
 
     def lookup_transform_odom(self):
         try:
