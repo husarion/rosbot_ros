@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
   <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace use_multirobot_system">
 
-    <!-- Namespaces are necessary only with multiple robot system in Ignition Gazego because
+    <!-- Namespaces are necessary only with multiple robot system in Ignition Gazebo because
          the same joint states crashes the simulator.
     -->
     <xacro:unless value="${use_multirobot_system}">
