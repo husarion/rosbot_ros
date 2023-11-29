@@ -32,7 +32,7 @@ robot_names = ["rosbot1", "rosbot2", "rosbot3", "rosbot4"]
 def generate_test_description():
     rosbot_controller = get_package_share_directory("rosbot_controller")
     actions = []
-    for i in range(robot_names):
+    for i in range(len(robot_names)):
         controller_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution(
