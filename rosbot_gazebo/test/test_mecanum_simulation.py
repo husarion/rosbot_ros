@@ -67,7 +67,7 @@ def test_mecanum_simulation():
         time.sleep(3)  # Wait 3 seconds for the velocity ​​to stabilize
         assert (
             node.controller_odom_flag
-        ), "ROSbot does not move properly in x direction. Check rosbot_xl_base_controller!"
+        ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
         assert (
             node.ekf_odom_flag
         ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
@@ -76,7 +76,7 @@ def test_mecanum_simulation():
         time.sleep(3)  # Wait 3 seconds for the velocity ​​to stabilize
         assert (
             node.controller_odom_flag
-        ), "ROSbot does not move properly in y direction. Check rosbot_xl_base_controller!"
+        ), "ROSbot does not move properly in y direction. Check rosbot_base_controller!"
         assert (
             node.ekf_odom_flag
         ), "ROSbot does not move properly in y direction. Check ekf_filter_node!"
