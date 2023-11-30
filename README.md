@@ -54,6 +54,9 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 
 vcs import src < src/rosbot/rosbot_hardware.repos
 
+# Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
+cp -r src/ros2_controllers/diff_drive_controller . && cp -r src/ros2_controllers/imu_sensor_broadcaster . && rm -rf src/ros2_controllers
+
 rm -r src/rosbot_gazebo
 
 rosdep init
@@ -93,6 +96,9 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 
 vcs import src < src/rosbot/rosbot_hardware.repos
 vcs import src < src/rosbot/rosbot_simulation.repos
+
+# Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
+cp -r src/ros2_controllers/diff_drive_controller . && cp -r src/ros2_controllers/imu_sensor_broadcaster . && rm -rf src/ros2_controllers
 
 rosdep init
 rosdep update --rosdistro $ROS_DISTRO
