@@ -79,9 +79,9 @@ class SimulationTestNode(Node):
         self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def is_twist_ok(self, twist: Twist):
-        def are_close_to_each_other(true_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
+        def are_close_to_each_other(current_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
             acceptable_range = dest_value * tolerance
-            return abs(true_value - dest_value) <= acceptable_range + eps
+            return abs(current_value - dest_value) <= acceptable_range + eps
 
         x_ok = are_close_to_each_other(twist.linear.x, self.v_x)
         y_ok = are_close_to_each_other(twist.linear.y, self.v_y)
@@ -90,16 +90,10 @@ class SimulationTestNode(Node):
         return x_ok and y_ok and yaw_ok
 
     def controller_callback(self, data: Odometry):
-        if self.is_twist_ok(data.twist.twist):
-            self.controller_odom_flag = True
-        else:
-            self.controller_odom_flag = False
+        self.controller_odom_flag = self.is_twist_ok(data.twist.twist)
 
     def ekf_callback(self, data: Odometry):
-        if self.is_twist_ok(data.twist.twist):
-            self.ekf_odom_flag = True
-        else:
-            self.ekf_odom_flag = False
+        self.ekf_odom_flag = self.is_twist_ok(data.twist.twist)
 
     def lookup_transform_odom(self):
         try:
