@@ -99,7 +99,7 @@ class SimulationTestNode(Node):
         if self.is_twist_ok(data.twist.twist):
             self.ekf_odom_flag = True
         else:
-           self.ekf_odom_flag = False
+            self.ekf_odom_flag = False
 
     def lookup_transform_odom(self):
         try:
