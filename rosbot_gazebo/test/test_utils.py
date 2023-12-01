@@ -38,6 +38,10 @@ class SimulationTestNode(Node):
     def __init__(self, name="test_node"):
         super().__init__(name)
 
+        # Use simulation time to correct run on slow machine
+        use_sim_time = rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
+        self.set_parameters([use_sim_time])
+
         self.VELOCITY_STABILIZATION_DELAY = 3
         self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
         self.vel_stabilization_time_event = Event()
