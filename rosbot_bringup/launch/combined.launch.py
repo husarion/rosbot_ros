@@ -32,9 +32,8 @@ def generate_microros_agent_node(context, *args, **kwargs):
         "localhost_only_fastrtps_profiles_file"
     ).perform(context)
 
-    # Check ROS_LOCALHOST_ONLY environment variable
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
-        # Set RMW_IMPLEMENTATION and FASTRTPS_DEFAULT_PROFILES_FILE
+        # with localhost only setup fastdds is required with a custom config
         rmw_implementation = "rmw_fastrtps_cpp"
         return [
             SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value=rmw_implementation),
