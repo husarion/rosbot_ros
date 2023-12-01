@@ -41,8 +41,9 @@ def generate_test_description():
         ),
         launch_arguments={
             "use_sim": "False",
-            "mecanum": "False",
+            "mecanum": "True",
             "use_gpu": "False",
+            "namespace": "rosbot2r",
         }.items(),
     )
 
@@ -50,10 +51,10 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_bringup_startup_success():
+def test_namespaced_bringup_startup_success():
     rclpy.init()
     try:
-        node = BringupTestNode("test_bringup")
+        node = BringupTestNode("test_bringup", namespace="rosbot2r")
         node.create_test_subscribers_and_publishers()
         node.start_publishing_fake_hardware()
 

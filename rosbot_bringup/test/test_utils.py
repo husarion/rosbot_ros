@@ -21,9 +21,7 @@ from threading import Thread
 from rclpy.node import Node
 
 from sensor_msgs.msg import JointState, Imu
-from tf2_ros import TransformException
-from tf2_ros.buffer import Buffer
-from tf2_ros.transform_listener import TransformListener
+from nav_msgs.msg import Odometry
 
 
 class BringupTestNode(Node):
@@ -31,26 +29,19 @@ class BringupTestNode(Node):
 
     __test__ = False
 
-    def __init__(self, name="test_node"):
-        super().__init__(name)
-        self.odom_tf_event = Event()
+    def __init__(self, name="test_node", namespace=None):
+        super().__init__(name, namespace=namespace)
+        self.odom_msg_event = Event()
 
     def create_test_subscribers_and_publishers(self):
-        self.imu_publisher = self.create_publisher(Imu, "_imu/data_raw", 10)
+        self.imu_publisher = self.create_publisher(Imu, "/_imu/data_raw", 10)
 
-        self.joint_states_publisher = self.create_publisher(JointState, "_motors_response", 10)
+        self.joint_states_publisher = self.create_publisher(JointState, "/_motors_response", 10)
 
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
-
+        self.odom_sub = self.create_subscription(
+            Odometry, "odometry/filtered", self.odometry_callback, 10
+        )
         self.timer = None
-
-    def lookup_transform_odom(self):
-        try:
-            self.tf_buffer.lookup_transform("odom", "base_link", rclpy.time.Time())
-            self.odom_tf_event.set()
-        except TransformException as ex:
-            self.get_logger().error(f"Could not transform odom to base_link: {ex}")
 
     def start_node_thread(self):
         self.ros_spin_thread = Thread(target=lambda node: rclpy.spin(node), args=(self,))
@@ -64,7 +55,9 @@ class BringupTestNode(Node):
 
     def timer_callback(self):
         self.publish_fake_hardware_messages()
-        self.lookup_transform_odom()
+
+    def odometry_callback(self, data):
+        self.odom_msg_event.set()
 
     def publish_fake_hardware_messages(self):
         imu_msg = Imu()

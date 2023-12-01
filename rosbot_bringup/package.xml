@@ -25,6 +25,7 @@
 
   <test_depend>robot_localization</test_depend>
   <test_depend>rosbot_controller</test_depend>
+  <test_depend>nav_msgs</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

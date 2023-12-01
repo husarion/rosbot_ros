@@ -30,6 +30,13 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    namespace = LaunchConfiguration("namespace")
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="Namespace for all topics and tfs",
+    )
+
     mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
@@ -61,6 +68,13 @@ def generate_launch_description():
         choices=["ignition-gazebo", "gazebo-classic", "webots"],
     )
 
+    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
+    declare_use_multirobot_system_arg = DeclareLaunchArgument(
+        "use_multirobot_system",
+        default_value="false",
+        description="Enable correct Ignition Gazebo configuration in URDF",
+    )
+
     controller_config_name = PythonExpression(
         [
             "'mecanum_drive_controller.yaml' if ",
@@ -69,12 +83,12 @@ def generate_launch_description():
         ]
     )
 
-    controller_manager_name = PythonExpression(
-        [
-            "'/simulation_controller_manager' if ",
-            use_sim,
-            " else '/controller_manager'",
-        ]
+    namespace_ext = PythonExpression(
+        ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
+    )
+    controller_manager_name = LaunchConfiguration(
+        "controller_manager_name",
+        default=[namespace_ext, "controller_manager"],
     )
 
     # Get URDF via xacro
@@ -97,6 +111,10 @@ def generate_launch_description():
             use_gpu,
             " simulation_engine:=",
             simulation_engine,
+            " namespace:=",
+            namespace,
+            " use_multirobot_system:=",
+            use_multirobot_system,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -112,20 +130,28 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description, robot_controllers],
+        parameters=[
+            robot_description,
+            robot_controllers,
+        ],
         remappings=[
-            ("/imu_sensor_node/imu", "/_imu/data_raw"),
+            ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
-            ("/rosbot_base_controller/cmd_vel_unstamped", "/cmd_vel"),
+            ("rosbot_base_controller/cmd_vel_unstamped", "cmd_vel"),
+            ("/tf", "tf"),
+            ("/tf_static", "tf_static"),
         ],
         condition=UnlessCondition(use_sim),
+        namespace=namespace,
     )
 
     robot_state_pub_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[robot_description],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+        namespace=namespace,
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -137,6 +163,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "120",
+            "--namespace",
+            namespace,
         ],
     )
 
@@ -149,6 +177,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "120",
+            "--namespace",
+            namespace,
         ],
     )
 
@@ -169,6 +199,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "120",
+            "--namespace",
+            namespace,
         ],
     )
 
@@ -181,17 +213,19 @@ def generate_launch_description():
         )
     )
 
-    actions = [
-        declare_mecanum_arg,
-        declare_use_sim_arg,
-        declare_use_gpu_arg,
-        declare_simulation_engine_arg,
-        SetParameter(name="use_sim_time", value=use_sim),
-        control_node,
-        robot_state_pub_node,
-        joint_state_broadcaster_spawner,
-        delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
-        delay_imu_broadcaster_spawner_after_robot_controller_spawner,
-    ]
-
-    return LaunchDescription(actions)
+    return LaunchDescription(
+        [
+            declare_namespace_arg,
+            declare_mecanum_arg,
+            declare_use_sim_arg,
+            declare_use_gpu_arg,
+            declare_simulation_engine_arg,
+            declare_use_multirobot_system_arg,
+            SetParameter("use_sim_time", value=use_sim),
+            control_node,
+            robot_state_pub_node,
+            joint_state_broadcaster_spawner,
+            delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
+            delay_imu_broadcaster_spawner_after_robot_controller_spawner,
+        ]
+    )

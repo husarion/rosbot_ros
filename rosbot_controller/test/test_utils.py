@@ -29,26 +29,27 @@ class ControllersTestNode(Node):
 
     __test__ = False
 
-    def __init__(self, name="test_node"):
-        super().__init__(name)
+    def __init__(self, name="test_node", namespace=None):
+        super().__init__(name, namespace=namespace)
         self.joint_state_msg_event = Event()
         self.odom_msg_event = Event()
         self.imu_msg_event = Event()
 
     def create_test_subscribers_and_publishers(self):
         self.joint_state_sub = self.create_subscription(
-            JointState, "/joint_states", self.joint_states_callback, 10
+            JointState, "joint_states", self.joint_states_callback, 10
         )
 
         self.odom_sub = self.create_subscription(
-            Odometry, "/rosbot_base_controller/odom", self.odometry_callback, 10
+            Odometry, "rosbot_base_controller/odom", self.odometry_callback, 10
         )
 
-        self.imu_sub = self.create_subscription(Imu, "/imu_broadcaster/imu", self.imu_callback, 10)
+        self.imu_sub = self.create_subscription(Imu, "imu_broadcaster/imu", self.imu_callback, 10)
 
-        self.imu_publisher = self.create_publisher(Imu, "_imu/data_raw", 10)
+        # TODO: @delipl namespaces have not been implemented in microros yet
+        self.imu_publisher = self.create_publisher(Imu, "/_imu/data_raw", 10)
 
-        self.joint_states_publisher = self.create_publisher(JointState, "_motors_response", 10)
+        self.joint_states_publisher = self.create_publisher(JointState, "/_motors_response", 10)
 
         self.timer = None
 
@@ -71,6 +72,7 @@ class ControllersTestNode(Node):
             self.publish_fake_hardware_messages,
         )
 
+    # TODO: @delipl namespaces have not been implemented in microros yet
     def publish_fake_hardware_messages(self):
         imu_msg = Imu()
         imu_msg.header.stamp = self.get_clock().now().to_msg()

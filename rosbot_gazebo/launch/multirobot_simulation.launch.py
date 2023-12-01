@@ -13,10 +13,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import (
-    IncludeLaunchDescription,
-    DeclareLaunchArgument,
-)
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, TimerAction
 from launch.substitutions import (
     PathJoinSubstitution,
     PythonExpression,
@@ -30,13 +27,6 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
-    namespace = LaunchConfiguration("namespace")
-    declare_namespace_arg = DeclareLaunchArgument(
-        "namespace",
-        default_value="",
-        description="Namespace for all topics and tfs",
-    )
-
     mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
@@ -44,13 +34,6 @@ def generate_launch_description():
         description=(
             "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
         ),
-    )
-
-    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
-    declare_use_multirobot_system_arg = DeclareLaunchArgument(
-        "use_multirobot_system",
-        default_value="false",
-        description="Enable correct Ignition Gazebo configuration in URDF",
     )
 
     world_package = get_package_share_directory("husarion_office_gz")
@@ -99,7 +82,7 @@ def generate_launch_description():
         }.items(),
     )
 
-    spawn_launch = IncludeLaunchDescription(
+    spawn_robot1_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
@@ -111,24 +94,49 @@ def generate_launch_description():
         ),
         launch_arguments={
             "mecanum": mecanum,
-            "use_multirobot_system": use_multirobot_system,
+            "use_multirobot_system": "True",
             "use_sim": "True",
             "use_gpu": use_gpu,
             "simulation_engine": "ignition-gazebo",
-            "namespace": namespace,
-            "x": LaunchConfiguration("x", default="0.00"),
-            "y": LaunchConfiguration("y", default="2.00"),
-            "z": LaunchConfiguration("z", default="0.20"),
-            "roll": LaunchConfiguration("roll", default="0.00"),
-            "pitch": LaunchConfiguration("pitch", default="0.00"),
-            "yaw": LaunchConfiguration("yaw", default="0.00"),
+            "namespace": "rosbot1",
+            "x": LaunchConfiguration("x1", default="0.00"),
+            "y": LaunchConfiguration("y1", default="2.00"),
+            "z": LaunchConfiguration("z1", default="0.20"),
+            "roll": LaunchConfiguration("roll1", default="0.00"),
+            "pitch": LaunchConfiguration("pitch1", default="0.00"),
+            "yaw": LaunchConfiguration("yaw1", default="0.00"),
         }.items(),
     )
 
+    spawn_robot2_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [
+                    get_package_share_directory("rosbot_gazebo"),
+                    "launch",
+                    "spawn.launch.py",
+                ]
+            )
+        ),
+        launch_arguments={
+            "mecanum": mecanum,
+            "use_multirobot_system": "True",
+            "use_sim": "True",
+            "use_gpu": use_gpu,
+            "simulation_engine": "ignition-gazebo",
+            "namespace": "rosbot2",
+            "x": LaunchConfiguration("x2", default="1.00"),
+            "y": LaunchConfiguration("y2", default="2.00"),
+            "z": LaunchConfiguration("z2", default="0.20"),
+            "roll": LaunchConfiguration("roll2", default="0.00"),
+            "pitch": LaunchConfiguration("pitch2", default="0.00"),
+            "yaw": LaunchConfiguration("yaw2", default="0.00"),
+        }.items(),
+    )
+
+    delayed_spawn_robot2 = TimerAction(period=10.0, actions=[spawn_robot2_launch])
     return LaunchDescription(
         [
-            declare_namespace_arg,
-            declare_use_multirobot_system_arg,
             declare_mecanum_arg,
             declare_world_arg,
             declare_headless_arg,
@@ -137,6 +145,7 @@ def generate_launch_description():
             # (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
             gz_sim,
-            spawn_launch,
+            spawn_robot1_launch,
+            delayed_spawn_robot2,
         ]
     )

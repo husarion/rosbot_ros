@@ -21,6 +21,13 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 
 def generate_launch_description():
+    namespace = LaunchConfiguration("namespace")
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="Namespace for all topics and tfs",
+    )
+
     use_sim = LaunchConfiguration("use_sim")
     declare_use_sim_arg = DeclareLaunchArgument(
         "use_sim",
@@ -55,6 +62,13 @@ def generate_launch_description():
         ),
     )
 
+    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
+    declare_use_multirobot_system_arg = DeclareLaunchArgument(
+        "use_multirobot_system",
+        default_value="false",
+        description="Enable correct Ignition Gazebo configuration in URDF",
+    )
+
     controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -70,6 +84,8 @@ def generate_launch_description():
             "mecanum": mecanum,
             "use_gpu": use_gpu,
             "simulation_engine": simulation_engine,
+            "namespace": namespace,
+            "use_multirobot_system": use_multirobot_system,
         }.items(),
     )
 
@@ -81,13 +97,20 @@ def generate_launch_description():
         name="ekf_filter_node",
         output="screen",
         parameters=[ekf_config],
+        remappings=[
+            ("/tf", "tf"),
+            ("/tf_static", "tf_static"),
+        ],
+        namespace=namespace,
     )
 
     actions = [
+        declare_namespace_arg,
         declare_mecanum_arg,
         declare_use_sim_arg,
         declare_use_gpu_arg,
         declare_simulation_engine_arg,
+        declare_use_multirobot_system_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         controller_launch,
         robot_localization_node,
