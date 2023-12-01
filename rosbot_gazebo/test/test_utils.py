@@ -37,6 +37,11 @@ class SimulationTestNode(Node):
 
     def __init__(self, name="test_node"):
         super().__init__(name)
+
+        self.VELOCITY_STABILIZATION_DELAY = 3
+        self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
+        self.vel_stabilization_time_event = Event()
+
         self.v_x = 0.0
         self.v_y = 0.0
         self.v_yaw = 0.0
@@ -46,15 +51,17 @@ class SimulationTestNode(Node):
         self.odom_tf_event = Event()
         self.scan_event = Event()
 
-    def clear_odom_events(self):
+    def clear_odom_flag(self):
         self.controller_odom_flag = False
         self.ekf_odom_flag = False
 
     def set_destination_speed(self, v_x, v_y, v_yaw):
-        self.clear_odom_events()
+        self.clear_odom_flag()
         self.v_x = v_x
         self.v_y = v_y
         self.v_yaw = v_yaw
+        self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
+        self.vel_stabilization_time_event.clear()
 
     def create_test_subscribers_and_publishers(self):
         self.cmd_vel_publisher = self.create_publisher(Twist, "cmd_vel", 10)
@@ -105,6 +112,10 @@ class SimulationTestNode(Node):
     def timer_callback(self):
         self.publish_cmd_vel_messages()
         self.lookup_transform_odom()
+
+        current_time_s = 1e-9 * self.get_clock().now().nanoseconds
+        if current_time_s > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
+            self.vel_stabilization_time_event.set()
 
     def scan_callback(self, data: LaserScan):
         if data.ranges:

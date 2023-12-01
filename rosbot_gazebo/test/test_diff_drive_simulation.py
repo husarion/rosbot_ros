@@ -17,7 +17,6 @@
 import launch_pytest
 import pytest
 import rclpy
-import time
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -42,7 +41,7 @@ def generate_test_description():
                 ]
             )
         ),
-        launch_arguments={"headless": "True", "world": "empty.sdf"}.items(),
+        launch_arguments={"headless": "False", "world": "empty.sdf"}.items(),
     )
 
     return LaunchDescription([simulation_launch])
@@ -64,7 +63,7 @@ def test_diff_drive_simulation():
         # 0.9 m/s and 3.0 rad/s are controller's limits defined in
         #   rosbot_controller/config/diff_drive_controller.yaml
         node.set_destination_speed(0.9, 0.0, 0.0)
-        time.sleep(3)  # Wait 3 seconds for the velocity ​​to stabilize
+        assert node.vel_stabilization_time_event.wait(timeout=20.0), "Simulation crashed!"
         assert (
             node.controller_odom_flag
         ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
@@ -73,7 +72,7 @@ def test_diff_drive_simulation():
         ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
 
         node.set_destination_speed(0.0, 0.0, 3.0)
-        time.sleep(3)  # Wait 3 seconds for the velocity ​​to stabilize
+        assert node.vel_stabilization_time_event.wait(timeout=20.0), "Simulation crashed!"
         assert (
             node.controller_odom_flag
         ), "ROSbot does not rotate properly. Check rosbot_base_controller!"
