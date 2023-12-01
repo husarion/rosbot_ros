@@ -117,8 +117,8 @@ class SimulationTestNode(Node):
         self.publish_cmd_vel_messages()
         self.lookup_transform_odom()
 
-        current_time_s = 1e-9 * self.get_clock().now().nanoseconds
-        if current_time_s > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
+        self.current_time = 1e-9 * self.get_clock().now().nanoseconds
+        if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
             self.vel_stabilization_time_event.set()
 
     def scan_callback(self, data: LaserScan):

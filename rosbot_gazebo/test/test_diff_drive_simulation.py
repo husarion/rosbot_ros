@@ -63,7 +63,10 @@ def test_diff_drive_simulation():
         # 0.9 m/s and 3.0 rad/s are controller's limits defined in
         #   rosbot_controller/config/diff_drive_controller.yaml
         node.set_destination_speed(0.9, 0.0, 0.0)
-        assert node.vel_stabilization_time_event.wait(timeout=20.0), "Simulation crashed!"
+        assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+            "The simulation is running slowly or has crashed! The time elapsed since setting the"
+            f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
+        )
         assert (
             node.controller_odom_flag
         ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
@@ -72,7 +75,10 @@ def test_diff_drive_simulation():
         ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
 
         node.set_destination_speed(0.0, 0.0, 3.0)
-        assert node.vel_stabilization_time_event.wait(timeout=20.0), "Simulation crashed!"
+        assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+            "The simulation is running slowly or has crashed! The time elapsed since setting the"
+            f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
+        )
         assert (
             node.controller_odom_flag
         ), "ROSbot does not rotate properly. Check rosbot_base_controller!"
