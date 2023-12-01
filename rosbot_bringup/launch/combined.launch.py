@@ -8,7 +8,7 @@ def generate_launch_description():
     # Declare launch arguments for the serial port and baud rate
     declare_serial_port_arg = DeclareLaunchArgument(
         'serial_port',
-        default_value='//dev/ttySERIAL',  # Default value, replace if needed
+        default_value='/dev/ttySERIAL',  # Default value, replace if needed
         description='Serial port for micro-ROS agent'
     )
 
