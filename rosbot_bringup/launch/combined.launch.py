@@ -76,7 +76,7 @@ def generate_launch_description():
     )
 
     bringup_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([ThisLaunchFileDir(), "/bringup.launch.py"])
+        PythonLaunchDescriptionSource([ThisLaunchFileDir(), "bringup.launch.py"])
     )
 
     return LaunchDescription(
