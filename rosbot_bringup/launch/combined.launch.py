@@ -75,9 +75,9 @@ def generate_launch_description():
         description="Path to the Fast RTPS default profiles file",
     )
 
-    bringup_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([ThisLaunchFileDir(), "bringup.launch.py"])
-    )
+    # bringup_launch = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource([ThisLaunchFileDir(), "/bringup.launch.py"])
+    # )
 
     return LaunchDescription(
         [
@@ -85,6 +85,6 @@ def generate_launch_description():
             declare_serial_baudrate_arg,
             declare_localhost_only_fastrtps_profiles_file_arg,
             OpaqueFunction(function=generate_microros_agent_node),
-            bringup_launch,
+            # bringup_launch,
         ]
     )
