@@ -7,28 +7,28 @@ on:
 
 
 jobs:
-    # black:
-    #     name: Black
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - uses: actions/checkout@v3
-    #         - uses: psf/black@stable
-    #           with:
-    #               options: --line-length=99
+    black:
+        name: Black
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: psf/black@stable
+              with:
+                  options: --line-length=99
 
-    # spellcheck:
-    #     name: Spellcheck
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - uses: actions/checkout@v3
-    #         - uses: rojopolis/spellcheck-github-actions@0.33.1
-    #           name: Spellcheck
+    spellcheck:
+        name: Spellcheck
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: rojopolis/spellcheck-github-actions@0.33.1
+              name: Spellcheck
 
     ros_industrial_ci:
         name: ROS Industrial CI
-        # needs:
-        #     - black
-        #     - spellcheck
+        needs:
+            - black
+            - spellcheck
         strategy:
             fail-fast: false
             matrix:
