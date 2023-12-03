@@ -161,7 +161,7 @@ curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo ba
 And test the worflow with:
 
 ```
-act
+act -W .github/workflows/industrial_ci.yaml
 ```
 
 ## Demo
