@@ -18,10 +18,6 @@ repositories:
     type: git
     url: https://github.com/delihus/ros2_controllers
     version: humble-backport
-  # micro_ros_agent:
-  #   type: git
-  #   url: https://github.com/micro-ROS/micro_ros_setup.git
-  #   version: humble
   micro_ros_msgs:
     type: git
     url: https://github.com/micro-ROS/micro_ros_msgs.git
@@ -30,7 +26,3 @@ repositories:
     type: git
     url: https://github.com/micro-ROS/micro-ROS-Agent.git
     version: humble
-  # xrceagent:
-  #   type: git
-  #   url: https://github.com/eProsima/Micro-XRCE-DDS-Agent
-  #   version: v2.4.2
