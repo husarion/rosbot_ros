@@ -46,6 +46,8 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 
 # COPY ros_entrypoint.sh /
 
+RUN rm -rf build log src
+
 RUN echo -e \
 '#!/bin/bash\n \
 set -e\n \
