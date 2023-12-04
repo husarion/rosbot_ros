@@ -56,9 +56,9 @@ jobs:
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
               run: |
-                  cp -r ros2_controllers/diff_drive_controller .
-                  cp -r ros2_controllers/imu_sensor_broadcaster .
-                  rm -rf ros2_controllers
+                  cp -r src/ros2_controllers/diff_drive_controller src/
+                  cp -r src/ros2_controllers/imu_sensor_broadcaster src/
+                  rm -rf src/ros2_controllers
 
             - name: Running ROS Industrial CI
               uses: ros-industrial/industrial_ci@master
