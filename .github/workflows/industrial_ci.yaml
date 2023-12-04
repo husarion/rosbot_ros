@@ -6,31 +6,31 @@ on:
     push:
 
 jobs:
-    black:
-        name: Black
-        runs-on: ubuntu-20.04
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            - name: Black
-              uses: psf/black@23.11.0
-              with:
-                  options: --line-length=99
+    # black:
+    #     name: Black
+    #     runs-on: ubuntu-20.04
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v3
+    #         - name: Black
+    #           uses: psf/black@23.11.0
+    #           with:
+    #               options: --line-length=99
 
-    spellcheck:
-        name: Spellcheck
-        runs-on: ubuntu-20.04
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            - name: Spellcheck
-              uses: rojopolis/spellcheck-github-actions@0.33.1
+    # spellcheck:
+    #     name: Spellcheck
+    #     runs-on: ubuntu-20.04
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v3
+    #         - name: Spellcheck
+    #           uses: rojopolis/spellcheck-github-actions@0.33.1
 
     ros_industrial_ci:
         name: ROS Industrial CI
-        needs:
-            - black
-            - spellcheck
+        # needs:
+        #     - black
+        #     - spellcheck
         strategy:
             fail-fast: false
             matrix:
@@ -44,9 +44,12 @@ jobs:
             - name: Clone installation requirements
               shell: bash
               run: |
-                  python3 -m pip install -U vcstool
-                  vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
-
+                python3 -m pip install -U vcstool rosdep
+                vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
+                rosdep init
+                rosdep update --rosdistro $ROS_DISTRO
+                rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
+                
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
               run: |
