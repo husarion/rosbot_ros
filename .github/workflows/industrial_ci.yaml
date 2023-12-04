@@ -68,3 +68,5 @@ jobs:
               env:
                   ROS_DISTRO: ${{matrix.ROS_DISTRO}}
                   DOCKER_IMAGE: ros:${{matrix.ROS_DISTRO}}-ros-base
+                  IMMEDIATE_TEST_OUTPUT: true
+                  
