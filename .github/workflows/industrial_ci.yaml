@@ -6,36 +6,36 @@ on:
     push:
 
 jobs:
-    # black:
-    #     name: Black
-    #     runs-on: ubuntu-20.04
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v3
-    #         - name: Black
-    #           uses: psf/black@23.11.0
-    #           with:
-    #               options: --line-length=99
+    black:
+        name: Black
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Black
+              uses: psf/black@23.11.0
+              with:
+                  options: --line-length=99
 
-    # spellcheck:
-    #     name: Spellcheck
-    #     runs-on: ubuntu-20.04
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v3
-    #         - name: Spellcheck
-    #           uses: rojopolis/spellcheck-github-actions@0.33.1
+    spellcheck:
+        name: Spellcheck
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Spellcheck
+              uses: rojopolis/spellcheck-github-actions@0.33.1
 
     ros_industrial_ci:
         name: ROS Industrial CI
-        # needs:
-        #     - black
-        #     - spellcheck
+        needs:
+            - black
+            - spellcheck
         strategy:
             fail-fast: false
             matrix:
                 ROS_DISTRO: [humble]
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-22.04
 
         steps:
             - name: Checkout
@@ -49,35 +49,20 @@ jobs:
             - name: Clone installation requirements
               shell: bash
               run: |
-                sudo apt update
-                rm -rf /etc/ros/rosdep/sources.list.d/20-default.list
-                python3 -m pip install -U vcstool
-                vcs import src < src/rosbot/rosbot_hardware.repos
-# vcs import src < src/rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
+                  sudo apt update
+                  rm -rf /etc/ros/rosdep/sources.list.d/20-default.list
+                  python3 -m pip install -U vcstool
+                  vcs import src < src/rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
 
-            # - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
-            #   shell: bash
-            #   run: |
-            #       cp -r src/ros2_controllers/diff_drive_controller src/
-            #       cp -r src/ros2_controllers/imu_sensor_broadcaster src/
-            #       rm -rf src/ros2_controllers
-            #       rm -r src/rosbot_gazebo
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
               run: |
-                  rm -r src/rosbot_gazebo
+                  cp -r src/ros2_controllers/diff_drive_controller src/
+                  cp -r src/ros2_controllers/imu_sensor_broadcaster src/
+                  rm -rf src/ros2_controllers
 
             - name: Running ROS Industrial CI
               uses: ros-industrial/industrial_ci@master
               env:
                   ROS_DISTRO: ${{matrix.ROS_DISTRO}}
                   DOCKER_IMAGE: ros:${{matrix.ROS_DISTRO}}-ros-base
-                #   AFTER_SETUP_ROSDEP: |
-                #     rosdep update --rosdistro ${{matrix.ROS_DISTRO}}
-                #     rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-                #   AFTER_SETUP_ROSDEP: |
-                #     apt-get update && apt-get install -y python3-pip
-                #     python3 -m pip install -U rosdep
-                #     rosdep init
-                #     rosdep update --rosdistro ${{matrix.ROS_DISTRO}}
-                #     rosdep install -i --from-path . --rosdistro $ROS_DISTRO -y
