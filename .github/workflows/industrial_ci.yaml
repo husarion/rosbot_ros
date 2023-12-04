@@ -49,7 +49,7 @@ jobs:
             - name: Clone installation requirements
               shell: bash
               run: |
-                apt update
+                sudo apt update
                 rm -rf /etc/ros/rosdep/sources.list.d/20-default.list
                 python3 -m pip install -U vcstool
                 vcs import src < src/rosbot/rosbot_hardware.repos
