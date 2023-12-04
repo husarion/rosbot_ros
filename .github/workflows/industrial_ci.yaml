@@ -67,4 +67,4 @@ jobs:
               uses: ros-industrial/industrial_ci@master
               env:
                   ROS_DISTRO: ${{matrix.ROS_DISTRO}}
-                  # DOCKER_IMAGE: ros:${{matrix.ROS_DISTRO}}-ros-base
+                  DOCKER_IMAGE: ros:${{matrix.ROS_DISTRO}}-ros-base
