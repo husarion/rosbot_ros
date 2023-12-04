@@ -47,6 +47,10 @@ jobs:
                 python3 -m pip install -U vcstool
                 vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
 
+            - name: Install Git
+              run: sudo apt-get update && sudo apt-get install -y git
+
+
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
               run: |
