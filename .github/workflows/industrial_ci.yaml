@@ -41,11 +41,17 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
+            - name: Copy to src
+              run: |
+                  mkdir -p src
+                  find . -maxdepth 1 -not -name src -not -name . -exec mv {} src/ \;
+
             - name: Clone installation requirements
               shell: bash
               run: |
                 python3 -m pip install -U vcstool
-                vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
+                vcs import src < src/rosbot/rosbot_hardware.repos
+# vcs import src < src/rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
 
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
@@ -54,18 +60,13 @@ jobs:
                   cp -r ros2_controllers/imu_sensor_broadcaster .
                   rm -rf ros2_controllers
 
-            - name: Copy to src
-              run: |
-                  mkdir -p src
-                  find . -maxdepth 1 -not -name src -not -name . -exec mv {} src/ \;
-
             - name: Running ROS Industrial CI
               uses: ros-industrial/industrial_ci@master
               env:
                   ROS_DISTRO: ${{matrix.ROS_DISTRO}}
-                  AFTER_SETUP_ROSDEP: |
-                    rosdep update --rosdistro ${{matrix.ROS_DISTRO}}
-                    rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
+                #   AFTER_SETUP_ROSDEP: |
+                #     rosdep update --rosdistro ${{matrix.ROS_DISTRO}}
+                #     rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
                 #   AFTER_SETUP_ROSDEP: |
                 #     apt-get update && apt-get install -y python3-pip
                 #     python3 -m pip install -U rosdep

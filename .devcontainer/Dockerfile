@@ -10,15 +10,17 @@ COPY ./rosbot_controller src/rosbot_controller
 COPY ./rosbot_description src/rosbot_description
 COPY ./rosbot_gazebo src/rosbot_gazebo
 
+SHELL ["/bin/bash", "-c"]
+
 RUN apt update && \
     rm -rf /etc/ros/rosdep/sources.list.d/20-default.list && \
     rm -r src/rosbot_gazebo && \
     vcs import src < src/rosbot/rosbot_hardware.repos && \
 	rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \
-    rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-
-SHELL ["/bin/bash", "-c"]
+    source /opt/ros/$ROS_DISTRO/setup.bash && \
+    rosdep install --from-paths src --ignore-src -y
+# rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y --ignore-src -y
 
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 	colcon build --packages-skip \
