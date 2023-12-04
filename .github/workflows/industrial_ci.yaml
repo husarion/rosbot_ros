@@ -54,6 +54,11 @@ jobs:
                   cp -r ros2_controllers/imu_sensor_broadcaster .
                   rm -rf ros2_controllers
 
+            - name: Copy to src
+              run: |
+                  mkdir src
+                  copy ./* src
+
             - name: Running ROS Industrial CI
               uses: ros-industrial/industrial_ci@master
               env:
@@ -62,5 +67,5 @@ jobs:
                     apt-get update && apt-get install -y python3-pip
                     python3 -m pip install -U rosdep
                     rosdep init
-                    rosdep update --rosdistro ${{matrix.ROS_DISTRO}} --from-paths .
+                    rosdep update --rosdistro ${{matrix.ROS_DISTRO}}
                     rosdep install -i --from-path . --rosdistro $ROS_DISTRO -y
