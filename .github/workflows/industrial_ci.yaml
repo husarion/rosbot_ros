@@ -44,11 +44,8 @@ jobs:
             - name: Clone installation requirements
               shell: bash
               run: |
-                sudo python3 -m pip install -U vcstool rosdep
+                python3 -m pip install -U vcstool
                 vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
-                sudo rosdep init
-                rosdep update --rosdistro ${{ matrix.ROS_DISTRO }}
-                rosdep install -i --from-path . --rosdistro ${{ matrix.ROS_DISTRO }} -y
 
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
