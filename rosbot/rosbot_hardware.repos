@@ -18,7 +18,7 @@ repositories:
     type: git
     url: https://github.com/delihus/ros2_controllers
     version: humble-backport
-  micro-ros-agent:
+  micro_ros_agent:
     type: git
     url: https://github.com/micro-ROS/micro_ros_setup.git
     version: humble
