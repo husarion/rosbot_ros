@@ -1,0 +1,15 @@
+services:
+
+  rosbot:
+    # image: rosbot-local
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    devices:
+      - ${SERIAL_PORT:?err}
+    command: >
+      ros2 launch rosbot_bringup combined.launch.py 
+        mecanum:=${MECANUM:-False}
+        serial_port:=$SERIAL_PORT 
+        serial_baudrate:=576000
+        namespace:=robot1

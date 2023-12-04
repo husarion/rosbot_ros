@@ -1,0 +1,18 @@
+{
+    "name": "ROS 2 Development",
+    "build": {
+        "dockerfile": "./Dockerfile",
+        "context": ".."
+    },
+    "settings": { 
+        "terminal.integrated.shell.linux": "/bin/bash"
+    },
+    "extensions": [
+        "ms-iot.vscode-ros"
+    ],
+    "forwardPorts": [
+        // List any ports you want to forward from your container to the host
+    ],
+    "postCreateCommand": "rosdep update",
+    "remoteUser": "root"
+}
