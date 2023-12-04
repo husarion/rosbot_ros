@@ -62,4 +62,8 @@ jobs:
               uses: ros-industrial/industrial_ci@master
               env:
                   ROS_DISTRO: ${{matrix.ROS_DISTRO}}
-                  BEFORE_INIT: rosdep update --rosdistro ${{matrix.ROS_DISTRO}}
+                  BEFORE_INIT: |
+                    apt-get update && apt-get install -y python3-pip python3-rosdep
+                    rosdep init
+                    rosdep update --rosdistro ${{matrix.ROS_DISTRO}}
+                    rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
