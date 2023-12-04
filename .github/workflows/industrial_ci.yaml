@@ -57,7 +57,7 @@ jobs:
             - name: Copy to src
               run: |
                   mkdir src
-                  copy ./* src
+                  cp ./* src
 
             - name: Running ROS Industrial CI
               uses: ros-industrial/industrial_ci@master
