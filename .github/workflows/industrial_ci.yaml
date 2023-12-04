@@ -62,5 +62,5 @@ jobs:
                     apt-get update && apt-get install -y python3-pip
                     python3 -m pip install -U rosdep
                     rosdep init
-                    rosdep update --rosdistro ${{matrix.ROS_DISTRO}}
-                    rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
+                    rosdep update --rosdistro ${{matrix.ROS_DISTRO}} --from-paths .
+                    rosdep install -i --from-path . --rosdistro $ROS_DISTRO -y
