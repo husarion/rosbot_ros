@@ -21,22 +21,24 @@ RUN apt update && \
 SHELL ["/bin/bash", "-c"]
 
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    colcon build --packages-skip \
+	colcon build --packages-skip \
         ackermann_steering_controller \
+        admittance_controller \
         bicycle_steering_controller \
         tricycle_steering_controller \
-        ros2_controllers \
         effort_controllers \
-        admittance_controller \
         force_torque_sensor_broadcaster \
         forward_command_controller \
         gripper_controllers \
         joint_trajectory_controller \
         position_controllers \
+        range_sensor_broadcaster \
+        ros2_controllers \
+        ros2_controllers_test_nodes \
         rqt_joint_trajectory_controller \
         tricycle_controller \
-        velocity_controllers  \
-        ros2_controllers_test_nodes && \
+        tricycle_steering_controller \
+        velocity_controllers  && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
