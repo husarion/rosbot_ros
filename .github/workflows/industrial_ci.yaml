@@ -12,7 +12,6 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v3
-            - run: black --check --diff .
             - name: Black
               uses: psf/black@23.11.0
               with:
