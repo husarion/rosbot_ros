@@ -21,7 +21,7 @@ RUN apt update && \
 SHELL ["/bin/bash", "-c"]
 
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    colcon build --packages-ignore \
+    colcon build --packages-skip \
         ros2_controllers \
         effort_controllers \
         admittance_controller \

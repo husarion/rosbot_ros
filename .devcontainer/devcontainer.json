@@ -4,15 +4,13 @@
         "dockerfile": "./Dockerfile",
         "context": ".."
     },
-    "settings": { 
+    "settings": {
         "terminal.integrated.shell.linux": "/bin/bash"
     },
     "extensions": [
         "ms-iot.vscode-ros"
     ],
-    "forwardPorts": [
-        // List any ports you want to forward from your container to the host
-    ],
+    "forwardPorts": [],
     "postCreateCommand": "rosdep update",
     "remoteUser": "root"
 }
