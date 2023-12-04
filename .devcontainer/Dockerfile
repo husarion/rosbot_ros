@@ -22,6 +22,9 @@ SHELL ["/bin/bash", "-c"]
 
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     colcon build --packages-skip \
+        ackermann_steering_controller \
+        bicycle_steering_controller \
+        tricycle_steering_controller \
         ros2_controllers \
         effort_controllers \
         admittance_controller \
