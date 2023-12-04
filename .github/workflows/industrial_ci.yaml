@@ -46,8 +46,8 @@ jobs:
               run: |
                 python3 -m pip install -U vcstool rosdep
                 vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
-                rosdep update --rosdistro $ROS_DISTRO
-                rosdep install -i --from-path . --rosdistro $ROS_DISTRO -y
+                rosdep update --rosdistro ${{ matrix.ROS_DISTRO }}
+                rosdep install -i --from-path . --rosdistro ${{ matrix.ROS_DISTRO }} -y
 
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
