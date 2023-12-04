@@ -46,7 +46,7 @@ jobs:
               run: |
                 python3 -m pip install -U vcstool rosdep
                 vcs import . < ./rosbot/rosbot_hardware.repos && vcs import . < ./rosbot/rosbot_simulation.repos
-                rosdep init
+                sudo rosdep init
                 rosdep update --rosdistro ${{ matrix.ROS_DISTRO }}
                 rosdep install -i --from-path . --rosdistro ${{ matrix.ROS_DISTRO }} -y
 
