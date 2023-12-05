@@ -94,9 +94,9 @@ def generate_launch_description():
     robot_localization_node = Node(
         package="robot_localization",
         executable="ekf_node",
-        name="ekf_filter_node",
         output="screen",
         parameters=[ekf_config],
+        arguments=["--ros-args --log-level debug"],
         remappings=[
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),

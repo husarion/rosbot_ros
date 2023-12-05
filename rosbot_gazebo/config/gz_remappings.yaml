@@ -1,39 +1,39 @@
-- topic_name: "/scan"
+- topic_name: "<robot_namespace>/scan"
   ros_type_name: "sensor_msgs/msg/LaserScan"
   gz_type_name: "ignition.msgs.LaserScan"
 
-- topic_name: "/camera/camera_info"
+- topic_name: "<robot_namespace>/camera/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "ignition.msgs.CameraInfo"
 
-- topic_name: "/camera/depth_image"
+- topic_name: "<robot_namespace>/camera/depth_image"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "ignition.msgs.Image"
 
-- topic_name: "/camera/image"
+- topic_name: "<robot_namespace>/camera/image"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "ignition.msgs.Image"
 
-- topic_name: "/camera/points"
+- topic_name: "<robot_namespace>/camera/points"
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "ignition.msgs.PointCloudPacked"
 
-- topic_name: "/clock"
+- topic_name: "<robot_namespace>/clock"
   ros_type_name: "rosgraph_msgs/msg/Clock"
   gz_type_name: "ignition.msgs.Clock"
 
-- topic_name: "/range/fl"
+- topic_name: "<robot_namespace>/range/fl"
   ros_type_name: "sensor_msgs/msg/LaserScan"
   gz_type_name: "ignition.msgs.LaserScan"
 
-- topic_name: "/range/fr"
+- topic_name: "<robot_namespace>/range/fr"
   ros_type_name: "sensor_msgs/msg/LaserScan"
   gz_type_name: "ignition.msgs.LaserScan"
 
-- topic_name: "/range/rl"
+- topic_name: "<robot_namespace>/range/rl"
   ros_type_name: "sensor_msgs/msg/LaserScan"
   gz_type_name: "ignition.msgs.LaserScan"
 
-- topic_name: "/range/rr"
+- topic_name: "<robot_namespace>/range/rr"
   ros_type_name: "sensor_msgs/msg/LaserScan"
   gz_type_name: "ignition.msgs.LaserScan"

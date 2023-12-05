@@ -26,6 +26,7 @@
     for details refer to the ros_gz_sim package -->
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>ign_ros2_control</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
   <test_depend>launch</test_depend>

@@ -19,7 +19,7 @@ from launch.actions import (
 )
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-
+from nav2_common.launch import ReplaceString
 from launch_ros.actions import Node, SetParameter
 
 from ament_index_python.packages import get_package_share_directory
@@ -31,6 +31,10 @@ def generate_launch_description():
         "namespace",
         default_value="",
         description="Namespace for all topics and tfs",
+    )
+
+    namespace_ext = PythonExpression(
+        ["''", " if '", namespace, "' == '' ", "else ", "'/", namespace, "'"]
     )
 
     mecanum = LaunchConfiguration("mecanum")
@@ -64,6 +68,11 @@ def generate_launch_description():
         [get_package_share_directory("rosbot_gazebo"), "config", "gz_remappings.yaml"]
     )
 
+    namespaced_gz_remappings_file = ReplaceString(
+        source_file=gz_remappings_file,
+        replacements={"<robot_namespace>": (namespace_ext)},
+    )
+
     gz_spawn_entity = Node(
         package="ros_gz_sim",
         executable="create",
@@ -95,7 +104,7 @@ def generate_launch_description():
         package="ros_gz_bridge",
         executable="parameter_bridge",
         name="ros_gz_bridge",
-        parameters=[{"config_file": gz_remappings_file}],
+        parameters=[{"config_file": namespaced_gz_remappings_file}],
         remappings=[
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
@@ -138,9 +147,10 @@ def generate_launch_description():
             "1.57",
             "-1.57",
             "0.0",
-            # Here should be namespace
             "camera_depth_optical_frame",
-            "rosbot/base_link/camera_orbbec_astra_camera",
+            LaunchConfiguration(
+                "gazebo_frame", default=[robot_name, "/base_link/camera_orbbec_astra_camera"]
+            ),
         ],
         remappings=[
             ("/tf", "tf"),
