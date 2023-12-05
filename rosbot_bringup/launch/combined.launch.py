@@ -33,10 +33,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
     ros_domain_id = os.environ.get("ROS_DOMAIN_ID")
     if ros_domain_id:
         env_setup_actions.append(
-            SetEnvironmentVariable(
-                name="XRCE_DOMAIN_ID_OVERRIDE",
-                value=ros_domain_id
-            )
+            SetEnvironmentVariable(name="XRCE_DOMAIN_ID_OVERRIDE", value=ros_domain_id)
         )
 
     serial_port = LaunchConfiguration("serial_port").perform(context)
@@ -48,12 +45,15 @@ def generate_microros_agent_node(context, *args, **kwargs):
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
         # with localhost only setup fastdds is required with a custom config
         rmw_implementation = "rmw_fastrtps_cpp"
-        env_setup_actions.extend([
-            SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value=rmw_implementation),
-            SetEnvironmentVariable(
-                name="FASTRTPS_DEFAULT_PROFILES_FILE", value=localhost_only_fastrtps_profiles_file
-            )
-        ])
+        env_setup_actions.extend(
+            [
+                SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value=rmw_implementation),
+                SetEnvironmentVariable(
+                    name="FASTRTPS_DEFAULT_PROFILES_FILE",
+                    value=localhost_only_fastrtps_profiles_file,
+                ),
+            ]
+        )
 
         microros_agent_node = Node(
             package="micro_ros_agent",

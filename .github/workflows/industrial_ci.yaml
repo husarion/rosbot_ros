@@ -63,10 +63,6 @@ jobs:
                   cp -r src/ros2_controllers/imu_sensor_broadcaster src/
                   rm -rf src/ros2_controllers
 
-            - name: Remove all tests
-              shell: bash
-              run: find . -type f -name "test_*" -exec rm -rf {} \;
-
             - name: Running ROS Industrial CI
               uses: ros-industrial/industrial_ci@master
               env:
