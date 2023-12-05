@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
+from launch_ros.substitutions import FindPackageShare
 from launch.actions import (
     IncludeLaunchDescription,
     DeclareLaunchArgument,
@@ -26,6 +27,16 @@ import os
 
 
 def generate_microros_agent_node(context, *args, **kwargs):
+    # Additional environment variable setup actions
+    env_setup_actions = []
+
+    # Check if ROS_DOMAIN_ID is set and not empty
+    ros_domain_id = os.environ.get("ROS_DOMAIN_ID")
+    if ros_domain_id:
+        env_setup_actions.append(
+            SetEnvironmentVariable(name="XRCE_DOMAIN_ID_OVERRIDE", value=ros_domain_id)
+        )
+
     serial_port = LaunchConfiguration("serial_port").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
     localhost_only_fastrtps_profiles_file = LaunchConfiguration(
@@ -35,27 +46,34 @@ def generate_microros_agent_node(context, *args, **kwargs):
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
         # with localhost only setup fastdds is required with a custom config
         rmw_implementation = "rmw_fastrtps_cpp"
-        return [
-            SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value=rmw_implementation),
-            SetEnvironmentVariable(
-                name="FASTRTPS_DEFAULT_PROFILES_FILE", value=localhost_only_fastrtps_profiles_file
-            ),
-            Node(
-                package="micro_ros_agent",
-                executable="micro_ros_agent",
-                arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
-                output="screen",
-            ),
-        ]
+
+        env_setup_actions.extend(
+            [
+                SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value=rmw_implementation),
+                SetEnvironmentVariable(
+                    name="FASTRTPS_DEFAULT_PROFILES_FILE",
+                    value=localhost_only_fastrtps_profiles_file,
+                ),
+            ]
+        )
+
+        microros_agent_node = Node(
+            package="micro_ros_agent",
+            executable="micro_ros_agent",
+            arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
+            output="screen",
+        )
+
+        return env_setup_actions + [microros_agent_node]
     else:
-        return [
-            Node(
-                package="micro_ros_agent",
-                executable="micro_ros_agent",
-                arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
-                output="screen",
-            )
-        ]
+        microros_agent_node = Node(
+            package="micro_ros_agent",
+            executable="micro_ros_agent",
+            arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
+            output="screen",
+        )
+
+        return env_setup_actions + [microros_agent_node]
 
 
 def generate_launch_description():
@@ -69,10 +87,19 @@ def generate_launch_description():
         "serial_baudrate", default_value="576000", description="Baud rate for serial communication"
     )
 
+    # Locate the rosbot_bringup package
+    package_dir = FindPackageShare("rosbot_bringup").find("rosbot_bringup")
+
+    # Construct the path to the XML file within the package
+    fastrtps_profiles_file = os.path.join(package_dir, "config", "microros_localhost_only.xml")
+
     declare_localhost_only_fastrtps_profiles_file_arg = DeclareLaunchArgument(
         "localhost_only_fastrtps_profiles_file",
-        default_value="/microros_localhost_only.xml",
-        description="Path to the Fast RTPS default profiles file",
+        default_value=fastrtps_profiles_file,
+        description=(
+            "Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only"
+            " setup"
+        ),
     )
 
     bringup_launch = IncludeLaunchDescription(
