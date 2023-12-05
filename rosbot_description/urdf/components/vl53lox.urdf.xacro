@@ -11,45 +11,6 @@
 
     <link name="${prefix}_range" />
 
-    <!-- an IR sensor or a sonar are not implemented yet
-    https://github.com/gazebosim/gz-sensors/issues/19 -->
-    <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
-      <gazebo reference="${prefix}_range">
-        <sensor name="${prefix}_range" type='gpu_lidar'>
-
-          <topic>/range/${prefix}</topic>
-          <frame_id>${prefix}_range</frame_id>
-          <ignition_frame_id>${prefix}_range</ignition_frame_id>
-
-          <update_rate>5.0</update_rate>
-          <ray>
-            <scan>
-              <horizontal>
-                <samples>1</samples>
-                <resolution>1</resolution>
-                <min_angle>-0.01</min_angle>
-                <max_angle>0.01</max_angle>
-              </horizontal>
-            </scan>
-            <range>
-              <min>0.01</min>
-              <max>0.90</max>
-              <resolution>0.02</resolution>
-            </range>
-            <noise>
-              <type>gaussian</type>
-              <mean>0.1</mean>
-              <stddev>0.005</stddev>
-            </noise>
-          </ray>
-          <always_on>true</always_on>
-          <visualize>false</visualize>
-        </sensor>
-        <plugin filename="libignition-gazebo-sensors-system.so"  name="ignition::gazebo::systems::Sensors">
-          <render_engine>ogre2</render_engine>
-        </plugin>
-      </gazebo>
-    </xacro:if>
 
   </xacro:macro>
 </robot>

@@ -17,20 +17,13 @@
     namespace="$(arg namespace)"
     use_multirobot_system="$(arg use_multirobot_system)" />
 
-    <xacro:unless value="$(arg use_multirobot_system)">
-      <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
+    <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
       <xacro:lidar.slamtec_rplidar_a2
         parent_link="cover_link"
         xyz="0.02 0.0 0.0"
         rpy="0.0 0.0 0.0"
         use_gpu="$(arg use_gpu)"
+        namespace="$(arg namespace)"
         simulation_engine="$(arg simulation_engine)" />
 
-      <xacro:include filename="$(find ros_components_description)/urdf/orbbec_astra.urdf.xacro" ns="camera" />
-      <xacro:camera.orbbec_astra
-        parent_link="camera_link"
-        xyz="0.0 0.0 0.0"
-        rpy="0.0 0.0 0.0"
-        simulation_engine="$(arg simulation_engine)" />
-    </xacro:unless>
 </robot>

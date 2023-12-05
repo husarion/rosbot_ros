@@ -60,6 +60,10 @@ def generate_launch_description():
         ["'rosbot'", " if '", namespace, "' == '' ", "else ", "'", namespace, "'"]
     )
 
+    gz_remappings_file = PathJoinSubstitution(
+        [get_package_share_directory("rosbot_gazebo"), "config", "gz_remappings.yaml"]
+    )
+
     gz_spawn_entity = Node(
         package="ros_gz_sim",
         executable="create",
@@ -91,29 +95,8 @@ def generate_launch_description():
         package="ros_gz_bridge",
         executable="parameter_bridge",
         name="ros_gz_bridge",
-        arguments=[
-            "/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-            "/camera/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo",
-            "/camera/depth_image@sensor_msgs/msg/Image[ignition.msgs.Image",
-            "/camera/image@sensor_msgs/msg/Image[ignition.msgs.Image",
-            "/camera/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked",
-            "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
-            # an IR sensor is not implemented yet https://github.com/gazebosim/gz-sensors/issues/19
-            "/range/fl@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-            "/range/fr@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-            "/range/rl@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-            "/range/rr@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-        ],
+        parameters=[{"config_file": gz_remappings_file}],
         remappings=[
-            ("/camera/camera_info", "camera/color/camera_info"),
-            ("/camera/image", "camera/color/image_raw"),
-            ("/camera/depth_image", "camera/depth/image_raw"),
-            ("/camera/points", "camera/depth/points"),
-            ("/scan", "scan"),
-            ("/range/fl", "range/fl"),
-            ("/range/fr", "range/fr"),
-            ("/range/rl", "range/rl"),
-            ("/range/rr", "range/rr"),
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
         ],

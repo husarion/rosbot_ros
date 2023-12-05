@@ -155,7 +155,6 @@
         </gazebo>
         <gazebo reference="imu_link">
           <sensor name="${namespace_ext}imu" type="imu">
-            <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"></plugin>
             <always_on>true</always_on>
             <update_rate>25</update_rate>
             <topic>${namespace_ext}imu/data_raw</topic>
