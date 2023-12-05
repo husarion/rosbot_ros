@@ -26,6 +26,19 @@ import os
 
 
 def generate_microros_agent_node(context, *args, **kwargs):
+    # Additional environment variable setup actions
+    env_setup_actions = []
+
+    # Check if ROS_DOMAIN_ID is set and not empty
+    ros_domain_id = os.environ.get("ROS_DOMAIN_ID")
+    if ros_domain_id:
+        env_setup_actions.append(
+            SetEnvironmentVariable(
+                name="XRCE_DOMAIN_ID_OVERRIDE",
+                value=ros_domain_id
+            )
+        )
+
     serial_port = LaunchConfiguration("serial_port").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
     localhost_only_fastrtps_profiles_file = LaunchConfiguration(
@@ -35,27 +48,30 @@ def generate_microros_agent_node(context, *args, **kwargs):
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
         # with localhost only setup fastdds is required with a custom config
         rmw_implementation = "rmw_fastrtps_cpp"
-        return [
+        env_setup_actions.extend([
             SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value=rmw_implementation),
             SetEnvironmentVariable(
                 name="FASTRTPS_DEFAULT_PROFILES_FILE", value=localhost_only_fastrtps_profiles_file
-            ),
-            Node(
-                package="micro_ros_agent",
-                executable="micro_ros_agent",
-                arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
-                output="screen",
-            ),
-        ]
-    else:
-        return [
-            Node(
-                package="micro_ros_agent",
-                executable="micro_ros_agent",
-                arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
-                output="screen",
             )
-        ]
+        ])
+
+        microros_agent_node = Node(
+            package="micro_ros_agent",
+            executable="micro_ros_agent",
+            arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
+            output="screen",
+        )
+
+        return env_setup_actions + [microros_agent_node]
+    else:
+        microros_agent_node = Node(
+            package="micro_ros_agent",
+            executable="micro_ros_agent",
+            arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
+            output="screen",
+        )
+
+        return env_setup_actions + [microros_agent_node]
 
 
 def generate_launch_description():
