@@ -1,3 +1,8 @@
+- topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "ignition.msgs.Clock"
+  direction: GZ_TO_ROS
+
 - topic_name: "<robot_namespace>/scan"
   ros_type_name: "sensor_msgs/msg/LaserScan"
   gz_type_name: "ignition.msgs.LaserScan"
@@ -17,10 +22,6 @@
 - topic_name: "<robot_namespace>/camera/points"
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "ignition.msgs.PointCloudPacked"
-
-- topic_name: "<robot_namespace>/clock"
-  ros_type_name: "rosgraph_msgs/msg/Clock"
-  gz_type_name: "ignition.msgs.Clock"
 
 - topic_name: "<robot_namespace>/range/fl"
   ros_type_name: "sensor_msgs/msg/LaserScan"

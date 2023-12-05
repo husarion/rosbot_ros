@@ -133,32 +133,6 @@ def generate_launch_description():
         }.items(),
     )
 
-    # The frame of the pointcloud from ignition gazebo 6 isn't provided by <frame_id>.
-    # See https://github.com/gazebosim/gz-sensors/issues/239
-    depth_cam_frame_fixer = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        name="depth_to_camera",
-        output="log",
-        arguments=[
-            "0.0",
-            "0.0",
-            "0.0",
-            "1.57",
-            "-1.57",
-            "0.0",
-            "camera_depth_optical_frame",
-            LaunchConfiguration(
-                "gazebo_frame", default=[robot_name, "/base_link/camera_orbbec_astra_camera"]
-            ),
-        ],
-        remappings=[
-            ("/tf", "tf"),
-            ("/tf_static", "tf_static"),
-        ],
-        namespace=namespace,
-    )
-
     return LaunchDescription(
         [
             declare_namespace_arg,
@@ -171,6 +145,5 @@ def generate_launch_description():
             ign_bridge,
             gz_spawn_entity,
             bringup_launch,
-            depth_cam_frame_fixer,
         ]
     )
