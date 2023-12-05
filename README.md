@@ -55,7 +55,7 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 vcs import src < src/rosbot/rosbot_hardware.repos
 
 # Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/diff_drive_controller . && cp -r src/ros2_controllers/imu_sensor_broadcaster . && rm -rf src/ros2_controllers
+cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
 rm -r src/rosbot_gazebo
 
@@ -98,7 +98,7 @@ vcs import src < src/rosbot/rosbot_hardware.repos
 vcs import src < src/rosbot/rosbot_simulation.repos
 
 # Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/diff_drive_controller . && cp -r src/ros2_controllers/imu_sensor_broadcaster . && rm -rf src/ros2_controllers
+cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
 rosdep init
 rosdep update --rosdistro $ROS_DISTRO
@@ -150,7 +150,7 @@ black rosbot*
 ```
 
 ## Demo
-Bellow you can find demos with ROSbots:
+Below you can find demos with ROSbots:
 - in [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros2) you will find a simple example how to drive ROSbot with `teleop_twist_keyboard`.
 - in [rosbot-sensors](https://github.com/husarion/rosbot-sensors) you will find an example how to visualize all ROSbot sensors.
 - in [rosbot-mapping](https://github.com/husarion/rosbot-mapping) you will find an example how to use ROSbot with the [slam_toolbox](https://github.com/SteveMacenski/slam_toolbox/).

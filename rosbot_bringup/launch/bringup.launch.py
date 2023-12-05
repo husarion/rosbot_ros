@@ -96,7 +96,6 @@ def generate_launch_description():
         executable="ekf_node",
         output="screen",
         parameters=[ekf_config],
-        arguments=["--ros-args --log-level debug"],
         remappings=[
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),

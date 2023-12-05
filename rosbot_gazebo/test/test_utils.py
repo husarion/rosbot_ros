@@ -37,24 +37,35 @@ class SimulationTestNode(Node):
 
     def __init__(self, name="test_node"):
         super().__init__(name)
+
+        # Use simulation time to correct run on slow machine
+        use_sim_time = rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
+        self.set_parameters([use_sim_time])
+
+        self.VELOCITY_STABILIZATION_DELAY = 3
+        self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
+        self.vel_stabilization_time_event = Event()
+
         self.v_x = 0.0
         self.v_y = 0.0
         self.v_yaw = 0.0
 
-        self.controller_odom_event = Event()
-        self.ekf_odom_event = Event()
+        self.controller_odom_flag = False
+        self.ekf_odom_flag = False
         self.odom_tf_event = Event()
         self.scan_event = Event()
 
-    def clear_odom_events(self):
-        self.controller_odom_event.clear()
-        self.ekf_odom_event.clear()
+    def clear_odom_flag(self):
+        self.controller_odom_flag = False
+        self.ekf_odom_flag = False
 
     def set_destination_speed(self, v_x, v_y, v_yaw):
-        self.clear_odom_events()
+        self.clear_odom_flag()
         self.v_x = v_x
         self.v_y = v_y
         self.v_yaw = v_yaw
+        self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
+        self.vel_stabilization_time_event.clear()
 
     def create_test_subscribers_and_publishers(self):
         self.cmd_vel_publisher = self.create_publisher(Twist, "cmd_vel", 10)
@@ -79,9 +90,9 @@ class SimulationTestNode(Node):
         self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def is_twist_ok(self, twist: Twist):
-        def are_close_to_each_other(true_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
+        def are_close_to_each_other(current_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
             acceptable_range = dest_value * tolerance
-            return abs(true_value - dest_value) <= acceptable_range + eps
+            return abs(current_value - dest_value) <= acceptable_range + eps
 
         x_ok = are_close_to_each_other(twist.linear.x, self.v_x)
         y_ok = are_close_to_each_other(twist.linear.y, self.v_y)
@@ -90,12 +101,10 @@ class SimulationTestNode(Node):
         return x_ok and y_ok and yaw_ok
 
     def controller_callback(self, data: Odometry):
-        if self.is_twist_ok(data.twist.twist):
-            self.controller_odom_event.set()
+        self.controller_odom_flag = self.is_twist_ok(data.twist.twist)
 
     def ekf_callback(self, data: Odometry):
-        if self.is_twist_ok(data.twist.twist):
-            self.ekf_odom_event.set()
+        self.ekf_odom_flag = self.is_twist_ok(data.twist.twist)
 
     def lookup_transform_odom(self):
         try:
@@ -107,6 +116,10 @@ class SimulationTestNode(Node):
     def timer_callback(self):
         self.publish_cmd_vel_messages()
         self.lookup_transform_odom()
+
+        self.current_time = 1e-9 * self.get_clock().now().nanoseconds
+        if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
+            self.vel_stabilization_time_event.set()
 
     def scan_callback(self, data: LaserScan):
         if data.ranges:

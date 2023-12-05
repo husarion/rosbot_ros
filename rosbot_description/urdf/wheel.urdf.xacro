@@ -39,28 +39,28 @@
     <xacro:if value="${side == 'fl'}">
       <xacro:property name="x" value="${wheel_separation_x/2.0}" />
       <xacro:property name="y" value="${wheel_separation_y/2.0}" />
-      <xacro:property name="mesh" value="file://$(find rosbot_description)/meshes/${wheel_file}_b.dae" />
+      <xacro:property name="mesh" value="package://rosbot_description/meshes/${wheel_file}_b.dae" />
       <xacro:property name="visual_rotation" value="${pi}" />
       <xacro:property name="fdir" value="1.0 -1.0 0.0" />
     </xacro:if>
     <xacro:if value="${side == 'fr'}">
       <xacro:property name="x" value="${wheel_separation_x/2.0}" />
       <xacro:property name="y" value="${-wheel_separation_y/2.0}" />
-      <xacro:property name="mesh" value="file://$(find rosbot_description)/meshes/${wheel_file}_a.dae" />
+      <xacro:property name="mesh" value="package://rosbot_description/meshes/${wheel_file}_a.dae" />
       <xacro:property name="visual_rotation" value="${pi}" />
       <xacro:property name="fdir" value="1.0 1.0 0.0" />
     </xacro:if>
     <xacro:if value="${side == 'rl'}">
       <xacro:property name="x" value="${-wheel_separation_x/2}" />
       <xacro:property name="y" value="${wheel_separation_y/2}" />
-      <xacro:property name="mesh" value="file://$(find rosbot_description)/meshes/${wheel_file}_a.dae" />
+      <xacro:property name="mesh" value="package://rosbot_description/meshes/${wheel_file}_a.dae" />
       <xacro:property name="visual_rotation" value="${0.0}" />
       <xacro:property name="fdir" value="1.0 1.0 0.0" />
     </xacro:if>
     <xacro:if value="${side == 'rr'}">
       <xacro:property name="x" value="${-wheel_separation_x/2}" />
       <xacro:property name="y" value="${-wheel_separation_y/2}" />
-      <xacro:property name="mesh" value="file://$(find rosbot_description)/meshes/${wheel_file}_b.dae" />
+      <xacro:property name="mesh" value="package://rosbot_description/meshes/${wheel_file}_b.dae" />
       <xacro:property name="visual_rotation" value="${0.0}" />
       <xacro:property name="fdir" value="1.0 -1.0 0.0" />
     </xacro:if>
