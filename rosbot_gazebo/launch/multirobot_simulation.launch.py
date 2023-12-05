@@ -120,7 +120,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "mecanum": mecanum,
-            "use_multirobot_system": "True",
+            "use_multirobot_system": "False",
             "use_sim": "True",
             "use_gpu": use_gpu,
             "simulation_engine": "ignition-gazebo",

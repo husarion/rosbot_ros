@@ -28,8 +28,8 @@
     use_sim_time: True
     tf_frame_prefix_enable: False
 
-    left_wheel_names: ["rosbot1/fl_wheel_joint", "rosbot1/rl_wheel_joint"]
-    right_wheel_names: ["rosbot1/fr_wheel_joint", "rosbot1/rr_wheel_joint"]
+    left_wheel_names: ["fl_wheel_joint", "rl_wheel_joint"]
+    right_wheel_names: ["fr_wheel_joint", "rr_wheel_joint"]
 
     wheel_separation: 0.186
     wheel_radius: 0.0425
@@ -117,8 +117,8 @@
     use_sim_time: True
     tf_frame_prefix_enable: False
 
-    left_wheel_names: ["rosbot2/fl_wheel_joint", "rosbot2/rl_wheel_joint"]
-    right_wheel_names: ["rosbot2/fr_wheel_joint", "rosbot2/rr_wheel_joint"]
+    left_wheel_names: ["fl_wheel_joint", "rl_wheel_joint"]
+    right_wheel_names: ["fr_wheel_joint", "rr_wheel_joint"]
 
     wheel_separation: 0.186
     wheel_radius: 0.0425

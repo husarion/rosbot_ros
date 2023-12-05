@@ -2,13 +2,6 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
   <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace use_multirobot_system">
 
-    <!-- Namespaces are necessary only with multiple robot system in Ignition Gazebo because
-         the same joint states crashes the simulator.
-    -->
-    <xacro:unless value="${use_multirobot_system}">
-      <xacro:property name="namespace" value="None" />
-    </xacro:unless>
-
     <xacro:if value="${namespace == 'None'}">
       <xacro:property name="namespace_ext" value="" />
     </xacro:if>
@@ -28,13 +21,13 @@
     <xacro:include filename="$(find rosbot_description)/urdf/wheel.urdf.xacro" ns="wheel" />
 
     <!-- BODY DECLARATION -->
-    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" use_gpu="${use_gpu}" use_multirobot_system="${use_multirobot_system}"/>
+    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" use_gpu="${use_gpu}" />
 
     <!-- WHEEL DECLARATION -->
-    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fr" mecanum="${mecanum}" namespace="${namespace}" />
-    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fl" mecanum="${mecanum}" namespace="${namespace}" />
-    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="rl" mecanum="${mecanum}" namespace="${namespace}" />
-    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="rr" mecanum="${mecanum}" namespace="${namespace}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fr" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="rl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="rr" mecanum="${mecanum}" />
 
     <!-- ROS2 CONTROL -->
     <xacro:unless value="$(arg use_sim)">
@@ -85,22 +78,22 @@
         </xacro:if>
       </hardware>
 
-      <joint name="${namespace_ext}fl_wheel_joint">
+      <joint name="fl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${namespace_ext}fr_wheel_joint">
+      <joint name="fr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${namespace_ext}rl_wheel_joint">
+      <joint name="rl_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
       </joint>
-      <joint name="${namespace_ext}rr_wheel_joint">
+      <joint name="rr_wheel_joint">
         <command_interface name="velocity" />
         <state_interface name="position" />
         <state_interface name="velocity" />
@@ -131,23 +124,21 @@
           <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
 
             <xacro:if value="${use_multirobot_system}">
-              <xacro:property name="controller_config_prefix" value="multi_" />
+              <xacro:property name="controller_config_prefix" value="" />
             </xacro:if>
             <xacro:unless value="${use_multirobot_system}">
               <xacro:property name="controller_config_prefix" value="" />
             </xacro:unless>
 
             <xacro:if value="${mecanum}">
-              <parameters>$(find rosbot_controller)/config/${controller_config_prefix}mecanum_drive_controller.yaml</parameters>
+              <parameters>$(find rosbot_controller)/config/mecanum_drive_controller.yaml</parameters>
             </xacro:if>
             <xacro:unless value="${mecanum}">
-              <parameters>$(find rosbot_controller)/config/${controller_config_prefix}diff_drive_controller.yaml</parameters>
+              <parameters>$(find rosbot_controller)/config/diff_drive_controller.yaml</parameters>
             </xacro:unless>
 
             <ros>
-              <xacro:unless value="${namespace == 'None'}">
-                <namespace>${namespace}</namespace>
-              </xacro:unless>
+              <namespace>${namespace}</namespace>
               <remapping>rosbot_base_controller/cmd_vel_unstamped:=cmd_vel</remapping>
               <remapping>/tf:=tf</remapping>
             </ros>
