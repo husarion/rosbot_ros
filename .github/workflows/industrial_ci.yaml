@@ -63,6 +63,12 @@ jobs:
                   cp -r src/ros2_controllers/imu_sensor_broadcaster src/
                   rm -rf src/ros2_controllers
 
+            # Package micro_ros_msgs does not have industrial ci and tests does not pass.
+            # For more information see https://github.com/micro-ROS/micro_ros_msgs/issues/7
+            - name: Remove tests from micro_ros_msgs
+              shell: bash
+              run: sed '/if(BUILD_TESTING)/,/endif()/d' micro_ros_msgs/CMakeLists.txt -i
+
             - name: Running ROS Industrial CI
               uses: ros-industrial/industrial_ci@master
               env:
