@@ -71,7 +71,7 @@ RUN MYDISTRO=${PREFIX:-ros}; MYDISTRO=${MYDISTRO//-/} && \
     rm -rf build log
 
 ## =========================== Final Stage ===============================
-FROM husarnet/ros:${PREFIX}${ROS_DISTRO}-ros-core 
+FROM husarnet/ros:${PREFIX}${ROS_DISTRO}-ros-core
 
 ARG ROS_DISTRO
 ARG PREFIX
@@ -98,4 +98,3 @@ COPY tools/healthcheck.sh /
 
 HEALTHCHECK --interval=7s --timeout=2s  --start-period=5s --retries=5 \
     CMD ["/healthcheck.sh"]
-
