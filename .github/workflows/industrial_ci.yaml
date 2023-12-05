@@ -62,6 +62,7 @@ jobs:
                   cp -r src/ros2_controllers/diff_drive_controller src/
                   cp -r src/ros2_controllers/imu_sensor_broadcaster src/
                   rm -rf src/ros2_controllers
+                  rm -rf src/rosbot_bringup
 
             - name: Running ROS Industrial CI
               uses: ros-industrial/industrial_ci@master
