@@ -149,21 +149,6 @@ cd src/
 black rosbot*
 ```
 
-### Testing `.github/workflows/industrial_ci.yaml` Locally
-
-At fist install [act](https://github.com/nektos/act):
-
-```
-cd /
-curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
-```
-
-And test the workflow with:
-
-```
-act -W .github/workflows/industrial_ci.yaml
-```
-
 ## Demo
 Below you can find demos with ROSbots:
 - in [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros2) you will find a simple example how to drive ROSbot with `teleop_twist_keyboard`.
