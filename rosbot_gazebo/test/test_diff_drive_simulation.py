@@ -41,9 +41,7 @@ def generate_test_description():
                 ]
             )
         ),
-        launch_arguments={
-            "headless": "True",
-        }.items(),
+        launch_arguments={"headless": "True", "world": "empty.sdf"}.items(),
     )
 
     return LaunchDescription([simulation_launch])
@@ -65,18 +63,26 @@ def test_diff_drive_simulation():
         # 0.9 m/s and 3.0 rad/s are controller's limits defined in
         #   rosbot_controller/config/diff_drive_controller.yaml
         node.set_destination_speed(0.9, 0.0, 0.0)
-        controller_flag = node.controller_odom_event.wait(timeout=20.0)
-        ekf_flag = node.ekf_odom_event.wait(timeout=20.0)
+        assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+            "The simulation is running slowly or has crashed! The time elapsed since setting the"
+            f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
+        )
         assert (
-            controller_flag
+            node.controller_odom_flag
         ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
-        assert ekf_flag, "ROSbot does not move properly in x direction. Check ekf_filter_node!"
+        assert (
+            node.ekf_odom_flag
+        ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
 
         node.set_destination_speed(0.0, 0.0, 3.0)
-        controller_flag = node.controller_odom_event.wait(timeout=20.0)
-        ekf_flag = node.ekf_odom_event.wait(timeout=20.0)
-        assert controller_flag, "ROSbot does not rotate properly. Check rosbot_base_controller!"
-        assert ekf_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
+        assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+            "The simulation is running slowly or has crashed! The time elapsed since setting the"
+            f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
+        )
+        assert (
+            node.controller_odom_flag
+        ), "ROSbot does not rotate properly. Check rosbot_base_controller!"
+        assert node.ekf_odom_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
 
         flag = node.scan_event.wait(timeout=20.0)
         assert flag, "ROSbot's lidar does not work properly!"
