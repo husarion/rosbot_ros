@@ -12,6 +12,8 @@ services:
       dockerfile: tools/Dockerfile
     devices:
       - ${SERIAL_PORT-:/dev/null}
+    environment:
+      - ROS_LOCALHOST_ONLY=1
     command: >
       ros2 launch rosbot_bringup combined.launch.py
         mecanum:=${MECANUM:-False}

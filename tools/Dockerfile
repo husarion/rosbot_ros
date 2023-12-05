@@ -33,21 +33,22 @@ RUN apt-get update && apt-get install -y \
     rosdep update --rosdistro $ROS_DISTRO && \
     rosdep install --from-paths src --ignore-src -y
 
-	
+# Create health check package
 RUN cd src/ && \
 	MYDISTRO=${PREFIX:-ros}; MYDISTRO=${MYDISTRO//-/} && \
 	source /opt/$MYDISTRO/$ROS_DISTRO/setup.bash && \
-    # Create health check package
     ros2 pkg create healthcheck_pkg --build-type ament_cmake --dependencies rclcpp nav_msgs && \
     sed -i '/find_package(nav_msgs REQUIRED)/a \
             add_executable(healthcheck_node src/healthcheck.cpp)\n \
             ament_target_dependencies(healthcheck_node rclcpp nav_msgs)\n \
             install(TARGETS healthcheck_node DESTINATION lib/${PROJECT_NAME})' \
             /ros2_ws/src/healthcheck_pkg/CMakeLists.txt && \
-    mv /healthcheck.cpp /ros2_ws/src/healthcheck_pkg/src/ && \
-    cd .. && \
-    # Build
-	colcon build \
+    mv /healthcheck.cpp /ros2_ws/src/healthcheck_pkg/src/
+
+# Build
+RUN MYDISTRO=${PREFIX:-ros}; MYDISTRO=${MYDISTRO//-/} && \
+	source /opt/$MYDISTRO/$ROS_DISTRO/setup.bash && \
+    colcon build \
     --cmake-args -DCMAKE_BUILD_TYPE=Release \
     --packages-skip \
         ackermann_steering_controller \
