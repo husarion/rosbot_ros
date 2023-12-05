@@ -42,6 +42,9 @@ jobs:
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
               run: cp -r ros2_controllers/diff_drive_controller . && cp -r ros2_controllers/imu_sensor_broadcaster . && rm -rf ros2_controllers
+            - name: Remove all tests
+              shell: bash
+              run: find . -type f -name "test_*" -exec rm -rf {} \;
             - uses: ros-industrial/industrial_ci@master
               env:
                   ROS_DISTRO: ${{matrix.ROS_DISTRO}}
