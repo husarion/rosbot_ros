@@ -9,16 +9,15 @@ services:
   rosbot:
     build:
       context: ../
-      dockerfile: tools/Dockerfile
+      dockerfile: tools/Dockerfile.dev
     network_mode: host
     ipc: host
+    privileged: true
     devices:
       - ${SERIAL_PORT:?err}
       - /dev/bus/usb/
-    environment:
-      - ROS_LOCALHOST_ONLY=0
-      - ROS_DOMAIN_ID=42
-      - FASTRTPS_DEFAULT_PROFILES_FILE=/shm-only.xml
+    volumes:
+      - ../rosbot_utils:/ros2_ws/src/rosbot_utils
     command: tail -f /dev/null
     # command: >
     #   ros2 launch rosbot_bringup combined.launch.py
