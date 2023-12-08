@@ -18,11 +18,10 @@ services:
     environment:
       - ROS_LOCALHOST_ONLY=0
       - ROS_DOMAIN_ID=42
-      - FASTRTPS_DEFAULT_PROFILES_FILE=/shm-only.xml
-    command: tail -f /dev/null
-    # command: >
-    #   ros2 launch rosbot_bringup combined.launch.py
-    #     mecanum:=${MECANUM:-False}
-    #     serial_port:=$SERIAL_PORT
-    #     serial_baudrate:=576000
-    #     namespace:=robot1
+    # command: tail -f /dev/null
+    command: >
+      ros2 launch rosbot_bringup combined.launch.py
+        mecanum:=${MECANUM:-False}
+        serial_port:=$SERIAL_PORT
+        serial_baudrate:=576000
+        namespace:=robot1

@@ -1,29 +1,6 @@
 ARG ROS_DISTRO=humble
 ARG PREFIX=
 ARG ROSBOT_FW_RELEASE=0.8.0
-## ============================ STM32FLASH =================================
-# stm32flash needs an older version of glibc (2.28), which is why ubuntu 18.04 was used
-FROM ubuntu:18.04 AS stm32flash_builder
-
-ARG ROS_DISTRO
-ARG ROSBOT_FW_RELEASE
-ARG TARGETARCH
-
-SHELL ["/bin/bash", "-c"]
-
-# official releases are only for intel archs, so we need to build stm32flash from sources
-RUN apt-get update && apt-get install -y \
-        curl
-
-RUN echo ros_distro=$ROS_DISTRO firmware_release=$ROSBOT_FW_RELEASE
-
-# Copy firmware binaries
-RUN curl -L https://github.com/husarion/stm32flash/releases/download/2023-12-05/stm32flash-$TARGETARCH -o /stm32flash && \
-    chmod +x /stm32flash
-
-# Copy firmware binaries
-RUN curl -L https://github.com/husarion/rosbot_ros2_firmware/releases/download/$ROSBOT_FW_RELEASE/firmware.bin -o /firmware.bin && \
-    curl -L https://github.com/husarion/rosbot_ros2_firmware/releases/download/$ROSBOT_FW_RELEASE/firmware.hex -o /firmware.hex
 
 ## =========================== ROS builder ===============================
 FROM husarnet/ros:${PREFIX}${ROS_DISTRO}-ros-base AS ros_builder
@@ -90,6 +67,7 @@ COPY --from=ros_builder /ros2_ws /ros2_ws
 RUN apt-get update && apt-get install -y \
         python3-rosdep \
         python3-pip \
+        stm32flash \
         ros-$ROS_DISTRO-teleop-twist-keyboard && \
     rm -rf /etc/ros/rosdep/sources.list.d/20-default.list && \
     rosdep init && \
@@ -108,7 +86,7 @@ COPY tools/healthcheck.sh /
 # copy firmware built in previous stage and downloaded repository
 # COPY --from=stm32flash_builder /firmware.bin /root/firmware.bin
 # COPY --from=stm32flash_builder /firmware.hex /root/firmware.hex
-COPY --from=stm32flash_builder /stm32flash /usr/bin/stm32flash
+# COPY --from=stm32flash_builder /stm32flash /usr/bin/stm32flash
 
 # copy scripts
 # COPY tools/flash-firmware.py /
