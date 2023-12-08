@@ -10,8 +10,6 @@ services:
     build:
       context: ../
       dockerfile: tools/Dockerfile
-    network_mode: host
-    ipc: host
     devices:
       - ${SERIAL_PORT:?err}
       - /dev/bus/usb/

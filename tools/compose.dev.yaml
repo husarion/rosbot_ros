@@ -10,8 +10,6 @@ services:
     build:
       context: ../
       dockerfile: tools/Dockerfile.dev
-    network_mode: host
-    ipc: host
     # privileged: true # GPIO
     devices:
       - ${SERIAL_PORT:?err}

@@ -30,6 +30,7 @@ subproc = None
 def signal_handler(sig, frame):
     global subproc
     if subproc:
+        print("Terminating the flashing process...")
         subproc.terminate()
     sys.exit(0)
 
@@ -56,7 +57,7 @@ def find_firmware_file():
 
     if not firmware_files:
         firmware_url = (
-            "https://github.com/husarion/rosbot_ros2_firmware/releases/download/0.8.0/firmware.bin"
+            "https://github.com/husarion/rosbot_ros2_firmware/releases/download/0.9.0/firmware.bin"
         )
         firmware_path = os.path.join(firmware_dir, "firmware.bin")
         print("Downloading firmware...")
