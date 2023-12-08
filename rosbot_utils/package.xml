@@ -11,7 +11,7 @@
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
-  <exec_depend>python3-sh</exec_depend> 
+  <exec_depend>python3-sh</exec_depend>
   <exec_depend>python-periphery-pip</exec_depend>
   <exec_depend>python3-pyftdi-pip</exec_depend>
   <exec_depend>usbutils</exec_depend>

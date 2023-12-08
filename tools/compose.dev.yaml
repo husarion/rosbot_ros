@@ -12,10 +12,10 @@ services:
       dockerfile: tools/Dockerfile.dev
     network_mode: host
     ipc: host
-    privileged: true
+    # privileged: true # GPIO
     devices:
       - ${SERIAL_PORT:?err}
-      - /dev/bus/usb/
+      - /dev/bus/usb/ #FTDI
     volumes:
       - ../rosbot_utils:/ros2_ws/src/rosbot_utils
     command: tail -f /dev/null
