@@ -131,3 +131,8 @@ SHM
 UDPv
 CustomUdpTransport
 UDPv
+Dominik
+Nowak
+pyftdi
+usbutils
+utils
