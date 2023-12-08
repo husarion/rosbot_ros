@@ -147,3 +147,4 @@ dev
 stm
 ttyUSB
 subprocess
+cbus
