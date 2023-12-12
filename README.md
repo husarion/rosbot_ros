@@ -34,7 +34,7 @@ For detailed instructions refer to the [rosbot_ros2_firmware repository](https:/
 Install `colcon`, `vcs` and `rosdep`:
 ```
 sudo apt-get update
-sudo apt-get install -y python3-colcon-common-extensions python3-vcstool python3-rosdep
+sudo apt-get install -y python3-colcon-common-extensions python3-vcstool python3-rosdep python3-pip
 ```
 
 Create workspace folder and clone `rosbot_ros` repository:
@@ -59,7 +59,7 @@ cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controlle
 
 rm -r src/rosbot_gazebo
 
-rosdep init
+sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build
@@ -100,7 +100,7 @@ vcs import src < src/rosbot/rosbot_simulation.repos
 # Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
 cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
-rosdep init
+sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build
