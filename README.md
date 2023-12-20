@@ -166,7 +166,10 @@ act -W .github/workflows/industrial_ci.yaml
 
 ## Demo
 Below you can find demos with ROSbots:
-- in [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros2) you will find a simple example how to drive ROSbot with `teleop_twist_keyboard`.
-- in [rosbot-sensors](https://github.com/husarion/rosbot-sensors) you will find an example how to visualize all ROSbot sensors.
-- in [rosbot-mapping](https://github.com/husarion/rosbot-mapping) you will find an example how to use ROSbot with the [slam_toolbox](https://github.com/SteveMacenski/slam_toolbox/).
-- in [rosbot-navigation](https://github.com/husarion/rosbot-navigation) you will find an example how to use ROSbot with the [navigation2](https://github.com/ros-planning/navigation2) stack.
+| link | description |
+| - | - |
+| [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros2) | Simple example how to drive ROSbot with `teleop_twist_keyboard` using docker |
+| [rosbot-sensors](https://github.com/husarion/rosbot-sensors) | Visualize all ROSbot sensors |
+| [rosbot-gamepad](https://github.com/husarion/rosbot-gamepad) | Stream a live video from Orbbec Astra to a window on your PC. Control the robot using `teleop-twist-keyboard` |
+| [rosbot-telepresence](https://github.com/husarion/rosbot-telepresence) | Stream a live video from Orbbec Astra to a window on your PC. Control the robot using `teleop-twist-keyboard` |
+| [rosbot-autonomy](https://github.com/husarion/rosbot-autonomy) | A combination of `mapping` and `navigation` projects allowing simultaneous mapping and navigation in unknown environments.  |
