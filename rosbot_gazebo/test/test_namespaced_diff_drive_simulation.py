@@ -42,7 +42,7 @@ def generate_test_description():
             )
         ),
         launch_arguments={
-            "headless": "True",
+            # "headless": "True",
             "world": "empty.sdf",
             "namespace": "rosbot2r",
         }.items(),

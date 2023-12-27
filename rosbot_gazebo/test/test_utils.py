@@ -35,14 +35,15 @@ class SimulationTestNode(Node):
     # cause the rosbot_base_controller to determine inaccurate odometry.
     ACCURACY = 0.10  # 10% accuracy
 
-    def __init__(self, name="test_node"):
-        super().__init__(name)
+    def __init__(self, name="test_node", namespace=None):
+        super().__init__(name, namespace=namespace)
 
         # Use simulation time to correct run on slow machine
         use_sim_time = rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
         self.set_parameters([use_sim_time])
 
         self.VELOCITY_STABILIZATION_DELAY = 3
+        self.current_time = 1e-9 * self.get_clock().now().nanoseconds
         self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
         self.vel_stabilization_time_event = Event()
 
@@ -71,11 +72,11 @@ class SimulationTestNode(Node):
         self.cmd_vel_publisher = self.create_publisher(Twist, "cmd_vel", 10)
 
         self.controller_odom_sub = self.create_subscription(
-            Odometry, "/rosbot_base_controller/odom", self.controller_callback, 10
+            Odometry, "rosbot_base_controller/odom", self.controller_callback, 10
         )
 
         self.ekf_odom_sub = self.create_subscription(
-            Odometry, "/odometry/filtered", self.ekf_callback, 10
+            Odometry, "odometry/filtered", self.ekf_callback, 10
         )
 
         self.scan_sub = self.create_subscription(LaserScan, "/scan", self.scan_callback, 10)
@@ -104,6 +105,7 @@ class SimulationTestNode(Node):
         self.controller_odom_flag = self.is_twist_ok(data.twist.twist)
 
     def ekf_callback(self, data: Odometry):
+        self.odom_tf_event.set()
         self.ekf_odom_flag = self.is_twist_ok(data.twist.twist)
 
     def lookup_transform_odom(self):
@@ -115,7 +117,7 @@ class SimulationTestNode(Node):
 
     def timer_callback(self):
         self.publish_cmd_vel_messages()
-        self.lookup_transform_odom()
+        # self.lookup_transform_odom()
 
         self.current_time = 1e-9 * self.get_clock().now().nanoseconds
         if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:

@@ -41,7 +41,11 @@ def generate_test_description():
                 ]
             )
         ),
-        launch_arguments={"mecanum": "True", "headless": "True", "world": "empty.sdf"}.items(),
+        launch_arguments={
+            "mecanum": "True",
+            #   "headless": "True",
+            "world": "empty.sdf",
+        }.items(),
     )
 
     return LaunchDescription([simulation_launch])

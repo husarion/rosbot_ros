@@ -42,7 +42,9 @@ def generate_test_description():
             )
         ),
         launch_arguments={
-            "robots": "robot1={x: 0.0}; robot2={x: 1.0}; robot3={x: 2.0}; robot4={x: 3.0}"
+            "robots": "robot1={y: 0.0}; robot2={y: 1.0}; robot3={y: 2.0}; robot4={y: 3.0}",
+            "world": "empty.sdf",
+            # "headless": True
         }.items(),
     )
 
