@@ -62,13 +62,6 @@ def generate_launch_description():
         ),
     )
 
-    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
-    declare_use_multirobot_system_arg = DeclareLaunchArgument(
-        "use_multirobot_system",
-        default_value="false",
-        description="Enable correct Ignition Gazebo configuration in URDF",
-    )
-
     controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -85,7 +78,6 @@ def generate_launch_description():
             "use_gpu": use_gpu,
             "simulation_engine": simulation_engine,
             "namespace": namespace,
-            "use_multirobot_system": use_multirobot_system,
         }.items(),
     )
 
@@ -109,7 +101,6 @@ def generate_launch_description():
         declare_use_sim_arg,
         declare_use_gpu_arg,
         declare_simulation_engine_arg,
-        declare_use_multirobot_system_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         controller_launch,
         robot_localization_node,

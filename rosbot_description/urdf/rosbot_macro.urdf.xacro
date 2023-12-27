@@ -1,12 +1,14 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace use_multirobot_system">
+  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace ">
 
     <xacro:if value="${namespace == 'None'}">
-      <xacro:property name="namespace_ext" value="" />
+      <xacro:property name="namespace_ext" value="/" />
+      <xacro:property name="gz_control_namespace" value="/" />
     </xacro:if>
     <xacro:unless value="${namespace == 'None'}">
         <xacro:property name="namespace_ext" value="${namespace}/" />
+        <xacro:property name="gz_control_namespace" value="${namespace}" />
     </xacro:unless>
 
     <xacro:if value="${mecanum}">
@@ -123,13 +125,6 @@
         <gazebo>
           <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
 
-            <xacro:if value="${use_multirobot_system}">
-              <xacro:property name="controller_config_prefix" value="" />
-            </xacro:if>
-            <xacro:unless value="${use_multirobot_system}">
-              <xacro:property name="controller_config_prefix" value="" />
-            </xacro:unless>
-
             <xacro:if value="${mecanum}">
               <parameters>$(find rosbot_controller)/config/mecanum_drive_controller.yaml</parameters>
             </xacro:if>
@@ -138,7 +133,7 @@
             </xacro:unless>
 
             <ros>
-              <namespace>${namespace}</namespace>
+              <namespace>${gz_control_namespace}</namespace>
               <remapping>rosbot_base_controller/cmd_vel_unstamped:=cmd_vel</remapping>
               <remapping>/tf:=tf</remapping>
             </ros>
@@ -155,7 +150,7 @@
             <ignition_frame_id>imu_link</ignition_frame_id>
             <xacro:unless value="${namespace == 'None'}">
               <ros>
-                <namespace>${namespace}</namespace>
+                <namespace>${namespace_ext}</namespace>
               </ros>
             </xacro:unless>
           </sensor>

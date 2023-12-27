@@ -46,13 +46,6 @@ def generate_launch_description():
         ),
     )
 
-    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
-    declare_use_multirobot_system_arg = DeclareLaunchArgument(
-        "use_multirobot_system",
-        default_value="false",
-        description="Enable correct Ignition Gazebo configuration in URDF",
-    )
-
     use_gpu = LaunchConfiguration("use_gpu")
     declare_use_gpu_arg = DeclareLaunchArgument(
         "use_gpu",
@@ -129,7 +122,6 @@ def generate_launch_description():
             "use_gpu": use_gpu,
             "simulation_engine": "ignition-gazebo",
             "namespace": namespace,
-            "use_multirobot_system": use_multirobot_system,
         }.items(),
     )
 
@@ -137,7 +129,6 @@ def generate_launch_description():
         [
             declare_namespace_arg,
             declare_mecanum_arg,
-            declare_use_multirobot_system_arg,
             declare_use_gpu_arg,
             # Sets use_sim_time for all nodes started below
             # (doesn't work for nodes started from ignition gazebo)

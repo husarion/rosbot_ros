@@ -13,17 +13,25 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, TimerAction
+from launch.actions import (
+    IncludeLaunchDescription,
+    DeclareLaunchArgument,
+    LogInfo,
+    GroupAction,
+)
 from launch.substitutions import (
     PathJoinSubstitution,
     PythonExpression,
     LaunchConfiguration,
+    TextSubstitution,
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.actions import SetParameter
 
 from ament_index_python.packages import get_package_share_directory
+
+from nav2_common.launch import ParseMultiRobotPose
 
 
 def generate_launch_description():
@@ -54,7 +62,7 @@ def generate_launch_description():
         [
             "'--headless-rendering -s -v 4 -r' if ",
             headless,
-            " else '-r -v 4 '",
+            " else '-r'",
         ]
     )
     gz_args = [headless_cfg, " ", world_cfg]
@@ -82,59 +90,51 @@ def generate_launch_description():
         }.items(),
     )
 
-    spawn_robot1_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    get_package_share_directory("rosbot_gazebo"),
-                    "launch",
-                    "spawn.launch.py",
-                ]
-            )
-        ),
-        launch_arguments={
-            "mecanum": mecanum,
-            "use_multirobot_system": "True",
-            "use_sim": "True",
-            "use_gpu": use_gpu,
-            "simulation_engine": "ignition-gazebo",
-            "namespace": "rosbot1",
-            "x": LaunchConfiguration("x1", default="0.00"),
-            "y": LaunchConfiguration("y1", default="2.00"),
-            "z": LaunchConfiguration("z1", default="0.20"),
-            "roll": LaunchConfiguration("roll1", default="0.00"),
-            "pitch": LaunchConfiguration("pitch1", default="0.00"),
-            "yaw": LaunchConfiguration("yaw1", default="0.00"),
-        }.items(),
-    )
+    robots_list = ParseMultiRobotPose("robots").value()
 
-    spawn_robot2_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    get_package_share_directory("rosbot_gazebo"),
-                    "launch",
-                    "spawn.launch.py",
-                ]
-            )
-        ),
-        launch_arguments={
-            "mecanum": mecanum,
-            "use_multirobot_system": "False",
-            "use_sim": "True",
-            "use_gpu": use_gpu,
-            "simulation_engine": "ignition-gazebo",
-            "namespace": "rosbot2",
-            "x": LaunchConfiguration("x2", default="1.00"),
-            "y": LaunchConfiguration("y2", default="2.00"),
-            "z": LaunchConfiguration("z2", default="0.20"),
-            "roll": LaunchConfiguration("roll2", default="0.00"),
-            "pitch": LaunchConfiguration("pitch2", default="0.00"),
-            "yaw": LaunchConfiguration("yaw2", default="0.00"),
-        }.items(),
-    )
+    # Define commands for launching the navigation instances
+    bringup_cmd_group = []
+    for robot_name in robots_list:
+        init_pose = robots_list[robot_name]
+        group = GroupAction(
+            [
+                LogInfo(
+                    msg=[
+                        "Launching namespace=",
+                        robot_name,
+                        " init_pose=",
+                        str(init_pose),
+                    ]
+                ),
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(
+                        PathJoinSubstitution(
+                            [
+                                get_package_share_directory("rosbot_gazebo"),
+                                "launch",
+                                "spawn.launch.py",
+                            ]
+                        )
+                    ),
+                    launch_arguments={
+                        "mecanum": mecanum,
+                        "use_sim": "True",
+                        "use_gpu": use_gpu,
+                        "simulation_engine": "ignition-gazebo",
+                        "namespace": TextSubstitution(text=robot_name),
+                        "x": TextSubstitution(text=str(init_pose["x"])),
+                        "y": TextSubstitution(text=str(init_pose["y"])),
+                        "z": TextSubstitution(text=str(init_pose["z"])),
+                        "roll": TextSubstitution(text=str(init_pose["roll"])),
+                        "pitch": TextSubstitution(text=str(init_pose["pitch"])),
+                        "yaw": TextSubstitution(text=str(init_pose["yaw"])),
+                    }.items(),
+                ),
+            ]
+        )
 
-    delayed_spawn_robot2 = TimerAction(period=10.0, actions=[spawn_robot2_launch])
+        bringup_cmd_group.append(group)
+
     return LaunchDescription(
         [
             declare_mecanum_arg,
@@ -145,7 +145,6 @@ def generate_launch_description():
             # (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
             gz_sim,
-            spawn_robot1_launch,
-            delayed_spawn_robot2,
         ]
+        + bringup_cmd_group
     )
