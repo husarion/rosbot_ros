@@ -1,0 +1,25 @@
+# Quick Start
+#
+# 1. run `docker compose up` on the robot
+# 3. You can use teleop_twist_keyboard to control the robot in robot1 namespace:
+# `ros2 run teleop_twist_keyboard teleop_twist_keyboard  --ros-args -r __ns:=/robot1`
+
+services:
+
+  rosbot:
+    build:
+      context: ../
+      dockerfile: tools/Dockerfile.dev
+    # privileged: true # GPIO
+    devices:
+      - ${SERIAL_PORT:?err}
+      - /dev/bus/usb/ #FTDI
+    volumes:
+      - ../rosbot_utils:/ros2_ws/src/rosbot_utils
+    command: tail -f /dev/null
+    # command: >
+    #   ros2 launch rosbot_bringup combined.launch.py
+    #     mecanum:=${MECANUM:-False}
+    #     serial_port:=$SERIAL_PORT
+    #     serial_baudrate:=576000
+    #     namespace:=robot1

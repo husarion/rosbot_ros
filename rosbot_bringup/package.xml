@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_bringup</name>
-  <version>0.10.5</version>
+  <version>0.11.0</version>
   <description>ROSbot 2, 2R, PRO bringup package</description>
   <license>Apache License 2.0</license>
 
@@ -17,6 +17,7 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>rosbot_controller</exec_depend>
   <exec_depend>robot_localization</exec_depend>
+  <exec_depend>micro_ros_agent</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
   <test_depend>launch</test_depend>

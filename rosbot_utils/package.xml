@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>rosbot_utils</name>
+  <version>0.11.0</version>
+  <description>utilities for ROSbot 2R and 2 PRO</description>
+  <maintainer email="dominik.nwk@gmail.com">Dominik Nowak</maintainer>
+  <license>Apache License 2.0</license>
+
+  <url type="website">https://husarion.com/</url>
+  <url type="repository">https://github.com/husarion/rosbot_ros</url>
+  <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
+
+  <exec_depend>python3-sh</exec_depend>
+  <exec_depend>python-periphery-pip</exec_depend>
+  <exec_depend>python3-pyftdi-pip</exec_depend>
+  <exec_depend>usbutils</exec_depend>
+  <exec_depend>python3-serial</exec_depend>
+  <exec_depend>python3-requests</exec_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

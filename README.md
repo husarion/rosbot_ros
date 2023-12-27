@@ -34,7 +34,7 @@ For detailed instructions refer to the [rosbot_ros2_firmware repository](https:/
 Install `colcon`, `vcs` and `rosdep`:
 ```
 sudo apt-get update
-sudo apt-get install -y python3-colcon-common-extensions python3-vcstool python3-rosdep
+sudo apt-get install -y python3-colcon-common-extensions python3-vcstool python3-rosdep python3-pip
 ```
 
 Create workspace folder and clone `rosbot_ros` repository:
@@ -59,7 +59,7 @@ cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controlle
 
 rm -r src/rosbot_gazebo
 
-rosdep init
+sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build
@@ -100,7 +100,7 @@ vcs import src < src/rosbot/rosbot_simulation.repos
 # Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
 cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
-rosdep init
+sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build
@@ -149,9 +149,27 @@ cd src/
 black rosbot*
 ```
 
+### Testing `.github/workflows/industrial_ci.yaml` Locally
+
+At fist install [act](https://github.com/nektos/act):
+
+```
+cd /
+curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+```
+
+And test the workflow with:
+
+```
+act -W .github/workflows/industrial_ci.yaml
+```
+
 ## Demo
 Below you can find demos with ROSbots:
-- in [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros2) you will find a simple example how to drive ROSbot with `teleop_twist_keyboard`.
-- in [rosbot-sensors](https://github.com/husarion/rosbot-sensors) you will find an example how to visualize all ROSbot sensors.
-- in [rosbot-mapping](https://github.com/husarion/rosbot-mapping) you will find an example how to use ROSbot with the [slam_toolbox](https://github.com/SteveMacenski/slam_toolbox/).
-- in [rosbot-navigation](https://github.com/husarion/rosbot-navigation) you will find an example how to use ROSbot with the [navigation2](https://github.com/ros-planning/navigation2) stack.
+| link | description |
+| - | - |
+| [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros2) | Simple example how to drive ROSbot with `teleop_twist_keyboard` using docker |
+| [rosbot-sensors](https://github.com/husarion/rosbot-sensors) | Visualize all ROSbot sensors |
+| [rosbot-gamepad](https://github.com/husarion/rosbot-gamepad) | Stream a live video from Orbbec Astra to a window on your PC. Control the robot using `teleop-twist-keyboard` |
+| [rosbot-telepresence](https://github.com/husarion/rosbot-telepresence) | Stream a live video from Orbbec Astra to a window on your PC. Control the robot using `teleop-twist-keyboard` |
+| [rosbot-autonomy](https://github.com/husarion/rosbot-autonomy) | A combination of `mapping` and `navigation` projects allowing simultaneous mapping and navigation in unknown environments.  |

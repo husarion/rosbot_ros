@@ -1,0 +1,68 @@
+ARG ROS_DISTRO=humble
+ARG PREFIX=
+ARG ROSBOT_FW_RELEASE=0.8.0
+## ============================ STM32FLASH =================================
+# stm32flash needs an older version of glibc (2.28), which is why ubuntu 18.04 was used
+FROM ubuntu:18.04 AS stm32flash_builder
+
+ARG ROS_DISTRO
+ARG ROSBOT_FW_RELEASE
+ARG TARGETARCH
+
+SHELL ["/bin/bash", "-c"]
+
+# official releases are only for intel archs, so we need to build stm32flash from sources
+RUN apt-get update && apt-get install -y \
+        curl
+
+RUN echo ros_distro=$ROS_DISTRO firmware_release=$ROSBOT_FW_RELEASE
+
+# Copy firmware binaries
+RUN curl -L https://github.com/husarion/stm32flash/releases/download/2023-12-05/stm32flash-$TARGETARCH -o /stm32flash && \
+    chmod +x /stm32flash
+
+## =========================== ROS builder ===============================
+FROM husarnet/ros:${PREFIX}${ROS_DISTRO}-ros-base AS ros_builder
+
+ARG ROS_DISTRO
+ARG PREFIX
+
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR /ros2_ws
+RUN mkdir src
+
+COPY rosbot src/rosbot
+COPY rosbot_bringup src/rosbot_bringup
+COPY rosbot_controller src/rosbot_controller
+COPY rosbot_description src/rosbot_description
+COPY rosbot_utils src/rosbot_utils
+
+RUN apt-get update && apt-get install -y \
+        python3-pip \
+        stm32flash
+
+RUN vcs import src < src/rosbot/rosbot_hardware.repos && \
+    cp -r src/ros2_controllers/diff_drive_controller src/ && \
+    cp -r src/ros2_controllers/imu_sensor_broadcaster src/ && \
+    rm -rf src/ros2_controllers && \
+    # without this line (using vulcanexus base image) rosdep init throws error: "ERROR: default sources list file already exists:"
+    rm -rf /etc/ros/rosdep/sources.list.d/20-default.list && \
+	rosdep init && \
+    rosdep update --rosdistro $ROS_DISTRO && \
+    rosdep install --from-paths src --ignore-src -y
+
+# COPY --from=stm32flash_builder /stm32flash /usr/bin/stm32flash
+
+# Build
+RUN MYDISTRO=${PREFIX:-ros}; MYDISTRO=${MYDISTRO//-/} && \
+    source /opt/$MYDISTRO/$ROS_DISTRO/setup.bash && \
+    colcon build --cmake-args --symlink-install
+
+# copy scripts
+# COPY tools/flash-firmware.py /
+# COPY tools/flash-firmware.py /usr/bin/
+# COPY tools/flash-firmware-usb.py /usr/bin/
+
+HEALTHCHECK --interval=7s --timeout=2s  --start-period=5s --retries=5 \
+    CMD ["/healthcheck.sh"]
