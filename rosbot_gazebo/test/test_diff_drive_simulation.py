@@ -43,7 +43,13 @@ def generate_test_description():
         ),
         launch_arguments={
             # "headless": "True",
-            "world": "empty.sdf"
+            "world": PathJoinSubstitution(
+                [
+                    get_package_share_directory("husarion_office_gz"),
+                    "worlds",
+                    "empty_with_plugins.sdf",
+                ]
+            )
         }.items(),
     )
 

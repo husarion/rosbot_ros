@@ -43,7 +43,13 @@ def generate_test_description():
         ),
         launch_arguments={
             "robots": "robot1={y: 0.0}; robot2={y: 1.0}; robot3={y: 2.0}; robot4={y: 3.0}",
-            "world": "empty.sdf",
+            "world": PathJoinSubstitution(
+                [
+                    get_package_share_directory("husarion_office_gz"),
+                    "worlds",
+                    "empty_with_plugins.sdf",
+                ]
+            )
             # "headless": True
         }.items(),
     )

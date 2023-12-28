@@ -24,10 +24,6 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 
-from tf2_ros import TransformException
-from tf2_ros.buffer import Buffer
-from tf2_ros.transform_listener import TransformListener
-
 
 class SimulationTestNode(Node):
     __test__ = False
@@ -79,9 +75,7 @@ class SimulationTestNode(Node):
             Odometry, "odometry/filtered", self.ekf_callback, 10
         )
 
-        self.scan_sub = self.create_subscription(LaserScan, "/scan", self.scan_callback, 10)
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.scan_sub = self.create_subscription(LaserScan, "scan", self.scan_callback, 10)
 
         self.timer = None
 
@@ -102,28 +96,24 @@ class SimulationTestNode(Node):
         return x_ok and y_ok and yaw_ok
 
     def controller_callback(self, data: Odometry):
+        self.get_logger().info(f"Received twist from controller: {data.twist.twist}")
         self.controller_odom_flag = self.is_twist_ok(data.twist.twist)
 
     def ekf_callback(self, data: Odometry):
+        self.get_logger().info(f"Received twist filtered: {data.twist.twist}")
+
         self.odom_tf_event.set()
         self.ekf_odom_flag = self.is_twist_ok(data.twist.twist)
 
-    def lookup_transform_odom(self):
-        try:
-            self.tf_buffer.lookup_transform("odom", "base_link", rclpy.time.Time())
-            self.odom_tf_event.set()
-        except TransformException as ex:
-            self.get_logger().error(f"Could not transform odom to base_link: {ex}")
-
     def timer_callback(self):
         self.publish_cmd_vel_messages()
-        # self.lookup_transform_odom()
 
         self.current_time = 1e-9 * self.get_clock().now().nanoseconds
         if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
             self.vel_stabilization_time_event.set()
 
     def scan_callback(self, data: LaserScan):
+        self.get_logger().info(f"Received scan length: {len(data.ranges)}")
         if data.ranges:
             self.scan_event.set()
 
@@ -134,4 +124,5 @@ class SimulationTestNode(Node):
         twist_msg.linear.y = self.v_y
         twist_msg.angular.z = self.v_yaw
 
+        self.get_logger().info(f"Publishing twist: {twist_msg}")
         self.cmd_vel_publisher.publish(twist_msg)

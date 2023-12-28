@@ -43,8 +43,14 @@ def generate_test_description():
         ),
         launch_arguments={
             "mecanum": "True",
+            "world": PathJoinSubstitution(
+                [
+                    get_package_share_directory("husarion_office_gz"),
+                    "worlds",
+                    "empty_with_plugins.sdf",
+                ]
+            ),
             # "headless": "True",
-            "world": "empty.sdf",
             "namespace": "rosbot2r",
         }.items(),
     )
