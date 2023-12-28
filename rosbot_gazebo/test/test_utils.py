@@ -51,6 +51,7 @@ class SimulationTestNode(Node):
         self.ekf_odom_flag = False
         self.odom_tf_event = Event()
         self.scan_event = Event()
+        self.ros_node_spin_event = Event()
 
     def clear_odom_flag(self):
         self.controller_odom_flag = False
@@ -77,12 +78,11 @@ class SimulationTestNode(Node):
 
         self.scan_sub = self.create_subscription(LaserScan, "scan", self.scan_callback, 10)
 
-        self.timer = None
+        self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def start_node_thread(self):
         self.ros_spin_thread = Thread(target=lambda node: rclpy.spin(node), args=(self,))
         self.ros_spin_thread.start()
-        self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def is_twist_ok(self, twist: Twist):
         def are_close_to_each_other(current_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
@@ -96,11 +96,11 @@ class SimulationTestNode(Node):
         return x_ok and y_ok and yaw_ok
 
     def controller_callback(self, data: Odometry):
-        self.get_logger().info(f"Received twist from controller: {data.twist.twist}")
+        self.get_logger().debug(f"Received twist from controller: {data.twist.twist}")
         self.controller_odom_flag = self.is_twist_ok(data.twist.twist)
 
     def ekf_callback(self, data: Odometry):
-        self.get_logger().info(f"Received twist filtered: {data.twist.twist}")
+        self.get_logger().debug(f"Received twist filtered: {data.twist.twist}")
 
         self.odom_tf_event.set()
         self.ekf_odom_flag = self.is_twist_ok(data.twist.twist)
@@ -113,7 +113,7 @@ class SimulationTestNode(Node):
             self.vel_stabilization_time_event.set()
 
     def scan_callback(self, data: LaserScan):
-        self.get_logger().info(f"Received scan length: {len(data.ranges)}")
+        self.get_logger().debug(f"Received scan length: {len(data.ranges)}")
         if data.ranges:
             self.scan_event.set()
 
@@ -124,5 +124,5 @@ class SimulationTestNode(Node):
         twist_msg.linear.y = self.v_y
         twist_msg.angular.z = self.v_yaw
 
-        self.get_logger().info(f"Publishing twist: {twist_msg}")
+        self.get_logger().debug(f"Publishing twist: {twist_msg}")
         self.cmd_vel_publisher.publish(twist_msg)

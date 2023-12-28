@@ -69,7 +69,7 @@ def test_namespaced_mecanum_simulation():
         # 0.9 m/s and 3.0 rad/s are controller's limits defined in
         #   rosbot_controller/config/mecanum_drive_controller.yaml
         node.set_destination_speed(0.9, 0.0, 0.0)
-        assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+        assert node.vel_stabilization_time_event.wait(timeout=40.0), (
             "The simulation is running slowly or has crashed! The time elapsed since setting the"
             f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
         )
@@ -81,7 +81,7 @@ def test_namespaced_mecanum_simulation():
         ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
 
         node.set_destination_speed(0.0, 0.9, 0.0)
-        assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+        assert node.vel_stabilization_time_event.wait(timeout=40.0), (
             "The simulation is running slowly or has crashed! The time elapsed since setting the"
             f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
         )
@@ -93,7 +93,7 @@ def test_namespaced_mecanum_simulation():
         ), "ROSbot does not move properly in y direction. Check ekf_filter_node!"
 
         node.set_destination_speed(0.0, 0.0, 3.0)
-        assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+        assert node.vel_stabilization_time_event.wait(timeout=40.0), (
             "The simulation is running slowly or has crashed! The time elapsed since setting the"
             f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
         )

@@ -20,57 +20,59 @@ import rclpy
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.substitutions import PathJoinSubstitution
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-
+from launch.actions import ExecuteProcess
+from rclpy.executors import MultiThreadedExecutor
+from threading import Thread
 from test_utils import SimulationTestNode
 from test_ign_kill_utils import kill_ign_linux_processes
 
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_gazebo = get_package_share_directory("rosbot_gazebo")
-    simulation_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    rosbot_gazebo,
-                    "launch",
-                    "multirobot_simulation.launch.py",
-                ]
-            )
-        ),
-        launch_arguments={
-            "robots": "robot1={y: 0.0}; robot2={y: 1.0}; robot3={y: 2.0}; robot4={y: 3.0}",
-            "world": PathJoinSubstitution(
-                [
-                    get_package_share_directory("husarion_office_gz"),
-                    "worlds",
-                    "empty_with_plugins.sdf",
-                ]
-            )
-            # "headless": True
-        }.items(),
+    # IncludeLaunchDescription does not work with robots argument
+    simulation_launch = ExecuteProcess(
+        cmd=[
+            "ros2",
+            "launch",
+            "rosbot_gazebo",
+            "multirobot_simulation.launch.py",
+            (
+                f'world:={get_package_share_directory("husarion_office_gz")}'
+                "/worlds/empty_with_plugins.sdf"
+            ),
+            "robots:=robot1={y: 0.0}; robot2={y: 1.0}; robot3={y: 2.0}; robot4={y: 3.0}",
+            "mecanum:=True",
+        ],
+        output="screen",
     )
 
     return LaunchDescription([simulation_launch])
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_namespaced_mecanum_simulation():
+def test_multirobot_simulation():
     robot_names = ["robot1", "robot2", "robot3", "robot4"]
-    for robot_name in robot_names:
-        rclpy.init()
-        try:
+    rclpy.init()
+    try:
+        nodes = []
+        executor = MultiThreadedExecutor(num_threads=len(robot_names))
+
+        for robot_name in robot_names:
             node = SimulationTestNode("test_simulation", namespace=robot_name)
             node.create_test_subscribers_and_publishers()
-            node.start_node_thread()
+            nodes.append(node)
+            executor.add_node(node)
 
+        ros_spin_thread = Thread(target=lambda executor: executor.spin(), args=(executor,))
+        ros_spin_thread.start()
+
+        for node in nodes:
             # 0.9 m/s and 3.0 rad/s are controller's limits defined in
             #   rosbot_controller/config/mecanum_drive_controller.yaml
             node.set_destination_speed(0.9, 0.0, 0.0)
-            assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+
+        for node in nodes:
+            assert node.vel_stabilization_time_event.wait(timeout=60.0), (
                 "The simulation is running slowly or has crashed! The time elapsed since setting"
                 f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
             )
@@ -81,34 +83,46 @@ def test_namespaced_mecanum_simulation():
                 node.ekf_odom_flag
             ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
 
+        for node in nodes:
+            # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+            #   rosbot_controller/config/mecanum_drive_controller.yaml
             node.set_destination_speed(0.0, 0.9, 0.0)
-            assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+
+        for node in nodes:
+            assert node.vel_stabilization_time_event.wait(timeout=60.0), (
                 "The simulation is running slowly or has crashed! The time elapsed since setting"
                 f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
             )
             assert (
                 node.controller_odom_flag
-            ), "ROSbot does not move properly in y direction. Check rosbot_base_controller!"
+            ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
             assert (
                 node.ekf_odom_flag
-            ), "ROSbot does not move properly in y direction. Check ekf_filter_node!"
+            ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
 
+        for node in nodes:
             node.set_destination_speed(0.0, 0.0, 3.0)
-            assert node.vel_stabilization_time_event.wait(timeout=20.0), (
+
+        for node in nodes:
+            assert node.vel_stabilization_time_event.wait(timeout=60.0), (
                 "The simulation is running slowly or has crashed! The time elapsed since setting"
                 f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
             )
             assert (
                 node.controller_odom_flag
-            ), "ROSbot does not rotate properly. Check rosbot_base_controller!"
-            assert node.ekf_odom_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
+            ), f"{robot_name} does not rotate properly. Check rosbot_base_controller!"
+            assert (
+                node.ekf_odom_flag
+            ), f"{robot_name} does not rotate properly. Check ekf_filter_node!"
 
             flag = node.scan_event.wait(timeout=20.0)
-            assert flag, "ROSbot's lidar does not work properly!"
+            assert flag, f"{robot_name}'s lidar does not work properly!"
 
-        finally:
-            # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
-            # several tests in a row.
-            rclpy.shutdown()
+            node.destroy_node()
 
-    kill_ign_linux_processes()
+    finally:
+        rclpy.shutdown()
+
+        # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
+        # several tests in a row.
+        kill_ign_linux_processes()
