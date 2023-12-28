@@ -14,7 +14,7 @@
   ros__parameters:
     tf_frame_prefix_enable: false
 
-    sensor_name: imu
+    sensor_name: /imu
     frame_id: imu_link
     static_covariance_orientation: [1.9e-3, 0.0, 0.0, 0.0, 1.9e-3, 0.0, 0.0, 0.0, 1.9e-3] # Values taken from datasheet
     static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values measured experimentally
