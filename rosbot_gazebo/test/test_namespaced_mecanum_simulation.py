@@ -50,7 +50,7 @@ def generate_test_description():
                     "empty_with_plugins.sdf",
                 ]
             ),
-            # "headless": "True",
+            "headless": "True",
             "namespace": "rosbot2r",
         }.items(),
     )

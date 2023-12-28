@@ -43,7 +43,7 @@ def generate_test_description():
         ),
         launch_arguments={
             "mecanum": "True",
-            #   "headless": "True",
+            "headless": "True",
             "world": PathJoinSubstitution(
                 [
                     get_package_share_directory("husarion_office_gz"),

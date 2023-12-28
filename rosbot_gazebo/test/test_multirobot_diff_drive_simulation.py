@@ -41,6 +41,7 @@ def generate_test_description():
                 "/worlds/empty_with_plugins.sdf"
             ),
             "robots:=robot1={y: 0.0}; robot2={y: 1.0}; robot3={y: 2.0}; robot4={y: 3.0}",
+            "headless:=True",
         ],
         output="screen",
     )
