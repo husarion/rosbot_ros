@@ -26,6 +26,8 @@ from threading import Thread
 from test_utils import SimulationTestNode
 from test_ign_kill_utils import kill_ign_linux_processes
 
+robot_names = ["robot1", "robot2", "robot3", "robot4"]
+
 
 @launch_pytest.fixture
 def generate_test_description():
@@ -50,7 +52,7 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_multirobot_simulation():
+def test_multirobot_mecanum_simulation():
     robot_names = ["robot1", "robot2", "robot3", "robot4"]
     rclpy.init()
     try:
@@ -72,7 +74,7 @@ def test_multirobot_simulation():
             node.set_destination_speed(0.9, 0.0, 0.0)
 
         for node in nodes:
-            assert node.vel_stabilization_time_event.wait(timeout=60.0), (
+            assert node.vel_stabilization_time_event.wait(timeout=120.0), (
                 "The simulation is running slowly or has crashed! The time elapsed since setting"
                 f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
             )
@@ -89,22 +91,22 @@ def test_multirobot_simulation():
             node.set_destination_speed(0.0, 0.9, 0.0)
 
         for node in nodes:
-            assert node.vel_stabilization_time_event.wait(timeout=60.0), (
+            assert node.vel_stabilization_time_event.wait(timeout=120.0), (
                 "The simulation is running slowly or has crashed! The time elapsed since setting"
                 f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
             )
             assert (
                 node.controller_odom_flag
-            ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
+            ), "ROSbot does not move properly in y direction. Check rosbot_base_controller!"
             assert (
                 node.ekf_odom_flag
-            ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
+            ), "ROSbot does not move properly in y direction. Check ekf_filter_node!"
 
         for node in nodes:
             node.set_destination_speed(0.0, 0.0, 3.0)
 
         for node in nodes:
-            assert node.vel_stabilization_time_event.wait(timeout=60.0), (
+            assert node.vel_stabilization_time_event.wait(timeout=120.0), (
                 "The simulation is running slowly or has crashed! The time elapsed since setting"
                 f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
             )

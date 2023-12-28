@@ -20,16 +20,18 @@ import subprocess
 
 def kill_ign_linux_processes():
     try:
-        result = subprocess.run(
-            ["pgrep", "-f", "ign gazebo"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        for process_name in ["ign gazebo", "ros_gz"]:
+            result = subprocess.run(
+                ["pgrep", "-f", process_name],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
 
-        pids = result.stdout.strip().split("\n")
-        for pid in pids:
-            subprocess.run(["kill", pid], check=True)
+            pids = result.stdout.strip().split("\n")
+            for pid in pids:
+                subprocess.run(["kill", pid], check=True)
+
         print("Killed all Ignition Gazebo processes")
     except subprocess.CalledProcessError as e:
         print(e)
