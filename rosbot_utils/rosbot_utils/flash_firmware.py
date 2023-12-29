@@ -57,7 +57,7 @@ def find_firmware_file():
 
     if not firmware_files:
         firmware_url = (
-            "https://github.com/husarion/rosbot_ros2_firmware/releases/download/0.9.0/firmware.bin"
+            "https://github.com/husarion/rosbot_ros2_firmware/releases/download/0.10.0/firmware.bin"
         )
         firmware_path = os.path.join(firmware_dir, "firmware.bin")
         print("Downloading firmware...")
