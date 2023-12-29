@@ -132,8 +132,6 @@
               <parameters>$(find rosbot_controller)/config/diff_drive_controller.yaml</parameters>
             </xacro:unless>
 
-            <controller_manager_name>simulation_controller_manager</controller_manager_name>
-
             <ros>
               <namespace>${gz_control_namespace}</namespace>
               <remapping>rosbot_base_controller/cmd_vel_unstamped:=cmd_vel</remapping>

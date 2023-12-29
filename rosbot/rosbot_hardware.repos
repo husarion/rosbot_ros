@@ -17,7 +17,7 @@ repositories:
   ros2_controllers:
     type: git
     url: https://github.com/delihus/ros2_controllers
-    version: humble-backport
+    version: imu-sensor-broadcaster-features
   micro_ros_msgs:
     type: git
     url: https://github.com/micro-ROS/micro_ros_msgs.git

@@ -79,13 +79,9 @@ def generate_launch_description():
         ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
     )
 
-    in_case_simulation_controller_name = PythonExpression(
-        ["'simulation_controller_manager'", " if '", use_sim, "' else 'controller_manager'"]
-    )
-
     controller_manager_name = LaunchConfiguration(
         "controller_manager_name",
-        default=[namespace_ext, in_case_simulation_controller_name],
+        default=[namespace_ext, "controller_manager"],
     )
 
     # Get URDF via xacro
