@@ -3,7 +3,7 @@
   <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace ">
 
     <xacro:if value="${namespace == 'None'}">
-      <xacro:property name="namespace_ext" value="/" />
+      <xacro:property name="namespace_ext" value="" />
       <xacro:property name="gz_control_namespace" value="/" />
     </xacro:if>
     <xacro:unless value="${namespace == 'None'}">
@@ -131,6 +131,8 @@
             <xacro:unless value="${mecanum}">
               <parameters>$(find rosbot_controller)/config/diff_drive_controller.yaml</parameters>
             </xacro:unless>
+
+            <controller_manager_name>simulation_controller_manager</controller_manager_name>
 
             <ros>
               <namespace>${gz_control_namespace}</namespace>

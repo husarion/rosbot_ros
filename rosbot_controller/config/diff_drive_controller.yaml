@@ -1,3 +1,15 @@
+/**/simulation_controller_manager:
+  ros__parameters:
+    use_sim_time: True
+    update_rate: 20 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    rosbot_base_controller:
+      type: diff_drive_controller/DiffDriveController
+    imu_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+
 /**/controller_manager:
   ros__parameters:
     use_sim_time: False
@@ -13,6 +25,7 @@
 /**/imu_broadcaster:
   ros__parameters:
     tf_frame_prefix_enable: false
+    use_namespace_as_sensor_name_prefix: true
 
     sensor_name: imu
     frame_id: imu_link

@@ -1,6 +1,18 @@
+/**/simulation_controller_manager:
+  ros__parameters:
+    use_sim_time: True
+    update_rate: 20 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    rosbot_base_controller:
+      type: mecanum_drive_controller/MecanumDriveController
+    imu_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+
 /**/controller_manager:
   ros__parameters:
-    use_sim_time: false
+    use_sim_time: False
     update_rate: 20 # Hz
 
     joint_state_broadcaster:
@@ -13,6 +25,7 @@
 /**/imu_broadcaster:
   ros__parameters:
     tf_frame_prefix_enable: false
+    use_namespace_as_sensor_name_prefix: true
 
     sensor_name: imu
     frame_id: imu_link
@@ -33,9 +46,8 @@
     wheel_separation_y: 0.192
     wheel_radius: 0.047
 
-
-    wheel_separation_multiplier_x: 1.0
-    wheel_separation_multiplier_y: 1.0
+    wheel_separation_x_multiplier: 1.0
+    wheel_separation_y_multiplier: 1.0
 
     wheel_radius_multiplier: 1.0
 

@@ -1,7 +1,8 @@
 repositories:
   gazebosim/gz_ros2_control:
     type: git
-    url: https://github.com/ros-controls/gz_ros2_control.git
+    # Added feature with control manager name. Waiting on https://github.com/ros-controls/gz_ros2_control/pull/212
+    url: https://github.com/delihus/gz_ros2_control/tree/humble
     version: humble
 
   husarion/husarion_office_gz:
