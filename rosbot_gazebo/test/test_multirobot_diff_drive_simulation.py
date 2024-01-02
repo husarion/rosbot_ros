@@ -17,18 +17,26 @@
 import launch_pytest
 import pytest
 import rclpy
+import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
 from rclpy.executors import MultiThreadedExecutor
 from threading import Thread
+from launch_testing.actions import ReadyToTest
+from launch_testing.util import KeepAliveProc
+
 from test_utils import SimulationTestNode
 from test_ign_kill_utils import kill_ign_linux_processes
 
 
 @launch_pytest.fixture
 def generate_test_description():
+    # This is necessary to get unbuffered output from the process under test
+    proc_env = os.environ.copy()
+    proc_env["PYTHONUNBUFFERED"] = "1"
+
     # IncludeLaunchDescription does not work with robots argument
     simulation_launch = ExecuteProcess(
         cmd=[
@@ -46,7 +54,14 @@ def generate_test_description():
         output="screen",
     )
 
-    return LaunchDescription([simulation_launch])
+    return LaunchDescription(
+        [
+            simulation_launch,
+            KeepAliveProc(),
+            # Tell launch to start the test
+            ReadyToTest(),
+        ]
+    )
 
 
 @pytest.mark.launch(fixture=generate_test_description)
