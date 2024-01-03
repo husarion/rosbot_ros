@@ -14,6 +14,8 @@ husarion/husarion_office_gz
 gazebosim/gz_ros2_control
 diff_drive_controller
 imu_sensor_broadcaster
+micro-ROS-Agent/
+micro_ros_msgs/
 
 # pyspelling
 *.dic
