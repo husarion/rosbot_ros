@@ -29,7 +29,7 @@ jobs:
     ros_industrial_ci:
         name: ROS Industrial CI
         runs-on: ubuntu-22.04
-        timeout-minutes: 20
+        timeout-minutes: 60
         needs:
             - black
             - spellcheck
