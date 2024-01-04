@@ -25,7 +25,6 @@ from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_testing.actions import ReadyToTest
-from launch_testing.util import KeepAliveProc
 
 from test_utils import SimulationTestNode
 from test_ign_kill_utils import kill_ign_linux_processes
@@ -64,7 +63,6 @@ def generate_test_description():
     return LaunchDescription(
         [
             simulation_launch,
-            KeepAliveProc(),
             # Tell launch to start the test
             ReadyToTest(),
         ]
@@ -118,7 +116,9 @@ def test_mecanum_simulation():
         assert (
             node.controller_odom_flag
         ), "ROSbot does not rotate properly. Check rosbot_base_controller!"
-        assert node.ekf_odom_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
+        assert (
+            node.ekf_odom_flag
+        ), "ROSbot does not rotate properly. Check ekf_filter_node!"
 
         flag = node.scan_event.wait(timeout=20.0)
         assert flag, "ROSbot's lidar does not work properly!"

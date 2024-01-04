@@ -28,9 +28,14 @@
   <exec_depend>ign_ros2_control</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-psutil</test_depend>
   <test_depend>launch</test_depend>
   <test_depend>launch_ros</test_depend>
   <test_depend>launch_pytest</test_depend>
+  <test_depend>husarion_office_gz</test_depend>
+  <test_depend>ros_gz_sim</test_depend>
+  <test_depend>ros_gz_bridge</test_depend>
+  <test_depend>ign_ros2_control</test_depend>
 
   <test_depend>tf_transformations</test_depend>
   <test_depend>python-transforms3d-pip</test_depend>

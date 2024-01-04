@@ -64,7 +64,7 @@ def generate_launch_description():
         [
             "'--headless-rendering -s -v 4 -r' if ",
             headless,
-            " else '-r'",
+            " else '-r -v 4 '",
         ]
     )
     gz_args = [headless_cfg, " ", world_cfg]
