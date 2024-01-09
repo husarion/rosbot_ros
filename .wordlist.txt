@@ -149,3 +149,4 @@ ttyUSB
 subprocess
 cbus
 unbuffered
+psutil
