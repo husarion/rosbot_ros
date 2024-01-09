@@ -22,8 +22,6 @@
 
 /**/rosbot_base_controller:
   ros__parameters:
-    # TODO: (@delihus) use_sim_time is parsing here.
-    use_sim_time: True
     tf_frame_prefix_enable: false
 
     front_left_wheel_name: fl_wheel_joint
