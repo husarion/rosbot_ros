@@ -86,6 +86,7 @@ def generate_launch_description():
     robot_localization_node = Node(
         package="robot_localization",
         executable="ekf_node",
+        name="ekf_filter_node",
         output="screen",
         parameters=[ekf_config],
         remappings=[

@@ -24,7 +24,7 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_testing.actions import ReadyToTest
+# from launch_testing.actions import ReadyToTest
 
 from test_utils import SimulationTestNode
 from test_ign_kill_utils import kill_ign_linux_processes
@@ -63,7 +63,7 @@ def generate_test_description():
         [
             simulation_launch,
             # Tell launch to start the test
-            ReadyToTest(),
+            # ReadyToTest(),
         ]
     )
 
