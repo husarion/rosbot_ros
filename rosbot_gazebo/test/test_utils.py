@@ -22,7 +22,7 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import LaserScan, Image, PointCloud2
 
 
 class SimulationTestNode(Node):
@@ -31,11 +31,16 @@ class SimulationTestNode(Node):
     # cause the rosbot_base_controller to determine inaccurate odometry.
     ACCURACY = 0.10  # 10% accuracy
 
+    RANGE_SENSORS_TOPICS = ["range/fl", "range/fr", "range/rl", "range/rr"]
+    RANGE_SENSORS_FRAMES = ["fl_range", "fr_range", "rl_range", "rr_range"]
+
     def __init__(self, name="test_node", namespace=None):
         super().__init__(name, namespace=namespace)
 
         # Use simulation time to correct run on slow machine
-        use_sim_time = rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
+        use_sim_time = rclpy.parameter.Parameter(
+            "use_sim_time", rclpy.Parameter.Type.BOOL, True
+        )
         self.set_parameters([use_sim_time])
 
         self.VELOCITY_STABILIZATION_DELAY = 3
@@ -51,6 +56,9 @@ class SimulationTestNode(Node):
         self.ekf_odom_flag = False
         self.odom_tf_event = Event()
         self.scan_event = Event()
+        self.ranges_events = [Event() for _ in range(len(self.RANGE_SENSORS_TOPICS))]
+        self.camera_color_event = Event()
+        self.camera_points_event = Event()
         self.ros_node_spin_event = Event()
 
     def clear_odom_flag(self):
@@ -76,16 +84,37 @@ class SimulationTestNode(Node):
             Odometry, "odometry/filtered", self.ekf_callback, 10
         )
 
-        self.scan_sub = self.create_subscription(LaserScan, "scan", self.scan_callback, 10)
+        self.scan_sub = self.create_subscription(
+            LaserScan, "scan", self.scan_callback, 10
+        )
+
+        self.range_subs = []
+        for range_topic_name in self.RANGE_SENSORS_TOPICS:
+            sub = self.create_subscription(
+                LaserScan, range_topic_name, self.ranges_callback, 10
+            )
+            self.range_subs.append(sub)
+
+        self.camera_color_sub = self.create_subscription(
+            Image, "camera/image", self.camera_image_callback, 10
+        )
+
+        self.camera_points_sub = self.create_subscription(
+            PointCloud2, "camera/points", self.camera_points_callback, 10
+        )
 
         self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def start_node_thread(self):
-        self.ros_spin_thread = Thread(target=lambda node: rclpy.spin(node), args=(self,))
+        self.ros_spin_thread = Thread(
+            target=lambda node: rclpy.spin(node), args=(self,)
+        )
         self.ros_spin_thread.start()
 
     def is_twist_ok(self, twist: Twist):
-        def are_close_to_each_other(current_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
+        def are_close_to_each_other(
+            current_value, dest_value, tolerance=self.ACCURACY, eps=0.01
+        ):
             acceptable_range = dest_value * tolerance
             return abs(current_value - dest_value) <= acceptable_range + eps
 
@@ -109,13 +138,29 @@ class SimulationTestNode(Node):
         self.publish_cmd_vel_messages()
 
         self.current_time = 1e-9 * self.get_clock().now().nanoseconds
-        if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
+        if (
+            self.current_time
+            > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY
+        ):
             self.vel_stabilization_time_event.set()
 
     def scan_callback(self, data: LaserScan):
         self.get_logger().debug(f"Received scan length: {len(data.ranges)}")
         if data.ranges:
             self.scan_event.set()
+
+    def ranges_callback(self, data: LaserScan):
+        index = self.RANGE_SENSORS_FRAMES.index(data.header.frame_id)
+        if len(data.ranges) == 1:
+            self.ranges_events[index].set()
+
+    def camera_image_callback(self, data: Image):
+        if data.data:
+            self.camera_color_event.set()
+
+    def camera_points_callback(self, data: PointCloud2):
+        if data.data:
+            self.camera_points_event.set()
 
     def publish_cmd_vel_messages(self):
         twist_msg = Twist()

@@ -5,11 +5,9 @@
 
     <xacro:if value="${namespace == 'None'}">
       <xacro:property name="namespace_ext" value="" />
-      <xacro:property name="gz_control_namespace" value="/" />
     </xacro:if>
     <xacro:unless value="${namespace == 'None'}">
         <xacro:property name="namespace_ext" value="${namespace}/" />
-        <xacro:property name="gz_control_namespace" value="${namespace}" />
     </xacro:unless>
 
     <joint name="${parent}_${prefix}_range_joint" type="fixed">
@@ -26,7 +24,7 @@
       <gazebo reference="${prefix}_range">
         <sensor name="${namespace_ext}${prefix}_range" type='gpu_lidar'>
 
-          <topic>${gz_control_namespace}range/${prefix}</topic>
+          <topic>${namespace_ext}range/${prefix}</topic>
           <frame_id>${prefix}_range</frame_id>
           <ignition_frame_id>${prefix}_range</ignition_frame_id>
 
@@ -55,12 +53,9 @@
           <visualize>false</visualize>
 
           <ros>
-            <namespace></namespace>
+            <namespace>${namespace_ext}</namespace>
           </ros>
         </sensor>
-        <plugin filename="libignition-gazebo-sensors-system.so"  name="ignition::gazebo::systems::Sensors">
-          <render_engine>ogre2</render_engine>
-        </plugin>
       </gazebo>
     </xacro:if>
   </xacro:macro>

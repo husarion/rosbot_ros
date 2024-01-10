@@ -81,7 +81,9 @@ def test_multirobot_mecanum_simulation():
             nodes.append(node)
             executor.add_node(node)
 
-        ros_spin_thread = Thread(target=lambda executor: executor.spin(), args=(executor,))
+        ros_spin_thread = Thread(
+            target=lambda executor: executor.spin(), args=(executor,)
+        )
         ros_spin_thread.start()
 
         for node in nodes:
@@ -135,6 +137,18 @@ def test_multirobot_mecanum_simulation():
 
             flag = node.scan_event.wait(timeout=20.0)
             assert flag, f"{robot_name}'s lidar does not work properly!"
+
+            for i in range(len(node.RANGE_SENSORS_TOPICS)):
+                flag = node.ranges_events[i].wait(timeout=20.0)
+                assert (
+                    flag
+                ), f"ROSbot's range sensor {node.RANGE_SENSORS_TOPICS[i]} does not work properly!"
+
+            flag = node.camera_color_event.wait(timeout=20.0)
+            assert flag, "ROSbot's camera color image does not work properly!"
+
+            flag = node.camera_points_event.wait(timeout=20.0)
+            assert flag, "ROSbot's camera point cloud does not work properly!"
 
             node.destroy_node()
 

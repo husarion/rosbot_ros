@@ -101,10 +101,24 @@ def test_namespaced_diff_drive_simulation():
         assert (
             node.controller_odom_flag
         ), "ROSbot does not rotate properly. Check rosbot_base_controller!"
-        assert node.ekf_odom_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
+        assert (
+            node.ekf_odom_flag
+        ), "ROSbot does not rotate properly. Check ekf_filter_node!"
 
         flag = node.scan_event.wait(timeout=20.0)
         assert flag, "ROSbot's lidar does not work properly!"
+
+        for i in range(len(node.RANGE_SENSORS_TOPICS)):
+            flag = node.ranges_events[i].wait(timeout=20.0)
+            assert (
+                flag
+            ), f"ROSbot's range sensor {node.RANGE_SENSORS_TOPICS[i]} does not work properly!"
+
+        flag = node.camera_color_event.wait(timeout=20.0)
+        assert flag, "ROSbot's camera color image does not work properly!"
+
+        flag = node.camera_points_event.wait(timeout=20.0)
+        assert flag, "ROSbot's camera point cloud does not work properly!"
 
     finally:
         # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching

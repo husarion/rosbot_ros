@@ -17,7 +17,11 @@ from launch.actions import (
     IncludeLaunchDescription,
     DeclareLaunchArgument,
 )
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression
+from launch.substitutions import (
+    PathJoinSubstitution,
+    LaunchConfiguration,
+    PythonExpression,
+)
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from nav2_common.launch import ReplaceString
 from launch_ros.actions import Node, SetParameter
