@@ -57,7 +57,6 @@ class SimulationTestNode(Node):
         self.ranges_events = [Event() for _ in range(len(self.RANGE_SENSORS_TOPICS))]
         self.camera_color_event = Event()
         self.camera_points_event = Event()
-        self.ros_node_spin_event = Event()
 
     def clear_odom_flag(self):
         self.controller_odom_flag = False
