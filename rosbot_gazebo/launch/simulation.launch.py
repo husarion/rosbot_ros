@@ -17,80 +17,34 @@ from launch.actions import (
     IncludeLaunchDescription,
     DeclareLaunchArgument,
     LogInfo,
-    LogWarn,
     GroupAction,
+    OpaqueFunction,
 )
 from launch.substitutions import (
     PathJoinSubstitution,
-    PythonExpression,
     LaunchConfiguration,
     TextSubstitution,
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-
 from launch_ros.actions import SetParameter
-
 from ament_index_python.packages import get_package_share_directory
-
 from nav2_common.launch import ParseMultiRobotPose
 
 
-def generate_launch_description():
-    namespace = LaunchConfiguration("namespace")
-    declare_namespace_arg = DeclareLaunchArgument(
-        "namespace",
-        default_value="",
-        description="Namespace for all topics and tfs",
-    )
+def launch_setup(context, *args, **kwargs):
+    namespace = LaunchConfiguration("namespace").perform(context)
+    mecanum = LaunchConfiguration("mecanum").perform(context)
+    world = LaunchConfiguration("world").perform(context)
+    headless = LaunchConfiguration("headless").perform(context)
+    use_gpu = LaunchConfiguration("use_gpu").perform(context)
+    x = LaunchConfiguration("x", default="0.0").perform(context)
+    y = LaunchConfiguration("y", default="2.0").perform(context)
+    z = LaunchConfiguration("z", default="0.0").perform(context)
+    roll = LaunchConfiguration("roll", default="0.0").perform(context)
+    pitch = LaunchConfiguration("pitch", default="0.0").perform(context)
+    yaw = LaunchConfiguration("yaw", default="0.0").perform(context)
 
-    mecanum = LaunchConfiguration("mecanum")
-    declare_mecanum_arg = DeclareLaunchArgument(
-        "mecanum",
-        default_value="False",
-        description=(
-            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
-        ),
-    )
-
-    world_package = get_package_share_directory("husarion_office_gz")
-    world_file = PathJoinSubstitution([world_package, "worlds", "husarion_world.sdf"])
-    world_cfg = LaunchConfiguration("world")
-    declare_world_arg = DeclareLaunchArgument(
-        "world", default_value=world_file, description="SDF world file"
-    )
-
-    headless = LaunchConfiguration("headless")
-    declare_headless_arg = DeclareLaunchArgument(
-        "headless",
-        default_value="False",
-        description="Run Gazebo Ignition in the headless mode",
-    )
-
-    headless_cfg = PythonExpression(
-        [
-            "'--headless-rendering -s -v 4 -r' if ",
-            headless,
-            " else '-r'",
-        ]
-    )
-    gz_args = [headless_cfg, " ", world_cfg]
-
-    use_gpu = LaunchConfiguration("use_gpu")
-    declare_use_gpu_arg = DeclareLaunchArgument(
-        "use_gpu",
-        default_value="True",
-        description="Whether GPU acceleration is used",
-    )
-
-    declare_robots_arg = DeclareLaunchArgument(
-        "robots",
-        default_value="",
-        description=(
-            "Spawning multiple robots at positions with yaw orientations e. g. robots:='robot1={x:"
-            " 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0}; robot3={x: 2.0, y: -1.0}; robot4={x: 3.0,"
-            " y: -1.0}'"
-        ),
-    )
+    gz_args = f"--headless-rendering -s -v 4 -r {world}" if eval(headless) else f"-r {world}"
 
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -109,34 +63,19 @@ def generate_launch_description():
     )
 
     robots_list = ParseMultiRobotPose("robots").value()
-    spawn_group = []
     if len(robots_list) == 0:
-        spawn_single_robot = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                PathJoinSubstitution(
-                    [
-                        get_package_share_directory("rosbot_gazebo"),
-                        "launch",
-                        "spawn.launch.py",
-                    ]
-                )
-            ),
-            launch_arguments={
-                "mecanum": mecanum,
-                "use_sim": "True",
-                "use_gpu": use_gpu,
-                "simulation_engine": "ignition-gazebo",
-                "namespace": namespace,
-                "x": LaunchConfiguration("x", default="0.00"),
-                "y": LaunchConfiguration("y", default="2.00"),
-                "z": LaunchConfiguration("z", default="0.20"),
-                "roll": LaunchConfiguration("roll", default="0.00"),
-                "pitch": LaunchConfiguration("pitch", default="0.00"),
-                "yaw": LaunchConfiguration("yaw", default="0.00"),
-            }.items(),
-        )
-        spawn_group.append(spawn_single_robot)
+        robots_list = {
+            namespace: {
+                "x": x,
+                "y": y,
+                "z": z,
+                "roll": roll,
+                "pitch": pitch,
+                "yaw": yaw,
+            }
+        }
 
+    spawn_group = []
     for robot_name in robots_list:
         init_pose = robots_list[robot_name]
         group = GroupAction(
@@ -148,13 +87,6 @@ def generate_launch_description():
                         " init_pose=",
                         str(init_pose),
                     ]
-                ),
-                LogWarn(
-                    msg=[
-                        "Parameter 'namespace' should not be used with robots parameter. Skipping"
-                        " namespace..."
-                    ],
-                    condition=namespace,
                 ),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
@@ -184,6 +116,53 @@ def generate_launch_description():
         )
         spawn_group.append(group)
 
+    return [gz_sim, *spawn_group]
+
+
+def generate_launch_description():
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="Namespace for all topics and tfs",
+    )
+
+    declare_mecanum_arg = DeclareLaunchArgument(
+        "mecanum",
+        default_value="False",
+        description=(
+            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
+        ),
+    )
+
+    world_package = get_package_share_directory("husarion_office_gz")
+    world_file = PathJoinSubstitution([world_package, "worlds", "husarion_world.sdf"])
+    declare_world_arg = DeclareLaunchArgument(
+        "world", default_value=world_file, description="SDF world file"
+    )
+
+    declare_headless_arg = DeclareLaunchArgument(
+        "headless",
+        default_value="False",
+        description="Run Gazebo Ignition in the headless mode",
+        choices=["True", "False"],
+    )
+
+    declare_use_gpu_arg = DeclareLaunchArgument(
+        "use_gpu",
+        default_value="True",
+        description="Whether GPU acceleration is used",
+    )
+
+    declare_robots_arg = DeclareLaunchArgument(
+        "robots",
+        default_value="",
+        description=(
+            "Spawning multiple robots at positions with yaw orientations e. g. robots:='robot1={x:"
+            " 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0}; robot3={x: 2.0, y: -1.0}; robot4={x: 3.0,"
+            " y: -1.0}'"
+        ),
+    )
+
     return LaunchDescription(
         [
             declare_namespace_arg,
@@ -195,7 +174,6 @@ def generate_launch_description():
             # Sets use_sim_time for all nodes started below
             # (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
-            gz_sim,
+            OpaqueFunction(function=launch_setup),
         ]
-        + spawn_group,
     )
