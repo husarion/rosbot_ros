@@ -49,6 +49,7 @@ class SimulationTestNode(Node):
         self.v_x = 0.0
         self.v_y = 0.0
         self.v_yaw = 0.0
+        self.twist = None  # Debug info
 
         self.controller_odom_flag = False
         self.ekf_odom_flag = False
@@ -116,6 +117,7 @@ class SimulationTestNode(Node):
     def controller_callback(self, data: Odometry):
         self.get_logger().debug(f"Received twist from controller: {data.twist.twist}")
         self.controller_odom_flag = self.is_twist_ok(data.twist.twist)
+        self.twist = data.twist.twist
 
     def ekf_callback(self, data: Odometry):
         self.get_logger().debug(f"Received twist filtered: {data.twist.twist}")

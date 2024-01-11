@@ -48,7 +48,7 @@ def generate_test_description():
                 f'world:={get_package_share_directory("husarion_office_gz")}'
                 "/worlds/empty_with_plugins.sdf"
             ),
-            "robots:=robot1={y: 0.0}; robot2={y: 1.0}; robot3={y: 2.0}; robot4={y: 3.0}",
+            "robots:=robot1={y: -4.0}; robot2={y: 0.0}; robot3={y: 4.0};",
             "headless:=True",
             "mecanum:=True",
         ],
@@ -70,81 +70,96 @@ def test_multirobot_mecanum_simulation():
     robot_names = ["robot1", "robot2", "robot3"]
     rclpy.init()
     try:
-        nodes = []
+        nodes = {}
         executor = MultiThreadedExecutor(num_threads=len(robot_names))
 
         for robot_name in robot_names:
             node = SimulationTestNode("test_simulation", namespace=robot_name)
             node.create_test_subscribers_and_publishers()
-            nodes.append(node)
+            nodes[robot_name] = node
             executor.add_node(node)
 
         ros_spin_thread = Thread(target=lambda executor: executor.spin(), args=(executor,))
         ros_spin_thread.start()
 
-        for node in nodes:
+        for robot_name in robot_names:
+            node = nodes[robot_name]
             # 0.9 m/s and 3.0 rad/s are controller's limits defined in
             #   rosbot_controller/config/mecanum_drive_controller.yaml
             node.set_destination_speed(0.9, 0.0, 0.0)
 
-        for node in nodes:
+        for robot_name in robot_names:
+            node = nodes[robot_name]
             assert node.vel_stabilization_time_event.wait(timeout=120.0), (
-                "The simulation is running slowly or has crashed! The time elapsed since setting"
-                f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
+                f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
+                " since setting the target speed is:"
+                f" {(node.current_time - node.goal_received_time):.1f}."
             )
-            assert (
-                node.controller_odom_flag
-            ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
-            assert (
-                node.ekf_odom_flag
-            ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
+            assert node.controller_odom_flag, (
+                f"{robot_name}: does not move properly in x direction. Check"
+                f" rosbot_base_controller! Twist: {node.twist}"
+            )
+            assert node.ekf_odom_flag, (
+                f"{robot_name}: does not move properly in x direction. Check ekf_filter_node!"
+                f" Twist: {node.twist}"
+            )
 
-        for node in nodes:
+        for robot_name in robot_names:
+            node = nodes[robot_name]
             # 0.9 m/s and 3.0 rad/s are controller's limits defined in
             #   rosbot_controller/config/mecanum_drive_controller.yaml
             node.set_destination_speed(0.0, 0.9, 0.0)
 
-        for node in nodes:
+        for robot_name in robot_names:
+            node = nodes[robot_name]
             assert node.vel_stabilization_time_event.wait(timeout=120.0), (
-                "The simulation is running slowly or has crashed! The time elapsed since setting"
-                f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
+                f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
+                " since setting the target speed is:"
+                f" {(node.current_time - node.goal_received_time):.1f}."
             )
-            assert (
-                node.controller_odom_flag
-            ), "ROSbot does not move properly in y direction. Check rosbot_base_controller!"
-            assert (
-                node.ekf_odom_flag
-            ), "ROSbot does not move properly in y direction. Check ekf_filter_node!"
+            assert node.controller_odom_flag, (
+                f"{robot_name} does not move properly in y direction. Check"
+                f" rosbot_base_controller! Twist: {node.twist}"
+            )
+            assert node.ekf_odom_flag, (
+                f"{robot_name} does not move properly in y direction. Check ekf_filter_node!"
+                f" Twist: {node.twist}"
+            )
 
-        for node in nodes:
+        for robot_name in robot_names:
+            node = nodes[robot_name]
             node.set_destination_speed(0.0, 0.0, 3.0)
 
-        for node in nodes:
+        for robot_name in robot_names:
+            node = nodes[robot_name]
             assert node.vel_stabilization_time_event.wait(timeout=120.0), (
-                "The simulation is running slowly or has crashed! The time elapsed since setting"
-                f" the target speed is: {(node.current_time - node.goal_received_time):.1f}."
+                f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
+                " since setting the target speed is:"
+                f" {(node.current_time - node.goal_received_time):.1f}."
+            )
+            assert node.controller_odom_flag, (
+                f"{robot_name} does not rotate properly. Check rosbot_base_controller! Twist:"
+                f" {node.twist}"
             )
             assert (
-                node.controller_odom_flag
-            ), f"{robot_name} does not rotate properly. Check rosbot_base_controller!"
-            assert (
                 node.ekf_odom_flag
-            ), f"{robot_name} does not rotate properly. Check ekf_filter_node!"
+            ), f"{robot_name} does not rotate properly. Check ekf_filter_node! Twist: {node.twist}"
 
             flag = node.scan_event.wait(timeout=20.0)
             assert flag, f"{robot_name}'s lidar does not work properly!"
 
             for i in range(len(node.RANGE_SENSORS_TOPICS)):
                 flag = node.ranges_events[i].wait(timeout=20.0)
-                assert (
-                    flag
-                ), f"ROSbot's range sensor {node.RANGE_SENSORS_TOPICS[i]} does not work properly!"
+                assert flag, (
+                    f"{robot_name}:'s range sensor {node.RANGE_SENSORS_TOPICS[i]} does not work"
+                    " properly!"
+                )
 
             flag = node.camera_color_event.wait(timeout=20.0)
-            assert flag, "ROSbot's camera color image does not work properly!"
+            assert flag, f"{robot_name}:'s camera color image does not work properly!"
 
             flag = node.camera_points_event.wait(timeout=20.0)
-            assert flag, "ROSbot's camera point cloud does not work properly!"
+            assert flag, f"{robot_name}:'s camera point cloud does not work properly!"
 
             node.destroy_node()
 
