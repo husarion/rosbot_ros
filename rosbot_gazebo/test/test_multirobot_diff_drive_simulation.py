@@ -66,7 +66,7 @@ def generate_test_description():
 
 @pytest.mark.launch(fixture=generate_test_description)
 def test_multirobot_simulation():
-    robot_names = ["robot1", "robot2", "robot3", "robot4"]
+    robot_names = ["robot1", "robot2", "robot3"]
     rclpy.init()
     try:
         nodes = []

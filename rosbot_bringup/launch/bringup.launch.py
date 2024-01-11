@@ -17,14 +17,14 @@ from launch_ros.actions import Node, SetParameter
 from ament_index_python.packages import get_package_share_directory
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import EnvironmentVariable, LaunchConfiguration, PathJoinSubstitution
 
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
-        default_value="",
+        default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
         description="Namespace for all topics and tfs",
     )
 

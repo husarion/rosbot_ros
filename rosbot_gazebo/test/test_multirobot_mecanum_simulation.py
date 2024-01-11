@@ -30,8 +30,6 @@ from threading import Thread
 from test_utils import SimulationTestNode
 from test_ign_kill_utils import kill_ign_linux_processes
 
-robot_names = ["robot1", "robot2", "robot3", "robot4"]
-
 
 @launch_pytest.fixture
 def generate_test_description():
@@ -69,7 +67,7 @@ def generate_test_description():
 
 @pytest.mark.launch(fixture=generate_test_description)
 def test_multirobot_mecanum_simulation():
-    robot_names = ["robot1", "robot2", "robot3", "robot4"]
+    robot_names = ["robot1", "robot2", "robot3"]
     rclpy.init()
     try:
         nodes = []

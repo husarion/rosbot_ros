@@ -62,7 +62,7 @@ rm -r src/rosbot_gazebo
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 > **Prerequisites**
@@ -106,7 +106,7 @@ rm -rf src/gazebosim/gz_ros2_control/ign_ros2_control_demos src/gazebosim/gz_ros
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Running:

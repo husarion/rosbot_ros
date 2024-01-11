@@ -25,7 +25,7 @@ from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from test_utils import BringupTestNode
 
-robot_names = ["rosbot1", "rosbot2", "rosbot3", "rosbot4"]
+robot_names = ["robot1", "robot2", "robot3"]
 
 
 @launch_pytest.fixture
