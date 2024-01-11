@@ -4,7 +4,7 @@
   <xacro:arg name="use_sim" default="false" />
   <xacro:arg name="use_gpu" default="false" />
   <xacro:arg name="mecanum" default="false" />
-  <xacro:arg name="simulation_engine" default="" />
+  <xacro:arg name="simulation_engine" default="ignition-gazebo" />
   <xacro:arg name="namespace" default="None" />
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
