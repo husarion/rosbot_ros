@@ -29,7 +29,7 @@ jobs:
     ros_industrial_ci:
         name: ROS Industrial CI
         runs-on: ubuntu-22.04
-        timeout-minutes: 60
+        timeout-minutes: 30
         needs:
             - black
             - spellcheck
@@ -64,7 +64,7 @@ jobs:
                   cp -r src/ros2_controllers/imu_sensor_broadcaster src/
                   rm -rf src/ros2_controllers
 
-            - name: Remove ign_ros2_control demo
+            - name: Remove ign_ros2_control demo and tests
               shell: bash
               run: rm -rf src/gazebosim/gz_ros2_control/ign_ros2_control_demos src/gazebosim/gz_ros2_control/gz_ros2_control_tests
 

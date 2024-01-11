@@ -6,18 +6,18 @@ repositories:
   ros_components_description:
     type: git
     url: https://github.com/husarion/ros_components_description.git
-    version: gazebo-ignition-multirobots
+    version: ros2
   rosbot_controllers:
     type: git
     url: https://github.com/husarion/rosbot_controllers
-    version: update-params
+    version: main
   # Waiting for backporting to the humble version
   # https://github.com/ros-controls/ros2_controllers/pull/726 and
   # https://github.com/ros-controls/ros2_controllers/pull/831
   ros2_controllers:
     type: git
     url: https://github.com/delihus/ros2_controllers
-    version: imu-sensor-broadcaster-features
+    version: humble
   micro_ros_msgs:
     type: git
     url: https://github.com/micro-ROS/micro_ros_msgs.git
