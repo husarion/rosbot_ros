@@ -38,9 +38,7 @@ class SimulationTestNode(Node):
         super().__init__(name, namespace=namespace)
 
         # Use simulation time to correct run on slow machine
-        use_sim_time = rclpy.parameter.Parameter(
-            "use_sim_time", rclpy.Parameter.Type.BOOL, True
-        )
+        use_sim_time = rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
         self.set_parameters([use_sim_time])
 
         self.VELOCITY_STABILIZATION_DELAY = 3
@@ -84,15 +82,11 @@ class SimulationTestNode(Node):
             Odometry, "odometry/filtered", self.ekf_callback, 10
         )
 
-        self.scan_sub = self.create_subscription(
-            LaserScan, "scan", self.scan_callback, 10
-        )
+        self.scan_sub = self.create_subscription(LaserScan, "scan", self.scan_callback, 10)
 
         self.range_subs = []
         for range_topic_name in self.RANGE_SENSORS_TOPICS:
-            sub = self.create_subscription(
-                LaserScan, range_topic_name, self.ranges_callback, 10
-            )
+            sub = self.create_subscription(LaserScan, range_topic_name, self.ranges_callback, 10)
             self.range_subs.append(sub)
 
         self.camera_color_sub = self.create_subscription(
@@ -106,15 +100,11 @@ class SimulationTestNode(Node):
         self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
 
     def start_node_thread(self):
-        self.ros_spin_thread = Thread(
-            target=lambda node: rclpy.spin(node), args=(self,)
-        )
+        self.ros_spin_thread = Thread(target=lambda node: rclpy.spin(node), args=(self,))
         self.ros_spin_thread.start()
 
     def is_twist_ok(self, twist: Twist):
-        def are_close_to_each_other(
-            current_value, dest_value, tolerance=self.ACCURACY, eps=0.01
-        ):
+        def are_close_to_each_other(current_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
             acceptable_range = dest_value * tolerance
             return abs(current_value - dest_value) <= acceptable_range + eps
 
@@ -138,10 +128,7 @@ class SimulationTestNode(Node):
         self.publish_cmd_vel_messages()
 
         self.current_time = 1e-9 * self.get_clock().now().nanoseconds
-        if (
-            self.current_time
-            > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY
-        ):
+        if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
             self.vel_stabilization_time_event.set()
 
     def scan_callback(self, data: LaserScan):

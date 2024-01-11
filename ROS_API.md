@@ -29,9 +29,9 @@ Use `controller.launch.py` from `rosbot_controller`, it loads robot model define
   - `/imu_broadcaster/imu` (_sensor_msgs/Imu_)
 
 Use `simulation.launch.py` from `rosbot_gazebo` to start all base functionalities for ROSbot 2, 2 PRO, 2R in the Gazebo simulator.
-If you want to spawn multiple robots use `multirobot_simulation.launch.py` with the `robots` argument e. g.:
+If you want to spawn multiple robots use `simulation.launch.py` with the `robots` argument e. g.:
 ```bash
-ros2 launch rosbot_gazebo multirobot_simulation.launch.py robots:="robot1={y: 0.0}; robot2={y: 1.0}; robot3={y: 2.0}; robot4={y: 3.0}"
+ros2 launch rosbot_gazebo simulation.launch.py robots:='robot1={x: 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0}; robot3={x: 2.0, y: -1.0}; robot4={x: 3.0, y: -1.0}'
 ```
 
 If you want to use your own world add to the world's sdf file gazebo sensors plugins inside any `<model>` tag:

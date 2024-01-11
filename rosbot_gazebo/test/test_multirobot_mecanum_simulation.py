@@ -45,7 +45,7 @@ def generate_test_description():
             "ros2",
             "launch",
             "rosbot_gazebo",
-            "multirobot_simulation.launch.py",
+            "simulation.launch.py",
             (
                 f'world:={get_package_share_directory("husarion_office_gz")}'
                 "/worlds/empty_with_plugins.sdf"
@@ -81,9 +81,7 @@ def test_multirobot_mecanum_simulation():
             nodes.append(node)
             executor.add_node(node)
 
-        ros_spin_thread = Thread(
-            target=lambda executor: executor.spin(), args=(executor,)
-        )
+        ros_spin_thread = Thread(target=lambda executor: executor.spin(), args=(executor,))
         ros_spin_thread.start()
 
         for node in nodes:

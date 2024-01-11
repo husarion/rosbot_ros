@@ -4,11 +4,9 @@
 
     <xacro:if value="${namespace == 'None'}">
       <xacro:property name="namespace_ext" value="" />
-      <xacro:property name="gz_control_namespace" value="/" />
     </xacro:if>
     <xacro:unless value="${namespace == 'None'}">
         <xacro:property name="namespace_ext" value="${namespace}/" />
-        <xacro:property name="gz_control_namespace" value="${namespace}" />
     </xacro:unless>
 
     <xacro:if value="${mecanum}">
@@ -133,7 +131,9 @@
             </xacro:unless>
 
             <ros>
-              <namespace>${gz_control_namespace}</namespace>
+              <xacro:unless value="${namespace == 'None'}">
+                <namespace>${namespace}</namespace>
+              </xacro:unless>
               <remapping>rosbot_base_controller/cmd_vel_unstamped:=cmd_vel</remapping>
               <remapping>/tf:=tf</remapping>
             </ros>

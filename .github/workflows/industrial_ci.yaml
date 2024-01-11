@@ -54,7 +54,8 @@ jobs:
               shell: bash
               run: |
                   python3 -m pip install -U vcstool
-                  vcs import src < src/rosbot/rosbot_hardware.repos && vcs import src < src/rosbot/rosbot_simulation.repos
+                  vcs import src < src/rosbot/rosbot_hardware.repos &&
+                  vcs import src < src/rosbot/rosbot_simulation.repos
 
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash

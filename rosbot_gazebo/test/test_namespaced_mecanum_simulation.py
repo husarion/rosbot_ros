@@ -114,9 +114,7 @@ def test_namespaced_mecanum_simulation():
         assert (
             node.controller_odom_flag
         ), "ROSbot does not rotate properly. Check rosbot_base_controller!"
-        assert (
-            node.ekf_odom_flag
-        ), "ROSbot does not rotate properly. Check ekf_filter_node!"
+        assert node.ekf_odom_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
 
         flag = node.scan_event.wait(timeout=20.0)
         assert flag, "ROSbot's lidar does not work properly!"
