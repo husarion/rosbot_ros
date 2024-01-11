@@ -148,11 +148,9 @@
             <enable_metrics>false</enable_metrics>
             <frame_id>imu_link</frame_id>
             <ignition_frame_id>imu_link</ignition_frame_id>
-            <xacro:unless value="${namespace == 'None'}">
-              <ros>
-                <namespace>${namespace_ext}</namespace>
-              </ros>
-            </xacro:unless>
+            <ros>
+              <namespace>${namespace_ext}</namespace>
+            </ros>
           </sensor>
         </gazebo>
       </xacro:if>
