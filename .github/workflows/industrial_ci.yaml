@@ -63,6 +63,10 @@ jobs:
                   cp -r src/ros2_controllers/imu_sensor_broadcaster src/
                   rm -rf src/ros2_controllers
 
+            - name: Remove ign_ros2_control demo
+              shell: bash
+              run: rm -rf src/gazebosim/gz_ros2_control/ign_ros2_control_demos src/gazebosim/gz_ros2_control/gz_ros2_control_tests
+
             # Package micro_ros_msgs does not have industrial ci and tests does not pass.
             # For more information see https://github.com/micro-ROS/micro_ros_msgs/issues/7
             - name: Remove tests from micro_ros_msgs
