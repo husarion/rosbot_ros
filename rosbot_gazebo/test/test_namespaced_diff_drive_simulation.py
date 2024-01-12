@@ -27,7 +27,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_testing.actions import ReadyToTest
 from launch_testing.util import KeepAliveProc
 
-from test_utils import SimulationTestNode
+from test_utils import SimulationTestNode, tf_test, diff_test
 from test_ign_kill_utils import kill_ign_linux_processes
 
 
@@ -79,44 +79,8 @@ def test_namespaced_diff_drive_simulation():
         node.create_test_subscribers_and_publishers()
         node.start_node_thread()
 
-        # 0.9 m/s and 3.0 rad/s are controller's limits defined in
-        #   rosbot_controller/config/diff_drive_controller.yaml
-        node.set_destination_speed(0.9, 0.0, 0.0)
-        assert node.vel_stabilization_time_event.wait(timeout=40.0), (
-            "The simulation is running slowly or has crashed! The time elapsed since setting the"
-            f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
-        )
-        assert (
-            node.controller_odom_flag
-        ), "ROSbot does not move properly in x direction. Check rosbot_base_controller!"
-        assert (
-            node.ekf_odom_flag
-        ), "ROSbot does not move properly in x direction. Check ekf_filter_node!"
-
-        node.set_destination_speed(0.0, 0.0, 3.0)
-        assert node.vel_stabilization_time_event.wait(timeout=40.0), (
-            "The simulation is running slowly or has crashed! The time elapsed since setting the"
-            f" target speed is: {(node.current_time - node.goal_received_time):.1f}."
-        )
-        assert (
-            node.controller_odom_flag
-        ), "ROSbot does not rotate properly. Check rosbot_base_controller!"
-        assert node.ekf_odom_flag, "ROSbot does not rotate properly. Check ekf_filter_node!"
-
-        flag = node.scan_event.wait(timeout=20.0)
-        assert flag, "ROSbot's lidar does not work properly!"
-
-        for i in range(len(node.RANGE_SENSORS_TOPICS)):
-            flag = node.ranges_events[i].wait(timeout=20.0)
-            assert (
-                flag
-            ), f"ROSbot's range sensor {node.RANGE_SENSORS_TOPICS[i]} does not work properly!"
-
-        flag = node.camera_color_event.wait(timeout=20.0)
-        assert flag, "ROSbot's camera color image does not work properly!"
-
-        flag = node.camera_points_event.wait(timeout=20.0)
-        assert flag, "ROSbot's camera point cloud does not work properly!"
+        tf_test(node)
+        diff_test(node)
 
     finally:
         # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching

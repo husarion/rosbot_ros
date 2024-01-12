@@ -91,3 +91,20 @@ class ControllersTestNode(Node):
 
         self.imu_publisher.publish(imu_msg)
         self.joint_states_publisher.publish(joint_state_msg)
+
+
+def controller_readings_test(node, robot_name="ROSbot"):
+    msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
+    assert msgs_received_flag, (
+        f"{robot_name}: expected JointStates message but it was not received. Check"
+        " joint_state_broadcaster!"
+    )
+    msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
+    assert msgs_received_flag, (
+        f"{robot_name}: expected Odom message but it was not received. Check"
+        " rosbot_base_controller!"
+    )
+    msgs_received_flag = node.imu_msg_event.wait(timeout=10.0)
+    assert (
+        msgs_received_flag
+    ), f"{robot_name}: expected Imu message but it was not received. Check imu_broadcaster!"

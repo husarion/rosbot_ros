@@ -89,6 +89,7 @@ def generate_launch_description():
         output="screen",
         parameters=[ekf_config],
         remappings=[
+            ("/diagnostics", "diagnostics"),
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
         ],

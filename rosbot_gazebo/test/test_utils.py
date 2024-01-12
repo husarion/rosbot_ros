@@ -159,3 +159,97 @@ class SimulationTestNode(Node):
 
         self.get_logger().debug(f"Publishing twist: {twist_msg}")
         self.cmd_vel_publisher.publish(twist_msg)
+
+
+def x_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
+    node.set_destination_speed(v_x, v_y, v_yaw)
+
+    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+        f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
+        " since setting the target speed is:"
+        f" {(node.current_time - node.goal_received_time):.1f}."
+    )
+    assert node.controller_odom_flag, (
+        f"{robot_name}: does not move properly in x direction. Check"
+        f" rosbot_base_controller! Twist: {node.twist}"
+    )
+    assert node.ekf_odom_flag, (
+        f"{robot_name}: does not move properly in x direction. Check ekf_filter_node!"
+        f" Twist: {node.twist}"
+    )
+
+
+def y_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
+    node.set_destination_speed(v_x, v_y, v_yaw)
+
+    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+        f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
+        " since setting the target speed is:"
+        f" {(node.current_time - node.goal_received_time):.1f}."
+    )
+    assert node.controller_odom_flag, (
+        f"{robot_name} does not move properly in y direction. Check"
+        f" rosbot_base_controller! Twist: {node.twist}"
+    )
+    assert node.ekf_odom_flag, (
+        f"{robot_name} does not move properly in y direction. Check ekf_filter_node!"
+        f" Twist: {node.twist}"
+    )
+
+
+def yaw_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
+    node.set_destination_speed(v_x, v_y, v_yaw)
+
+    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+        f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
+        " since setting the target speed is:"
+        f" {(node.current_time - node.goal_received_time):.1f}."
+    )
+    assert (
+        node.controller_odom_flag
+    ), f"{robot_name} does not rotate properly. Check rosbot_base_controller! Twist: {node.twist}"
+    assert (
+        node.ekf_odom_flag
+    ), f"{robot_name} does not rotate properly. Check ekf_filter_node! Twist: {node.twist}"
+
+
+def sensors_readings_test(node, robot_name="ROSbot"):
+    flag = node.scan_event.wait(timeout=20.0)
+    assert flag, f"{robot_name}'s lidar does not work properly!"
+
+    for i in range(len(node.RANGE_SENSORS_TOPICS)):
+        flag = node.ranges_events[i].wait(timeout=20.0)
+        assert (
+            flag
+        ), f"{robot_name}'s range sensor {node.RANGE_SENSORS_TOPICS[i]} does not work properly!"
+
+    flag = node.camera_color_event.wait(timeout=20.0)
+    assert flag, f"{robot_name}'s camera color image does not work properly!"
+
+    flag = node.camera_points_event.wait(timeout=20.0)
+    assert flag, f"{robot_name}'s camera point cloud does not work properly!"
+
+
+def tf_test(node, robot_name="ROSbot"):
+    flag = node.odom_tf_event.wait(timeout=20.0)
+    assert flag, (
+        f"{robot_name}: expected odom to base_link tf but it was not received. Check"
+        " robot_localization!"
+    )
+
+
+def diff_test(node, robot_name="ROSbot"):
+    sensors_readings_test(node, robot_name)
+    # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+    # rosbot_controller/config/mecanum_drive_controller.yaml
+    x_speed_test(node, v_x=0.9, robot_name=robot_name)
+    yaw_speed_test(node, v_yaw=3.0, robot_name=robot_name)
+
+
+def mecanum_test(node, robot_name="ROSbot"):
+    sensors_readings_test(node, robot_name)
+    # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+    # rosbot_controller/config/mecanum_drive_controller.yaml
+    x_speed_test(node, v_x=0.9, robot_name=robot_name)
+    y_speed_test(node, v_y=0.9, robot_name=robot_name)
+    yaw_speed_test(node, v_yaw=3.0, robot_name=robot_name)

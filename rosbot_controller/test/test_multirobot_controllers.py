@@ -23,7 +23,7 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from test_utils import ControllersTestNode
+from test_utils import ControllersTestNode, controller_readings_test
 
 robot_names = ["robot1", "robot2", "robot3"]
 
@@ -66,19 +66,7 @@ def test_multirobot_controllers_startup_success():
             node.start_publishing_fake_hardware()
 
             node.start_node_thread()
-            msgs_received_flag = node.joint_state_msg_event.wait(timeout=20.0)
-            assert msgs_received_flag, (
-                f"Expected JointStates message but it was not received. Check {robot_name}/"
-                "joint_state_broadcaster!"
-            )
-            msgs_received_flag = node.odom_msg_event.wait(timeout=20.0)
-            assert msgs_received_flag, (
-                f"Expected Odom message but it was not received. Check {robot_name}/"
-                "rosbot_base_controller!"
-            )
-            msgs_received_flag = node.imu_msg_event.wait(timeout=20.0)
-            assert (
-                msgs_received_flag
-            ), f"Expected Imu message but it was not received. Check {robot_name}/imu_broadcaster!"
+
+            controller_readings_test(node, robot_name)
         finally:
             rclpy.shutdown()
