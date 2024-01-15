@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- wheel defining macro -->
-  <xacro:macro name="wheel" params="wheel_radius side mecanum namespace=None">
-
-    <xacro:if value="${namespace == 'None'}">
-      <xacro:property name="namespace_ext" value="" />
-    </xacro:if>
-    <xacro:unless value="${namespace == 'None'}">
-      <xacro:property name="namespace_ext" value="${namespace}/" />
-    </xacro:unless>
+  <xacro:macro name="wheel" params="wheel_radius side mecanum ">
 
     <xacro:property name="wheel_separation_x" value="0.106" />
 
@@ -65,7 +58,7 @@
       <xacro:property name="fdir" value="1.0 -1.0 0.0" />
     </xacro:if>
 
-    <joint name="${namespace_ext}${side}_wheel_joint" type="continuous">
+    <joint name="${side}_wheel_joint" type="continuous">
       <parent link="body_link" />
       <child link="${side}_wheel_link" />
       <origin xyz="${x} ${y} 0.0" rpy="0.0 0.0 0.0" />

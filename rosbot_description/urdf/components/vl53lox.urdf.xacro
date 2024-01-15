@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- vl53lox defining macro -->
-  <xacro:macro name="vl53lox" params="parent xyz rpy prefix">
+  <xacro:macro name="vl53lox" params="parent xyz rpy prefix namespace">
+
+    <xacro:if value="${namespace == 'None'}">
+      <xacro:property name="namespace_ext" value="" />
+    </xacro:if>
+    <xacro:unless value="${namespace == 'None'}">
+        <xacro:property name="namespace_ext" value="${namespace}/" />
+    </xacro:unless>
 
     <joint name="${parent}_${prefix}_range_joint" type="fixed">
       <origin xyz="${xyz}" rpy="${rpy}" />
@@ -15,9 +22,9 @@
     https://github.com/gazebosim/gz-sensors/issues/19 -->
     <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
       <gazebo reference="${prefix}_range">
-        <sensor name="${prefix}_range" type='gpu_lidar'>
+        <sensor name="${namespace_ext}${prefix}_range" type='gpu_lidar'>
 
-          <topic>/range/${prefix}</topic>
+          <topic>${namespace_ext}range/${prefix}</topic>
           <frame_id>${prefix}_range</frame_id>
           <ignition_frame_id>${prefix}_range</ignition_frame_id>
 
@@ -44,12 +51,12 @@
           </ray>
           <always_on>true</always_on>
           <visualize>false</visualize>
+
+          <ros>
+            <namespace>${namespace_ext}</namespace>
+          </ros>
         </sensor>
-        <plugin filename="libignition-gazebo-sensors-system.so"  name="ignition::gazebo::systems::Sensors">
-          <render_engine>ogre2</render_engine>
-        </plugin>
       </gazebo>
     </xacro:if>
-
   </xacro:macro>
 </robot>

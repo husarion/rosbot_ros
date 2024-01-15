@@ -17,14 +17,14 @@ from launch_ros.actions import Node, SetParameter
 from ament_index_python.packages import get_package_share_directory
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import EnvironmentVariable, LaunchConfiguration, PathJoinSubstitution
 
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
-        default_value="",
+        default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
         description="Namespace for all topics and tfs",
     )
 
@@ -62,13 +62,6 @@ def generate_launch_description():
         ),
     )
 
-    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
-    declare_use_multirobot_system_arg = DeclareLaunchArgument(
-        "use_multirobot_system",
-        default_value="false",
-        description="Enable correct Ignition Gazebo configuration in URDF",
-    )
-
     controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -85,7 +78,6 @@ def generate_launch_description():
             "use_gpu": use_gpu,
             "simulation_engine": simulation_engine,
             "namespace": namespace,
-            "use_multirobot_system": use_multirobot_system,
         }.items(),
     )
 
@@ -94,10 +86,10 @@ def generate_launch_description():
     robot_localization_node = Node(
         package="robot_localization",
         executable="ekf_node",
-        name="ekf_filter_node",
         output="screen",
         parameters=[ekf_config],
         remappings=[
+            ("/diagnostics", "diagnostics"),
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
         ],
@@ -110,7 +102,6 @@ def generate_launch_description():
         declare_use_sim_arg,
         declare_use_gpu_arg,
         declare_simulation_engine_arg,
-        declare_use_multirobot_system_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         controller_launch,
         robot_localization_node,

@@ -7,6 +7,7 @@
   <description>Gazebo Ignition simulation for ROSbot 2, 2R, PRO</description>
   <license>Apache License 2.0</license>
 
+  <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="krzysztof.wojciechowski@husarion.com">Krzysztof Wojciechowski</author>
   <maintainer email="support@husarion.com">Husarion</maintainer>
 
@@ -26,6 +27,7 @@
     for details refer to the ros_gz_sim package -->
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>ign_ros2_control</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
   <test_depend>launch</test_depend>
