@@ -1,4 +1,5 @@
 # Copyright 2023 Husarion
+# Copyright 2023 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,27 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess
+import psutil
 
 # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
 # several tests in a row.
+# https://github.com/ros-controls/gz_ros2_control/blob/master/gz_ros2_control_tests/tests/position_test.py
 
 
 def kill_ign_linux_processes():
-    try:
-        result = subprocess.run(
-            ["pgrep", "-f", "ign gazebo"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-
-        pids = result.stdout.strip().split("\n")
-        for pid in pids:
-            subprocess.run(["kill", pid], check=True)
-        print("Killed all Ignition Gazebo processes")
-    except subprocess.CalledProcessError as e:
-        print(e)
+    for proc in psutil.process_iter():
+        # check whether the process name matches
+        if proc.name() == "ruby":
+            proc.kill()
 
 
 kill_ign_linux_processes()

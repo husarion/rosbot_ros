@@ -29,7 +29,7 @@ jobs:
     ros_industrial_ci:
         name: ROS Industrial CI
         runs-on: ubuntu-22.04
-        timeout-minutes: 30 # Set the job timeout to 30 minutes
+        timeout-minutes: 30
         needs:
             - black
             - spellcheck
@@ -54,7 +54,8 @@ jobs:
               shell: bash
               run: |
                   python3 -m pip install -U vcstool
-                  vcs import src < src/rosbot/rosbot_hardware.repos && vcs import src < src/rosbot/rosbot_simulation.repos
+                  vcs import src < src/rosbot/rosbot_hardware.repos &&
+                  vcs import src < src/rosbot/rosbot_simulation.repos
 
             - name: Copy only diff_drive_controller and imu_sensor_broadcaster, waits for features from ros2-control
               shell: bash
@@ -63,7 +64,7 @@ jobs:
                   cp -r src/ros2_controllers/imu_sensor_broadcaster src/
                   rm -rf src/ros2_controllers
 
-            - name: Remove ign_ros2_control demo
+            - name: Remove ign_ros2_control demo and tests
               shell: bash
               run: rm -rf src/gazebosim/gz_ros2_control/ign_ros2_control_demos src/gazebosim/gz_ros2_control/gz_ros2_control_tests
 

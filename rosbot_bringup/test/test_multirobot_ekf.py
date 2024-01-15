@@ -20,12 +20,12 @@ import rclpy
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from test_utils import BringupTestNode
 
-robot_names = ["rosbot1", "rosbot2", "rosbot3", "rosbot4"]
+robot_names = ["robot1", "robot2", "robot3"]
 
 
 @launch_pytest.fixture
@@ -50,11 +50,8 @@ def generate_test_description():
                 "namespace": robot_names[i],
             }.items(),
         )
-        if i > 0:
-            delayed_bringup_launch = TimerAction(period=i * 10.0, actions=[bringup_launch])
-            actions.append(delayed_bringup_launch)
-        else:
-            actions.append(bringup_launch)
+
+        actions.append(bringup_launch)
 
     return LaunchDescription(actions)
 

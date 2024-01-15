@@ -62,7 +62,7 @@ rm -r src/rosbot_gazebo
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 > **Prerequisites**
@@ -100,10 +100,13 @@ vcs import src < src/rosbot/rosbot_simulation.repos
 # Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
 cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
+# Remove ign_ros2_control demo and test
+rm -rf src/gazebosim/gz_ros2_control/ign_ros2_control_demos src/gazebosim/gz_ros2_control/gz_ros2_control_tests
+
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Running:

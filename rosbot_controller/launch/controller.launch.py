@@ -14,9 +14,8 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler, DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument
 from launch.conditions import UnlessCondition
-from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     Command,
     PythonExpression,
@@ -68,13 +67,6 @@ def generate_launch_description():
         choices=["ignition-gazebo", "gazebo-classic", "webots"],
     )
 
-    use_multirobot_system = LaunchConfiguration("use_multirobot_system")
-    declare_use_multirobot_system_arg = DeclareLaunchArgument(
-        "use_multirobot_system",
-        default_value="false",
-        description="Enable correct Ignition Gazebo configuration in URDF",
-    )
-
     controller_config_name = PythonExpression(
         [
             "'mecanum_drive_controller.yaml' if ",
@@ -86,6 +78,7 @@ def generate_launch_description():
     namespace_ext = PythonExpression(
         ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
     )
+
     controller_manager_name = LaunchConfiguration(
         "controller_manager_name",
         default=[namespace_ext, "controller_manager"],
@@ -113,8 +106,6 @@ def generate_launch_description():
             simulation_engine,
             " namespace:=",
             namespace,
-            " use_multirobot_system:=",
-            use_multirobot_system,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -182,14 +173,6 @@ def generate_launch_description():
         ],
     )
 
-    # Delay start of robot_controller after joint_state_broadcaster
-    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_spawner,
-            on_exit=[robot_controller_spawner],
-        )
-    )
-
     imu_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -204,15 +187,6 @@ def generate_launch_description():
         ],
     )
 
-    # Delay start of imu_broadcaster after robot_controller
-    # when spawning without delay ros2_control_node sometimes crashed
-    delay_imu_broadcaster_spawner_after_robot_controller_spawner = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=robot_controller_spawner,
-            on_exit=[imu_broadcaster_spawner],
-        )
-    )
-
     return LaunchDescription(
         [
             declare_namespace_arg,
@@ -220,12 +194,11 @@ def generate_launch_description():
             declare_use_sim_arg,
             declare_use_gpu_arg,
             declare_simulation_engine_arg,
-            declare_use_multirobot_system_arg,
             SetParameter("use_sim_time", value=use_sim),
             control_node,
             robot_state_pub_node,
             joint_state_broadcaster_spawner,
-            delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
-            delay_imu_broadcaster_spawner_after_robot_controller_spawner,
+            robot_controller_spawner,
+            imu_broadcaster_spawner,
         ]
     )

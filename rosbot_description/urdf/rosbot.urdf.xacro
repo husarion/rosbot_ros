@@ -4,9 +4,8 @@
   <xacro:arg name="use_sim" default="false" />
   <xacro:arg name="use_gpu" default="false" />
   <xacro:arg name="mecanum" default="false" />
-  <xacro:arg name="simulation_engine" default="" />
+  <xacro:arg name="simulation_engine" default="ignition-gazebo" />
   <xacro:arg name="namespace" default="None" />
-  <xacro:arg name="use_multirobot_system" default="false"/>
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
   <xacro:husarion.rosbot_robot
@@ -14,23 +13,23 @@
     use_sim="$(arg use_sim)"
     use_gpu="$(arg use_gpu)"
     simulation_engine="$(arg simulation_engine)"
-    namespace="$(arg namespace)"
-    use_multirobot_system="$(arg use_multirobot_system)" />
+    namespace="$(arg namespace)" />
 
-    <xacro:unless value="$(arg use_multirobot_system)">
-      <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
-      <xacro:lidar.slamtec_rplidar_a2
-        parent_link="cover_link"
-        xyz="0.02 0.0 0.0"
-        rpy="0.0 0.0 0.0"
-        use_gpu="$(arg use_gpu)"
-        simulation_engine="$(arg simulation_engine)" />
+    <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
+    <xacro:lidar.slamtec_rplidar_a2
+      parent_link="cover_link"
+      xyz="0.02 0.0 0.0"
+      rpy="0.0 0.0 0.0"
+      use_gpu="$(arg use_gpu)"
+      namespace="$(arg namespace)"
+      simulation_engine="$(arg simulation_engine)" />
 
-      <xacro:include filename="$(find ros_components_description)/urdf/orbbec_astra.urdf.xacro" ns="camera" />
-      <xacro:camera.orbbec_astra
-        parent_link="camera_link"
-        xyz="0.0 0.0 0.0"
-        rpy="0.0 0.0 0.0"
-        simulation_engine="$(arg simulation_engine)" />
-    </xacro:unless>
+    <xacro:include filename="$(find ros_components_description)/urdf/orbbec_astra.urdf.xacro" ns="camera" />
+    <xacro:camera.orbbec_astra
+      parent_link="camera_link"
+      xyz="0.0 0.0 0.0"
+      rpy="0.0 0.0 0.0"
+      namespace="$(arg namespace)"
+      simulation_engine="$(arg simulation_engine)" />
+
 </robot>
