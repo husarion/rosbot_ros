@@ -2,8 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_utils</name>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
   <description>Utilities for ROSbot 2R and 2 PRO</description>
+
   <license>Apache License 2.0</license>
 
   <author email="dominik.nwk@gmail.com">Dominik Nowak</author>
