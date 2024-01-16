@@ -26,6 +26,7 @@ import ament_index_python.packages
 # Global variable to hold the subprocess reference
 subproc = None
 
+firmware_version = "0.11.0"
 
 def signal_handler(sig, frame):
     global subproc
@@ -53,14 +54,14 @@ def find_firmware_file():
 
     # Construct the path to the firmware directory
     firmware_dir = os.path.join(package_install_directory, "firmware")
-    firmware_files = glob.glob(os.path.join(firmware_dir, "firmware*.bin"))
+    firmware_files = glob.glob(os.path.join(firmware_dir, f"firmware-{firmware_version}.bin"))
 
     if not firmware_files:
         firmware_url = (
             "https://github.com/husarion/rosbot_ros2_firmware/releases/"
-            "download/0.11.0/firmware.bin"
+            f"download/{firmware_version}/firmware.bin"
         )
-        firmware_path = os.path.join(firmware_dir, "firmware.bin")
+        firmware_path = os.path.join(firmware_dir, f"firmware-{firmware_version}.bin")
         print("Downloading firmware...")
         download_firmware(firmware_url, firmware_path)
         return firmware_path
