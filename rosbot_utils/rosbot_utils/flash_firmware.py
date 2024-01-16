@@ -28,6 +28,7 @@ subproc = None
 
 firmware_version = "0.11.0"
 
+
 def signal_handler(sig, frame):
     global subproc
     if subproc:
