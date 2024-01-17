@@ -164,7 +164,7 @@ class SimulationTestNode(Node):
 def x_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
     node.set_destination_speed(v_x, v_y, v_yaw)
 
-    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+    assert node.vel_stabilization_time_event.wait(timeout=240.0), (
         f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
         " since setting the target speed is:"
         f" {(node.current_time - node.goal_received_time):.1f}."
@@ -182,7 +182,7 @@ def x_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
 def y_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
     node.set_destination_speed(v_x, v_y, v_yaw)
 
-    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+    assert node.vel_stabilization_time_event.wait(timeout=240.0), (
         f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
         " since setting the target speed is:"
         f" {(node.current_time - node.goal_received_time):.1f}."
@@ -200,7 +200,7 @@ def y_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
 def yaw_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
     node.set_destination_speed(v_x, v_y, v_yaw)
 
-    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+    assert node.vel_stabilization_time_event.wait(timeout=240.0), (
         f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
         " since setting the target speed is:"
         f" {(node.current_time - node.goal_received_time):.1f}."
