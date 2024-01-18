@@ -1,5 +1,6 @@
 ---
 name: Industrial CI with Bump version
+
 on:
     push:
 
