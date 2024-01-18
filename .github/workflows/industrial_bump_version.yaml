@@ -1,0 +1,18 @@
+---
+name: Industrial CI with Bump version
+on:
+    pull_request:
+        branches: humble
+        types: closed
+    push:
+
+jobs:
+    industrial_ci:
+        name: Industrial CI
+        uses: ./.github/workflows/industrial_ci.yaml
+
+    bump:
+        name: Bump Version
+        needs: industrial_ci
+        if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch' }}
+        uses: ./.github/workflows/bump_version.yaml
