@@ -28,7 +28,7 @@ jobs:
     catkin-release:
         name: Bump version
         runs-on: ubuntu-latest
-        needs: industrial_ci
+        needs: get-bump
         outputs:
             new_version: ${{ steps.catkin-release.outputs.new_version }}
         steps:
