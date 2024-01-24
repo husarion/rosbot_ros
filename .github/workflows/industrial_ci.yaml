@@ -3,7 +3,6 @@ name: Industrial CI
 on:
     workflow_call:
     workflow_dispatch:
-    push:
 
 jobs:
     black:
