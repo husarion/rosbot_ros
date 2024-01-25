@@ -22,7 +22,8 @@ import sh
 import time
 import sys
 import argparse
-from periphery import GPIO
+import gpiod
+from gpiod.line import Direction, Value
 
 
 class FirmwareFlasher:
@@ -34,45 +35,52 @@ class FirmwareFlasher:
 
         print(f"System architecture: {self.sys_arch}")
 
-        if self.sys_arch.stdout == b"armv7l\n":
+        if self.sys_arch == "armv7l":
             # Setups ThinkerBoard pins
             print("Device: ThinkerBoard\n")
             self.port = "/dev/ttyS1"
-            boot0_pin_no = 164
-            reset_pin_no = 184
+            self.boot0_pin_no = 164
+            self.reset_pin_no = 184
 
-        elif self.sys_arch.stdout == b"x86_64\n":
+        elif self.sys_arch == "x86_64":
             # Setups UpBoard pins
             print("Device: UpBoard\n")
             self.port = "/dev/ttyS4"
-            boot0_pin_no = 17
-            reset_pin_no = 18
+            self.boot0_pin_no = 17
+            self.reset_pin_no = 18
 
-        elif self.sys_arch.stdout == b"aarch64\n":
+        elif self.sys_arch == "aarch64":
             # Setups RPi pins
             print("Device: RPi\n")
             self.port = "/dev/ttyAMA0"
-            boot0_pin_no = 17
-            reset_pin_no = 18
+            self.boot0_pin_no = 17
+            self.reset_pin_no = 18
 
         else:
             print("Unknown device...")
 
-        self.boot0_pin = GPIO(boot0_pin_no, "out")
-        self.reset_pin = GPIO(reset_pin_no, "out")
+        chip = gpiod.Chip("/dev/gpiochip0")
+        self.boot0_pin = chip.request_lines(
+            {self.boot0_pin_no: gpiod.LineSettings(Direction.OUTPUT)}
+        )
+        self.reset_pin = chip.request_lines(
+            {self.reset_pin_no: gpiod.LineSettings(Direction.OUTPUT)}
+        )
+        # gpiod.Chip("/dev/gpiochip0").get_line(self.boot0_pin_no, direction=gpiod.LINE_REQ_DIR_OUT)
+        # self.reset_pin = gpiod.Chip("/dev/gpiochip0").get_line(self.reset_pin_no, direction=gpiod.LINE_REQ_DIR_OUT)
 
     def enter_bootloader_mode(self):
-        self.boot0_pin.write(True)
-        self.reset_pin.write(True)
+        self.boot0_pin.set_value(self.boot0_pin_no, Value.ACTIVE)
+        self.reset_pin.set_value(self.reset_pin_no, Value.ACTIVE)
         time.sleep(0.2)
-        self.reset_pin.write(False)
+        self.reset_pin.set_value(self.reset_pin_no, Value.INACTIVE)
         time.sleep(0.2)
 
     def exit_bootloader_mode(self):
-        self.boot0_pin.write(False)
-        self.reset_pin.write(True)
+        self.boot0_pin.set_value(self.boot0_pin_no, Value.INACTIVE)
+        self.reset_pin.set_value(self.reset_pin_no, Value.ACTIVE)
         time.sleep(0.2)
-        self.reset_pin.write(False)
+        self.reset_pin.set_value(self.reset_pin_no, Value.INACTIVE)
         time.sleep(0.2)
 
     def try_flash_operation(self, operation_name, flash_command, flash_args):
@@ -118,7 +126,7 @@ def main():
     )
 
     binary_file = parser.parse_args().file
-    sys_arch = sh.uname("-m")
+    sys_arch = sh.uname("-m").stdout.decode().strip()
 
     flasher = FirmwareFlasher(sys_arch, binary_file)
     flasher.flash_firmware()

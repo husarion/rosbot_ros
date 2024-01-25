@@ -1,20 +1,27 @@
 # Rosbot ROS
+
 ROS2 packages for ROSbot 2R and ROSbot 2 PRO.
 
 ## ROS packages
+
 ### `rosbot`
+
 Metapackage that contains dependencies to other repositories.
 
 ### `rosbot_bringup`
+
 Package that contains launch, which starts all base functionalities. Also configuration for [robot_localization](https://github.com/cra-ros-pkg/robot_localization) and [ros2_controllers](https://github.com/ros-controls/ros2_controllers) are defined there.
 
 ### `rosbot_description`
+
 URDF model used as a source of transforms on the physical robot. It was written to be compatible with ROS Industrial and preconfigured for ROS2 control.
 
 ### `rosbot_gazebo`
+
 Launch files for Ignition Gazebo working with ROS2 control.
 
 ### `rosbot_controller`
+
 ROS2 hardware controllers configuration for ROSbots.
 
 ## ROS API
@@ -32,13 +39,15 @@ For detailed instructions refer to the [rosbot_ros2_firmware repository](https:/
 ### Prerequisites
 
 Install `colcon`, `vcs` and `rosdep`:
+
 ```
 sudo apt-get update
 sudo apt-get install -y python3-colcon-common-extensions python3-vcstool python3-rosdep python3-pip
 ```
 
 Create workspace folder and clone `rosbot_ros` repository:
-```
+
+```bash
 mkdir -p ros2_ws/src
 cd ros2_ws
 git clone https://github.com/husarion/rosbot_ros src/
@@ -47,7 +56,8 @@ git clone https://github.com/husarion/rosbot_ros src/
 ### Build and run on hardware
 
 Building:
-```
+
+```bash
 export HUSARION_ROS_BUILD=hardware
 
 source /opt/ros/$ROS_DISTRO/setup.bash
@@ -70,12 +80,14 @@ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 > Before starting the software on the robot please make sure that you're using the latest firmware and run the `micro-ROS` agent (as described in the *Usage on hardware* step).
 
 Running:
-```
+
+```bash
 source install/setup.bash
 ros2 launch rosbot_bringup bringup.launch.py
 ```
 
 ### Build and run Gazebo simulation
+
 Prerequisites:
 
 > **Warning**
@@ -84,12 +96,14 @@ Prerequisites:
 > Look at [the table](https://gazebosim.org/docs/garden/ros_installation#summary-of-compatible-ros-and-gazebo-combinations) to see the compatible ROS 2 and Gazebo versions.
 
 If you have installed multiple versions of Gazebo use the global variable to select the correct one:
+
 ```bash
 export GZ_VERSION=fortress
 ```
 
 Building:
-```
+
+```bash
 export HUSARION_ROS_BUILD=simulation
 
 source /opt/ros/$ROS_DISTRO/setup.bash
@@ -110,14 +124,16 @@ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Running:
-```
+
+```bash
 source install/setup.bash
 ros2 launch rosbot_gazebo simulation.launch.py
 ```
 
-## Testing package
+## Developer info
 
 ### pre-commit
+
 [pre-commit configuration](.pre-commit-config.yaml) prepares plenty of tests helping for developing and contributing. Usage:
 
 ```bash
@@ -134,7 +150,8 @@ pre-commit run -a
 After initialization [pre-commit configuration](.pre-commit-config.yaml) will applied on every commit.
 
 ### Industrial CI
-```
+
+```bash
 colcon test
 ```
 
@@ -142,12 +159,14 @@ colcon test
 > Command `colcon test` does not build the code. Remember to build your code after changes.
 
 If tests finish with errors print logs:
-```
+
+``` bash
 colcon test-result --verbose
 ```
 
 ### Format python code with [Black](https://github.com/psf/black)
-```
+
+```bash
 cd src/
 black rosbot*
 ```
@@ -156,18 +175,19 @@ black rosbot*
 
 At fist install [act](https://github.com/nektos/act):
 
-```
+```bash
 cd /
 curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
 ```
 
 And test the workflow with:
 
-```
+```bash
 act -W .github/workflows/industrial_ci.yaml
 ```
 
 ## Demo
+
 Below you can find demos with ROSbots:
 | link | description |
 | - | - |

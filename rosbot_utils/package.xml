@@ -14,7 +14,7 @@
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
   <exec_depend>python3-sh</exec_depend>
-  <exec_depend>python-periphery-pip</exec_depend>
+  <exec_depend>python3-libgpiod</exec_depend>
   <exec_depend>python3-pyftdi-pip</exec_depend>
   <exec_depend>usbutils</exec_depend>
   <exec_depend>python3-serial</exec_depend>
