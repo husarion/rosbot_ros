@@ -66,8 +66,6 @@ class FirmwareFlasher:
         self.reset_pin = chip.request_lines(
             {self.reset_pin_no: gpiod.LineSettings(Direction.OUTPUT)}
         )
-        # gpiod.Chip("/dev/gpiochip0").get_line(self.boot0_pin_no, direction=gpiod.LINE_REQ_DIR_OUT)
-        # self.reset_pin = gpiod.Chip("/dev/gpiochip0").get_line(self.reset_pin_no, direction=gpiod.LINE_REQ_DIR_OUT)
 
     def enter_bootloader_mode(self):
         self.boot0_pin.set_value(self.boot0_pin_no, Value.ACTIVE)
