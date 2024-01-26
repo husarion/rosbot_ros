@@ -1,9 +1,4 @@
 repositories:
-  gazebosim/gz_ros2_control:
-    type: git
-    url: https://github.com/ros-controls/gz_ros2_control
-    version: humble
-
   husarion/husarion_office_gz:
     type: git
     url: https://github.com/husarion/husarion_office_gz

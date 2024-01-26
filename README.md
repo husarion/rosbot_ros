@@ -38,11 +38,11 @@ For detailed instructions refer to the [rosbot_ros2_firmware repository](https:/
 
 ### Prerequisites
 
-Install `colcon`, `vcs` and `rosdep`:
+Install all necessary tools:
 
-```
+```bash
 sudo apt-get update
-sudo apt-get install -y python3-colcon-common-extensions python3-vcstool python3-rosdep python3-pip
+sudo apt-get install -y ros-dev-tools python3-pip
 ```
 
 Create workspace folder and clone `rosbot_ros` repository:
@@ -75,25 +75,27 @@ rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
-> **Prerequisites**
->
-> Before starting the software on the robot please make sure that you're using the latest firmware and run the `micro-ROS` agent (as described in the *Usage on hardware* step).
-
 Running:
 
 ```bash
 source install/setup.bash
-ros2 launch rosbot_bringup bringup.launch.py
+ros2 launch rosbot_bringup combined.launch.py
 ```
 
 ### Build and run Gazebo simulation
 
 Prerequisites:
 
-> **Warning**
-> The simulation is compatible with the Gazebo Fortress LTS version. Use [this installation guide ](https://gazebosim.org/docs/fortress/install_ubuntu#binary-installation-on-ubuntu) to install the proper version and remove the another versions e. g. Gazebo Garden:
-> `sudo apt remove gz-garden && sudo apt autoremove`
-> Look at [the table](https://gazebosim.org/docs/garden/ros_installation#summary-of-compatible-ros-and-gazebo-combinations) to see the compatible ROS 2 and Gazebo versions.
+> [!TIP]
+> The default version of Gazebo Ignition will be installed with the instructions below. If you want to install a different version of the simulator, it is necessary to:
+>
+> - Check compatible versions of ROS 2 and Gazebo in [this table](https://gazebosim.org/docs/garden/ros_installation#summary-of-compatible-ros-and-gazebo-combinations)
+> - [Install the appropriate version](https://gazebosim.org/docs/fortress/install_ubuntu#binary-installation-on-ubuntu),
+> - Add the `GZ_VERSION` environment variable appropriate to your version
+>
+>   ```bash
+>   export GZ_VERSION=fortress
+>   ```
 
 If you have installed multiple versions of Gazebo use the global variable to select the correct one:
 

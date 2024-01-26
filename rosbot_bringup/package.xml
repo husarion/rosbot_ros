@@ -4,10 +4,10 @@
   <name>rosbot_bringup</name>
   <version>0.13.0</version>
   <description>ROSbot 2, 2R, PRO bringup package</description>
-  <license>Apache License 2.0</license>
-
-  <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <maintainer email="support@husarion.com">Husarion</maintainer>
+  <maintainer email="jakub.delicat@husarion.com">Jakub Delicat</maintainer>
+  <maintainer email="rafal.gorecki@husarion.com">Rafal Gorecki</maintainer>
+  <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
@@ -18,6 +18,7 @@
   <exec_depend>rosbot_controller</exec_depend>
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>micro_ros_agent</exec_depend>
+  <exec_depend>micro_ros_msgs</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
   <test_depend>launch</test_depend>
