@@ -22,8 +22,7 @@ import sh
 import time
 import sys
 import argparse
-import gpiod
-from gpiod.line import Direction, Value
+from gpiozero import OutputDevice
 
 
 class FirmwareFlasher:
@@ -39,44 +38,41 @@ class FirmwareFlasher:
             # Setups ThinkerBoard pins
             print("Device: ThinkerBoard\n")
             self.serial_port = "/dev/ttyS1"
-            self.boot0_pin = 164
-            self.reset_pin = 184
+            boot0_pin_no = 164
+            reset_pin_no = 184
 
         elif self.sys_arch == "x86_64":
             # Setups UpBoard pins
             print("Device: UpBoard\n")
             self.serial_port = "/dev/ttyS4"
-            self.boot0_pin = 17
-            self.reset_pin = 18
+            boot0_pin_no = 17
+            reset_pin_no = 18
 
         elif self.sys_arch == "aarch64":
             # Setups RPi pins
             print("Device: RPi\n")
             self.serial_port = "/dev/ttyAMA0"
-            self.boot0_pin = 17
-            self.reset_pin = 18
+            boot0_pin_no = 17
+            reset_pin_no = 18
 
         else:
             print("Unknown device...")
 
-        chip = gpiod.Chip("/dev/gpiochip0")
-        self.gpio_port = chip.request_lines(
-            {self.boot0_pin: gpiod.LineSettings(Direction.OUTPUT),
-            self.reset_pin: gpiod.LineSettings(Direction.OUTPUT)}
-        )
+        self.boot0_pin = OutputDevice(boot0_pin_no)
+        self.reset_pin = OutputDevice(reset_pin_no)
 
     def enter_bootloader_mode(self):
-        self.gpio_port.set_value(self.boot0_pin, Value.ACTIVE)
-        self.gpio_port.set_value(self.reset_pin, Value.ACTIVE)
+        self.boot0_pin.on()
+        self.reset_pin.on()
         time.sleep(0.2)
-        self.gpio_port.set_value(self.reset_pin, Value.INACTIVE)
+        self.reset_pin.off()
         time.sleep(0.2)
 
     def exit_bootloader_mode(self):
-        self.gpio_port.set_value(self.boot0_pin, Value.INACTIVE)
-        self.gpio_port.set_value(self.reset_pin, Value.ACTIVE)
+        self.boot0_pin.off()
+        self.reset_pin.on()
         time.sleep(0.2)
-        self.gpio_port.set_value(self.reset_pin, Value.INACTIVE)
+        self.reset_pin.off()
         time.sleep(0.2)
 
     def try_flash_operation(self, operation_name, flash_command, flash_args):
@@ -95,11 +91,11 @@ class FirmwareFlasher:
     def flash_firmware(self):
         self.enter_bootloader_mode()
 
-        # Disable the flash write-protection
-        self.try_flash_operation("Write-UnProtection", sh.stm32flash, ["-u"])
-
         # Disable the flash read-protection
         self.try_flash_operation("Read-UnProtection", sh.stm32flash, ["-k"])
+
+        # Disable the flash write-protection
+        self.try_flash_operation("Write-UnProtection", sh.stm32flash, ["-u"])
 
         # Flashing the firmware
         flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]

@@ -13,12 +13,12 @@
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
-  <exec_depend>python3-sh</exec_depend>
-  <exec_depend>python3-libgpiod</exec_depend>
+  <exec_depend>python3-gpiozero</exec_depend>
   <exec_depend>python3-pyftdi-pip</exec_depend>
-  <exec_depend>usbutils</exec_depend>
-  <exec_depend>python3-serial</exec_depend>
   <exec_depend>python3-requests</exec_depend>
+  <exec_depend>python3-serial</exec_depend>
+  <exec_depend>python3-sh</exec_depend>
+  <exec_depend>usbutils</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
