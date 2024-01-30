@@ -14,12 +14,7 @@ ENV HUSARION_ROS_BUILD_TYPE=${HUSARION_ROS_BUILD_TYPE}
 WORKDIR /ros2_ws
 RUN mkdir src
 
-COPY rosbot src/rosbot
-COPY rosbot_bringup src/rosbot_bringup
-COPY rosbot_controller src/rosbot_controller
-COPY rosbot_description src/rosbot_description
-COPY rosbot_gazebo src/rosbot_gazebo
-COPY rosbot_utils src/rosbot_utils
+COPY ./ src/
 
 RUN apt-get update && apt-get install -y \
         python3-pip \
