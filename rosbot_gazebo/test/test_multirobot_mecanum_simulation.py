@@ -31,7 +31,6 @@ from threading import Thread
 
 @launch_pytest.fixture
 def generate_test_description():
-
     # IncludeLaunchDescription does not work with robots argument
     simulation_launch = ExecuteProcess(
         cmd=[
