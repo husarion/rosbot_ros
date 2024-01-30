@@ -52,10 +52,10 @@ class SimulationTestNode(Node):
 
         # Sensor callback
         self.camera_rgb_sub = self.create_subscription(
-            Image, "camera/image", self.camera_image_callback, 10
+            Image, "camera/color/image_raw", self.camera_image_callback, 10
         )
         self.camera_pc_sub = self.create_subscription(
-            PointCloud2, "camera/points", self.camera_points_callback, 10
+            PointCloud2, "camera/depth/points", self.camera_points_callback, 10
         )
         self.range_subs = []
         for range_topic_name in self.RANGE_SENSORS_TOPICS:
@@ -258,7 +258,7 @@ def yaw_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_
     ), f"{robot_name} does not rotate properly. Check ekf_filter_node! Twist: {node.ekf_twist}"
 
 
-def sensors_readings_test(node, robot_name="ROSbot"):
+def sensors_readings_test(node: SimulationTestNode, robot_name="ROSbot"):
     flag = node.scan_event.wait(timeout=20.0)
     assert flag, f"{robot_name}'s lidar does not work properly!"
 
