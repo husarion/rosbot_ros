@@ -1,3 +1,4 @@
+---
 /**/controller_manager:
   ros__parameters:
     update_rate: 20 # Hz
@@ -24,8 +25,8 @@
   ros__parameters:
     tf_frame_prefix_enable: false
 
-    left_wheel_names: ["fl_wheel_joint", "rl_wheel_joint"]
-    right_wheel_names: ["fr_wheel_joint", "rr_wheel_joint"]
+    left_wheel_names: [fl_wheel_joint, rl_wheel_joint]
+    right_wheel_names: [fr_wheel_joint, rr_wheel_joint]
 
     wheel_separation: 0.186
     wheel_radius: 0.0425

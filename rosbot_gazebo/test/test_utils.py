@@ -1,5 +1,5 @@
 # Copyright 2021 Open Source Robotics Foundation, Inc.
-# Copyright 2023 Husarion
+# Copyright 2024 Husarion
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,94 +14,103 @@
 # limitations under the License.
 
 import rclpy
+from rclpy.node import Node
 
 from threading import Event
-from threading import Thread
-
-from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import LaserScan, Image, PointCloud2
+from sensor_msgs.msg import LaserScan, Image, Imu, JointState, PointCloud2
 
 
 class SimulationTestNode(Node):
     __test__ = False
+
     # The inaccuracies in measurement uncertainties and wheel slippage
     # cause the rosbot_base_controller to determine inaccurate odometry.
     ACCURACY = 0.10  # 10% accuracy
+    VELOCITY_STABILIZATION_DELAY = 2
 
     RANGE_SENSORS_TOPICS = ["range/fl", "range/fr", "range/rl", "range/rr"]
     RANGE_SENSORS_FRAMES = ["fl_range", "fr_range", "rl_range", "rr_range"]
 
     def __init__(self, name="test_node", namespace=None):
         super().__init__(name, namespace=namespace)
+        self.cmd_vel_pub = self.create_publisher(Twist, "cmd_vel", 10)
 
-        # Use simulation time to correct run on slow machine
-        use_sim_time = rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
-        self.set_parameters([use_sim_time])
-
-        self.VELOCITY_STABILIZATION_DELAY = 3
-        self.current_time = 1e-9 * self.get_clock().now().nanoseconds
-        self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
-        self.vel_stabilization_time_event = Event()
-
-        self.v_x = 0.0
-        self.v_y = 0.0
-        self.v_yaw = 0.0
-        self.twist = None  # Debug info
-
-        self.controller_odom_flag = False
-        self.ekf_odom_flag = False
-        self.odom_tf_event = Event()
-        self.scan_event = Event()
-        self.ranges_events = [Event() for _ in range(len(self.RANGE_SENSORS_TOPICS))]
-        self.camera_color_event = Event()
-        self.camera_points_event = Event()
-
-    def clear_odom_flag(self):
-        self.controller_odom_flag = False
-        self.ekf_odom_flag = False
-
-    def set_destination_speed(self, v_x, v_y, v_yaw):
-        self.clear_odom_flag()
-        self.v_x = v_x
-        self.v_y = v_y
-        self.v_yaw = v_yaw
-        self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
-        self.vel_stabilization_time_event.clear()
-
-    def create_test_subscribers_and_publishers(self):
-        self.cmd_vel_publisher = self.create_publisher(Twist, "cmd_vel", 10)
-
-        self.controller_odom_sub = self.create_subscription(
+        # Robot callback
+        self.joint_sub = self.create_subscription(
+            JointState, "joint_states", self.joint_states_callback, 10
+        )
+        self.controller_sub = self.create_subscription(
             Odometry, "rosbot_base_controller/odom", self.controller_callback, 10
         )
-
-        self.ekf_odom_sub = self.create_subscription(
+        self.ekf_sub = self.create_subscription(
             Odometry, "odometry/filtered", self.ekf_callback, 10
         )
+        self.imu_sub = self.create_subscription(Imu, "imu_broadcaster/imu", self.imu_callback, 10)
 
-        self.scan_sub = self.create_subscription(LaserScan, "scan", self.scan_callback, 10)
-
+        # Sensor callback
+        self.camera_rgb_sub = self.create_subscription(
+            Image, "camera/image", self.camera_image_callback, 10
+        )
+        self.camera_pc_sub = self.create_subscription(
+            PointCloud2, "camera/points", self.camera_points_callback, 10
+        )
         self.range_subs = []
         for range_topic_name in self.RANGE_SENSORS_TOPICS:
             sub = self.create_subscription(LaserScan, range_topic_name, self.ranges_callback, 10)
             self.range_subs.append(sub)
+        self.scan_sub = self.create_subscription(LaserScan, "scan", self.scan_callback, 10)
 
-        self.camera_color_sub = self.create_subscription(
-            Image, "camera/image", self.camera_image_callback, 10
-        )
+        # Timer - send cmd_vel and check if the time needed for speed stabilization has elapsed
+        self.timer = self.create_timer(0.1, self.timer_callback)
 
-        self.camera_points_sub = self.create_subscription(
-            PointCloud2, "camera/points", self.camera_points_callback, 10
-        )
+        # Destination velocity for cmd_vel
+        self.v_x = 0.0
+        self.v_y = 0.0
+        self.v_yaw = 0.0
 
-        self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
+        # Debug values
+        self.controller_twist = None
+        self.ekf_twist = None
 
-    def start_node_thread(self):
-        self.ros_spin_thread = Thread(target=lambda node: rclpy.spin(node), args=(self,))
-        self.ros_spin_thread.start()
+        # Robot test flags and event
+        self.is_controller_msg = False
+        self.is_controller_odom_correct = False
+        self.is_ekf_msg = False
+        self.is_ekf_odom_correct = False
+        self.is_imu_msg = False
+        self.is_joint_msg = False
+        self.robot_initialized_event = Event()
+        self.vel_stabilization_time_event = Event()
+
+        # Sensor test events
+        self.camera_color_event = Event()
+        self.camera_points_event = Event()
+        self.ranges_events = [Event() for _ in range(len(self.RANGE_SENSORS_TOPICS))]
+        self.scan_event = Event()
+
+        # Parameters Use simulation time to correct run on slow machine
+        use_sim_time = rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
+        self.set_parameters([use_sim_time])
+
+        # Time values
+        self.current_time = 1e-9 * self.get_clock().now().nanoseconds
+        self.goal_received_time = None
+
+    def reset_flags(self):
+        self.is_controller_odom_correct = False
+        self.is_ekf_odom_correct = False
+        self.vel_stabilization_time_event.clear()
+
+    def set_destination_speed(self, v_x, v_y, v_yaw):
+        self.get_logger().info(f"Setting cmd_vel: x: {v_x}, y: {v_y}, yaw: {v_yaw}")
+        self.v_x = v_x
+        self.v_y = v_y
+        self.v_yaw = v_yaw
+        self.goal_received_time = 1e-9 * self.get_clock().now().nanoseconds
+        self.reset_flags()
 
     def is_twist_ok(self, twist: Twist):
         def are_close_to_each_other(current_value, dest_value, tolerance=self.ACCURACY, eps=0.01):
@@ -114,23 +123,47 @@ class SimulationTestNode(Node):
 
         return x_ok and y_ok and yaw_ok
 
+    def is_initialized(self):
+        if self.is_controller_msg and self.is_ekf_msg and self.is_imu_msg and self.is_joint_msg:
+            self.get_logger().info("Robot initialized!", once=True)
+            self.robot_initialized_event.set()
+        return self.robot_initialized_event.is_set()
+
     def controller_callback(self, data: Odometry):
-        self.get_logger().debug(f"Received twist from controller: {data.twist.twist}")
-        self.controller_odom_flag = self.is_twist_ok(data.twist.twist)
-        self.twist = data.twist.twist
+        if not self.is_controller_msg:
+            self.get_logger().info("Controller message arrived")
+        self.is_controller_msg = True
+        self.controller_twist = data.twist.twist
+        self.is_controller_odom_correct = self.is_twist_ok(data.twist.twist)
 
     def ekf_callback(self, data: Odometry):
-        self.get_logger().debug(f"Received twist filtered: {data.twist.twist}")
+        if not self.is_ekf_msg:
+            self.get_logger().info("EKF message arrived")
+        self.is_ekf_msg = True
+        self.ekf_twist = data.twist.twist
+        self.is_ekf_odom_correct = self.is_twist_ok(data.twist.twist)
 
-        self.odom_tf_event.set()
-        self.ekf_odom_flag = self.is_twist_ok(data.twist.twist)
+    def imu_callback(self, data):
+        if not self.is_imu_msg:
+            self.get_logger().info("IMU message arrived")
+        self.is_imu_msg = True
+
+    def joint_states_callback(self, data):
+        if not self.is_joint_msg:
+            self.get_logger().info("Joint State message arrived")
+        self.is_joint_msg = True
 
     def timer_callback(self):
-        self.publish_cmd_vel_messages()
-
         self.current_time = 1e-9 * self.get_clock().now().nanoseconds
-        if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
-            self.vel_stabilization_time_event.set()
+
+        if self.is_initialized() and self.goal_received_time:
+            self.publish_cmd_vel_msg()
+
+            if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
+                self.get_logger().info(
+                    "Speed stabilization time has expired", throttle_duration_sec=1
+                )
+                self.vel_stabilization_time_event.set()
 
     def scan_callback(self, data: LaserScan):
         self.get_logger().debug(f"Received scan length: {len(data.ranges)}")
@@ -150,67 +183,79 @@ class SimulationTestNode(Node):
         if data.data:
             self.camera_points_event.set()
 
-    def publish_cmd_vel_messages(self):
+    def publish_cmd_vel_msg(self):
         twist_msg = Twist()
 
         twist_msg.linear.x = self.v_x
         twist_msg.linear.y = self.v_y
         twist_msg.angular.z = self.v_yaw
 
-        self.get_logger().debug(f"Publishing twist: {twist_msg}")
-        self.cmd_vel_publisher.publish(twist_msg)
+        self.cmd_vel_pub.publish(twist_msg)
+
+    def __exit__(self, exep_type, exep_value, trace):
+        if exep_type is not None:
+            raise Exception("Exception occurred, value: ", exep_value)
+        self.shutdown()
 
 
-def x_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
+def wait_for_initialization(node: SimulationTestNode, robot_name="ROSbot"):
+    assert node.robot_initialized_event.wait(30), f"{robot_name} does not initialized correctly!"
+
+
+def x_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
     node.set_destination_speed(v_x, v_y, v_yaw)
-
-    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+    # node.rate.sleep()
+    assert node.vel_stabilization_time_event.wait(20.0), (
         f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
         " since setting the target speed is:"
         f" {(node.current_time - node.goal_received_time):.1f}."
     )
-    assert node.controller_odom_flag, (
+    assert node.is_controller_odom_correct, (
         f"{robot_name}: does not move properly in x direction. Check"
         f" rosbot_base_controller! Twist: {node.twist}"
+        f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
-    assert node.ekf_odom_flag, (
+    assert node.is_ekf_odom_correct, (
         f"{robot_name}: does not move properly in x direction. Check ekf_filter_node!"
         f" Twist: {node.twist}"
     )
 
 
-def y_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
+def y_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
     node.set_destination_speed(v_x, v_y, v_yaw)
 
-    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+    assert node.vel_stabilization_time_event.wait(20.0), (
         f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
         " since setting the target speed is:"
         f" {(node.current_time - node.goal_received_time):.1f}."
     )
-    assert node.controller_odom_flag, (
+    assert node.is_controller_odom_correct, (
         f"{robot_name} does not move properly in y direction. Check"
         f" rosbot_base_controller! Twist: {node.twist}"
+        f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
-    assert node.ekf_odom_flag, (
+    assert node.is_ekf_odom_correct, (
         f"{robot_name} does not move properly in y direction. Check ekf_filter_node!"
         f" Twist: {node.twist}"
     )
 
 
-def yaw_speed_test(node, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
+def yaw_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_name="ROSbot"):
     node.set_destination_speed(v_x, v_y, v_yaw)
 
-    assert node.vel_stabilization_time_event.wait(timeout=120.0), (
+    assert node.vel_stabilization_time_event.wait(20.0), (
         f"{robot_name}: The simulation is running slowly or has crashed! The time elapsed"
         " since setting the target speed is:"
         f" {(node.current_time - node.goal_received_time):.1f}."
     )
+    assert node.is_controller_odom_correct, (
+        f"{robot_name} does not rotate properly. Check rosbot_base_controller! Twist:"
+        f" {node.controller_twist}"
+        f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
+    )
     assert (
-        node.controller_odom_flag
-    ), f"{robot_name} does not rotate properly. Check rosbot_base_controller! Twist: {node.twist}"
-    assert (
-        node.ekf_odom_flag
-    ), f"{robot_name} does not rotate properly. Check ekf_filter_node! Twist: {node.twist}"
+        node.is_ekf_odom_correct
+    ), f"{robot_name} does not rotate properly. Check ekf_filter_node! Twist: {node.ekf_twist}"
 
 
 def sensors_readings_test(node, robot_name="ROSbot"):
@@ -230,26 +275,20 @@ def sensors_readings_test(node, robot_name="ROSbot"):
     assert flag, f"{robot_name}'s camera point cloud does not work properly!"
 
 
-def tf_test(node, robot_name="ROSbot"):
-    flag = node.odom_tf_event.wait(timeout=20.0)
-    assert flag, (
-        f"{robot_name}: expected odom to base_link tf but it was not received. Check"
-        " robot_localization!"
-    )
-
-
-def diff_test(node, robot_name="ROSbot"):
-    sensors_readings_test(node, robot_name)
-    # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+def diff_test(node: SimulationTestNode, robot_name="ROSbot"):
+    wait_for_initialization(node, robot_name)
+    # 0.8 m/s and 3.14 rad/s are controller's limits defined in
     # rosbot_controller/config/mecanum_drive_controller.yaml
-    x_speed_test(node, v_x=0.9, robot_name=robot_name)
-    yaw_speed_test(node, v_yaw=3.0, robot_name=robot_name)
-
-
-def mecanum_test(node, robot_name="ROSbot"):
+    x_speed_test(node, v_x=0.8, robot_name=robot_name)
+    yaw_speed_test(node, v_yaw=3.14, robot_name=robot_name)
     sensors_readings_test(node, robot_name)
-    # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+
+
+def mecanum_test(node: SimulationTestNode, robot_name="ROSbot"):
+    wait_for_initialization(node, robot_name)
+    # 0.8 m/s and 3.14 rad/s are controller's limits defined in
     # rosbot_controller/config/mecanum_drive_controller.yaml
-    x_speed_test(node, v_x=0.9, robot_name=robot_name)
-    y_speed_test(node, v_y=0.9, robot_name=robot_name)
-    yaw_speed_test(node, v_yaw=3.0, robot_name=robot_name)
+    x_speed_test(node, v_x=0.8, robot_name=robot_name)
+    y_speed_test(node, v_y=0.8, robot_name=robot_name)
+    yaw_speed_test(node, v_yaw=3.14, robot_name=robot_name)
+    sensors_readings_test(node, robot_name)
