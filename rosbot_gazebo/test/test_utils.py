@@ -276,18 +276,18 @@ def sensors_readings_test(node: SimulationTestNode, robot_name="ROSbot"):
 
 def diff_test(node: SimulationTestNode, robot_name="ROSbot"):
     wait_for_initialization(node, robot_name)
-    # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+    # 0.8 m/s and 3.14 rad/s are controller's limits defined in
     # rosbot_controller/config/mecanum_drive_controller.yaml
-    x_speed_test(node, v_x=0.9, robot_name=robot_name)
-    yaw_speed_test(node, v_yaw=3.0, robot_name=robot_name)
+    x_speed_test(node, v_x=0.8, robot_name=robot_name)
+    yaw_speed_test(node, v_yaw=3.14, robot_name=robot_name)
     sensors_readings_test(node, robot_name)
 
 
 def mecanum_test(node: SimulationTestNode, robot_name="ROSbot"):
     wait_for_initialization(node, robot_name)
-    # 0.9 m/s and 3.0 rad/s are controller's limits defined in
+    # 0.8 m/s and 3.14 rad/s are controller's limits defined in
     # rosbot_controller/config/mecanum_drive_controller.yaml
-    x_speed_test(node, v_x=0.9, robot_name=robot_name)
-    y_speed_test(node, v_y=0.9, robot_name=robot_name)
-    yaw_speed_test(node, v_yaw=3.0, robot_name=robot_name)
+    x_speed_test(node, v_x=0.8, robot_name=robot_name)
+    y_speed_test(node, v_y=0.8, robot_name=robot_name)
+    yaw_speed_test(node, v_yaw=3.14, robot_name=robot_name)
     sensors_readings_test(node, robot_name)
