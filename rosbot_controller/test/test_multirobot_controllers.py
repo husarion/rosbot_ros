@@ -18,9 +18,10 @@ import launch_pytest
 import pytest
 import rclpy
 
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.substitutions import PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from test_utils import ControllersTestNode, controller_readings_test
@@ -46,12 +47,13 @@ def generate_test_description():
             launch_arguments={
                 "use_sim": "False",
                 "mecanum": "True",
-                "use_gpu": "False",
                 "namespace": robot_names[i],
             }.items(),
         )
 
-        actions.append(controller_launch)
+        # When there is no delay the controllers doesn't spawn correctly
+        delayed_controller_launch = TimerAction(period=i * 2.0, actions=[controller_launch])
+        actions.append(delayed_controller_launch)
 
     return LaunchDescription(actions)
 
@@ -66,7 +68,6 @@ def test_multirobot_controllers_startup_success():
             node.start_publishing_fake_hardware()
 
             node.start_node_thread()
-
             controller_readings_test(node, robot_name)
         finally:
             rclpy.shutdown()

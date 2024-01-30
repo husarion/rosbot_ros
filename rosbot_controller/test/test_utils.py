@@ -17,9 +17,7 @@ import rclpy
 
 from threading import Event
 from threading import Thread
-
 from rclpy.node import Node
-
 from sensor_msgs.msg import JointState, Imu
 from nav_msgs.msg import Odometry
 
@@ -46,10 +44,10 @@ class ControllersTestNode(Node):
 
         self.imu_sub = self.create_subscription(Imu, "imu_broadcaster/imu", self.imu_callback, 10)
 
-        # TODO: @delipl namespaces have not been implemented in microros yet
-        self.imu_publisher = self.create_publisher(Imu, "/_imu/data_raw", 10)
+        # TODO: @delihus namespaces have not been implemented in microros yet
+        self.imu_pub = self.create_publisher(Imu, "/_imu/data_raw", 10)
 
-        self.joint_states_publisher = self.create_publisher(JointState, "/_motors_response", 10)
+        self.joint_pub = self.create_publisher(JointState, "/_motors_response", 10)
 
         self.timer = None
 
@@ -72,7 +70,7 @@ class ControllersTestNode(Node):
             self.publish_fake_hardware_messages,
         )
 
-    # TODO: @delipl namespaces have not been implemented in microros yet
+    # TODO: @delihus namespaces have not been implemented in microros yet
     def publish_fake_hardware_messages(self):
         imu_msg = Imu()
         imu_msg.header.stamp = self.get_clock().now().to_msg()
@@ -89,22 +87,22 @@ class ControllersTestNode(Node):
         joint_state_msg.position = [0.0, 0.0, 0.0, 0.0]
         joint_state_msg.velocity = [0.0, 0.0, 0.0, 0.0]
 
-        self.imu_publisher.publish(imu_msg)
-        self.joint_states_publisher.publish(joint_state_msg)
+        self.imu_pub.publish(imu_msg)
+        self.joint_pub.publish(joint_state_msg)
 
 
 def controller_readings_test(node, robot_name="ROSbot"):
-    msgs_received_flag = node.joint_state_msg_event.wait(timeout=10.0)
+    msgs_received_flag = node.joint_state_msg_event.wait(10.0)
     assert msgs_received_flag, (
-        f"{robot_name}: expected JointStates message but it was not received. Check"
-        " joint_state_broadcaster!"
+        f"{robot_name}: Expected JointStates message but it was not received. Check "
+        "joint_state_broadcaster!"
     )
-    msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
+    msgs_received_flag = node.odom_msg_event.wait(10.0)
     assert msgs_received_flag, (
-        f"{robot_name}: expected Odom message but it was not received. Check"
-        " rosbot_base_controller!"
+        f"{robot_name}: Expected Odom message but it was not received. Check "
+        "rosbot_base_controller!"
     )
-    msgs_received_flag = node.imu_msg_event.wait(timeout=10.0)
+    msgs_received_flag = node.imu_msg_event.wait(10.0)
     assert (
         msgs_received_flag
-    ), f"{robot_name}: expected Imu message but it was not received. Check imu_broadcaster!"
+    ), f"{robot_name}: Expected Imu message but it was not received. Check imu_broadcaster!"
