@@ -75,6 +75,13 @@ rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
+Flash firmware:
+
+```bash
+source install/setup.bash
+ros2 launch rosbot_utils flash_firmware
+```
+
 Running:
 
 ```bash

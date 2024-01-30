@@ -91,11 +91,11 @@ class FirmwareFlasher:
     def flash_firmware(self):
         self.enter_bootloader_mode()
 
-        # Disable the flash read-protection
-        self.try_flash_operation("Read-UnProtection", sh.stm32flash, ["-k"])
-
         # Disable the flash write-protection
         self.try_flash_operation("Write-UnProtection", sh.stm32flash, ["-u"])
+
+        # Disable the flash read-protection
+        self.try_flash_operation("Read-UnProtection", sh.stm32flash, ["-k"])
 
         # Flashing the firmware
         flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
