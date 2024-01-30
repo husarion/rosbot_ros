@@ -154,3 +154,5 @@ libgpiod
 REQ
 gpiochip
 gpiod
+Rafal
+Gorecki
