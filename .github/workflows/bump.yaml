@@ -1,25 +1,18 @@
 ---
-name: Bump version
+name: Bump
 on:
+  workflow_call:
   workflow_dispatch:
     inputs:
       name:
         description: Version to bump (major, minor, patch)
         default: patch
         required: true
-  pull_request:
-    branches: humble
-    types: [closed]
 
 jobs:
-  industrial_ci:
-    name: Industrial CI
-    uses: ./.github/workflows/industrial_ci.yaml
-
   get-bump:
     name: Get version bump
     runs-on: ubuntu-latest
-    needs: industrial_ci
     outputs:
       bump: ${{ env.BUMP }}
     steps:

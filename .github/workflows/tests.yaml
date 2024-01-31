@@ -1,9 +1,8 @@
 ---
-name: Industrial CI
+name: Tests
 on:
-  workflow_call:
-  workflow_dispatch:
-  push:
+    workflow_call:
+    workflow_dispatch:
 
 jobs:
   black:
@@ -26,13 +25,10 @@ jobs:
       - name: Spellcheck
         uses: rojopolis/spellcheck-github-actions@0.33.1
 
-  ros_industrial_ci:
-    name: ROS Industrial CI
+  industrial_ci:
+    name: Industrial CI
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    needs:
-      - black
-      - spellcheck
     strategy:
       fail-fast: false
       matrix:
