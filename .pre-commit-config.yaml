@@ -1,51 +1,53 @@
 ---
 repos:
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.5.0
-      hooks:
-          - id: check-merge-conflict
-          - id: trailing-whitespace
-          - id: end-of-file-fixer
-          - id: check-yaml
-          - id: check-xml
-          - id: check-added-large-files
-          - id: check-ast
-          - id: check-json
-          - id: name-tests-test
-            files: ^.*\/test\/.*$
-            args: [--pytest-test-first]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-xml
+      - id: check-added-large-files
+      - id: check-ast
+      - id: check-json
+      - id: name-tests-test
+        files: ^.*\/test\/.*$
+        args: [--pytest-test-first]
 
-    - repo: https://github.com/codespell-project/codespell
-      rev: v2.2.6
-      hooks:
-          - id: codespell
-            name: codespell
-            description: Checks for common misspellings in text files.
-            entry: codespell  *
-            language: python
-            types: [text]
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        name: codespell
+        description: Checks for common misspellings in text files.
+        entry: codespell  *
+        language: python
+        types: [text]
 
-    - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-      rev: 0.2.3
-      hooks:
-          - id: yamlfmt
-            files: ^.github|./\.yaml
+  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+    rev: 0.2.3
+    hooks:
+      - id: yamlfmt
+        files: ^(?!.*compose)(?!.*ekf\.yaml$).*$
+        args: [--mapping, '2', --sequence, '4', --offset, '2', --width, '100']
 
-    - repo: https://github.com/psf/black
-      rev: 23.11.0
-      hooks:
-        - id: black
-          args: ["--line-length=99", "--experimental-string-processing"]
+  # Please keep this version until --experimental-string-processing come back or will be available by default
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        args: [--line-length=99, --experimental-string-processing]
 
-    - repo: https://github.com/PyCQA/flake8
-      rev: 6.1.0
-      hooks:
-        - id: flake8
-          args: ["--ignore=E501,W503"] # ignore too long line and line break before binary operator,
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: ['--ignore=E501,W503']   # ignore too long line and line break before binary operator,
                                        # black checks it
 
-    - repo: local
-      hooks:
+  - repo: local
+    hooks:
       - id: ament_lint_cmake
         name: ament_lint_cmake
         description: Check format of CMakeLists.txt files.
@@ -53,8 +55,8 @@ repos:
         language: system
         files: CMakeLists\.txt$
 
-    - repo: local
-      hooks:
+  - repo: local
+    hooks:
       - id: ament_copyright
         name: ament_copyright
         description: Check if copyright notice is available in all files.
@@ -63,9 +65,9 @@ repos:
         language: system
 
       # Docs - RestructuredText hooks
-    - repo: https://github.com/PyCQA/doc8
-      rev: v1.1.1
-      hooks:
-        - id: doc8
-          args: ['--max-line-length=100', '--ignore=D001']
-          exclude: ^.*\/CHANGELOG\.rst/.*$
+  - repo: https://github.com/PyCQA/doc8
+    rev: v1.1.1
+    hooks:
+      - id: doc8
+        args: [--max-line-length=100, --ignore=D001]
+        exclude: ^.*\/CHANGELOG\.rst/.*$

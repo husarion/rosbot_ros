@@ -122,7 +122,7 @@ pids
 pgrep
 namespace
 TODO
-delipl
+delihus
 microros
 namespaces
 fastdds
@@ -150,3 +150,4 @@ subprocess
 cbus
 Dockerfile
 unbuffered
+sp
