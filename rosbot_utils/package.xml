@@ -4,14 +4,16 @@
   <name>rosbot_utils</name>
   <version>0.13.0</version>
   <description>Utilities for ROSbot 2R and 2 PRO</description>
-  <license>Apache License 2.0</license>
 
-  <author email="dominik.nwk@gmail.com">Dominik Nowak</author>
   <maintainer email="support@husarion.com">Husarion</maintainer>
+
+  <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
+
+  <author email="dominik.nwk@gmail.com">Dominik Nowak</author>
 
   <exec_depend>python3-sh</exec_depend>
   <exec_depend>python-periphery-pip</exec_depend>

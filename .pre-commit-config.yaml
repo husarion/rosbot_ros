@@ -71,3 +71,8 @@ repos:
       - id: doc8
         args: [--max-line-length=100, --ignore=D001]
         exclude: ^.*\/CHANGELOG\.rst/.*$
+
+  - repo: https://github.com/comkieffer/pre-commit-xmllint.git
+    rev: 1.0.0
+    hooks:
+      - id: xmllint
