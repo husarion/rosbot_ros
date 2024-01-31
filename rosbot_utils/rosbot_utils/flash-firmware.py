@@ -22,7 +22,7 @@ import sh
 import time
 import sys
 import argparse
-from gpiozero import OutputDevice
+import gpiod
 
 
 class FirmwareFlasher:
@@ -38,6 +38,7 @@ class FirmwareFlasher:
             # Setups ThinkerBoard pins
             print("Device: ThinkerBoard\n")
             self.serial_port = "/dev/ttyS1"
+            gpio_chip = "/dev/gpiochip0"
             boot0_pin_no = 164
             reset_pin_no = 184
 
@@ -45,6 +46,7 @@ class FirmwareFlasher:
             # Setups UpBoard pins
             print("Device: UpBoard\n")
             self.serial_port = "/dev/ttyS4"
+            gpio_chip = "/dev/gpiochip4"
             boot0_pin_no = 17
             reset_pin_no = 18
 
@@ -52,27 +54,32 @@ class FirmwareFlasher:
             # Setups RPi pins
             print("Device: RPi\n")
             self.serial_port = "/dev/ttyAMA0"
+            gpio_chip = "/dev/gpiochip0"
             boot0_pin_no = 17
             reset_pin_no = 18
 
         else:
             print("Unknown device...")
 
-        self.boot0_pin = OutputDevice(boot0_pin_no)
-        self.reset_pin = OutputDevice(reset_pin_no)
+        chip = gpiod.Chip(gpio_chip)
+        self.boot0_pin = chip.get_line(boot0_pin_no)
+        self.reset_pin = chip.get_line(reset_pin_no)
+
+        self.boot0_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
+        self.reset_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
 
     def enter_bootloader_mode(self):
-        self.boot0_pin.on()
-        self.reset_pin.on()
+        self.boot0_pin.set_value(1)
+        self.reset_pin.set_value(1)
         time.sleep(0.2)
-        self.reset_pin.off()
+        self.reset_pin.set_value(0)
         time.sleep(0.2)
 
     def exit_bootloader_mode(self):
-        self.boot0_pin.off()
-        self.reset_pin.on()
+        self.boot0_pin.set_value(0)
+        self.reset_pin.set_value(1)
         time.sleep(0.2)
-        self.reset_pin.off()
+        self.reset_pin.set_value(0)
         time.sleep(0.2)
 
     def try_flash_operation(self, operation_name, flash_command, flash_args):
