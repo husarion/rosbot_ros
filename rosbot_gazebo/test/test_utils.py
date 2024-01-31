@@ -91,7 +91,7 @@ class SimulationTestNode(Node):
         self.ranges_events = [Event() for _ in range(len(self.RANGE_SENSORS_TOPICS))]
         self.scan_event = Event()
 
-        # Parameters Use simulation time to correct run on slow machine
+        # Using /clock topic as time source (checking the simulation time)
         use_sim_time = rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
         self.set_parameters([use_sim_time])
 
