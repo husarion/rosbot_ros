@@ -50,8 +50,8 @@ jobs:
           git_user: action-bot
           git_email: action-bot@action-bot.com
 
-  build-and-push-docker-image:
-    name: Create new docker image
+  build-docker-image:
+    name: Trigger rosbot-docker to build image
     runs-on: ubuntu-latest
     needs: catkin-release
     steps:
