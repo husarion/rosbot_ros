@@ -5,7 +5,6 @@
   <version>0.13.0</version>
   <description>Utilities for ROSbot 2R and 2 PRO</description>
   <maintainer email="support@husarion.com">Husarion</maintainer>
-  <maintainer email="dominik.nwk@gmail.com">Dominik Nowak</maintainer>
   <maintainer email="jakub.delicat@husarion.com">Jakub Delicat</maintainer>
   <maintainer email="rafal.gorecki@husarion.com">Rafal Gorecki</maintainer>
   <license>Apache License 2.0</license>
@@ -13,6 +12,8 @@
   <url type="website">https://husarion.com/</url>
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
+
+  <author email="dominik.nwk@gmail.com">Dominik Nowak</author>
 
   <exec_depend>python3-gpiozero</exec_depend>
   <exec_depend>python3-pyftdi-pip</exec_depend>
