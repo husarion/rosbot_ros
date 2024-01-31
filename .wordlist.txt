@@ -156,3 +156,4 @@ gpiochip
 gpiod
 Rafal
 Gorecki
+gpiozero
