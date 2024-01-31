@@ -75,7 +75,7 @@ class SimulationTestNode(Node):
         self.controller_twist = None
         self.ekf_twist = None
 
-        # Robot test flags and event
+        # Robot test flags and events
         self.is_controller_msg = False
         self.is_controller_odom_correct = False
         self.is_ekf_msg = False
