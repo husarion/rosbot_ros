@@ -1,53 +1,54 @@
+---
 matrix:
-- name: Python Source
-  aspell:
-    lang: en
-    d: en_US
-    camel-case: true
-  sources:
-  - 'rosbot*/**/*.py'
+  - name: Python Source
+    aspell:
+      lang: en
+      d: en_US
+      camel-case: true
+    sources:
+      - rosbot*/**/*.py
 
-  dictionary:
-    encoding: utf-8
-    output: wordlist.dic
-    wordlists:
-    - .wordlist.txt
+    dictionary:
+      encoding: utf-8
+      output: wordlist.dic
+      wordlists:
+        - .wordlist.txt
 
-  pipeline:
-  - pyspelling.filters.python:
-      comments: true
+    pipeline:
+      - pyspelling.filters.python:
+          comments: true
 
-- name: Markdown sources
-  aspell:
-    lang: en
-    d: en_US
-    camel-case: true
-  sources:
-  - 'rosbot*/**/*.md'
-  - 'rosbot*/**/*.txt'
-  dictionary:
-    encoding: utf-8
-    output: wordlist.dic
-    wordlists:
-    - .wordlist.txt
+  - name: Markdown sources
+    aspell:
+      lang: en
+      d: en_US
+      camel-case: true
+    sources:
+      - rosbot*/**/*.md
+      - rosbot*/**/*.txt
+    dictionary:
+      encoding: utf-8
+      output: wordlist.dic
+      wordlists:
+        - .wordlist.txt
 
-  pipeline:
-  - pyspelling.filters.text
+    pipeline:
+      - pyspelling.filters.text
 
-- name: XML sources
-  aspell:
-    lang: en
-    d: en_US
-    camel-case: true
-  sources:
-  - 'rosbot*/**/*.xacro'
-  - 'rosbot*/**/*.urdf'
-  - 'rosbot*/**/*.xml'
-  dictionary:
-    encoding: utf-8
-    output: wordlist.dic
-    wordlists:
-    - .wordlist.txt
+  - name: XML sources
+    aspell:
+      lang: en
+      d: en_US
+      camel-case: true
+    sources:
+      - rosbot*/**/*.xacro
+      - rosbot*/**/*.urdf
+      - rosbot*/**/*.xml
+    dictionary:
+      encoding: utf-8
+      output: wordlist.dic
+      wordlists:
+        - .wordlist.txt
 
-  pipeline:
-  - pyspelling.filters.xml
+    pipeline:
+      - pyspelling.filters.xml

@@ -3,9 +3,11 @@
 <package format="3">
   <name>rosbot_utils</name>
   <version>0.13.0</version>
-  <description>utilities for ROSbot 2R and 2 PRO</description>
-  <maintainer email="dominik.nwk@gmail.com">Dominik Nowak</maintainer>
+  <description>Utilities for ROSbot 2R and 2 PRO</description>
   <license>Apache License 2.0</license>
+
+  <author email="dominik.nwk@gmail.com">Dominik Nowak</author>
+  <maintainer email="support@husarion.com">Husarion</maintainer>
 
   <url type="website">https://husarion.com/</url>
   <url type="repository">https://github.com/husarion/rosbot_ros</url>

@@ -1,4 +1,4 @@
-# Copyright 2023 Husarion
+# Copyright 2024 Husarion sp. z o.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package_name = "rosbot_utils"
 
 setup(
     name=package_name,
-    version="0.0.0",
+    version="0.12.0",
     packages=find_packages(exclude=["test"]),
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
@@ -29,10 +29,10 @@ setup(
     ],
     install_requires=["setuptools"],
     zip_safe=True,
-    maintainer="dominik",
-    maintainer_email="dominik.nwk@gmail.com",
-    description="TODO: Package description",
-    license="TODO: License declaration",
+    maintainer="Husarion",
+    maintainer_email="support@husarion.com",
+    description="Utilities for ROSbot 2R and 2 PRO",
+    license="Apache License 2.0",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": ["flash_firmware = rosbot_utils.flash_firmware:main"],

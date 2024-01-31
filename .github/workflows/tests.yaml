@@ -1,0 +1,66 @@
+---
+name: Tests
+on:
+    workflow_call:
+    workflow_dispatch:
+
+jobs:
+  black:
+    name: Black
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Black
+        uses: psf/black@23.11.0
+        with:
+          options: --line-length=99
+
+  spellcheck:
+    name: Spellcheck
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Spellcheck
+        uses: rojopolis/spellcheck-github-actions@0.33.1
+
+  industrial_ci:
+    name: Industrial CI
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        ROS_DISTRO: [humble]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Act + Docker fix
+        run: |
+          sudo chown runner:docker /var/run/docker.sock
+
+      - name: Setup ROS2 Workspace and Clone Repositories
+        run: |
+          mkdir -p src
+          find . -maxdepth 1 -not -name src -not -name . -exec mv {} src/ \;
+          python3 -m pip install -U vcstool
+          vcs import src < src/rosbot/rosbot_hardware.repos
+          vcs import src < src/rosbot/rosbot_simulation.repos
+          cp -r src/ros2_controllers/diff_drive_controller src/
+          cp -r src/ros2_controllers/imu_sensor_broadcaster src/
+          rm -rf src/ros2_controllers
+
+        # Package micro_ros_msgs does not have industrial ci and tests does not pass.
+        # For more information see https://github.com/micro-ROS/micro_ros_msgs/issues/7
+      - name: Remove tests from micro_ros_msgs
+        shell: bash
+        run: sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
+
+      - name: Running ROS Industrial CI
+        uses: ros-industrial/industrial_ci@master
+        env:
+          ROS_DISTRO: ${{matrix.ROS_DISTRO}}
+          DOCKER_IMAGE: ros:${{matrix.ROS_DISTRO}}-ros-base
+          IMMEDIATE_TEST_OUTPUT: true
