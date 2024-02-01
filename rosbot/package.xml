@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot</name>
-  <version>0.13.0</version>
+  <version>0.13.1</version>
   <description>Meta package that contains all packages of Rosbot 2 2R PRO</description>
 
   <maintainer email="support@husarion.com">Husarion</maintainer>
@@ -18,13 +18,11 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rosbot_bringup</depend>
-  <depend>rosbot_description</depend>
   <depend>rosbot_controller</depend>
+  <depend>rosbot_description</depend>
   <depend>rosbot_utils</depend>
 
-  <depend condition="($HUSARION_ROS_BUILD == simulation) and ($SIMULATION_ENGINE == ignition-gazebo)">
-    rosbot_gazebo
-  </depend>
+  <depend condition="($HUSARION_ROS_BUILD == simulation)">rosbot_gazebo</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

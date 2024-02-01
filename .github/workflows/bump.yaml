@@ -1,5 +1,6 @@
 ---
-name: Bump
+name: Bump Version
+
 on:
   workflow_call:
   workflow_dispatch:
