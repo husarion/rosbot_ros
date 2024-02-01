@@ -17,7 +17,6 @@
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
-  <exec_depend>python-periphery-pip</exec_depend>
   <exec_depend>python3-libgpiod</exec_depend>
   <exec_depend>python3-pyftdi-pip</exec_depend>
   <exec_depend>python3-requests</exec_depend>
