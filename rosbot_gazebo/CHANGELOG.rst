@@ -2,9 +2,6 @@
 Changelog for package rosbot_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.10.5 (2023-12-05)
--------------------
-
 0.13.0 (2024-01-15)
 -------------------
 
@@ -19,6 +16,9 @@ Changelog for package rosbot_gazebo
 * Merge pull request `#85 <https://github.com/husarion/rosbot_ros/issues/85>`_ from husarion/test-gazebo-fix
   Test gazebo fix
 * Contributors: Dominik Nowak
+
+0.10.5 (2023-12-05)
+-------------------
 
 0.10.4 (2023-12-01)
 -------------------

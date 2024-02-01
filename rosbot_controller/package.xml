@@ -3,16 +3,15 @@
 <package format="3">
   <name>rosbot_controller</name>
   <version>0.13.0</version>
-
   <description>Hardware configuration for ROSbot 2, 2R, PRO</description>
+  <maintainer email="support@husarion.com">Husarion</maintainer>
   <license>Apache License 2.0</license>
-
-  <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
-  <maintainer email="contact@husarion.com">Husarion</maintainer>
 
   <url type="website">https://husarion.com/</url>
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
+
+  <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

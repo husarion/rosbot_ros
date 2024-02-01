@@ -150,4 +150,11 @@ subprocess
 cbus
 Dockerfile
 unbuffered
+libgpiod
+REQ
+gpiochip
+gpiod
+Rafal
+Gorecki
+gpiozero
 sp
