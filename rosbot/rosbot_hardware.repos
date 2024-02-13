@@ -7,9 +7,9 @@ repositories:
     type: git
     url: https://github.com/husarion/ros_components_description.git
     version: ros2
-  rosbot_controllers:
+  husarion_controllers:
     type: git
-    url: https://github.com/husarion/rosbot_controllers
+    url: https://github.com/husarion/husarion_controllers
     version: main
   # Waiting for backporting to the humble version
   # https://github.com/ros-controls/ros2_controllers/pull/726 and
