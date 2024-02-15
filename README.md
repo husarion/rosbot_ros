@@ -42,7 +42,7 @@ Install all necessary tools:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y ros-dev-tools python3-pip
+sudo apt-get install -y python3-pip ros-dev-tools stm32flash
 ```
 
 Create workspace folder and clone `rosbot_ros` repository:
@@ -79,7 +79,7 @@ Flash firmware:
 
 ```bash
 source install/setup.bash
-ros2 launch rosbot_utils flash_firmware
+ros2 run rosbot_utils flash_firmware
 ```
 
 Running:
