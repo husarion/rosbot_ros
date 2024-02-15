@@ -2,7 +2,7 @@
 <!--The only purpose of this file is to disable
 Fast-DDS SHM transport used by default to use UDPv4-->
 <dds>
-    <profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <profiles xmlns="https://raw.githubusercontent.com/eProsima/Fast-DDS/master/resources/xsd/fastRTPS_profiles.xsd">
         <transport_descriptors>
             <transport_descriptor>
                 <transport_id>CustomUdpTransport</transport_id>

@@ -4,7 +4,9 @@
   <name>rosbot</name>
   <version>0.13.1</version>
   <description>Meta package that contains all packages of Rosbot 2 2R PRO</description>
+
   <maintainer email="support@husarion.com">Husarion</maintainer>
+
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>

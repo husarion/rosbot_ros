@@ -4,15 +4,17 @@
   <name>rosbot_description</name>
   <version>0.13.1</version>
   <description>ROSbot 2, 2R, PRO description package</description>
+
   <maintainer email="support@husarion.com">Husarion</maintainer>
+
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
-  <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="maciej.stepien@husarion.com">Maciej Stepien</author>
+  <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

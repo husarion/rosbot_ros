@@ -4,7 +4,9 @@
   <name>rosbot_controller</name>
   <version>0.13.1</version>
   <description>Hardware configuration for ROSbot 2, 2R, PRO</description>
+
   <maintainer email="support@husarion.com">Husarion</maintainer>
+
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
