@@ -58,7 +58,7 @@ Run the following commands below. Use the teleop to move the robot around to cre
 In Terminal 1, launch the Gazebo simulation:
 
 ```bash
-roslaunch rosbot_description rosbot_rviz_gmapping.launch
+roslaunch rosbot_bringup rosbot_rviz_gmapping.launch
 ```
 
 In Terminal 2, start teleop and drive the ROSbot, observe in Rviz as the map is created:
