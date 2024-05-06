@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ament_copyright.main import main
 import pytest
+from ament_copyright.main import main
 
 
 @pytest.mark.copyright

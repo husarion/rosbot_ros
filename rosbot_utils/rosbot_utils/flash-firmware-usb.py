@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sh
-import time
-import sys
 import argparse
+import sys
+import time
+
+import sh
 from pyftdi.ftdi import Ftdi
 
 # CBUS0 - BOOT0

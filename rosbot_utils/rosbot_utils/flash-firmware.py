@@ -18,11 +18,12 @@
 # This file is deprecated but stays here for backward compatibility look here:
 # https://github.com/husarion/rosbot-docker/blob/ros2/Dockerfile.hardware#L82
 
-import sh
-import time
-import sys
 import argparse
+import sys
+import time
+
 import gpiod
+import sh
 
 
 class FirmwareFlasher:

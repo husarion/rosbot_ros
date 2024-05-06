@@ -13,13 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import rclpy
+from threading import Event, Thread
 
-from threading import Event
-from threading import Thread
-from rclpy.node import Node
-from sensor_msgs.msg import JointState, Imu
+import rclpy
 from nav_msgs.msg import Odometry
+from rclpy.node import Node
+from sensor_msgs.msg import Imu, JointState
 
 
 class ControllersTestNode(Node):

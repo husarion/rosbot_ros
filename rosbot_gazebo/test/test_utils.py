@@ -13,14 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import rclpy
-from rclpy.node import Node
-
 from threading import Event
 
+import rclpy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import LaserScan, Image, Imu, JointState, PointCloud2
+from rclpy.node import Node
+from sensor_msgs.msg import Image, Imu, JointState, LaserScan, PointCloud2
 
 
 class SimulationTestNode(Node):

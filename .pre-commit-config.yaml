@@ -32,12 +32,11 @@ repos:
         files: ^(?!.*compose)(?!.*ekf\.yaml$).*$
         args: [--mapping, '2', --sequence, '4', --offset, '2', --width, '100']
 
-  # Please keep this version until --experimental-string-processing come back or will be available by default
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 24.4.0
     hooks:
       - id: black
-        args: [--line-length=99, --experimental-string-processing]
+        args: [--line-length=99]
 
   - repo: https://github.com/PyCQA/flake8
     rev: 7.0.0
@@ -45,6 +44,12 @@ repos:
       - id: flake8
         args: ['--ignore=E501,W503']   # ignore too long line and line break before binary operator,
                                        # black checks it
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile, black]
 
   - repo: local
     hooks:
