@@ -47,7 +47,7 @@ def generate_test_description():
             "mecanum": "True",
             "world": PathJoinSubstitution(
                 [
-                    FindPackageShare("husarion_office_gz"),
+                    FindPackageShare("husarion_gz_worlds"),
                     "worlds",
                     "empty_with_plugins.sdf",
                 ]

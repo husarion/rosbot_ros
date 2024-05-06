@@ -135,7 +135,7 @@ def generate_launch_description():
         ),
     )
 
-    world_package = FindPackageShare("husarion_office_gz")
+    world_package = FindPackageShare("husarion_gz_worlds")
     world_file = PathJoinSubstitution([world_package, "worlds", "husarion_world.sdf"])
     declare_world_arg = DeclareLaunchArgument(
         "world", default_value=world_file, description="SDF world file"
