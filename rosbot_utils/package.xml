@@ -21,6 +21,7 @@
   <exec_depend>python3-serial</exec_depend>
   <exec_depend>python3-sh</exec_depend>
   <exec_depend>usbutils</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

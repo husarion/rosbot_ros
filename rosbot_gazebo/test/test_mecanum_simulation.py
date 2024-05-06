@@ -19,11 +19,11 @@ from threading import Thread
 import launch_pytest
 import pytest
 import rclpy
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 from launch_testing.actions import ReadyToTest
 from launch_testing.util import KeepAliveProc
 from test_ign_kill_utils import kill_ign_linux_processes
@@ -32,7 +32,7 @@ from test_utils import SimulationTestNode, mecanum_test
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_gazebo = get_package_share_directory("rosbot_gazebo")
+    rosbot_gazebo = FindPackageShare("rosbot_gazebo")
     simulation_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -48,7 +48,7 @@ def generate_test_description():
             "headless": "True",
             "world": PathJoinSubstitution(
                 [
-                    get_package_share_directory("husarion_office_gz"),
+                    FindPackageShare("husarion_office_gz"),
                     "worlds",
                     "empty_with_plugins.sdf",
                 ]

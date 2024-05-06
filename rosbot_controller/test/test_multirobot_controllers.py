@@ -17,11 +17,11 @@
 import launch_pytest
 import pytest
 import rclpy
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 from test_utils import ControllersTestNode, controller_readings_test
 
 robot_names = ["robot1", "robot2", "robot3"]
@@ -29,7 +29,7 @@ robot_names = ["robot1", "robot2", "robot3"]
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_controller = get_package_share_directory("rosbot_controller")
+    rosbot_controller = FindPackageShare("rosbot_controller")
     actions = []
     for i in range(len(robot_names)):
         controller_launch = IncludeLaunchDescription(
