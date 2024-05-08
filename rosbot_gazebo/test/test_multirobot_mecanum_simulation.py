@@ -19,9 +19,9 @@ from threading import Thread
 import launch_pytest
 import pytest
 import rclpy
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
-from launch_ros.substitutions import FindPackageShare
 from launch_testing.actions import ReadyToTest
 from launch_testing.util import KeepAliveProc
 from rclpy.executors import SingleThreadedExecutor
@@ -38,7 +38,10 @@ def generate_test_description():
             "launch",
             "rosbot_gazebo",
             "simulation.launch.py",
-            (f'world:={FindPackageShare("husarion_gz_worlds")}' "/worlds/empty_with_plugins.sdf"),
+            (
+                f'world:={get_package_share_directory("husarion_gz_worlds")}'
+                "/worlds/empty_with_plugins.sdf"
+            ),
             "robots:=robot1={y: -4.0}; robot2={y: 0.0};",
             "mecanum:=True",
             "headless:=True",
