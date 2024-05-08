@@ -16,7 +16,7 @@ import itertools
 import os
 
 import xacro
-from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
 
 
 def test_rosbot_description_parsing():
@@ -45,7 +45,7 @@ def test_rosbot_description_parsing():
             "simulation_engine": simulation_engine,
             "use_multirobot_system": use_multirobot_system,
         }
-        rosbot_description = FindPackageShare("rosbot_description")
+        rosbot_description = get_package_share_directory("rosbot_description")
         xacro_path = os.path.join(rosbot_description, "urdf/rosbot.urdf.xacro")
         try:
             xacro.process_file(xacro_path, mappings=mappings)
