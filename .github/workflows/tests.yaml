@@ -55,9 +55,12 @@ jobs:
 
         # Package micro_ros_msgs does not have industrial ci and tests does not pass.
         # For more information see https://github.com/micro-ROS/micro_ros_msgs/issues/7
-      - name: Remove tests from micro_ros_msgs
+      - name: Leave only ROSbot tests
         shell: bash
-        run: sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
+        run: |
+          sed '/if(BUILD_TESTING)/,/endif()/d' src/diff_drive_controller/CMakeLists.txt -i
+          sed '/if(BUILD_TESTING)/,/endif()/d' src/imu_sensor_broadcaster/CMakeLists.txt -i
+          sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
 
       - name: Running ROS Industrial CI
         uses: ros-industrial/industrial_ci@master
