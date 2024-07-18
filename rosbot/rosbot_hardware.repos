@@ -10,7 +10,7 @@ repositories:
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
-    version: main
+    version: 217b09830f5f42930098b9992eda41710702b625
   # Waiting for backporting to the humble version
   # https://github.com/ros-controls/ros2_controllers/pull/726 and
   # https://github.com/ros-controls/ros2_controllers/pull/831
