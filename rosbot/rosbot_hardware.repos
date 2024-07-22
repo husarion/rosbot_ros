@@ -1,8 +1,9 @@
 repositories:
+  # jazzy-devel
   rosbot_hardware_interfaces:
     type: git
     url: https://github.com/husarion/rosbot_hardware_interfaces.git
-    version: main
+    version: a4fde2944e4930e02d1db8e17eb10f6565dba7bf
   ros_components_description:
     type: git
     url: https://github.com/husarion/ros_components_description.git
