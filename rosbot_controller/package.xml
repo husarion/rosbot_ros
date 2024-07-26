@@ -48,8 +48,7 @@
   <test_depend>joint_state_broadcaster</test_depend>
   <test_depend>imu_sensor_broadcaster</test_depend>
   <test_depend>diff_drive_controller</test_depend>
-  <!-- TODO @delihus update -->
-  <!-- <test_depend>mecanum_drive_controller</test_depend> -->
+  <test_depend>mecanum_drive_controller</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
