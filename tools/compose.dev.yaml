@@ -10,37 +10,16 @@ services:
     build:
       context: ../
       dockerfile: tools/Dockerfile.dev
-    network_mode: host
-    ipc: host
     # privileged: true # GPIO
-    # devices:
-    #   - ${SERIAL_PORT:?err}
-    #   - /dev/bus/usb/ #FTDI
+    devices:
+      - ${SERIAL_PORT:?err}
+      - /dev/bus/usb/ #FTDI
     volumes:
       - ../rosbot_utils:/ros2_ws/src/rosbot_utils
-    # command: tail -f /dev/null
-    environment:
-      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-    command: >
-      ros2 launch rosbot_bringup bringup.launch.py
-        mecanum:=${MECANUM:-False}
-        namespace:=rosbot
-  rviz:
-    image: husarion/rviz2:jazzy-jazzy
-    # build:
-    #   context: ..
-    #   dockerfile: Dockerfile
-    network_mode: host
-    ipc: host
-    runtime: nvidia
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      # - ./rosbot.rviz:/root/.rviz2/default.rviz
-    environment:
-      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROS_DOMAIN_ID
-      - DISPLAY
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=all
-    command: >
-      rviz2 --ros-args -r __ns:=/rosbot -r /tf:=tf -r /tf_static:=tf_static
+    command: tail -f /dev/null
+    # command: >
+    #   ros2 launch rosbot_bringup combined.launch.py
+    #     mecanum:=${MECANUM:-False}
+    #     serial_port:=$SERIAL_PORT
+    #     serial_baudrate:=576000
+    #     namespace:=robot1
