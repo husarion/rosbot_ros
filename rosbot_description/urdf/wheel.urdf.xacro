@@ -90,19 +90,21 @@
       </inertial>
     </link>
 
-    <gazebo reference="${side}_wheel_link" xmlns:ignition="http://ignitionrobotics.org/schema">
-      <collision>
-        <surface>
-          <friction>
-            <ode>
-              <mu>1.0</mu>
-              <mu2>0.0</mu2>
-              <fdir1 ignition:expressed_in="base_link">${fdir}</fdir1>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-    </gazebo>
+    <xacro:if value="${mecanum}">
+      <gazebo reference="${side}_wheel_link" xmlns:ignition="http://ignitionrobotics.org/schema">
+        <collision>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>0.0</mu2>
+                <fdir1 ignition:expressed_in="base_link">${fdir}</fdir1>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+      </gazebo>
+    </xacro:if>
 
   </xacro:macro>
 </robot>

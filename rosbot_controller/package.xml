@@ -17,6 +17,7 @@
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
 
   <exec_depend>xacro</exec_depend>
   <exec_depend>controller_manager</exec_depend>
@@ -29,8 +30,7 @@
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>imu_sensor_broadcaster</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
-  <!-- TODO: @delihus update -->
-  <!-- <exec_depend>mecanum_drive_controller</exec_depend> -->
+  <exec_depend>mecanum_drive_controller</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
   <test_depend>launch</test_depend>
