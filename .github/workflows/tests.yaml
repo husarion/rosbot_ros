@@ -57,6 +57,11 @@ jobs:
         run: |
           sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
 
+      - name: Fix pip
+        shell: bash
+        run: |
+          echo -e "[global]\nbreak-system-packages = true" >> ~/.config/pip/pip.conf
+
       - name: Running ROS Industrial CI
         uses: ros-industrial/industrial_ci@master
         env:
