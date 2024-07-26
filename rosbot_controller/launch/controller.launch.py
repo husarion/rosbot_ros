@@ -120,10 +120,7 @@ def generate_launch_description():
 
     namespaced_robot_controllers_config = ReplaceString(
         source_file=robot_controllers_config,
-        replacements={
-            "<robot_namespace>": namespace,
-            "//": "/"
-        },
+        replacements={"<robot_namespace>": namespace, "//": "/"},
     )
 
     control_node = Node(
