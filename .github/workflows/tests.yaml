@@ -8,7 +8,7 @@ on:
 jobs:
   black:
     name: Black
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,7 +19,7 @@ jobs:
 
   spellcheck:
     name: Spellcheck
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,12 +28,12 @@ jobs:
 
   industrial_ci:
     name: Industrial CI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        ROS_DISTRO: [humble]
+        ROS_DISTRO: [jazzy]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -49,18 +49,18 @@ jobs:
           python3 -m pip install -U vcstool
           vcs import src < src/rosbot/rosbot_hardware.repos
           vcs import src < src/rosbot/rosbot_simulation.repos
-          cp -r src/ros2_controllers/diff_drive_controller src/
-          cp -r src/ros2_controllers/imu_sensor_broadcaster src/
-          rm -rf src/ros2_controllers
 
         # Package micro_ros_msgs does not have industrial ci and tests does not pass.
         # For more information see https://github.com/micro-ROS/micro_ros_msgs/issues/7
       - name: Leave only ROSbot tests
         shell: bash
         run: |
-          sed '/if(BUILD_TESTING)/,/endif()/d' src/diff_drive_controller/CMakeLists.txt -i
-          sed '/if(BUILD_TESTING)/,/endif()/d' src/imu_sensor_broadcaster/CMakeLists.txt -i
           sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
+
+      - name: Fix pip
+        shell: bash
+        run: |
+          echo -e "[global]\nbreak-system-packages = true" >> ~/.config/pip/pip.conf
 
       - name: Running ROS Industrial CI
         uses: ros-industrial/industrial_ci@master

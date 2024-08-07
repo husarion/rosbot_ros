@@ -70,7 +70,7 @@
 
         <xacro:if value="$(arg use_sim)">
           <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
-            <plugin>ign_ros2_control/IgnitionSystem</plugin>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </xacro:if>
           <xacro:if value="${simulation_engine == 'webots'}">
             <plugin>webots_ros2_control::Ros2ControlSystem</plugin>
@@ -121,7 +121,7 @@
     <xacro:if value="${use_sim}">
       <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
         <gazebo>
-          <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+          <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
 
             <xacro:if value="${mecanum}">
               <parameters>$(find rosbot_controller)/config/mecanum_drive_controller.yaml</parameters>
@@ -134,7 +134,7 @@
               <xacro:unless value="${namespace == 'None'}">
                 <namespace>${namespace}</namespace>
               </xacro:unless>
-              <remapping>rosbot_base_controller/cmd_vel_unstamped:=cmd_vel</remapping>
+              <remapping>rosbot_base_controller/cmd_vel:=cmd_vel</remapping>
               <remapping>/tf:=tf</remapping>
             </ros>
           </plugin>

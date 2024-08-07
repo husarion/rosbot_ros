@@ -15,7 +15,7 @@
     tf_frame_prefix_enable: false
     use_namespace_as_sensor_name_prefix: true
 
-    sensor_name: imu
+    sensor_name: <robot_namespace>/imu
     frame_id: imu_link
     static_covariance_orientation: [1.9e-3, 0.0, 0.0, 0.0, 1.9e-3, 0.0, 0.0, 0.0, 1.9e-3] # Values taken from datasheet
     static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values based on diff_drive
@@ -59,7 +59,6 @@
 
     cmd_vel_timeout: 0.5
     #publish_limited_velocity: true
-    use_stamped_vel: false
 
     # Velocity and acceleration limits
     # Whenever a min_* is unspecified, default to -max_*
