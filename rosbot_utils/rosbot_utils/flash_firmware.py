@@ -14,14 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess
-import os
-import sys
 import argparse
-import signal
 import glob
-import requests
+import os
+import signal
+import subprocess
+import sys
+
 import ament_index_python.packages
+import requests
 
 # Global variable to hold the subprocess reference
 subproc = None
