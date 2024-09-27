@@ -1,4 +1,17 @@
-# controller.launch.py
+# Copyright 2020 ros2_control Development Team
+# Copyright 2024 Husarion sp. z o.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 # Import necessary modules
 from launch import LaunchDescription
@@ -11,7 +24,7 @@ from launch.substitutions import (
     PathJoinSubstitution,
     PythonExpression,
 )
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
@@ -101,7 +114,8 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_content}
 
     # Controller configurations
-    robot_controllers_config = PathJoinSubstitution(
+    # robot_controllers_config = PathJoinSubstitution(
+    robot_controllers = PathJoinSubstitution(
         [
             FindPackageShare("rosbot_controller"),
             "config",
@@ -109,10 +123,10 @@ def generate_launch_description():
         ]
     )
 
-    namespaced_robot_controllers_config = ReplaceString(
-        source_file=robot_controllers_config,
-        replacements={"<robot_namespace>": namespace, "//": "/"},
-    )
+    # namespaced_robot_controllers_config = ReplaceString(
+    #     source_file=robot_controllers_config,
+    #     replacements={"<robot_namespace>": namespace, "//": "/"},
+    # )
 
     # Define nodes
     control_node = Node(
@@ -120,13 +134,14 @@ def generate_launch_description():
         executable="ros2_control_node",
         parameters=[
             robot_description,
-            namespaced_robot_controllers_config,
+            # namespaced_robot_controllers_config,
+            robot_controllers,
         ],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
-            ("rosbot_base_controller/cmd_vel", "cmd_vel"),
+            ("rosbot_base_controller/cmd_vel_unstamped", "cmd_vel"),
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
         ],
@@ -209,8 +224,7 @@ def generate_launch_description():
             declare_use_sim_arg,
             declare_use_gpu_arg,
             declare_simulation_engine_arg,
-            # set_use_sim_time,
-            
+            SetParameter("use_sim_time", value=use_sim),
             robot_state_pub_node,
             delayed_spawner_nodes,  # Add the delayed spawner nodes here
         ]
