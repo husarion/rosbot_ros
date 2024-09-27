@@ -26,7 +26,7 @@ from launch.substitutions import (
 )
 from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
-from nav2_common.launch import ReplaceString
+# from nav2_common.launch import ReplaceString
 
 def generate_launch_description():
     # Declare launch arguments
@@ -169,8 +169,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "10",
-            "--namespace",
-            namespace,
+            # "--namespace",
+            # namespace,
         ],
     )
 
@@ -183,8 +183,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "10",
-            "--namespace",
-            namespace,
+            # "--namespace",
+            # namespace,
         ],
     )
 
@@ -197,8 +197,8 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "10",
-            "--namespace",
-            namespace,
+            # "--namespace",
+            # namespace,
         ],
     )
 
