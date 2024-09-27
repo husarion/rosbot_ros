@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Import necessary modules
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, TimerAction
 from launch.conditions import UnlessCondition
 from launch.substitutions import (
     Command,
@@ -27,13 +28,13 @@ from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
-
 def generate_launch_description():
+    # Declare launch arguments
     namespace = LaunchConfiguration("namespace")
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
-        description="Namespace for all topics and tfs",
+        description="Namespace for all topics and TFs",
     )
 
     mecanum = LaunchConfiguration("mecanum")
@@ -71,7 +72,7 @@ def generate_launch_description():
         [
             "'mecanum_drive_controller.yaml' if ",
             mecanum,
-            " else 'diff_drive_controller.yaml'",
+            " == 'True' else 'diff_drive_controller.yaml'",
         ]
     )
 
@@ -106,11 +107,15 @@ def generate_launch_description():
             simulation_engine,
             " namespace:=",
             namespace,
+            # Uncomment the line below if you need to include the 'use_ros2_control' parameter
+            # " use_ros2_control:=True",
         ]
     )
     robot_description = {"robot_description": robot_description_content}
 
-    robot_controllers_config = PathJoinSubstitution(
+    # Controller configurations
+    # robot_controllers_config = PathJoinSubstitution(
+    robot_controllers = PathJoinSubstitution(
         [
             FindPackageShare("rosbot_controller"),
             "config",
@@ -118,17 +123,19 @@ def generate_launch_description():
         ]
     )
 
-    namespaced_robot_controllers_config = ReplaceString(
-        source_file=robot_controllers_config,
-        replacements={"<robot_namespace>": namespace, "//": "/"},
-    )
+    # namespaced_robot_controllers_config = ReplaceString(
+    #     source_file=robot_controllers_config,
+    #     replacements={"<robot_namespace>": namespace, "//": "/"},
+    # )
 
+    # Define nodes
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
             robot_description,
-            namespaced_robot_controllers_config,
+            # namespaced_robot_controllers_config,
+            robot_controllers,
         ],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
@@ -140,6 +147,8 @@ def generate_launch_description():
         ],
         condition=UnlessCondition(use_sim),
         namespace=namespace,
+        respawn=True,
+        respawn_delay=2.0,
     )
 
     robot_state_pub_node = Node(
@@ -150,6 +159,7 @@ def generate_launch_description():
         namespace=namespace,
     )
 
+    # Create spawner nodes
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -158,9 +168,9 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "120",
-            "--namespace",
-            namespace,
+            "10",
+            # "--namespace",
+            # namespace,
         ],
     )
 
@@ -172,9 +182,9 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "120",
-            "--namespace",
-            namespace,
+            "10",
+            # "--namespace",
+            # namespace,
         ],
     )
 
@@ -186,12 +196,27 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "120",
-            "--namespace",
-            namespace,
+            "10",
+            # "--namespace",
+            # namespace,
         ],
     )
 
+    # Wrap the spawner nodes in a TimerAction to delay execution by 2 seconds
+    delayed_spawner_nodes = TimerAction(
+        period=1.0,
+        actions=[
+            control_node,
+            joint_state_broadcaster_spawner,
+            robot_controller_spawner,
+            imu_broadcaster_spawner,
+        ],
+    )
+
+    # Set 'use_sim_time' parameter
+    # set_use_sim_time = SetParameter('use_sim_time', value=use_sim)fr
+
+    # Assemble the LaunchDescription
     return LaunchDescription(
         [
             declare_namespace_arg,
@@ -200,10 +225,7 @@ def generate_launch_description():
             declare_use_gpu_arg,
             declare_simulation_engine_arg,
             SetParameter("use_sim_time", value=use_sim),
-            control_node,
             robot_state_pub_node,
-            joint_state_broadcaster_spawner,
-            robot_controller_spawner,
-            imu_broadcaster_spawner,
+            delayed_spawner_nodes,  # Add the delayed spawner nodes here
         ]
     )
