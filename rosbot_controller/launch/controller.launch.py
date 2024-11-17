@@ -72,7 +72,7 @@ def generate_launch_description():
         [
             "'mecanum_drive_controller.yaml' if ",
             mecanum,
-            " == 'True' else 'diff_drive_controller.yaml'",
+            " else 'diff_drive_controller.yaml'",
         ]
     )
 
