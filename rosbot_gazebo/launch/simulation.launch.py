@@ -37,7 +37,6 @@ def launch_setup(context, *args, **kwargs):
     mecanum = LaunchConfiguration("mecanum").perform(context)
     world = LaunchConfiguration("world").perform(context)
     headless = LaunchConfiguration("headless").perform(context)
-    use_gpu = LaunchConfiguration("use_gpu").perform(context)
     x = LaunchConfiguration("x", default="0.0").perform(context)
     y = LaunchConfiguration("y", default="2.0").perform(context)
     z = LaunchConfiguration("z", default="0.0").perform(context)
@@ -102,8 +101,6 @@ def launch_setup(context, *args, **kwargs):
                     launch_arguments={
                         "mecanum": mecanum,
                         "use_sim": "True",
-                        "use_gpu": use_gpu,
-                        "simulation_engine": "ignition-gazebo",
                         "namespace": TextSubstitution(text=robot_name),
                         "x": TextSubstitution(text=str(init_pose["x"])),
                         "y": TextSubstitution(text=str(init_pose["y"])),
@@ -148,19 +145,12 @@ def generate_launch_description():
         choices=["True", "False"],
     )
 
-    declare_use_gpu_arg = DeclareLaunchArgument(
-        "use_gpu",
-        default_value="True",
-        description="Whether GPU acceleration is used",
-    )
-
     declare_robots_arg = DeclareLaunchArgument(
         "robots",
         default_value="",
         description=(
             "Spawning multiple robots at positions with yaw orientations e. g. robots:='robot1={x:"
-            " 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0}; robot3={x: 2.0, y: -1.0}; robot4={x: 3.0,"
-            " y: -1.0}'"
+            " 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0}; robot3={x: 2.0, y: -1.0};'"
         ),
     )
 
@@ -170,10 +160,7 @@ def generate_launch_description():
             declare_mecanum_arg,
             declare_world_arg,
             declare_headless_arg,
-            declare_use_gpu_arg,
             declare_robots_arg,
-            # Sets use_sim_time for all nodes started below
-            # (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
             OpaqueFunction(function=launch_setup),
         ]

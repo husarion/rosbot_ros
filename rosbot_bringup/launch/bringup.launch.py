@@ -39,21 +39,6 @@ def generate_launch_description():
         description="Whether simulation is used",
     )
 
-    use_gpu = LaunchConfiguration("use_gpu")
-    declare_use_gpu_arg = DeclareLaunchArgument(
-        "use_gpu",
-        default_value="False",
-        description="Whether GPU acceleration is used",
-    )
-
-    simulation_engine = LaunchConfiguration("simulation_engine")
-    declare_simulation_engine_arg = DeclareLaunchArgument(
-        "simulation_engine",
-        default_value="webots",
-        description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "gazebo-classic", "webots"],
-    )
-
     rosbot_controller = FindPackageShare("rosbot_controller")
     rosbot_bringup = FindPackageShare("rosbot_bringup")
 
@@ -79,8 +64,6 @@ def generate_launch_description():
         launch_arguments={
             "use_sim": use_sim,
             "mecanum": mecanum,
-            "use_gpu": use_gpu,
-            "simulation_engine": simulation_engine,
             "namespace": namespace,
         }.items(),
     )
@@ -104,8 +87,6 @@ def generate_launch_description():
         declare_namespace_arg,
         declare_mecanum_arg,
         declare_use_sim_arg,
-        declare_use_gpu_arg,
-        declare_simulation_engine_arg,
         SetParameter(name="use_sim_time", value=use_sim),
         controller_launch,
         robot_localization_node,

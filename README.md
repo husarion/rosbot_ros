@@ -64,15 +64,15 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 
 vcs import src < src/rosbot/rosbot_hardware.repos
 
-# Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
+# Build only imu_sensor_broadcaster from ros2_controllers
+cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
 rm -r src/rosbot_gazebo
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Flash firmware:
@@ -120,13 +120,13 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 vcs import src < src/rosbot/rosbot_hardware.repos
 vcs import src < src/rosbot/rosbot_simulation.repos
 
-# Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
+# Build only imu_sensor_broadcaster from ros2_controllers
+cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Running:

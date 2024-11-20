@@ -26,10 +26,8 @@ from launch.substitutions import (
 )
 from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
-# from nav2_common.launch import ReplaceString
 
 def generate_launch_description():
-    # Declare launch arguments
     namespace = LaunchConfiguration("namespace")
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
@@ -51,21 +49,6 @@ def generate_launch_description():
         "use_sim",
         default_value="False",
         description="Whether simulation is used",
-    )
-
-    use_gpu = LaunchConfiguration("use_gpu")
-    declare_use_gpu_arg = DeclareLaunchArgument(
-        "use_gpu",
-        default_value="False",
-        description="Whether GPU acceleration is used",
-    )
-
-    simulation_engine = LaunchConfiguration("simulation_engine")
-    declare_simulation_engine_arg = DeclareLaunchArgument(
-        "simulation_engine",
-        default_value="webots",
-        description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "gazebo-classic", "webots"],
     )
 
     controller_config_name = PythonExpression(
@@ -101,10 +84,6 @@ def generate_launch_description():
             mecanum,
             " use_sim:=",
             use_sim,
-            " use_gpu:=",
-            use_gpu,
-            " simulation_engine:=",
-            simulation_engine,
             " namespace:=",
             namespace,
             # Uncomment the line below if you need to include the 'use_ros2_control' parameter
@@ -114,7 +93,6 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_content}
 
     # Controller configurations
-    # robot_controllers_config = PathJoinSubstitution(
     robot_controllers = PathJoinSubstitution(
         [
             FindPackageShare("rosbot_controller"),
@@ -122,11 +100,6 @@ def generate_launch_description():
             controller_config_name,
         ]
     )
-
-    # namespaced_robot_controllers_config = ReplaceString(
-    #     source_file=robot_controllers_config,
-    #     replacements={"<robot_namespace>": namespace, "//": "/"},
-    # )
 
     # Define nodes
     control_node = Node(
@@ -169,8 +142,6 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "10",
-            # "--namespace",
-            # namespace,
         ],
     )
 
@@ -183,8 +154,6 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "10",
-            # "--namespace",
-            # namespace,
         ],
     )
 
@@ -197,8 +166,6 @@ def generate_launch_description():
             controller_manager_name,
             "--controller-manager-timeout",
             "10",
-            # "--namespace",
-            # namespace,
         ],
     )
 
@@ -213,17 +180,12 @@ def generate_launch_description():
         ],
     )
 
-    # Set 'use_sim_time' parameter
-    # set_use_sim_time = SetParameter('use_sim_time', value=use_sim)fr
-
     # Assemble the LaunchDescription
     return LaunchDescription(
         [
             declare_namespace_arg,
             declare_mecanum_arg,
             declare_use_sim_arg,
-            declare_use_gpu_arg,
-            declare_simulation_engine_arg,
             SetParameter("use_sim_time", value=use_sim),
             robot_state_pub_node,
             delayed_spawner_nodes,  # Add the delayed spawner nodes here

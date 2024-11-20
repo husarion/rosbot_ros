@@ -46,13 +46,6 @@ def generate_launch_description():
         ),
     )
 
-    use_gpu = LaunchConfiguration("use_gpu")
-    declare_use_gpu_arg = DeclareLaunchArgument(
-        "use_gpu",
-        default_value="True",
-        description="Whether GPU acceleration is used",
-    )
-
     robot_name = PythonExpression(
         ["'rosbot'", " if '", namespace, "' == '' ", "else ", "'", namespace, "'"]
     )
@@ -119,8 +112,6 @@ def generate_launch_description():
         launch_arguments={
             "mecanum": mecanum,
             "use_sim": "True",
-            "use_gpu": use_gpu,
-            "simulation_engine": "ignition-gazebo",
             "namespace": namespace,
         }.items(),
     )
@@ -129,9 +120,6 @@ def generate_launch_description():
         [
             declare_namespace_arg,
             declare_mecanum_arg,
-            declare_use_gpu_arg,
-            # Sets use_sim_time for all nodes started below
-            # (doesn't work for nodes started from ignition gazebo)
             SetParameter(name="use_sim_time", value=True),
             ign_bridge,
             gz_spawn_entity,
