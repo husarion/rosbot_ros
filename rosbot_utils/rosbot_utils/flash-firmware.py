@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # Copyright 2024 Husarion sp. z o.o.
 #
@@ -24,6 +24,22 @@ import time
 
 import gpiod
 import sh
+
+
+def get_raspberry_pi_model():
+    try:
+        with open("/proc/cpuinfo", "r") as f:
+            for line in f:
+                if "Model" in line:
+                    model_info = line.split(":")[1].strip()
+                    if "Raspberry Pi 4" in model_info:
+                        return "Raspberry Pi 4"
+                    elif "Raspberry Pi 5" in model_info:
+                        return "Raspberry Pi 5"
+                    else:
+                        return "Unknown Raspberry Pi Model"
+    except FileNotFoundError:
+        return "Not a Raspberry Pi"
 
 
 class FirmwareFlasher:
@@ -53,12 +69,19 @@ class FirmwareFlasher:
 
         elif sys_arch == "aarch64":
             # Setups RPi pins
-            print("Device: RPi\n")
+            model = get_raspberry_pi_model()
+            print(f"Device: {model}\n")
             self.port = "/dev/ttyAMA0"
-            gpio_chip = "/dev/gpiochip0"
+
+            if model == "Raspberry Pi 4":
+                gpio_chip = "/dev/gpiochip0"
+            elif model == "Raspberry Pi 5":
+                gpio_chip = "/dev/gpiochip4"
+            else:
+                gpio_chip = "/dev/gpiochip0"  # Default or error handling
+
             boot0_pin_no = 17
             reset_pin_no = 18
-
         else:
             print("Unknown device...")
 

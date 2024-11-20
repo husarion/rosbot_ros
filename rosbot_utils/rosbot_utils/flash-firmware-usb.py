@@ -65,6 +65,7 @@ class FirmwareFlasher:
             try:
                 self.enter_bootloader_mode()
                 sh.usbreset("0403:6015")
+                time.sleep(2.0)
                 flash_command(self.port, *flash_args, _out=sys.stdout)
                 self.exit_bootloader_mode()
                 time.sleep(0.2)

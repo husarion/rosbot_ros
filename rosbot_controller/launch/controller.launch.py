@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, TimerAction
 from launch.conditions import UnlessCondition
 from launch.substitutions import (
     Command,
@@ -32,7 +32,7 @@ def generate_launch_description():
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
-        description="Namespace for all topics and tfs",
+        description="Adds a namespace to all running nodes.",
     )
 
     mecanum = LaunchConfiguration("mecanum")
@@ -152,10 +152,9 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "120",
-            "--namespace",
-            namespace,
+            "10",
         ],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
     robot_controller_spawner = Node(
@@ -166,10 +165,9 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "120",
-            "--namespace",
-            namespace,
+            "10",
         ],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
     imu_broadcaster_spawner = Node(
@@ -180,9 +178,19 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "120",
-            "--namespace",
-            namespace,
+            "10",
+        ],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+    )
+
+    # Wrap the spawner nodes in a TimerAction to delay execution by 2 seconds
+    delayed_spawner_nodes = TimerAction(
+        period=1.0,
+        actions=[
+            control_node,
+            joint_state_broadcaster_spawner,
+            robot_controller_spawner,
+            imu_broadcaster_spawner,
         ],
     )
 
@@ -196,8 +204,6 @@ def generate_launch_description():
             SetParameter("use_sim_time", value=use_sim),
             control_node,
             robot_state_pub_node,
-            joint_state_broadcaster_spawner,
-            robot_controller_spawner,
-            imu_broadcaster_spawner,
+            delayed_spawner_nodes,
         ]
     )
