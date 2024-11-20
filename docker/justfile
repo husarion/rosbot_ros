@@ -32,6 +32,7 @@ flash-firmware: _install-yq _run-as-user
         echo "Probably user laptop"
         gpio_chip=/dev/bus/usb
         serial_port=$SERIAL_PORT
+        enable_usb="--usb"
     fi
 
     echo "Flashing the firmware for STM32 microcontroller in ROSbot through $serial_port"
@@ -39,7 +40,15 @@ flash-firmware: _install-yq _run-as-user
         --device $gpio_chip \
         --device $serial_port \
         docker-rosbot \
-        ros2 run rosbot_utils flash_firmware --usb
+        ros2 run rosbot_utils flash_firmware ${enable_usb}
+
+run:
+    #/bin/bash
+    docker compose up
+
+build:
+    #/bin/bash
+    docker compose build
 
 _run-as-root:
     #!/bin/bash

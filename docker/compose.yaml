@@ -3,17 +3,17 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    # command: tail -f /dev/null
     network_mode: host
     ipc: host
     devices:
       - ${SERIAL_PORT:?err}
       - /dev/bus/usb/ # FTDI
-    environment:
-      - ROS_NAMESPACE # For healthckeck node
+    # environment:
+    #   - ROS_NAMESPACE
+    # command: tail -f /dev/null
     command: >
       ros2 launch rosbot_bringup combined.launch.py
         mecanum:=${MECANUM:-False}
         serial_port:=$SERIAL_PORT
         serial_baudrate:=576000
-        namespace:=${ROS_NAMESPACE:-rosbot}
+    # namespace:=${ROS_NAMESPACE:-rosbot}
