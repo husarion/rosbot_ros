@@ -106,15 +106,20 @@ class FirmwareFlasher:
         self.reset_pin.set_value(0)
         time.sleep(0.2)
 
-    def try_flash_operation(self, operation_name, flash_args):
+    def try_flash_operation(self, operation_name):
         print(f"{operation_name} operation started.")
         for i in range(self.max_approach_no):
             try:
                 if operation_name == "Flashing":
-                    sh.stm32flash(self.port, *flash_args, _out=sys.stdout)
+                    sh.stm32flash(self.port, f"-v -w {self.binary_file} -b 115200", _out=sys.stdout)
                     print("Success! The robot firmware has been uploaded.")
+                elif operation_name == "Write-UnProtection":
+                    sh.stm32flash(self.port, "-u")
+                elif operation_name == "Read-UnProtection":
+                    sh.stm32flash(self.port, "-k")
                 else:
-                    sh.stm32flash(self.port, *flash_args)
+                    raise("Unknown operation.")
+                print(f"{operation_name} operation completed.")
                 break
             except Exception as e:
                 stderr = e.stderr.decode('utf-8')
@@ -129,13 +134,13 @@ class FirmwareFlasher:
         self.enter_bootloader_mode()
 
         # Disable the flash write-protection
-        self.try_flash_operation("Write-UnProtection", ["-u"])
+        self.try_flash_operation("Write-UnProtection")
 
         # Disable the flash read-protection
-        self.try_flash_operation("Read-UnProtection", ["-k"])
+        self.try_flash_operation("Read-UnProtection")
 
         # Flashing the firmware
-        flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
+        flash_args = []
         self.try_flash_operation("Flashing", flash_args)
 
         self.exit_bootloader_mode()
