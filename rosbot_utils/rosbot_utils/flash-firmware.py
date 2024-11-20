@@ -107,8 +107,6 @@ class FirmwareFlasher:
         time.sleep(0.2)
 
     def try_flash_operation(self, operation_name, flash_args):
-        self.enter_bootloader_mode()
-
         print(f"{operation_name} operation started.")
         for i in range(self.max_approach_no):
             try:
@@ -126,9 +124,10 @@ class FirmwareFlasher:
                     break
             time.sleep(0.2)  # Delay between attempts
 
-        self.exit_bootloader_mode()
 
     def flash_firmware(self):
+        self.enter_bootloader_mode()
+
         # Disable the flash write-protection
         self.try_flash_operation("Write-UnProtection", ["-u"])
 
@@ -138,6 +137,9 @@ class FirmwareFlasher:
         # Flashing the firmware
         flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
         self.try_flash_operation("Flashing", flash_args)
+
+        self.exit_bootloader_mode()
+
 
 
 def main():
