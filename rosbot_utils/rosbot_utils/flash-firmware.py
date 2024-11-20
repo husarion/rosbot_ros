@@ -107,11 +107,14 @@ class FirmwareFlasher:
         time.sleep(0.2)
 
     def try_flash_operation(self, operation_name):
-        print(f"{operation_name} operation started.")
+        print(f"\n{operation_name} operation started")
+        self.enter_bootloader_mode()
         for i in range(self.max_approach_no):
+            print(f"Attempt {i+1}/{self.max_approach_no}")
             try:
                 if operation_name == "Flashing":
-                    sh.stm32flash(self.port, f"-v -w {self.binary_file} -b 115200", _out=sys.stdout)
+                    flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
+                    sh.stm32flash(self.port, *flash_args, _out=sys.stdout)
                     print("Success! The robot firmware has been uploaded.")
                 elif operation_name == "Write-UnProtection":
                     sh.stm32flash(self.port, "-u")
@@ -119,20 +122,17 @@ class FirmwareFlasher:
                     sh.stm32flash(self.port, "-k")
                 else:
                     raise("Unknown operation.")
-                print(f"{operation_name} operation completed.")
                 break
             except Exception as e:
                 stderr = e.stderr.decode('utf-8')
                 if stderr:
-                    print(f"[ERROR] [{operation_name}]: \n\t{stderr}.")
-                else:
-                    break
-            time.sleep(0.2)  # Delay between attempts
+                    print(f"ERROR: {stderr.strip()}")
+
+        print("Success!")
+        self.exit_bootloader_mode()
 
 
     def flash_firmware(self):
-        self.enter_bootloader_mode()
-
         # Disable the flash write-protection
         self.try_flash_operation("Write-UnProtection")
 
@@ -140,11 +140,7 @@ class FirmwareFlasher:
         self.try_flash_operation("Read-UnProtection")
 
         # Flashing the firmware
-        flash_args = []
-        self.try_flash_operation("Flashing", flash_args)
-
-        self.exit_bootloader_mode()
-
+        self.try_flash_operation("Flashing")
 
 
 def main():
