@@ -121,16 +121,15 @@ class FirmwareFlasher:
                 elif operation_name == "Read-UnProtection":
                     sh.stm32flash(self.port, "-k")
                 else:
-                    raise("Unknown operation.")
+                    raise ("Unknown operation.")
                 break
             except Exception as e:
-                stderr = e.stderr.decode('utf-8')
+                stderr = e.stderr.decode("utf-8")
                 if stderr:
                     print(f"ERROR: {stderr.strip()}")
 
         print("Success!")
         self.exit_bootloader_mode()
-
 
     def flash_firmware(self):
         # Disable the flash write-protection
