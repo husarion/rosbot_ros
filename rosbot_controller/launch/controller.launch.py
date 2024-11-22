@@ -69,7 +69,6 @@ def generate_launch_description():
         default=[namespace_ext, "controller_manager"],
     )
 
-    # Get URDF via xacro
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -93,7 +92,6 @@ def generate_launch_description():
     )
     robot_description = {"robot_description": robot_description_content}
 
-    # Controller configurations
     robot_controllers = PathJoinSubstitution(
         [
             FindPackageShare("rosbot_controller"),
@@ -102,13 +100,11 @@ def generate_launch_description():
         ]
     )
 
-    # Define nodes
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
             robot_description,
-            # namespaced_robot_controllers_config,
             robot_controllers,
         ],
         remappings=[
@@ -133,7 +129,6 @@ def generate_launch_description():
         namespace=namespace,
     )
 
-    # Create spawner nodes
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -181,7 +176,6 @@ def generate_launch_description():
         ],
     )
 
-    # Assemble the LaunchDescription
     return LaunchDescription(
         [
             declare_namespace_arg,
@@ -189,6 +183,6 @@ def generate_launch_description():
             declare_use_sim_arg,
             SetParameter("use_sim_time", value=use_sim),
             robot_state_pub_node,
-            delayed_spawner_nodes,  # Add the delayed spawner nodes here
+            delayed_spawner_nodes,
         ]
     )
