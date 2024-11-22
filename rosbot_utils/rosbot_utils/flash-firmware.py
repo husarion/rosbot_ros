@@ -25,6 +25,7 @@ import time
 import gpiod
 import sh
 
+
 def get_raspberry_pi_model():
     try:
         with open("/proc/cpuinfo", "r") as f:
@@ -39,6 +40,7 @@ def get_raspberry_pi_model():
                         return "Unknown Raspberry Pi Model"
     except FileNotFoundError:
         return "Not a Raspberry Pi"
+
 
 class FirmwareFlasher:
     def __init__(self, sys_arch, binary_file):
@@ -77,7 +79,7 @@ class FirmwareFlasher:
                 gpio_chip = "/dev/gpiochip4"
             else:
                 gpio_chip = "/dev/gpiochip0"  # Default or error handling
-    
+
             boot0_pin_no = 17
             reset_pin_no = 18
         else:

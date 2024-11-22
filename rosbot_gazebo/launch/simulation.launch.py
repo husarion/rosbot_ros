@@ -13,13 +13,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    GroupAction,
-    IncludeLaunchDescription,
-    LogInfo,
-    OpaqueFunction,
-)
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
@@ -32,92 +26,16 @@ from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ParseMultiRobotPose
 
 
-def launch_setup(context, *args, **kwargs):
-    namespace = LaunchConfiguration("namespace").perform(context)
-    mecanum = LaunchConfiguration("mecanum").perform(context)
-    world = LaunchConfiguration("world").perform(context)
-    headless = LaunchConfiguration("headless").perform(context)
-    x = LaunchConfiguration("x", default="0.0").perform(context)
-    y = LaunchConfiguration("y", default="2.0").perform(context)
-    z = LaunchConfiguration("z", default="0.0").perform(context)
-    roll = LaunchConfiguration("roll", default="0.0").perform(context)
-    pitch = LaunchConfiguration("pitch", default="0.0").perform(context)
-    yaw = LaunchConfiguration("yaw", default="0.0").perform(context)
-
-    gz_args = f"--headless-rendering -s -v 4 -r {world}" if eval(headless) else f"-r {world}"
-
-    gz_sim = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    FindPackageShare("ros_gz_sim"),
-                    "launch",
-                    "gz_sim.launch.py",
-                ]
-            )
-        ),
-        launch_arguments={
-            "gz_args": gz_args,
-            "on_exit_shutdown": "True",
-        }.items(),
-    )
-
-    robots_list = ParseMultiRobotPose("robots").value()
-    if len(robots_list) == 0:
-        robots_list = {
-            namespace: {
-                "x": x,
-                "y": y,
-                "z": z,
-                "roll": roll,
-                "pitch": pitch,
-                "yaw": yaw,
-            }
-        }
-
-    spawn_group = []
-    for robot_name in robots_list:
-        init_pose = robots_list[robot_name]
-        group = GroupAction(
-            [
-                LogInfo(
-                    msg=[
-                        "Launching namespace=",
-                        robot_name,
-                        " init_pose=",
-                        str(init_pose),
-                    ]
-                ),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        PathJoinSubstitution(
-                            [
-                                FindPackageShare("rosbot_gazebo"),
-                                "launch",
-                                "spawn.launch.py",
-                            ]
-                        )
-                    ),
-                    launch_arguments={
-                        "mecanum": mecanum,
-                        "use_sim": "True",
-                        "namespace": TextSubstitution(text=robot_name),
-                        "x": TextSubstitution(text=str(init_pose["x"])),
-                        "y": TextSubstitution(text=str(init_pose["y"])),
-                        "z": TextSubstitution(text=str(init_pose["z"])),
-                        "roll": TextSubstitution(text=str(init_pose["roll"])),
-                        "pitch": TextSubstitution(text=str(init_pose["pitch"])),
-                        "yaw": TextSubstitution(text=str(init_pose["yaw"])),
-                    }.items(),
-                ),
-            ]
-        )
-        spawn_group.append(group)
-
-    return [gz_sim, *spawn_group]
-
-
 def generate_launch_description():
+    namespace = LaunchConfiguration("namespace")
+    mecanum = LaunchConfiguration("mecanum")
+    x = LaunchConfiguration("x", default="0.0")
+    y = LaunchConfiguration("y", default="2.0")
+    z = LaunchConfiguration("z", default="0.0")
+    roll = LaunchConfiguration("roll", default="0.0")
+    pitch = LaunchConfiguration("pitch", default="0.0")
+    yaw = LaunchConfiguration("yaw", default="0.0")
+
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
@@ -132,36 +50,77 @@ def generate_launch_description():
         ),
     )
 
-    world_package = FindPackageShare("husarion_gz_worlds")
-    world_file = PathJoinSubstitution([world_package, "worlds", "husarion_world.sdf"])
-    declare_world_arg = DeclareLaunchArgument(
-        "world", default_value=world_file, description="SDF world file"
-    )
-
-    declare_headless_arg = DeclareLaunchArgument(
-        "headless",
-        default_value="False",
-        description="Run Gazebo Ignition in the headless mode",
-        choices=["True", "False"],
-    )
-
     declare_robots_arg = DeclareLaunchArgument(
         "robots",
         default_value="",
         description=(
-            "Spawning multiple robots at positions with yaw orientations e. g. robots:='robot1={x:"
-            " 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0}; robot3={x: 2.0, y: -1.0};'"
+            "Spawning multiple robots at positions with yaw orientations e.g."
+            "robots:='robot1={x: 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0}; robot3={x: 2.0, y: -1.0};'"
         ),
     )
+
+    gz_sim = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [FindPackageShare("husarion_gz_worlds"), "launch", "gz_sim.launch.py"]
+            )
+        ),
+        launch_arguments={"gz_log_level": "1"}.items(),
+    )
+
+    robots_list = ParseMultiRobotPose("robots").value()
+    if len(robots_list) == 0:
+        robots_list = {
+            namespace: {
+                "x": x,
+                "y": y,
+                "z": z,
+                "roll": roll,
+                "pitch": pitch,
+                "yaw": yaw,
+            }
+        }
+    else:
+        for robot_name in robots_list:
+            init_pose = robots_list[robot_name]
+            for key, value in init_pose.items():
+                init_pose[key] = TextSubstitution(text=str(value))
+
+    spawn_group = []
+    for idx, robot_name in enumerate(robots_list):
+        init_pose = robots_list[robot_name]
+        spawn_robot = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution(
+                    [
+                        FindPackageShare("rosbot_gazebo"),
+                        "launch",
+                        "spawn.launch.py",
+                    ]
+                )
+            ),
+            launch_arguments={
+                "mecanum": mecanum,
+                "use_sim": "True",
+                "namespace": robot_name,
+                "x": init_pose["x"],
+                "y": init_pose["y"],
+                "z": init_pose["z"],
+                "roll": init_pose["roll"],
+                "pitch": init_pose["pitch"],
+                "yaw": init_pose["yaw"],
+            }.items(),
+        )
+        spawn_robot_delay = TimerAction(period=5.0 * idx, actions=[spawn_robot])
+        spawn_group.append(spawn_robot_delay)
 
     return LaunchDescription(
         [
             declare_namespace_arg,
             declare_mecanum_arg,
-            declare_world_arg,
-            declare_headless_arg,
             declare_robots_arg,
             SetParameter(name="use_sim_time", value=True),
-            OpaqueFunction(function=launch_setup),
+            gz_sim,
+            *spawn_group,
         ]
     )

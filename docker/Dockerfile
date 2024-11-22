@@ -14,9 +14,8 @@ RUN apt-get update && apt-get install -y \
         ros-${ROS_DISTRO}-teleop-twist-keyboard
 
 RUN vcs import src < src/rosbot/rosbot_hardware.repos && \
-    # cp -r src/ros2_controllers/diff_drive_controller src/ && \
-    # cp -r src/ros2_controllers/imu_sensor_broadcaster src/ && \
-    # rm -rf src/ros2_controllers && \
+    cp -r src/ros2_controllers/imu_sensor_broadcaster src/ && \
+    rm -rf src/ros2_controllers && \
     rm -r src/rosbot_gazebo
 
 # Create a script to install runtime dependencies for final image

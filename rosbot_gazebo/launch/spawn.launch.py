@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     LaunchConfiguration,
@@ -26,18 +26,15 @@ from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
-    namespace = LaunchConfiguration("namespace")
-    declare_namespace_arg = DeclareLaunchArgument(
-        "namespace",
-        default_value="",
-        description="Namespace for all topics and tfs",
-    )
-
-    namespace_ext = PythonExpression(
-        ["''", " if '", namespace, "' == '' ", "else ", "'/", namespace, "'"]
-    )
-
     mecanum = LaunchConfiguration("mecanum")
+    namespace = LaunchConfiguration("namespace")
+    x = LaunchConfiguration("x")
+    y = LaunchConfiguration("y")
+    z = LaunchConfiguration("z")
+    roll = LaunchConfiguration("roll")
+    pitch = LaunchConfiguration("pitch")
+    yaw = LaunchConfiguration("yaw")
+
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
@@ -46,8 +43,38 @@ def generate_launch_description():
         ),
     )
 
-    robot_name = PythonExpression(
-        ["'rosbot'", " if '", namespace, "' == '' ", "else ", "'", namespace, "'"]
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="Namespace for all topics and tfs",
+    )
+
+    declare_x_arg = DeclareLaunchArgument(
+        "x", default_value="0.0", description="Initial robot position in the global 'x' axis."
+    )
+
+    declare_y_arg = DeclareLaunchArgument(
+        "y", default_value="-2.0", description="Initial robot position in the global 'y' axis."
+    )
+
+    declare_z_arg = DeclareLaunchArgument(
+        "z", default_value="0.0", description="Initial robot position in the global 'z' axis."
+    )
+
+    declare_roll_arg = DeclareLaunchArgument(
+        "roll", default_value="0.0", description="Initial robot 'roll' orientation."
+    )
+
+    declare_pitch_arg = DeclareLaunchArgument(
+        "pitch", default_value="0.0", description="Initial robot 'pitch' orientation."
+    )
+
+    declare_yaw_arg = DeclareLaunchArgument(
+        "yaw", default_value="0.0", description="Initial robot 'yaw' orientation."
+    )
+
+    namespace_ext = PythonExpression(
+        ["''", " if '", namespace, "' == '' ", "else ", "'/", namespace, "'"]
     )
 
     gz_remappings_file = PathJoinSubstitution(
@@ -64,26 +91,45 @@ def generate_launch_description():
         executable="create",
         arguments=[
             "-name",
-            robot_name,
+            namespace,
             "-allow_renaming",
             "true",
             "-topic",
             "robot_description",
             "-x",
-            LaunchConfiguration("x", default="0.00"),
+            x,
             "-y",
-            LaunchConfiguration("y", default="0.00"),
+            y,
             "-z",
-            LaunchConfiguration("z", default="0.00"),
+            z,
             "-R",
-            LaunchConfiguration("roll", default="0.00"),
+            roll,
             "-P",
-            LaunchConfiguration("pitch", default="0.00"),
+            pitch,
             "-Y",
-            LaunchConfiguration("yaw", default="0.00"),
+            yaw,
         ],
-        output="screen",
         namespace=namespace,
+    )
+
+    welcome_msg = LogInfo(
+        msg=[
+            "Spawning ROSbot\n\tNamespace: '",
+            namespace,
+            "'\n\tInitial pose: (",
+            x,
+            ", ",
+            y,
+            ", ",
+            z,
+            ", ",
+            roll,
+            ", ",
+            pitch,
+            ", ",
+            yaw,
+            ")",
+        ]
     )
 
     ign_bridge = Node(
@@ -95,7 +141,6 @@ def generate_launch_description():
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
         ],
-        output="screen",
         namespace=namespace,
     )
 
@@ -118,9 +163,16 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_namespace_arg,
             declare_mecanum_arg,
+            declare_namespace_arg,
+            declare_x_arg,
+            declare_y_arg,
+            declare_z_arg,
+            declare_roll_arg,
+            declare_pitch_arg,
+            declare_yaw_arg,
             SetParameter(name="use_sim_time", value=True),
+            welcome_msg,
             ign_bridge,
             gz_spawn_entity,
             bringup_launch,

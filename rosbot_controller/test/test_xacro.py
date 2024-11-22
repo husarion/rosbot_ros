@@ -45,6 +45,5 @@ def test_rosbot_description_parsing():
             xacro.process_file(xacro_path, mappings=mappings)
         except xacro.XacroException as e:
             assert False, (
-                f"xacro parsing failed: {str(e)} for mecanum: {mecanum}, use_sim:"
-                f" {use_sim}"
+                f"xacro parsing failed: {str(e)} for mecanum: {mecanum}, use_sim:" f" {use_sim}"
             )
