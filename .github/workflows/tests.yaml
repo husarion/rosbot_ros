@@ -29,10 +29,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Act + Docker fix
-        run: |
-          sudo chown runner:docker /var/run/docker.sock
-
       - name: Setup ROS2 Workspace and Clone Repositories
         run: |
           mkdir -p src
