@@ -66,6 +66,5 @@ def test_multirobot_bringup_startup_success():
             node.start_node_thread()
             readings_data_test(node)
 
-
     finally:
         rclpy.shutdown()
