@@ -78,8 +78,10 @@ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 Flash firmware:
 
 ```bash
+sudo su
 source install/setup.bash
 ros2 run rosbot_utils flash_firmware
+exit
 ```
 
 Running:
