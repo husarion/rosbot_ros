@@ -32,7 +32,7 @@ def generate_launch_description():
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
-        description="Namespace for all topics and TFs",
+        description="Adds a namespace to all running nodes.",
     )
 
     mecanum = LaunchConfiguration("mecanum")
@@ -109,8 +109,6 @@ def generate_launch_description():
         ],
         condition=UnlessCondition(use_sim),
         namespace=namespace,
-        respawn=True,
-        respawn_delay=3.0,
     )
 
     robot_state_pub_node = Node(
@@ -131,6 +129,7 @@ def generate_launch_description():
             "--controller-manager-timeout",
             "10",
         ],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
     robot_controller_spawner = Node(
@@ -143,6 +142,7 @@ def generate_launch_description():
             "--controller-manager-timeout",
             "10",
         ],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
     imu_broadcaster_spawner = Node(
@@ -155,6 +155,7 @@ def generate_launch_description():
             "--controller-manager-timeout",
             "10",
         ],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
     # spawners expect ros2_control_node to be running
@@ -173,8 +174,8 @@ def generate_launch_description():
             declare_mecanum_arg,
             declare_use_sim_arg,
             SetParameter("use_sim_time", value=use_sim),
-            robot_state_pub_node,
             control_node,
+            robot_state_pub_node,
             delayed_spawner_nodes,
         ]
     )
