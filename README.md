@@ -88,25 +88,6 @@ ros2 launch rosbot_bringup combined.launch.py
 
 ### Build and run Gazebo simulation
 
-Prerequisites:
-
-> [!TIP]
-> The default version of Gazebo Ignition will be installed with the instructions below. If you want to install a different version of the simulator, it is necessary to:
->
-> - Check compatible versions of ROS 2 and Gazebo in [this table](https://gazebosim.org/docs/garden/ros_installation#summary-of-compatible-ros-and-gazebo-combinations)
-> - [Install the appropriate version](https://gazebosim.org/docs/fortress/install_ubuntu#binary-installation-on-ubuntu),
-> - Add the `GZ_VERSION` environment variable appropriate to your version
->
->   ```bash
->   export GZ_VERSION=fortress
->   ```
-
-If you have installed multiple versions of Gazebo use the global variable to select the correct one:
-
-```bash
-export GZ_VERSION=fortress
-```
-
 Building:
 
 ```bash

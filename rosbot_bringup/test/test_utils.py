@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from threading import Event, Thread
-
 import rclpy
+import time
+
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from sensor_msgs.msg import Imu, JointState
-
+from threading import Event, Thread
 
 class BringupTestNode(Node):
     ROSBOT_HARDWARE_PUBLISHERS_RATE = 10.0
@@ -28,33 +28,55 @@ class BringupTestNode(Node):
 
     def __init__(self, name="test_node", namespace=None):
         super().__init__(name, namespace=namespace)
-        self.odom_msg_event = Event()
+        self.joint_state_msg_event = Event()
+        self.controller_odom_msg_event = Event()
+        self.imu_msg_event = Event()
+        self.ekf_odom_msg_event = Event()
 
-    def create_test_subscribers_and_publishers(self):
-        self.imu_publisher = self.create_publisher(Imu, "/_imu/data_raw", 10)
-
-        self.joint_states_publisher = self.create_publisher(JointState, "/_motors_response", 10)
-
-        self.odom_sub = self.create_subscription(
-            Odometry, "odometry/filtered", self.odometry_callback, 10
-        )
+        self.ros_spin_thread = None
         self.timer = None
 
+    def create_test_subscribers_and_publishers(self):
+        self.imu_pub = self.create_publisher(Imu, "/_imu/data_raw", 10)
+        self.joint_pub = self.create_publisher(JointState, "/_motors_response", 10)
+
+        self.joint_state_sub = self.create_subscription(
+            JointState, "joint_states", self.joint_states_callback, 10
+        )
+        self.controller_odom_sub = self.create_subscription(
+            Odometry, "rosbot_base_controller/odom", self.controller_odometry_callback, 10
+        )
+        self.imu_sub = self.create_subscription(Imu, "imu_broadcaster/imu", self.imu_callback, 10)
+        self.ekf_odom_sub = self.create_subscription(
+            Odometry, "odometry/filtered", self.ekf_odometry_callback, 10
+        )
+
     def start_node_thread(self):
-        self.ros_spin_thread = Thread(target=lambda node: rclpy.spin(node), args=(self,))
-        self.ros_spin_thread.start()
+        if not self.ros_spin_thread:
+            self.ros_spin_thread = Thread(target=rclpy.spin, args=(self,), daemon=True)
+            self.ros_spin_thread.start()
 
     def start_publishing_fake_hardware(self):
-        self.timer = self.create_timer(
-            1.0 / self.ROSBOT_HARDWARE_PUBLISHERS_RATE,
-            self.timer_callback,
-        )
+        if not self.timer:
+            self.timer = self.create_timer(
+                1.0 / self.ROSBOT_HARDWARE_PUBLISHERS_RATE,
+                self.timer_callback,
+            )
 
     def timer_callback(self):
         self.publish_fake_hardware_messages()
 
-    def odometry_callback(self, data):
-        self.odom_msg_event.set()
+    def joint_states_callback(self, data):
+        self.joint_state_msg_event.set()
+
+    def controller_odometry_callback(self, data):
+        self.controller_odom_msg_event.set()
+
+    def imu_callback(self, data):
+        self.imu_msg_event.set()
+
+    def ekf_odometry_callback(self, data):
+        self.ekf_odom_msg_event.set()
 
     def publish_fake_hardware_messages(self):
         imu_msg = Imu()
@@ -72,5 +94,50 @@ class BringupTestNode(Node):
         joint_state_msg.position = [0.0, 0.0, 0.0, 0.0]
         joint_state_msg.velocity = [0.0, 0.0, 0.0, 0.0]
 
-        self.imu_publisher.publish(imu_msg)
-        self.joint_states_publisher.publish(joint_state_msg)
+        self.imu_pub.publish(imu_msg)
+        self.joint_pub.publish(joint_state_msg)
+
+
+def wait_for_all_events(events, timeout):
+    """
+    Wait for all specified events to be set within a given timeout.
+    :param events: List of Event objects to wait for.
+    :param timeout: Maximum time (in seconds) to wait.
+    :return: (bool, list) where the first value indicates success, and the second is a list of indices of events that were not set.
+    """
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        if all(event.is_set() for event in events):
+            return True, []  # All events have been set
+        time.sleep(0.1)  # Short interval between checks
+
+    # Identify which events were not set
+    not_set_events = [i for i, event in enumerate(events) if not event.is_set()]
+    return False, not_set_events
+
+
+def readings_data_test(node, robot_name="ROSbot"):
+    events = [
+        node.joint_state_msg_event,
+        node.controller_odom_msg_event,
+        node.imu_msg_event,
+        node.ekf_odom_msg_event,
+    ]
+
+    event_names = [
+        "JointStates",
+        "Controller Odometry",
+        "IMU",
+        "EKF Odometry",
+    ]
+
+    msgs_received_flag, not_set_indices = wait_for_all_events(events, timeout=30.0)
+
+    if not msgs_received_flag:
+        not_set_event_names = [event_names[i] for i in not_set_indices]
+        missing_events = ", ".join(not_set_event_names)
+        raise AssertionError(
+            f"{robot_name}: Not all expected messages were received. Missing: {missing_events}."
+        )
+
+    print(f"{robot_name}: All messages received successfully.")

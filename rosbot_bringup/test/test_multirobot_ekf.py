@@ -22,7 +22,7 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from test_utils import BringupTestNode
+from test_utils import BringupTestNode, readings_data_test
 
 robot_names = ["robot1", "robot2"]
 
@@ -57,16 +57,15 @@ def generate_test_description():
 @pytest.mark.launch(fixture=generate_test_description)
 def test_multirobot_bringup_startup_success():
     rclpy.init()
-    for robot_name in robot_names:
-        node = BringupTestNode("test_bringup", namespace=robot_name)
-        node.create_test_subscribers_and_publishers()
-        node.start_publishing_fake_hardware()
+    try:
+        for robot_name in robot_names:
+            node = BringupTestNode("test_bringup", namespace=robot_name)
+            node.create_test_subscribers_and_publishers()
+            node.start_publishing_fake_hardware()
 
-        node.start_node_thread()
-        msgs_received_flag = node.odom_msg_event.wait(timeout=20.0)
-        assert msgs_received_flag, (
-            f"Expected {robot_name}/odometry/filtered message but it was not received. "
-            "Check robot_localization!"
-        )
+            node.start_node_thread()
+            readings_data_test(node)
 
-    rclpy.shutdown()
+
+    finally:
+        rclpy.shutdown()
