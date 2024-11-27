@@ -42,6 +42,14 @@ def generate_launch_description():
         description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
     )
 
+    simulation_engine = LaunchConfiguration("simulation_engine")
+    declare_simulation_engine_arg = DeclareLaunchArgument(
+        "simulation_engine",
+        default_value="ignition-gazebo",
+        description="Which simulation engine to be used",
+        choices=["ignition-gazebo", "webots"],
+    )
+
     use_sim = LaunchConfiguration("use_sim")
     declare_use_sim_arg = DeclareLaunchArgument(
         "use_sim",
@@ -79,10 +87,12 @@ def generate_launch_description():
             ),
             " mecanum:=",
             mecanum,
-            " use_sim:=",
-            use_sim,
             " namespace:=",
             namespace,
+            " simulation_engine:=",
+            simulation_engine,
+            " use_sim:=",
+            use_sim,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -172,6 +182,7 @@ def generate_launch_description():
         [
             declare_namespace_arg,
             declare_mecanum_arg,
+            declare_simulation_engine_arg,
             declare_use_sim_arg,
             SetParameter("use_sim_time", value=use_sim),
             control_node,

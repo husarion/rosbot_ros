@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace ">
+  <xacro:macro name="rosbot_robot" params="mecanum use_sim simulation_engine namespace ">
 
     <xacro:if value="${namespace == 'None'}">
       <xacro:property name="namespace_ext" value="" />
@@ -21,7 +21,7 @@
     <xacro:include filename="$(find rosbot_description)/urdf/wheel.urdf.xacro" ns="wheel" />
 
     <!-- BODY DECLARATION -->
-    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" use_gpu="${use_gpu}" namespace="${namespace}" />
+    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" namespace="${namespace}" />
 
     <!-- WHEEL DECLARATION -->
     <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fr" mecanum="${mecanum}" />
