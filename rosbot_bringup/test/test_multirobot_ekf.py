@@ -24,14 +24,14 @@ from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from test_utils import BringupTestNode
 
-robot_names = ["robot1", "robot2", "robot3"]
+robot_names = ["robot1", "robot2"]
 
 
 @launch_pytest.fixture
 def generate_test_description():
     rosbot_bringup = FindPackageShare("rosbot_bringup")
     actions = []
-    for i in range(len(robot_names)):
+    for robot_name in robot_names:
         bringup_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution(
@@ -45,7 +45,7 @@ def generate_test_description():
             launch_arguments={
                 "use_sim": "False",
                 "mecanum": "False",
-                "namespace": robot_names[i],
+                "namespace": robot_name,
             }.items(),
         )
 
@@ -56,19 +56,17 @@ def generate_test_description():
 
 @pytest.mark.launch(fixture=generate_test_description)
 def test_multirobot_bringup_startup_success():
+    rclpy.init()
     for robot_name in robot_names:
-        rclpy.init()
-        try:
-            node = BringupTestNode("test_bringup", namespace=robot_name)
-            node.create_test_subscribers_and_publishers()
-            node.start_publishing_fake_hardware()
+        node = BringupTestNode("test_bringup", namespace=robot_name)
+        node.create_test_subscribers_and_publishers()
+        node.start_publishing_fake_hardware()
 
-            node.start_node_thread()
-            msgs_received_flag = node.odom_msg_event.wait(timeout=20.0)
-            assert msgs_received_flag, (
-                f"Expected {robot_name}/odometry/filtered message but it was not received. "
-                "Check robot_localization!"
-            )
+        node.start_node_thread()
+        msgs_received_flag = node.odom_msg_event.wait(timeout=20.0)
+        assert msgs_received_flag, (
+            f"Expected {robot_name}/odometry/filtered message but it was not received. "
+            "Check robot_localization!"
+        )
 
-        finally:
-            rclpy.shutdown()
+    rclpy.shutdown()

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Import necessary modules
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, TimerAction
 from launch.conditions import UnlessCondition
@@ -26,7 +25,6 @@ from launch.substitutions import (
 )
 from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
-
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
@@ -86,8 +84,6 @@ def generate_launch_description():
             use_sim,
             " namespace:=",
             namespace,
-            # Uncomment the line below if you need to include the 'use_ros2_control' parameter
-            # " use_ros2_control:=True",
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -137,7 +133,7 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "10",
+            "20",
         ],
     )
 
@@ -149,7 +145,7 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "10",
+            "20",
         ],
     )
 
@@ -161,11 +157,11 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "10",
+            "20",
         ],
     )
 
-    # Wrap the spawner nodes in a TimerAction to delay execution by 2 seconds
+    # Wrap the spawner nodes in a TimerAction to delay execution by 1 seconds
     delayed_spawner_nodes = TimerAction(
         period=1.0,
         actions=[
