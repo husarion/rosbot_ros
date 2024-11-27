@@ -64,9 +64,6 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 
 vcs import src < src/rosbot/rosbot_hardware.repos
 
-# Build only imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
-
 rm -r src/rosbot_gazebo
 
 sudo rosdep init

@@ -26,6 +26,7 @@ from launch.substitutions import (
 from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
 
+
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     declare_namespace_arg = DeclareLaunchArgument(
@@ -38,9 +39,7 @@ def generate_launch_description():
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
-        description=(
-            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
-        ),
+        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
     )
 
     use_sim = LaunchConfiguration("use_sim")
@@ -99,10 +98,7 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[
-            robot_description,
-            robot_controllers,
-        ],
+        parameters=[robot_description, robot_controllers],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
@@ -114,7 +110,7 @@ def generate_launch_description():
         condition=UnlessCondition(use_sim),
         namespace=namespace,
         respawn=True,
-        respawn_delay=2.0,
+        respawn_delay=3.0,
     )
 
     robot_state_pub_node = Node(
@@ -133,7 +129,7 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "20",
+            "10",
         ],
     )
 
@@ -145,7 +141,7 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "20",
+            "10",
         ],
     )
 
@@ -157,15 +153,14 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "20",
+            "10",
         ],
     )
 
-    # Wrap the spawner nodes in a TimerAction to delay execution by 1 seconds
+    # spawners expect ros2_control_node to be running
     delayed_spawner_nodes = TimerAction(
-        period=1.0,
+        period=3.0,
         actions=[
-            control_node,
             joint_state_broadcaster_spawner,
             robot_controller_spawner,
             imu_broadcaster_spawner,
@@ -179,6 +174,7 @@ def generate_launch_description():
             declare_use_sim_arg,
             SetParameter("use_sim_time", value=use_sim),
             robot_state_pub_node,
+            control_node,
             delayed_spawner_nodes,
         ]
     )
