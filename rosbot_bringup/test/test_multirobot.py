@@ -18,7 +18,7 @@ import launch_pytest
 import pytest
 import rclpy
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
@@ -31,7 +31,7 @@ robot_names = ["robot1", "robot2"]
 def generate_test_description():
     rosbot_bringup = FindPackageShare("rosbot_bringup")
     actions = []
-    for robot_name in robot_names:
+    for i in range(len(robot_names)):
         bringup_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution(
@@ -45,26 +45,28 @@ def generate_test_description():
             launch_arguments={
                 "use_sim": "False",
                 "mecanum": "False",
-                "namespace": robot_name,
+                "namespace": robot_names[i],
             }.items(),
         )
 
-        actions.append(bringup_launch)
+        delayed_bringup = TimerAction(period=5.0*i, actions=[bringup_launch])
+        actions.append(delayed_bringup)
 
     return LaunchDescription(actions)
 
 
 @pytest.mark.launch(fixture=generate_test_description)
 def test_multirobot_bringup_startup_success():
-    rclpy.init()
-    try:
-        for robot_name in robot_names:
+
+    for robot_name in robot_names:
+        rclpy.init()
+        try:
             node = BringupTestNode("test_bringup", namespace=robot_name)
             node.create_test_subscribers_and_publishers()
             node.start_publishing_fake_hardware()
 
             node.start_node_thread()
-            readings_data_test(node)
+            readings_data_test(node, robot_name)
 
-    finally:
-        rclpy.shutdown()
+        finally:
+            rclpy.shutdown()

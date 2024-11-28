@@ -100,12 +100,6 @@ class BringupTestNode(Node):
 
 
 def wait_for_all_events(events, timeout):
-    """
-    Wait for all specified events to be set within a given timeout.
-    :param events: List of Event objects to wait for.
-    :param timeout: Maximum time (in seconds) to wait.
-    :return: (bool, list) where the first value indicates success, and the second is a list of indices of events that were not set.
-    """
     start_time = time.time()
     while time.time() - start_time < timeout:
         if all(event.is_set() for event in events):
@@ -132,7 +126,7 @@ def readings_data_test(node, robot_name="ROSbot"):
         "EKF Odometry",
     ]
 
-    msgs_received_flag, not_set_indices = wait_for_all_events(events, timeout=30.0)
+    msgs_received_flag, not_set_indices = wait_for_all_events(events, timeout=20.0)
 
     if not msgs_received_flag:
         not_set_event_names = [event_names[i] for i in not_set_indices]
