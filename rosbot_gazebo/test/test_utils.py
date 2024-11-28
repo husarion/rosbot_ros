@@ -60,7 +60,7 @@ class SimulationTestNode(Node):
         for range_topic_name in self.RANGE_SENSORS_TOPICS:
             sub = self.create_subscription(LaserScan, range_topic_name, self.ranges_callback, 10)
             self.range_subs.append(sub)
-        self.scan_sub = self.create_subscription(LaserScan, "scan", self.scan_callback, 10)
+        self.scan_sub = self.create_subscription(LaserScan, "scan_filtered", self.scan_callback, 10)
 
         # Timer - send cmd_vel and check if the time needed for speed stabilization has elapsed
         self.timer = self.create_timer(0.1, self.timer_callback)
@@ -128,26 +128,26 @@ class SimulationTestNode(Node):
             self.robot_initialized_event.set()
         return self.robot_initialized_event.is_set()
 
-    def controller_callback(self, data: Odometry):
+    def controller_callback(self, msg: Odometry):
         if not self.is_controller_msg:
             self.get_logger().info("Controller message arrived")
         self.is_controller_msg = True
-        self.controller_twist = data.twist.twist
-        self.is_controller_odom_correct = self.is_twist_ok(data.twist.twist)
+        self.controller_twist = msg.twist.twist
+        self.is_controller_odom_correct = self.is_twist_ok(msg.twist.twist)
 
-    def ekf_callback(self, data: Odometry):
+    def ekf_callback(self, msg: Odometry):
         if not self.is_ekf_msg:
             self.get_logger().info("EKF message arrived")
         self.is_ekf_msg = True
-        self.ekf_twist = data.twist.twist
-        self.is_ekf_odom_correct = self.is_twist_ok(data.twist.twist)
+        self.ekf_twist = msg.twist.twist
+        self.is_ekf_odom_correct = self.is_twist_ok(msg.twist.twist)
 
-    def imu_callback(self, data):
+    def imu_callback(self, msg: Imu):
         if not self.is_imu_msg:
             self.get_logger().info("IMU message arrived")
         self.is_imu_msg = True
 
-    def joint_states_callback(self, data):
+    def joint_states_callback(self, msg: JointState):
         if not self.is_joint_msg:
             self.get_logger().info("Joint State message arrived")
         self.is_joint_msg = True
@@ -164,22 +164,22 @@ class SimulationTestNode(Node):
                 )
                 self.vel_stabilization_time_event.set()
 
-    def scan_callback(self, data: LaserScan):
-        self.get_logger().debug(f"Received scan length: {len(data.ranges)}")
-        if data.ranges:
+    def scan_callback(self, msg: LaserScan):
+        self.get_logger().debug(f"Received scan length: {len(msg.ranges)}")
+        if msg.ranges:
             self.scan_event.set()
 
-    def ranges_callback(self, data: LaserScan):
-        index = self.RANGE_SENSORS_FRAMES.index(data.header.frame_id)
-        if len(data.ranges) == 1:
+    def ranges_callback(self, msg: LaserScan):
+        index = self.RANGE_SENSORS_FRAMES.index(msg.header.frame_id)
+        if len(msg.ranges) == 1:
             self.ranges_events[index].set()
 
-    def camera_image_callback(self, data: Image):
-        if data.data:
+    def camera_image_callback(self, msg: Image):
+        if msg.data:
             self.camera_color_event.set()
 
-    def camera_points_callback(self, data: PointCloud2):
-        if data.data:
+    def camera_points_callback(self, msg: PointCloud2):
+        if msg.data:
             self.camera_points_event.set()
 
     def publish_cmd_vel_msg(self):

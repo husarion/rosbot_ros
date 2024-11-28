@@ -16,6 +16,7 @@
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
+  <exec_depend>laser_filters</exec_depend>
   <exec_depend>rosbot_controller</exec_depend>
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>micro_ros_agent</exec_depend>

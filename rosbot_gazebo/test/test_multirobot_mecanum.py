@@ -31,20 +31,19 @@ from test_utils import SimulationTestNode, mecanum_test
 
 @launch_pytest.fixture
 def generate_test_description():
-    # IncludeLaunchDescription does not work with robots argument
+    gz_world_path = (
+        get_package_share_directory("husarion_gz_worlds") + "/worlds/empty_with_plugins.sdf"
+    )
     simulation_launch = ExecuteProcess(
         cmd=[
             "ros2",
             "launch",
             "rosbot_gazebo",
             "simulation.launch.py",
-            (
-                f'world:={get_package_share_directory("husarion_gz_worlds")}'
-                "/worlds/empty_with_plugins.sdf"
-            ),
-            "robots:=robot1={y: -4.0}; robot2={y: 0.0};",
+            "gz_headless_mode:=True",
+            f"gz_world:={gz_world_path}",
             "mecanum:=True",
-            "headless:=True",
+            "robots:=robot1={y: -4.0}; robot2={y: 0.0};",
         ],
         output="screen",
     )

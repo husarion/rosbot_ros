@@ -48,9 +48,9 @@ sudo apt-get install -y python3-pip ros-dev-tools stm32flash
 Create workspace folder and clone `rosbot_ros` repository:
 
 ```bash
-mkdir -p ros2_ws/src
+mkdir -p ros2_ws
 cd ros2_ws
-git clone https://github.com/husarion/rosbot_ros src/
+git clone https://github.com/husarion/rosbot_ros src/rosbot_ros
 ```
 
 ### Build and run on hardware
@@ -62,17 +62,14 @@ export HUSARION_ROS_BUILD=hardware
 
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-vcs import src < src/rosbot/rosbot_hardware.repos
+vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
 
-# Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
-
-rm -r src/rosbot_gazebo
+rm -r src/rosbot_ros/rosbot_gazebo
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Flash firmware:
@@ -93,25 +90,6 @@ ros2 launch rosbot_bringup combined.launch.py
 
 ### Build and run Gazebo simulation
 
-Prerequisites:
-
-> [!TIP]
-> The default version of Gazebo Ignition will be installed with the instructions below. If you want to install a different version of the simulator, it is necessary to:
->
-> - Check compatible versions of ROS 2 and Gazebo in [this table](https://gazebosim.org/docs/garden/ros_installation#summary-of-compatible-ros-and-gazebo-combinations)
-> - [Install the appropriate version](https://gazebosim.org/docs/fortress/install_ubuntu#binary-installation-on-ubuntu),
-> - Add the `GZ_VERSION` environment variable appropriate to your version
->
->   ```bash
->   export GZ_VERSION=fortress
->   ```
-
-If you have installed multiple versions of Gazebo use the global variable to select the correct one:
-
-```bash
-export GZ_VERSION=fortress
-```
-
 Building:
 
 ```bash
@@ -119,16 +97,16 @@ export HUSARION_ROS_BUILD=simulation
 
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-vcs import src < src/rosbot/rosbot_hardware.repos
-vcs import src < src/rosbot/rosbot_simulation.repos
+vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
+vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos
 
-# Build only diff_drive_controller and imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/diff_drive_controller src && cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
+# Build only imu_sensor_broadcaster from ros2_controllers
+cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Running:
@@ -175,7 +153,7 @@ colcon test-result --verbose
 ### Format python code with [Black](https://github.com/psf/black)
 
 ```bash
-cd src/
+cd src/rosbot_ros
 black rosbot*
 ```
 

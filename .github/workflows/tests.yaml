@@ -17,15 +17,6 @@ jobs:
         with:
           options: --line-length=99
 
-  spellcheck:
-    name: Spellcheck
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Spellcheck
-        uses: rojopolis/spellcheck-github-actions@0.33.1
-
   industrial_ci:
     name: Industrial CI
     runs-on: ubuntu-22.04
@@ -38,10 +29,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Act + Docker fix
-        run: |
-          sudo chown runner:docker /var/run/docker.sock
-
       - name: Setup ROS2 Workspace and Clone Repositories
         run: |
           mkdir -p src
@@ -49,7 +36,6 @@ jobs:
           python3 -m pip install -U vcstool
           vcs import src < src/rosbot/rosbot_hardware.repos
           vcs import src < src/rosbot/rosbot_simulation.repos
-          cp -r src/ros2_controllers/diff_drive_controller src/
           cp -r src/ros2_controllers/imu_sensor_broadcaster src/
           rm -rf src/ros2_controllers
 
@@ -58,7 +44,6 @@ jobs:
       - name: Leave only ROSbot tests
         shell: bash
         run: |
-          sed '/if(BUILD_TESTING)/,/endif()/d' src/diff_drive_controller/CMakeLists.txt -i
           sed '/if(BUILD_TESTING)/,/endif()/d' src/imu_sensor_broadcaster/CMakeLists.txt -i
           sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
 

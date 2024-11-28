@@ -2,7 +2,6 @@
 <robot name="rosbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:arg name="use_sim" default="false" />
-  <xacro:arg name="use_gpu" default="false" />
   <xacro:arg name="mecanum" default="false" />
   <xacro:arg name="simulation_engine" default="ignition-gazebo" />
   <xacro:arg name="namespace" default="None" />
@@ -11,7 +10,6 @@
   <xacro:husarion.rosbot_robot
     mecanum="$(arg mecanum)"
     use_sim="$(arg use_sim)"
-    use_gpu="$(arg use_gpu)"
     simulation_engine="$(arg simulation_engine)"
     namespace="$(arg namespace)" />
 
@@ -20,7 +18,7 @@
       parent_link="cover_link"
       xyz="0.02 0.0 0.0"
       rpy="0.0 0.0 0.0"
-      use_gpu="$(arg use_gpu)"
+      use_gpu="true"
       namespace="$(arg namespace)"
       simulation_engine="$(arg simulation_engine)" />
 

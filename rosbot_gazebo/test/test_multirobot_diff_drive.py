@@ -19,40 +19,32 @@ from threading import Thread
 import launch_pytest
 import pytest
 import rclpy
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
-from launch_ros.substitutions import FindPackageShare
+from launch.actions import ExecuteProcess
 from launch_testing.actions import ReadyToTest
 from launch_testing.util import KeepAliveProc
+from rclpy.executors import SingleThreadedExecutor
 from test_ign_kill_utils import kill_ign_linux_processes
 from test_utils import SimulationTestNode, diff_test
 
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_gazebo = FindPackageShare("rosbot_gazebo")
-    simulation_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    rosbot_gazebo,
-                    "launch",
-                    "simulation.launch.py",
-                ]
-            )
-        ),
-        launch_arguments={
-            "headless": "True",
-            "world": PathJoinSubstitution(
-                [
-                    FindPackageShare("husarion_gz_worlds"),
-                    "worlds",
-                    "empty_with_plugins.sdf",
-                ]
-            ),
-        }.items(),
+    gz_world_path = (
+        get_package_share_directory("husarion_gz_worlds") + "/worlds/empty_with_plugins.sdf"
+    )
+    simulation_launch = ExecuteProcess(
+        cmd=[
+            "ros2",
+            "launch",
+            "rosbot_gazebo",
+            "simulation.launch.py",
+            "gz_headless_mode:=True",
+            f"gz_world:={gz_world_path}",
+            "robots:=robot1={y: -4.0}; robot2={y: 0.0};",
+        ],
+        output="screen",
     )
 
     return LaunchDescription(
@@ -66,16 +58,31 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_diff_drive_simulation():
+def test_multirobot_diff_drive_simulation():
+    robots = ["robot1", "robot2"]
     rclpy.init()
     try:
-        node = SimulationTestNode("test_diff_drive_simulation")
-        Thread(target=lambda node: rclpy.spin(node), args=(node,)).start()
+        nodes = {}
+        executor = SingleThreadedExecutor()
 
-        diff_test(node)
+        for node_namespace in robots:
+            node = SimulationTestNode(
+                "test_multirobot_diff_drive_simulation", namespace=node_namespace
+            )
+            nodes[node_namespace] = node
+            executor.add_node(node)
+
+        Thread(target=lambda executor: executor.spin(), args=(executor,)).start()
+
+        for node_namespace in robots:
+            node = nodes[node_namespace]
+            diff_test(node, node_namespace)
+            executor.remove_node(node)
+            node.destroy_node()
 
     finally:
         # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
         # several tests in a row.
+        executor.shutdown()
         kill_ign_linux_processes()
         rclpy.shutdown()

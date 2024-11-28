@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from threading import Thread
+
 import launch_pytest
 import pytest
 import rclpy
@@ -22,46 +24,55 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from test_utils import BringupTestNode
+from launch_testing.actions import ReadyToTest
+from launch_testing.util import KeepAliveProc
+from test_ign_kill_utils import kill_ign_linux_processes
+from test_utils import SimulationTestNode, diff_test
 
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_bringup = FindPackageShare("rosbot_bringup")
-    bringup_launch = IncludeLaunchDescription(
+    rosbot_gazebo = FindPackageShare("rosbot_gazebo")
+    simulation_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
-                    rosbot_bringup,
+                    rosbot_gazebo,
                     "launch",
-                    "bringup.launch.py",
+                    "simulation.launch.py",
                 ]
             )
         ),
         launch_arguments={
-            "use_sim": "False",
-            "mecanum": "False",
-            "use_gpu": "False",
+            "gz_headless_mode": "True",
+            "gz_world": PathJoinSubstitution(
+                [FindPackageShare("husarion_gz_worlds"), "worlds", "empty_with_plugins.sdf"]
+            ),
             "namespace": "rosbot2r",
         }.items(),
     )
 
-    return LaunchDescription([bringup_launch])
+    return LaunchDescription(
+        [
+            simulation_launch,
+            KeepAliveProc(),
+            # Tell launch to start the test
+            ReadyToTest(),
+        ]
+    )
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_namespaced_bringup_startup_success():
+def test_namespaced_diff_drive_simulation():
     rclpy.init()
     try:
-        node = BringupTestNode("test_bringup", namespace="rosbot2r")
-        node.create_test_subscribers_and_publishers()
-        node.start_publishing_fake_hardware()
+        node = SimulationTestNode("test_namespaced_diff_drive_simulation", namespace="rosbot2r")
+        Thread(target=lambda node: rclpy.spin(node), args=(node,)).start()
 
-        node.start_node_thread()
-        msgs_received_flag = node.odom_msg_event.wait(timeout=10.0)
-        assert (
-            msgs_received_flag
-        ), "Expected odometry/filtered message but it was not received. Check robot_localization!"
+        diff_test(node)
 
     finally:
+        # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
+        # several tests in a row.
+        kill_ign_linux_processes()
         rclpy.shutdown()
