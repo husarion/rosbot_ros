@@ -58,7 +58,7 @@ git clone https://github.com/husarion/rosbot_ros src/rosbot_ros
 Building:
 
 ```bash
-export HUSARION_ROS_BUILD=hardware
+export HUSARION_ROS_BUILD_TYPE=hardware
 
 source /opt/ros/$ROS_DISTRO/setup.bash
 
@@ -93,7 +93,7 @@ ros2 launch rosbot_bringup combined.launch.py
 Building:
 
 ```bash
-export HUSARION_ROS_BUILD=simulation
+export HUSARION_ROS_BUILD_TYPE=simulation
 
 source /opt/ros/$ROS_DISTRO/setup.bash
 

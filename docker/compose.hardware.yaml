@@ -2,18 +2,14 @@ services:
   rosbot:
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile.hardware
     network_mode: host
     ipc: host
     devices:
-      - ${SERIAL_PORT:?err}
+      - /dev/ttyUSB0
       - /dev/bus/usb/ # FTDI
-    # environment:
-    #   - ROS_NAMESPACE
-    # command: tail -f /dev/null
     command: >
       ros2 launch rosbot_bringup combined.launch.py
         mecanum:=${MECANUM:-False}
-        serial_port:=$SERIAL_PORT
+        serial_port:=/dev/ttyUSB0
         serial_baudrate:=576000
-    # namespace:=${ROS_NAMESPACE:-rosbot}
