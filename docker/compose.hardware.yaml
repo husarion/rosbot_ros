@@ -5,11 +5,15 @@ services:
       dockerfile: docker/Dockerfile.hardware
     network_mode: host
     ipc: host
+    restart: unless-stopped
     devices:
-      - /dev/ttyUSB0
+      - ${SERIAL_PORT:-/dev/ttyUSB0}
       - /dev/bus/usb/ # FTDI
+    environment:
+      - FASTRTPS_DEFAULT_PROFILES_FILE=/shm-only.xml
+      - USER=${USER:-root}
     command: >
       ros2 launch rosbot_bringup combined.launch.py
         mecanum:=${MECANUM:-False}
-        serial_port:=/dev/ttyUSB0
+        serial_port:=${SERIAL_PORT:-/dev/ttyUSB0}
         serial_baudrate:=576000
