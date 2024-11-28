@@ -27,5 +27,5 @@ services:
     <<: [ *gpu-config]
     command: >
       ros2 launch rosbot_gazebo simulation.launch.py
-        namespace:=${ROS_NAMESPACE:-""}
         mecanum:=${MECANUM:-False}
+        namespace:=${ROBOT_NAMESPACE:-rosbot}

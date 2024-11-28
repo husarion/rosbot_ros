@@ -9,11 +9,9 @@ services:
     devices:
       - ${SERIAL_PORT:-/dev/ttyUSB0}
       - /dev/bus/usb/ # FTDI
-    environment:
-      - FASTRTPS_DEFAULT_PROFILES_FILE=/shm-only.xml
-      - USER=${USER:-root}
     command: >
       ros2 launch rosbot_bringup combined.launch.py
         mecanum:=${MECANUM:-False}
+        namespace:=${ROBOT_NAMESPACE:-rosbot}
         serial_port:=${SERIAL_PORT:-/dev/ttyUSB0}
         serial_baudrate:=576000
