@@ -48,9 +48,9 @@ sudo apt-get install -y python3-pip ros-dev-tools stm32flash
 Create workspace folder and clone `rosbot_ros` repository:
 
 ```bash
-mkdir -p ros2_ws/src
+mkdir -p ros2_ws
 cd ros2_ws
-git clone https://github.com/husarion/rosbot_ros src/
+git clone https://github.com/husarion/rosbot_ros src/rosbot_ros
 ```
 
 ### Build and run on hardware
@@ -62,9 +62,9 @@ export HUSARION_ROS_BUILD=hardware
 
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-vcs import src < src/rosbot/rosbot_hardware.repos
+vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
 
-rm -r src/rosbot_gazebo
+rm -r src/rosbot_ros/rosbot_gazebo
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
@@ -95,8 +95,8 @@ export HUSARION_ROS_BUILD=simulation
 
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-vcs import src < src/rosbot/rosbot_hardware.repos
-vcs import src < src/rosbot/rosbot_simulation.repos
+vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
+vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos
 
 # Build only imu_sensor_broadcaster from ros2_controllers
 cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
@@ -151,7 +151,7 @@ colcon test-result --verbose
 ### Format python code with [Black](https://github.com/psf/black)
 
 ```bash
-cd src/
+cd src/rosbot_ros
 black rosbot*
 ```
 
