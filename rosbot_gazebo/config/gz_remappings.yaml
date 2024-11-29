@@ -5,7 +5,7 @@
     direction: GZ_TO_ROS
 
   - topic_name: <robot_namespace>/cmd_vel
-    ros_type_name: geometry_msgs/msg/Twist
+    ros_type_name: geometry_msgs/msg/TwistStamped
     gz_type_name: gz.msgs.Twist
     direction: GZ_TO_ROS
 
