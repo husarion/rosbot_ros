@@ -49,7 +49,7 @@ def generate_test_description():
             }.items(),
         )
 
-        delayed_bringup = TimerAction(period=5.0*i, actions=[bringup_launch])
+        delayed_bringup = TimerAction(period=5.0 * i, actions=[bringup_launch])
         actions.append(delayed_bringup)
 
     return LaunchDescription(actions)
