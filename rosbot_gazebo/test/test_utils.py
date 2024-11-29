@@ -60,7 +60,9 @@ class SimulationTestNode(Node):
         for range_topic_name in self.RANGE_SENSORS_TOPICS:
             sub = self.create_subscription(LaserScan, range_topic_name, self.ranges_callback, 10)
             self.range_subs.append(sub)
-        self.scan_sub = self.create_subscription(LaserScan, "scan_filtered", self.scan_callback, 10)
+        self.scan_sub = self.create_subscription(
+            LaserScan, "scan_filtered", self.scan_callback, 10
+        )
 
         # Timer - send cmd_vel and check if the time needed for speed stabilization has elapsed
         self.timer = self.create_timer(0.1, self.timer_callback)
