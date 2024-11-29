@@ -5,6 +5,7 @@ FROM husarnet/ros:${ROS_DISTRO}-ros-core
 WORKDIR /ros2_ws
 
 ENV HUSARION_ROS_BUILD_TYPE=simulation
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 COPY .. src/rosbot_ros
 
@@ -16,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     # Setup workspace
     vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos && \
     vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos && \
-    cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers && \
+    rm -rf src/ros2_controllers && \
     # Install dependencies
     rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \
