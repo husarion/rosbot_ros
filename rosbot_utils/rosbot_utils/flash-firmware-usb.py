@@ -124,7 +124,6 @@ def main():
 
     flasher = FirmwareFlasher(binary_file, port)
     flasher.flash_firmware()
-    print("Done.")
 
 
 if __name__ == "__main__":
