@@ -27,7 +27,8 @@ import requests
 # Global variable to hold the subprocess reference
 subproc = None
 
-firmware_version = "0.11.0"
+# firmware_version = "0.11.0"
+firmware_version = "range-laserscan-fix"
 
 
 def signal_handler(sig, frame):

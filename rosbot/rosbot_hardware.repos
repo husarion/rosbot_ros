@@ -2,7 +2,7 @@ repositories:
   rosbot_hardware_interfaces:
     type: git
     url: https://github.com/husarion/rosbot_hardware_interfaces.git
-    version: da1805839aaa21b8341a9c39498c96d9a1a4f87d
+    version: 9abfb05b0ffad89935ce457de22c24a53cd728cb
   ros_components_description:
     type: git
     url: https://github.com/husarion/ros_components_description.git
@@ -10,12 +10,12 @@ repositories:
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
-    version: 217b09830f5f42930098b9992eda41710702b625
+    version: 804716d478760ab421894c54e5bcfa217cde5066
   micro_ros_msgs:
     type: git
     url: https://github.com/micro-ROS/micro_ros_msgs.git
-    version: 10be4d005fbc7d8dd60dbb213b65f4171419bfe9
+    version: 4594d9db17db735b1e655141fb4afb4cdcfc5789
   micro-ROS-Agent:
     type: git
     url: https://github.com/micro-ROS/micro-ROS-Agent.git
-    version: 30377bbd86ff7ea93ca69a3b37997fd235385e1f
+    version: af007872b034d1ed31de4815377031350ab0034b

@@ -59,7 +59,6 @@
 
     cmd_vel_timeout: 0.5
     #publish_limited_velocity: true
-    use_stamped_vel: false
 
     # Velocity and acceleration limits
     # Whenever a min_* is unspecified, default to -max_*

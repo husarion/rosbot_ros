@@ -26,7 +26,6 @@ from launch.substitutions import (
 from launch_ros.actions import Node, SetParameter
 from launch_ros.substitutions import FindPackageShare
 
-
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     declare_namespace_arg = DeclareLaunchArgument(
@@ -113,7 +112,7 @@ def generate_launch_description():
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
-            ("rosbot_base_controller/cmd_vel_unstamped", "cmd_vel"),
+            ("rosbot_base_controller/cmd_vel", "cmd_vel"),
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
         ],

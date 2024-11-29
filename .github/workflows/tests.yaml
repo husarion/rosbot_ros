@@ -8,7 +8,7 @@ on:
 jobs:
   black:
     name: Black
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,12 +19,12 @@ jobs:
 
   industrial_ci:
     name: Industrial CI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        ROS_DISTRO: [humble]
+        ROS_DISTRO: [jazzy]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -46,6 +46,11 @@ jobs:
         run: |
           sed '/if(BUILD_TESTING)/,/endif()/d' src/imu_sensor_broadcaster/CMakeLists.txt -i
           sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
+
+      - name: Fix pip
+        shell: bash
+        run: |
+          echo -e "[global]\nbreak-system-packages = true" >> ~/.config/pip/pip.conf
 
       - name: Running ROS Industrial CI
         uses: ros-industrial/industrial_ci@master
