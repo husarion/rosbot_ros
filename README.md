@@ -103,7 +103,7 @@ Available in [ROS_API.md](./ROS_API.md)
 
     ```bash
     source install/setup.bash
-    ros2 launch rosbot_bringup combined.launch.py
+    ros2 launch rosbot_bringup bringup.launch.py
     ```
 
 #### Simulation

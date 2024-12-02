@@ -14,7 +14,7 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-# from launch.conditions import UnlessCondition
+from launch.conditions import UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
@@ -54,12 +54,12 @@ def generate_launch_description():
         )
     )
 
-    # microros_launch = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
-    #     ),
-    #     condition=UnlessCondition([use_sim]),
-    # )
+    microros_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
+        ),
+        condition=UnlessCondition([use_sim]),
+    )
 
     ekf_config = PathJoinSubstitution([rosbot_bringup, "config", "ekf.yaml"])
 
@@ -93,7 +93,7 @@ def generate_launch_description():
         declare_namespace_arg,
         controller_launch,
         healthcheck_launch,
-        # microros_launch,
+        microros_launch,
         laser_filter_node,
         robot_localization_node,
     ]

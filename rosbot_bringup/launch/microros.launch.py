@@ -35,7 +35,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
             SetEnvironmentVariable(name="XRCE_DOMAIN_ID_OVERRIDE", value=ros_domain_id)
         )
 
-    port = LaunchConfiguration("port").perform(context)
+    serial_port = LaunchConfiguration("serial_port").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
     localhost_only_fastrtps_profiles_file = LaunchConfiguration(
         "localhost_only_fastrtps_profiles_file"
@@ -62,7 +62,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
         microros_agent_node = Node(
             package="micro_ros_agent",
             executable="micro_ros_agent",
-            arguments=["serial", "-D", port, "-b", serial_baudrate],
+            arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
             output="screen",
         )
 
@@ -71,7 +71,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
         microros_agent_node = Node(
             package="micro_ros_agent",
             executable="micro_ros_agent",
-            arguments=["serial", "-D", port, "-b", serial_baudrate],
+            arguments=["serial", "-D", serial_port, "-b", serial_baudrate],
             output="screen",
         )
 
@@ -79,8 +79,8 @@ def generate_microros_agent_node(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    declare_port_arg = DeclareLaunchArgument(
-        "port",
+    declare_serial_port_arg = DeclareLaunchArgument(
+        "serial_port",
         default_value="/dev/ttySERIAL",
         description="Serial port for micro-ROS agent",
     )
@@ -103,7 +103,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_port_arg,
+            declare_serial_port_arg,
             declare_serial_baudrate_arg,
             declare_localhost_only_fastrtps_profiles_file_arg,
             OpaqueFunction(function=generate_microros_agent_node),
