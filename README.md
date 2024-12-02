@@ -69,7 +69,7 @@ rm -r src/rosbot_ros/rosbot_gazebo
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Flash firmware:
@@ -106,7 +106,7 @@ cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_control
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Running:
