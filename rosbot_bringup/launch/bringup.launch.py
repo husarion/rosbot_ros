@@ -14,59 +14,52 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+# from launch.conditions import UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
     PathJoinSubstitution,
 )
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
+    use_sim = LaunchConfiguration("use_sim", default="False")
+
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
         description="Namespace for all topics and tfs",
     )
 
-    use_sim = LaunchConfiguration("use_sim")
-    declare_use_sim_arg = DeclareLaunchArgument(
-        "use_sim",
-        default_value="False",
-        description="Whether simulation is used",
-    )
-
-    rosbot_controller = FindPackageShare("rosbot_controller")
     rosbot_bringup = FindPackageShare("rosbot_bringup")
-
-    mecanum = LaunchConfiguration("mecanum")
-    declare_mecanum_arg = DeclareLaunchArgument(
-        "mecanum",
-        default_value="False",
-        description=(
-            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
-        ),
-    )
+    rosbot_controller = FindPackageShare("rosbot_controller")
 
     controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    rosbot_controller,
-                    "launch",
-                    "controller.launch.py",
-                ]
-            )
+            PathJoinSubstitution([rosbot_controller, "launch", "controller.launch.py"])
         ),
         launch_arguments={
-            "use_sim": use_sim,
-            "mecanum": mecanum,
             "namespace": namespace,
+            "use_sim": use_sim,
         }.items(),
     )
+
+    healthcheck_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_bringup, "launch", "healthcheck.launch.py"])
+        )
+    )
+
+    # microros_launch = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
+    #     ),
+    #     condition=UnlessCondition([use_sim]),
+    # )
 
     ekf_config = PathJoinSubstitution([rosbot_bringup, "config", "ekf.yaml"])
 
@@ -98,12 +91,11 @@ def generate_launch_description():
 
     actions = [
         declare_namespace_arg,
-        declare_mecanum_arg,
-        declare_use_sim_arg,
-        SetParameter(name="use_sim_time", value=use_sim),
         controller_launch,
-        robot_localization_node,
+        healthcheck_launch,
+        # microros_launch,
         laser_filter_node,
+        robot_localization_node,
     ]
 
     return LaunchDescription(actions)

@@ -22,7 +22,9 @@ services:
   rosbot:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.simulation
+      dockerfile: docker/Dockerfile
+      args:
+        BUILD_TYPE: simulation
     network_mode: host
     ipc: host
     <<: [ *gpu-config]

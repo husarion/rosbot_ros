@@ -8,7 +8,9 @@ services:
   rosbot:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.hardware
+      dockerfile: docker/Dockerfile
+      args:
+        BUILD_TYPE: hardware
     network_mode: host
     ipc: host
     restart: unless-stopped

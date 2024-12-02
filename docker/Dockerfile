@@ -1,10 +1,13 @@
 ARG ROS_DISTRO=humble
+ARG BUILD_TYPE=hardware
 
 FROM husarnet/ros:${ROS_DISTRO}-ros-core
 
+ARG BUILD_TYPE
+
 WORKDIR /ros2_ws
 
-ENV HUSARION_ROS_BUILD_TYPE=hardware
+ENV HUSARION_ROS_BUILD_TYPE=$BUILD_TYPE
 
 COPY .. src/rosbot_ros
 
@@ -14,13 +17,7 @@ RUN apt-get update && apt-get install -y \
         stm32flash \
         ros-${ROS_DISTRO}-teleop-twist-keyboard && \
     # Setup workspace
-    vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos && \
-    rm -r src/rosbot_ros/rosbot_gazebo && \
-    # Install dependencies
-    rosdep init && \
-    rosdep update --rosdistro $ROS_DISTRO && \
-    rosdep install --from-paths src -y -i && \
-    # Build
+    ./src/rosbot_ros/rosbot/install_dependencies.sh && \
     source /opt/ros/$ROS_DISTRO/setup.bash && \
     colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     # Get version

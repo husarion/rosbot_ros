@@ -28,88 +28,85 @@ ROS2 hardware controllers configuration for ROSbots.
 
 Available in [ROS_API.md](./ROS_API.md)
 
-## Usage on hardware
-
-To run the software on real ROSbot 2R, 2 PRO, also communication with the CORE2 will be necessary.
-First update your firmware to make sure that you use the latest version, then run the `micro-ROS` agent.
-For detailed instructions refer to the [rosbot_ros2_firmware repository](https://github.com/husarion/rosbot_ros2_firmware).
-
-## Source build
+## Quick start
 
 ### Prerequisites
 
-Install all necessary tools:
+1. Install all necessary tools:
 
-```bash
-sudo apt-get update
-sudo apt-get install -y python3-pip ros-dev-tools stm32flash
-```
+    ```bash
+    sudo apt-get update
+    sudo apt-get install -y python3-pip ros-dev-tools stm32flash
+    ```
 
-Create workspace folder and clone `rosbot_ros` repository:
+2. Create workspace folder and clone `rosbot_ros` repository:
 
-```bash
-mkdir -p ros2_ws
-cd ros2_ws
-git clone https://github.com/husarion/rosbot_ros src/rosbot_ros
-```
+    ```bash
+    mkdir -p ros2_ws
+    cd ros2_ws
+    git clone https://github.com/husarion/rosbot_ros src/rosbot_ros
+    ```
 
-### Build and run on hardware
+### Build
 
-Building:
+1. Configure environment
 
-```bash
-export HUSARION_ROS_BUILD_TYPE=hardware
+    The repository is used to run the code both on the real robot and in the simulation. Specify `HUSARION_ROS_BUILD_TYPE` the variable according to your needs.
 
-source /opt/ros/$ROS_DISTRO/setup.bash
+    Real robot:
 
-vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
+    ``` bash
+    export HUSARION_ROS_BUILD_TYPE=hardware
+    ```
 
-rm -r src/rosbot_ros/rosbot_gazebo
+    Simulation:
 
-sudo rosdep init
-rosdep update --rosdistro $ROS_DISTRO
-rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
-```
+    ```bash
+    export HUSARION_ROS_BUILD_TYPE=simulation
+    ```
 
-Flash firmware:
+2. Install dependencies:
 
-```bash
-sudo su
-source install/setup.bash
-ros2 run rosbot_utils flash_firmware
-exit
-```
+    ``` bash
+    ./src/rosbot_ros/rosbot/install_dependencies.sh
+    ```
 
-Running:
+3. Build:
 
-```bash
-source install/setup.bash
-ros2 launch rosbot_bringup combined.launch.py
-```
+    ```bash
+    source /opt/ros/$ROS_DISTRO/setup.bash
+    colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
+    ```
 
-### Build and run Gazebo simulation
+>[!NOTE]
+> To build code on a real robot you need to run above commands on the Panther Built-in Computer.
 
-Building:
+### Running
 
-```bash
-export HUSARION_ROS_BUILD_TYPE=simulation
+#### Real robot
 
-source /opt/ros/$ROS_DISTRO/setup.bash
+1. Flash firmware:
 
-vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
-vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos
+    ```bash
+    sudo su
+    source install/setup.bash
+    ros2 run rosbot_utils flash_firmware
+    exit
+    ```
 
-# Build only imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
+> ![NOTE]
+> To run the software on real ROSbot 2R, 2 PRO, communication with the CORE2 will be necessary.
+> First update your firmware to make sure that you use the latest version, then run the `micro-ROS` agent.
+> For detailed instructions refer to the [rosbot_ros2_firmware repository](https://github.com/husarion/rosbot_ros2_firmware).
 
-sudo rosdep init
-rosdep update --rosdistro $ROS_DISTRO
-rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
-```
+2. Launch:
 
-Running:
+    ```bash
+    source install/setup.bash
+    ros2 launch rosbot_bringup combined.launch.py
+    ```
+
+#### Simulation
 
 ```bash
 source install/setup.bash
