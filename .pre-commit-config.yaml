@@ -3,17 +3,40 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
-      - id: check-merge-conflict
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-xml
       - id: check-added-large-files
+        # mesh files has to be taken into account
+        args: [--maxkb=3000]
       - id: check-ast
       - id: check-json
+        exclude: ^.vscode/
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-xml
+      - id: check-yaml
+      - id: debug-statements
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
       - id: name-tests-test
-        files: ^.*\/test\/.*$
-        args: [--pytest-test-first]
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile, black]
+
+  - repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.13
+    hooks:
+      - id: cmake-format
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.4
+    hooks:
+      - id: clang-format
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
@@ -21,7 +44,8 @@ repos:
       - id: codespell
         name: codespell
         description: Checks for common misspellings in text files.
-        entry: codespell  *
+        entry: codespell
+        exclude_types: [rst, svg]
         language: python
         types: [text]
 
@@ -42,14 +66,7 @@ repos:
     rev: 7.1.1
     hooks:
       - id: flake8
-        args: ['--ignore=E501,W503']   # ignore too long line and line break before binary operator,
-                                       # black checks it
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: [--profile, black]
+        args: ['--ignore=E501,W503']
 
   - repo: local
     hooks:
@@ -69,7 +86,6 @@ repos:
         entry: ament_copyright
         language: system
 
-      # Docs - RestructuredText hooks
   - repo: https://github.com/PyCQA/doc8
     rev: v1.1.2
     hooks:
@@ -81,3 +97,9 @@ repos:
     rev: 1.0.0
     hooks:
       - id: xmllint
+
+  - repo: https://github.com/tier4/pre-commit-hooks-ros
+    rev: v0.10.0
+    hooks:
+      - id: prettier-package-xml
+      - id: sort-package-xml

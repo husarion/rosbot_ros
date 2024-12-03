@@ -17,23 +17,23 @@
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
-  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">rosbot_bringup</exec_depend>
+  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">husarion_gz_worlds</exec_depend>
+  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">ign_ros2_control</exec_depend>
   <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">launch</exec_depend>
   <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">launch_ros</exec_depend>
-  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">husarion_gz_worlds</exec_depend>
-  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">ros_gz_sim</exec_depend>
-  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">ros_gz_bridge</exec_depend>
-  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">ign_ros2_control</exec_depend>
   <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">nav2_common</exec_depend>
+  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">ros_gz_bridge</exec_depend>
+  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">ros_gz_sim</exec_depend>
+  <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">rosbot_bringup</exec_depend>
 
-  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">python3-pytest</test_depend>
-  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">launch</test_depend>
-  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">launch_ros</test_depend>
-  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">launch_pytest</test_depend>
-  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">tf_transformations</test_depend>
-  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">python-transforms3d-pip</test_depend>
-  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">nav_msgs</test_depend>
   <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">geometry_msgs</test_depend>
+  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">launch</test_depend>
+  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">launch_pytest</test_depend>
+  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">launch_ros</test_depend>
+  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">nav_msgs</test_depend>
+  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">python-transforms3d-pip</test_depend>
+  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">python3-pytest</test_depend>
+  <test_depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">tf_transformations</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

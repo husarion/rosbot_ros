@@ -17,13 +17,21 @@ import os
 import subprocess
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, EmitEvent, OpaqueFunction, TimerAction
-from launch.conditions import IfCondition
+from launch.actions import EmitEvent, OpaqueFunction, TimerAction
 from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration
 
 
 def check_controller_status(context):
+    healthcheck = LaunchConfiguration("healthcheck").perform(context)
+    if healthcheck.lower() == "false":
+        with open("/var/tmp/rosbot_status.txt", "w") as status_file:
+            status_file.write("healthy")
+        return
+    else:
+        with open("/var/tmp/rosbot_status.txt", "w") as status_file:
+            status_file.write("unhealthy")
+
     use_sim = LaunchConfiguration("use_sim", default="False").perform(context)
     nodes_to_check = [
         "/controller_manager",
@@ -35,7 +43,7 @@ def check_controller_status(context):
         "/rosbot_base_controller",
         "/scan_to_scan_filter_chain",
     ]
-    if use_sim == "True":
+    if use_sim.lower() == "true":
         additional_nodes = [
             "/gz_ros2_control",
             "/ros_gz_bridge",
@@ -43,7 +51,7 @@ def check_controller_status(context):
     else:
         additional_nodes = [
             "/imu_sensor_node",
-            "/rosbot_ros2_firmware",
+            # "/rosbot_ros2_firmware", not visible via USB port
             "/rosbot_system_node",
         ]
     nodes_to_check.extend(additional_nodes)
@@ -77,22 +85,14 @@ def check_controller_status(context):
         return [EmitEvent(event=Shutdown())]
     else:
         print(f"{green_color}All systems are up and running!{reset_color}")
+        with open("/var/tmp/rosbot_status.txt", "w") as status_file:
+            status_file.write("healthy")
 
 
 def generate_launch_description():
-    healthcheck = LaunchConfiguration("healthcheck")
-
-    declare_healthcheck_arg = DeclareLaunchArgument(
-        "healthcheck",
-        default_value="True",
-        description="Check if all node are up and ready, if not emit shutdown signal.",
-        choices=["True", "true", "False", "false"],
-    )
-
     check_controller = TimerAction(
         period=15.0,
         actions=[OpaqueFunction(function=check_controller_status)],
-        condition=IfCondition(healthcheck),
     )
 
-    return LaunchDescription([declare_healthcheck_arg, check_controller])
+    return LaunchDescription([check_controller])

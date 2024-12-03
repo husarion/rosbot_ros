@@ -42,6 +42,7 @@ def generate_test_description():
             "simulation.launch.py",
             "gz_headless_mode:=True",
             f"gz_world:={gz_world_path}",
+            "healthcheck:=False",
             "mecanum:=True",
             "robots:=robot1={y: -4.0}; robot2={y: 0.0};",
         ],

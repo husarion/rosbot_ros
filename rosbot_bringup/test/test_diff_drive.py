@@ -39,8 +39,8 @@ def generate_test_description():
             )
         ),
         launch_arguments={
+            "healthcheck": "False",
             "use_sim": "False",
-            "mecanum": "False",
         }.items(),
     )
 

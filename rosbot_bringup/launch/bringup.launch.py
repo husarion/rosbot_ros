@@ -14,7 +14,6 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
@@ -28,6 +27,13 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     use_sim = LaunchConfiguration("use_sim", default="False")
+
+    declare_healthcheck_arg = DeclareLaunchArgument(
+        "healthcheck",
+        default_value="True",
+        description="Check if all node are up and ready, if not emit shutdown signal.",
+        choices=["True", "true", "False", "false"],
+    )
 
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
@@ -54,12 +60,12 @@ def generate_launch_description():
         )
     )
 
-    microros_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
-        ),
-        condition=UnlessCondition([use_sim]),
-    )
+    # microros_launch = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
+    #     ),
+    #     condition=UnlessCondition([use_sim]),
+    # )
 
     ekf_config = PathJoinSubstitution([rosbot_bringup, "config", "ekf.yaml"])
 
@@ -90,10 +96,11 @@ def generate_launch_description():
     )
 
     actions = [
+        declare_healthcheck_arg,
         declare_namespace_arg,
         controller_launch,
         healthcheck_launch,
-        microros_launch,
+        # microros_launch,
         laser_filter_node,
         robot_localization_node,
     ]

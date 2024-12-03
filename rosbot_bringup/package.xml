@@ -16,22 +16,21 @@
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
+  <exec_depend>laser_filters</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-  <exec_depend>laser_filters</exec_depend>
-  <exec_depend>rosbot_controller</exec_depend>
-  <exec_depend>robot_localization</exec_depend>
   <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == hardware)">micro_ros_agent</exec_depend>
   <exec_depend condition="($HUSARION_ROS_BUILD_TYPE == hardware)">micro_ros_msgs</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+  <exec_depend>rosbot_controller</exec_depend>
 
-  <test_depend>python3-pytest</test_depend>
   <test_depend>launch</test_depend>
-  <test_depend>launch_ros</test_depend>
   <test_depend>launch_pytest</test_depend>
-
+  <test_depend>launch_ros</test_depend>
+  <test_depend>nav_msgs</test_depend>
+  <test_depend>python3-pytest</test_depend>
   <test_depend>robot_localization</test_depend>
   <test_depend>rosbot_controller</test_depend>
-  <test_depend>nav_msgs</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
