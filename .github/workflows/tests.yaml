@@ -6,16 +6,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  black:
-    name: Black
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Black
-        uses: psf/black@23.11.0
-        with:
-          options: --line-length=99
+  pre-commit:
+    name: Pre-commit
+    uses: ros-controls/ros2_control_ci/.github/workflows/reusable-pre-commit.yml@master
+    with:
+      ros_distro: humble
 
   industrial_ci:
     name: Industrial CI

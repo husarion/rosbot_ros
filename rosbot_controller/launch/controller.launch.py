@@ -23,38 +23,33 @@ from launch.substitutions import (
     PathJoinSubstitution,
     PythonExpression,
 )
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
+    mecanum = LaunchConfiguration("mecanum")
+    simulation_engine = LaunchConfiguration("simulation_engine")
+    use_sim = LaunchConfiguration("use_sim", default="False")
+
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
         description="Adds a namespace to all running nodes.",
     )
 
-    mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
         description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
     )
 
-    simulation_engine = LaunchConfiguration("simulation_engine")
     declare_simulation_engine_arg = DeclareLaunchArgument(
         "simulation_engine",
         default_value="ignition-gazebo",
         description="Which simulation engine to be used",
         choices=["ignition-gazebo", "webots"],
-    )
-
-    use_sim = LaunchConfiguration("use_sim")
-    declare_use_sim_arg = DeclareLaunchArgument(
-        "use_sim",
-        default_value="False",
-        description="Whether simulation is used",
     )
 
     controller_config_name = PythonExpression(
@@ -183,8 +178,6 @@ def generate_launch_description():
             declare_namespace_arg,
             declare_mecanum_arg,
             declare_simulation_engine_arg,
-            declare_use_sim_arg,
-            SetParameter("use_sim_time", value=use_sim),
             control_node,
             robot_state_pub_node,
             delayed_spawner_nodes,
