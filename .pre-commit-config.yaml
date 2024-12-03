@@ -93,11 +93,6 @@ repos:
         args: [--max-line-length=100, --ignore=D001]
         exclude: ^.*\/CHANGELOG\.rst/.*$
 
-  - repo: https://github.com/comkieffer/pre-commit-xmllint.git
-    rev: 1.0.0
-    hooks:
-      - id: xmllint
-
   - repo: https://github.com/tier4/pre-commit-hooks-ros
     rev: v0.10.0
     hooks:
