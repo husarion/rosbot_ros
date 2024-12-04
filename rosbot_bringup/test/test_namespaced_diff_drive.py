@@ -39,9 +39,9 @@ def generate_test_description():
             )
         ),
         launch_arguments={
-            "use_sim": "False",
-            "mecanum": "False",
-            "namespace": "rosbot2r",
+            "healthcheck": "False",
+            "namespace": "rosbot",
+            "microros": "False",
         }.items(),
     )
 
@@ -52,7 +52,7 @@ def generate_test_description():
 def test_namespaced_bringup_startup_success():
     rclpy.init()
     try:
-        node = BringupTestNode("test_bringup", namespace="rosbot2r")
+        node = BringupTestNode("test_bringup", namespace="rosbot")
         node.create_test_subscribers_and_publishers()
         node.start_publishing_fake_hardware()
 

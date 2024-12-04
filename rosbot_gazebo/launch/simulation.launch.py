@@ -28,7 +28,6 @@ from nav2_common.launch import ParseMultiRobotPose
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
-    mecanum = LaunchConfiguration("mecanum")
     x = LaunchConfiguration("x", default="0.0")
     y = LaunchConfiguration("y", default="2.0")
     z = LaunchConfiguration("z", default="0.0")
@@ -40,14 +39,6 @@ def generate_launch_description():
         "namespace",
         default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
         description="Namespace for all topics and tfs",
-    )
-
-    declare_mecanum_arg = DeclareLaunchArgument(
-        "mecanum",
-        default_value="False",
-        description=(
-            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
-        ),
     )
 
     declare_robots_arg = DeclareLaunchArgument(
@@ -100,7 +91,6 @@ def generate_launch_description():
                 )
             ),
             launch_arguments={
-                "mecanum": mecanum,
                 "use_sim": "True",
                 "namespace": robot_name,
                 "x": init_pose["x"],
@@ -117,7 +107,6 @@ def generate_launch_description():
     return LaunchDescription(
         [
             declare_namespace_arg,
-            declare_mecanum_arg,
             declare_robots_arg,
             SetParameter(name="use_sim_time", value=True),
             gz_sim,

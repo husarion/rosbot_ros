@@ -44,11 +44,13 @@ def generate_test_description():
             )
         ),
         launch_arguments={
-            "mecanum": "True",
             "gz_headless_mode": "True",
             "gz_world": PathJoinSubstitution(
                 [FindPackageShare("husarion_gz_worlds"), "worlds", "empty_with_plugins.sdf"]
             ),
+            "healthcheck": "False",
+            "mecanum": "True",
+            "microros": "False",
         }.items(),
     )
 

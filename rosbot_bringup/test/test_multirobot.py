@@ -43,9 +43,9 @@ def generate_test_description():
                 )
             ),
             launch_arguments={
-                "use_sim": "False",
-                "mecanum": "False",
+                "healthcheck": "False",
                 "namespace": robot_names[i],
+                "microros": "False",
             }.items(),
         )
 

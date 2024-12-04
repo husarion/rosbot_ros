@@ -48,7 +48,9 @@ def generate_test_description():
             "gz_world": PathJoinSubstitution(
                 [FindPackageShare("husarion_gz_worlds"), "worlds", "empty_with_plugins.sdf"]
             ),
-            "namespace": "rosbot2r",
+            "healthcheck": "False",
+            "microros": "False",
+            "namespace": "rosbot",
         }.items(),
     )
 
@@ -66,7 +68,7 @@ def generate_test_description():
 def test_namespaced_diff_drive_simulation():
     rclpy.init()
     try:
-        node = SimulationTestNode("test_namespaced_diff_drive_simulation", namespace="rosbot2r")
+        node = SimulationTestNode("test_namespaced_diff_drive_simulation", namespace="rosbot")
         Thread(target=lambda node: rclpy.spin(node), args=(node,)).start()
 
         diff_test(node)

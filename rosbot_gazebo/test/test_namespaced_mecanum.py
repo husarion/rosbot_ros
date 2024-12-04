@@ -48,8 +48,10 @@ def generate_test_description():
             "gz_world": PathJoinSubstitution(
                 [FindPackageShare("husarion_gz_worlds"), "worlds", "empty_with_plugins.sdf"]
             ),
+            "healthcheck": "False",
             "mecanum": "True",
-            "namespace": "rosbot2r",
+            "microros": "False",
+            "namespace": "rosbot",
         }.items(),
     )
 
@@ -67,7 +69,7 @@ def generate_test_description():
 def test_namespaced_mecanum_simulation():
     rclpy.init()
     try:
-        node = SimulationTestNode("test_namespaced_mecanum_simulation", namespace="rosbot2r")
+        node = SimulationTestNode("test_namespaced_mecanum_simulation", namespace="rosbot")
         Thread(target=lambda node: rclpy.spin(node), args=(node,)).start()
 
         mecanum_test(node)

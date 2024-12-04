@@ -97,11 +97,7 @@ export HUSARION_ROS_BUILD_TYPE=simulation
 
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
 vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos
-
-# Build only imu_sensor_broadcaster from ros2_controllers
-cp -r src/ros2_controllers/imu_sensor_broadcaster src && rm -rf src/ros2_controllers
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO

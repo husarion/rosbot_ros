@@ -26,7 +26,6 @@ from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
-    mecanum = LaunchConfiguration("mecanum")
     namespace = LaunchConfiguration("namespace")
     x = LaunchConfiguration("x")
     y = LaunchConfiguration("y")
@@ -34,14 +33,6 @@ def generate_launch_description():
     roll = LaunchConfiguration("roll")
     pitch = LaunchConfiguration("pitch")
     yaw = LaunchConfiguration("yaw")
-
-    declare_mecanum_arg = DeclareLaunchArgument(
-        "mecanum",
-        default_value="False",
-        description=(
-            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
-        ),
-    )
 
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
@@ -155,7 +146,6 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "mecanum": mecanum,
             "use_sim": "True",
             "namespace": namespace,
         }.items(),
@@ -163,7 +153,6 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_mecanum_arg,
             declare_namespace_arg,
             declare_x_arg,
             declare_y_arg,

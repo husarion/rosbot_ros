@@ -17,21 +17,18 @@ import os
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    IncludeLaunchDescription,
+    LogInfo,
     OpaqueFunction,
     SetEnvironmentVariable,
 )
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, ThisLaunchFileDir
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_microros_agent_node(context, *args, **kwargs):
-    # Additional environment variable setup actions
     env_setup_actions = []
 
-    # Check if ROS_DOMAIN_ID is set and not empty
     ros_domain_id = os.environ.get("ROS_DOMAIN_ID")
     if ros_domain_id:
         env_setup_actions.append(
@@ -45,12 +42,16 @@ def generate_microros_agent_node(context, *args, **kwargs):
     ).perform(context)
 
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
-        # with localhost only setup fastdds is required with a custom config
-        rmw_implementation = "rmw_fastrtps_cpp"
-
         env_setup_actions.extend(
             [
-                SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value=rmw_implementation),
+                LogInfo(
+                    msg=[
+                        "ROS_LOCALHOST_ONLY set to 1. Using FASTRTPS_DEFAULT_PROFILES_FILE=",
+                        localhost_only_fastrtps_profiles_file,
+                        ".",
+                    ]
+                ),
+                SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value="rmw_fastrtps_cpp"),
                 SetEnvironmentVariable(
                     name="FASTRTPS_DEFAULT_PROFILES_FILE",
                     value=localhost_only_fastrtps_profiles_file,
@@ -88,12 +89,9 @@ def generate_launch_description():
         "serial_baudrate", default_value="576000", description="Baud rate for serial communication"
     )
 
-    # Locate the rosbot_bringup package
-    package_dir = FindPackageShare("rosbot_bringup").find("rosbot_bringup")
-
-    # Construct the path to the XML file within the package
-    fastrtps_profiles_file = os.path.join(package_dir, "config", "microros_localhost_only.xml")
-
+    fastrtps_profiles_file = PathJoinSubstitution(
+        [FindPackageShare("rosbot_bringup"), "config", "microros_localhost_only.xml"]
+    )
     declare_localhost_only_fastrtps_profiles_file_arg = DeclareLaunchArgument(
         "localhost_only_fastrtps_profiles_file",
         default_value=fastrtps_profiles_file,
@@ -103,16 +101,11 @@ def generate_launch_description():
         ),
     )
 
-    bringup_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([ThisLaunchFileDir(), "/bringup.launch.py"])
-    )
-
     return LaunchDescription(
         [
             declare_serial_port_arg,
             declare_serial_baudrate_arg,
             declare_localhost_only_fastrtps_profiles_file_arg,
             OpaqueFunction(function=generate_microros_agent_node),
-            bringup_launch,
         ]
     )

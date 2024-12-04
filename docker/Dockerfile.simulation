@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
     # Setup workspace
     vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos && \
     vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos && \
-    rm -rf src/ros2_controllers && \
+    # cp -r src/ros2_controllers/imu_sensor_broadcaster src && \
+    # rm -rf src/ros2_controllers && \
     # Install dependencies
     rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \
