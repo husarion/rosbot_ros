@@ -31,13 +31,6 @@ def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     use_sim = LaunchConfiguration("use_sim", default="False")
 
-    declare_healthcheck_arg = DeclareLaunchArgument(
-        "healthcheck",
-        default_value="True",
-        description="Check if all node are up and ready, if not emit shutdown signal.",
-        choices=["True", "true", "False", "false"],
-    )
-
     declare_microros_arg = DeclareLaunchArgument(
         "microros",
         default_value="True",
@@ -105,7 +98,6 @@ def generate_launch_description():
     )
 
     actions = [
-        declare_healthcheck_arg,
         declare_microros_arg,
         declare_namespace_arg,
         controller_launch,
