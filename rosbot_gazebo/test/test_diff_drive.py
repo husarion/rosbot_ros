@@ -49,6 +49,7 @@ def generate_test_description():
                 [FindPackageShare("husarion_gz_worlds"), "worlds", "empty_with_plugins.sdf"]
             ),
             "healthcheck": "False",
+            "microros": "False",
         }.items(),
     )
 

@@ -14,17 +14,20 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression,
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    microros = LaunchConfiguration("microros")
     namespace = LaunchConfiguration("namespace")
     use_sim = LaunchConfiguration("use_sim", default="False")
 
@@ -32,6 +35,13 @@ def generate_launch_description():
         "healthcheck",
         default_value="True",
         description="Check if all node are up and ready, if not emit shutdown signal.",
+        choices=["True", "true", "False", "false"],
+    )
+
+    declare_microros_arg = DeclareLaunchArgument(
+        "microros",
+        default_value="True",
+        description="Automatically connect with hardware using microros.",
         choices=["True", "true", "False", "false"],
     )
 
@@ -60,12 +70,12 @@ def generate_launch_description():
         )
     )
 
-    # microros_launch = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
-    #     ),
-    #     condition=UnlessCondition([use_sim]),
-    # )
+    microros_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
+        ),
+        condition=IfCondition(PythonExpression([microros, " and not ", use_sim])),
+    )
 
     ekf_config = PathJoinSubstitution([rosbot_bringup, "config", "ekf.yaml"])
 
@@ -97,10 +107,11 @@ def generate_launch_description():
 
     actions = [
         declare_healthcheck_arg,
+        declare_microros_arg,
         declare_namespace_arg,
         controller_launch,
         healthcheck_launch,
-        # microros_launch,
+        microros_launch,
         laser_filter_node,
         robot_localization_node,
     ]

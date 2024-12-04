@@ -80,7 +80,7 @@ def check_controller_status(context):
 
     if missing_nodes:
         print(
-            f"{red_color}Error: some nodes are missing: {missing_nodes}. Emitting shutdown...{reset_color}"
+            f"{red_color}Error: Some nodes are not initialized: {missing_nodes}. Emitting shutdown...{reset_color}"
         )
         return [EmitEvent(event=Shutdown())]
     else:

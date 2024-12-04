@@ -41,7 +41,7 @@ def generate_test_description():
         launch_arguments={
             "healthcheck": "False",
             "namespace": "rosbot",
-            "use_sim": "False",
+            "microros": "False",
         }.items(),
     )
 

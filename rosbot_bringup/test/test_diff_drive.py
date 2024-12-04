@@ -40,7 +40,7 @@ def generate_test_description():
         ),
         launch_arguments={
             "healthcheck": "False",
-            "use_sim": "False",
+            "microros": "False",
         }.items(),
     )
 

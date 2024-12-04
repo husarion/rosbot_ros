@@ -42,7 +42,7 @@ def generate_test_description():
             "healthcheck": "False",
             "mecanum": "True",
             "namespace": "rosbot",
-            "use_sim": "False",
+            "microros": "False",
         }.items(),
     )
 

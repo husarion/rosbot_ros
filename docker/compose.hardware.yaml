@@ -16,7 +16,7 @@ services:
       - ${SERIAL_PORT:-/dev/ttyUSB0}
       - /dev/bus/usb/ # FTDI
     command: >
-      ros2 launch rosbot_bringup combined.launch.py
+      ros2 launch rosbot_bringup bringup.launch.py
         mecanum:=${MECANUM:-False}
         namespace:=${ROBOT_NAMESPACE:-rosbot}
         serial_port:=${SERIAL_PORT:-/dev/ttyUSB0}

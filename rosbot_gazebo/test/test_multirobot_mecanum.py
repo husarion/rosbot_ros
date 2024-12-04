@@ -44,6 +44,7 @@ def generate_test_description():
             f"gz_world:={gz_world_path}",
             "healthcheck:=False",
             "mecanum:=True",
+            "microros:=False",
             "robots:=robot1={y: -4.0}; robot2={y: 0.0};",
         ],
         output="screen",

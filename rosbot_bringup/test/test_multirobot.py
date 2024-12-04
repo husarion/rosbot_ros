@@ -45,7 +45,7 @@ def generate_test_description():
             launch_arguments={
                 "healthcheck": "False",
                 "namespace": robot_names[i],
-                "use_sim": "False",
+                "microros": "False",
             }.items(),
         )
 
