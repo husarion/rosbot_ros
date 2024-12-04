@@ -171,8 +171,11 @@ def generate_launch_description():
     )
 
     def check_if_log_is_fatal(event):
+        red_color = "\033[91m"
+        reset_color = "\033[0m"
         if "fatal" in event.text.decode().lower():
-            return EmitEvent(event=Shutdown(reason=f"Fatal error: {event.text}"))
+            print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
+            return EmitEvent(event=Shutdown(reason="Spawner failed"))
 
     joint_state_monitor = RegisterEventHandler(
         OnProcessIO(
