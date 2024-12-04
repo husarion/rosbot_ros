@@ -23,8 +23,8 @@
       <ros2_control name="${ns}imu" type="sensor">
         <hardware>
           <plugin>rosbot_hardware_interfaces/RosbotImuSensor</plugin>
-          <param name="connection_timeout_ms">120000</param>
-          <param name="connection_check_period_ms">500</param>
+          <param name="connection_timeout_ms">30000</param>
+          <param name="connection_check_period_ms">1000</param>
         </hardware>
         <sensor name="${ns}imu">
           <state_interface name="orientation.x" />
@@ -45,8 +45,8 @@
       <hardware>
         <xacro:unless value="$(arg use_sim)">
           <plugin>rosbot_hardware_interfaces/RosbotSystem</plugin>
-          <param name="connection_timeout_ms">120000</param>
-          <param name="connection_check_period_ms">500</param>
+          <param name="connection_timeout_ms">30000</param>
+          <param name="connection_check_period_ms">1000</param>
 
           <!-- Firmware from https://github.com/husarion/rosbot_ros2_firmware could not override this names -->
           <param name="velocity_command_joint_order">

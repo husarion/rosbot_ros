@@ -28,6 +28,7 @@ RUN mkdir -p /home/$USERNAME/ros2_ws/src && \
     echo 'source /home/'$USERNAME'/ros2_ws/install/setup.bash' >> /home/$USERNAME/.bashrc
 
 ENV TERM=xterm-256color
+ENV RCUTILS_COLORIZED_OUTPUT=1
 
 # Setup entrypoint
 COPY ./ros_entrypoint.sh /

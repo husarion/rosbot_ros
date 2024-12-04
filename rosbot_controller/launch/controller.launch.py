@@ -14,8 +14,15 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, TimerAction
+from launch.actions import (
+    DeclareLaunchArgument,
+    EmitEvent,
+    RegisterEventHandler,
+    TimerAction,
+)
 from launch.conditions import UnlessCondition
+from launch.event_handlers import OnProcessIO
+from launch.events import Shutdown
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -173,6 +180,29 @@ def generate_launch_description():
         ],
     )
 
+    def check_if_log_is_fatal(event):
+        if "fatal" in event.text.decode().lower():
+            return EmitEvent(event=Shutdown(reason=f"Fatal error: {event.text}"))
+
+    joint_state_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=joint_state_broadcaster_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+    robot_controller_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=robot_controller_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+    imu_broadcaster_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=imu_broadcaster_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+
     return LaunchDescription(
         [
             declare_namespace_arg,
@@ -181,5 +211,8 @@ def generate_launch_description():
             control_node,
             robot_state_pub_node,
             delayed_spawner_nodes,
+            joint_state_monitor,
+            robot_controller_monitor,
+            imu_broadcaster_monitor,
         ]
     )
