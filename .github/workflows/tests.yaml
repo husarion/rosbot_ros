@@ -37,7 +37,6 @@ jobs:
       - name: Leave only ROSbot tests
         shell: bash
         run: |
-          sed '/if(BUILD_TESTING)/,/endif()/d' src/imu_sensor_broadcaster/CMakeLists.txt -i
           sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
 
       - name: Running ROS Industrial CI
