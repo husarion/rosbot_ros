@@ -15,6 +15,8 @@ services:
     devices:
       - ${SERIAL_PORT:-/dev/ttyUSB0}
       - /dev/bus/usb/ # FTDI
+    environment:
+      - USER
     command: >
       ros2 launch rosbot_bringup bringup.launch.py
         mecanum:=${MECANUM:-False}

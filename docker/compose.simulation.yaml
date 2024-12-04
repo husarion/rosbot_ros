@@ -9,6 +9,7 @@ x-gpu-config:
   &gpu-config
   runtime: nvidia
   environment:
+    - USER
     - DISPLAY=${DISPLAY:?err}
     - NVIDIA_VISIBLE_DEVICES=all
     - NVIDIA_DRIVER_CAPABILITIES=all
@@ -16,6 +17,7 @@ x-gpu-config:
 x-cpu-config:
   &cpu-config
   environment:
+    - USER
     - DISPLAY=${DISPLAY:?err}
 
 services:
