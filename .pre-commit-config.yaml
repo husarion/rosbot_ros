@@ -8,7 +8,7 @@ repos:
         args: [--maxkb=3000]
       - id: check-ast
       - id: check-json
-        exclude: ^.vscode/
+        exclude: ^.vscode/|^.devcontainer/
       - id: check-merge-conflict
       - id: check-symlinks
       - id: check-xml
