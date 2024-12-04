@@ -12,6 +12,7 @@ RUN apt update -q && \
         ros-dev-tools \
         ros-$ROS_DISTRO-plotjuggler \
         ros-$ROS_DISTRO-plotjuggler-ros \
+        ros-$ROS_DISTRO-rqt* \
         ros-$ROS_DISTRO-rviz2 \
         ros-$ROS_DISTRO-teleop-twist-keyboard
 

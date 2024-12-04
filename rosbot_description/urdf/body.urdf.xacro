@@ -74,10 +74,10 @@
     <joint name="body_to_camera_joint" type="fixed">
       <origin xyz="-0.0141 0.0 0.125" rpy="0.0 0.0 0.0" />
       <parent link="body_link" />
-      <child link="camera_link" />
+      <child link="camera_mount_link" />
     </joint>
 
-    <link name="camera_link" />
+    <link name="camera_mount_link" />
 
     <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926  0.05 0.015"   rpy="0.0 0.0 ${radians(12.5)}"  prefix="fl" namespace="${namespace}" />
     <xacro:range_sensor.vl53lox parent="body_link" xyz="0.0926 -0.05 0.015"   rpy="0.0 0.0 ${radians(-12.5)}" prefix="fr" namespace="${namespace}" />

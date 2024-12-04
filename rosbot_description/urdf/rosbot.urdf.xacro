@@ -3,31 +3,25 @@
 
   <xacro:arg name="use_sim" default="false" />
   <xacro:arg name="mecanum" default="false" />
-  <xacro:arg name="simulation_engine" default="ignition-gazebo" />
   <xacro:arg name="namespace" default="None" />
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
   <xacro:husarion.rosbot_robot
     mecanum="$(arg mecanum)"
     use_sim="$(arg use_sim)"
-    simulation_engine="$(arg simulation_engine)"
     namespace="$(arg namespace)" />
 
-    <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
-    <xacro:lidar.slamtec_rplidar_a2
+    <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar.urdf.xacro" ns="lidar" />
+    <xacro:lidar.slamtec_rplidar
       parent_link="cover_link"
       xyz="0.02 0.0 0.0"
       rpy="0.0 0.0 0.0"
-      use_gpu="true"
-      namespace="$(arg namespace)"
-      simulation_engine="$(arg simulation_engine)" />
+      model="a3" />
 
     <xacro:include filename="$(find ros_components_description)/urdf/orbbec_astra.urdf.xacro" ns="camera" />
     <xacro:camera.orbbec_astra
-      parent_link="camera_link"
+      parent_link="camera_mount_link"
       xyz="0.0 0.0 0.0"
-      rpy="0.0 0.0 0.0"
-      namespace="$(arg namespace)"
-      simulation_engine="$(arg simulation_engine)" />
+      rpy="0.0 0.0 0.0" />
 
 </robot>

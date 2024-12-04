@@ -6,11 +6,11 @@ repositories:
   husarion_gz_worlds:
     type: git
     url: https://github.com/husarion/husarion_gz_worlds
-    version: 7237a7d67a476a480a74ccd3a510b76a581288c3
+    version: ce6069b167682f3e2528975a3f6968ec666a639d
   ros_components_description:
     type: git
     url: https://github.com/husarion/ros_components_description.git
-    version: 1cb25600afa5941d21d48c0af8e63ad2eb3afaa0
+    version: e3bde248a766b71b134374abdfcfd95c226c3532
 # fix no provided for jazzy
 #  ros2_controllers: # Bug: There is no nice way to change `sensor_name` imu_bradcaster param when spawning multiple robots -> ros2_control refer only to single imu entity
 #    type: git

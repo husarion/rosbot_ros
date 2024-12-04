@@ -38,8 +38,8 @@ ros2 launch rosbot_gazebo simulation.launch.py robots:='robot1={x: 0.0, y: -1.0}
 If you want to use your own world add to the world's sdf file gazebo sensors plugins inside any `<model>` tag:
 
 ```xml
-<plugin filename="ignition-gazebo-imu-system" name="gz::sim::systems::Imu"/>
-<plugin filename="ignition-gazebo-sensors-system" name="gz::sim::systems::Sensors"/>
+<plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+<plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors"/>
 ```
 
 > **Warning**

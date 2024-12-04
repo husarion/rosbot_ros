@@ -16,7 +16,7 @@
 from threading import Event
 
 import rclpy
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, TwistStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from sensor_msgs.msg import Image, Imu, JointState, LaserScan, PointCloud2
@@ -35,7 +35,7 @@ class SimulationTestNode(Node):
 
     def __init__(self, name="test_node", namespace=None):
         super().__init__(name, namespace=namespace)
-        self.cmd_vel_pub = self.create_publisher(Twist, "cmd_vel", 10)
+        self.cmd_vel_pub = self.create_publisher(TwistStamped, "cmd_vel", 10)
 
         # Robot callback
         self.joint_sub = self.create_subscription(
@@ -185,11 +185,12 @@ class SimulationTestNode(Node):
             self.camera_points_event.set()
 
     def publish_cmd_vel_msg(self):
-        twist_msg = Twist()
+        twist_msg = TwistStamped()
 
-        twist_msg.linear.x = self.v_x
-        twist_msg.linear.y = self.v_y
-        twist_msg.angular.z = self.v_yaw
+        twist_msg.header.stamp = self.get_clock().now().to_msg()
+        twist_msg.twist.linear.x = self.v_x
+        twist_msg.twist.linear.y = self.v_y
+        twist_msg.twist.angular.z = self.v_yaw
 
         self.cmd_vel_pub.publish(twist_msg)
 
@@ -211,13 +212,14 @@ def x_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_na
         f" {(node.current_time - node.goal_received_time):.1f}."
     )
     assert node.is_controller_odom_correct, (
-        f"{robot_name}: does not move properly in x direction. Check"
-        f" rosbot_base_controller! Twist: {node.twist}"
+        f"{robot_name}: does not move properly in x direction. Check rosbot_base_controller!"
+        f"\nTwist: {node.controller_twist}"
         f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
     assert node.is_ekf_odom_correct, (
         f"{robot_name}: does not move properly in x direction. Check ekf_filter_node!"
-        f" Twist: {node.twist}"
+        f" Twist: {node.ekf_twist}"
+        f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
 
 
@@ -230,13 +232,14 @@ def y_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_na
         f" {(node.current_time - node.goal_received_time):.1f}."
     )
     assert node.is_controller_odom_correct, (
-        f"{robot_name} does not move properly in y direction. Check"
-        f" rosbot_base_controller! Twist: {node.twist}"
+        f"{robot_name}: does not move properly in y direction. Check rosbot_base_controller!"
+        f"\nTwist: {node.controller_twist}"
         f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
     assert node.is_ekf_odom_correct, (
-        f"{robot_name} does not move properly in y direction. Check ekf_filter_node!"
-        f" Twist: {node.twist}"
+        f"{robot_name}: does not move properly in y direction. Check ekf_filter_node!"
+        f"\nTwist: {node.ekf_twist}"
+        f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
 
 
