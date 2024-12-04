@@ -65,7 +65,7 @@ class FirmwareFlasher:
         self.enter_bootloader_mode()
         sh.usbreset("0403:6015")
         for i in range(self.max_approach_no):
-            print(f"Attempt {i+1}/{self.max_approach_no}")
+            print(f"Attempt {i + 1}/{self.max_approach_no}")
             try:
                 if operation_name == "Flashing":
                     flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]

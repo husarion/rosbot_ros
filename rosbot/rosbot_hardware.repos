@@ -18,4 +18,4 @@ repositories:
   rosbot_hardware_interfaces:
     type: git
     url: https://github.com/husarion/rosbot_hardware_interfaces.git
-    version: 2ff82cd9bfcb9692ab606ad3ae57fe209ad49548
+    version: b699e375a677ef53fa31c5fc27766c2df35e39c3
