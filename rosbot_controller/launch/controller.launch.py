@@ -14,8 +14,15 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, TimerAction
+from launch.actions import (
+    DeclareLaunchArgument,
+    EmitEvent,
+    RegisterEventHandler,
+    TimerAction,
+)
 from launch.conditions import UnlessCondition
+from launch.event_handlers import OnProcessIO
+from launch.events import Shutdown
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -30,7 +37,6 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     mecanum = LaunchConfiguration("mecanum")
-    simulation_engine = LaunchConfiguration("simulation_engine")
     use_sim = LaunchConfiguration("use_sim", default="False")
 
     declare_namespace_arg = DeclareLaunchArgument(
@@ -43,13 +49,6 @@ def generate_launch_description():
         "mecanum",
         default_value="False",
         description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
-    )
-
-    declare_simulation_engine_arg = DeclareLaunchArgument(
-        "simulation_engine",
-        default_value="ignition-gazebo",
-        description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "webots"],
     )
 
     controller_config_name = PythonExpression(
@@ -84,8 +83,6 @@ def generate_launch_description():
             mecanum,
             " namespace:=",
             namespace,
-            " simulation_engine:=",
-            simulation_engine,
             " use_sim:=",
             use_sim,
         ]
@@ -108,7 +105,7 @@ def generate_launch_description():
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
-            ("rosbot_base_controller/cmd_vel_unstamped", "cmd_vel"),
+            ("rosbot_base_controller/cmd_vel", "cmd_vel"),
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
         ],
@@ -173,13 +170,41 @@ def generate_launch_description():
         ],
     )
 
+    def check_if_log_is_fatal(event):
+        red_color = "\033[91m"
+        reset_color = "\033[0m"
+        if "fatal" in event.text.decode().lower():
+            print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
+            return EmitEvent(event=Shutdown(reason="Spawner failed"))
+
+    joint_state_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=joint_state_broadcaster_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+    robot_controller_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=robot_controller_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+    imu_broadcaster_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=imu_broadcaster_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+
     return LaunchDescription(
         [
             declare_namespace_arg,
             declare_mecanum_arg,
-            declare_simulation_engine_arg,
             control_node,
             robot_state_pub_node,
             delayed_spawner_nodes,
+            joint_state_monitor,
+            robot_controller_monitor,
+            imu_broadcaster_monitor,
         ]
     )
