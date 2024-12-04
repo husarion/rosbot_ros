@@ -10,7 +10,7 @@ repositories:
   ros_components_description:
     type: git
     url: https://github.com/husarion/ros_components_description.git
-    version: e3bde248a766b71b134374abdfcfd95c226c3532
+    version: d34d27edb3abc12ee6d197d0d513e00fe9a5604e
 # fix no provided for jazzy
 #  ros2_controllers: # Bug: There is no nice way to change `sensor_name` imu_bradcaster param when spawning multiple robots -> ros2_control refer only to single imu entity
 #    type: git
