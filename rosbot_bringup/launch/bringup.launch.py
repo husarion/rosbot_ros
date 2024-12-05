@@ -13,7 +13,12 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    IncludeLaunchDescription,
+    LogInfo,
+    TimerAction,
+)
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
@@ -56,12 +61,6 @@ def generate_launch_description():
         }.items(),
     )
 
-    healthcheck_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([rosbot_bringup, "launch", "healthcheck.launch.py"])
-        )
-    )
-
     microros_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
@@ -97,14 +96,22 @@ def generate_launch_description():
         namespace=namespace,
     )
 
+    green_color = "\033[92m"
+    reset_color = "\033[0m"
+
+    status_info = TimerAction(
+        period=LaunchConfiguration("status_timeout", default_value="15.0"),
+        actions=[LogInfo(msg=f"{green_color}All systems are up and running!{reset_color}")],
+    )
+
     actions = [
         declare_microros_arg,
         declare_namespace_arg,
         controller_launch,
-        healthcheck_launch,
         microros_launch,
         laser_filter_node,
         robot_localization_node,
+        status_info,
     ]
 
     return LaunchDescription(actions)
