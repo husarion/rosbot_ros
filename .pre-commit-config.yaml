@@ -85,6 +85,7 @@ repos:
         stages: [commit]
         entry: ament_copyright
         language: system
+        exclude: ^.*\.md$
 
   - repo: https://github.com/PyCQA/doc8
     rev: v1.1.2
