@@ -13,7 +13,7 @@ alias teleop := run-teleop-docker
 # run teleop_twist_keybaord (inside rviz2 container)
 run-teleop-docker: _run-as-user
     #!/bin/bash
-    docker compose exec rosbot /bin/bash -c "/ros_entrypoint.sh ros2 run teleop_twist_keyboard teleop_twist_keyboard" # --ros-args -r __ns:=/${ROS_NAMESPACE}"
+    docker compose exec rosbot /bin/bash -c "/ros_entrypoint.sh ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r __ns:=/${ROBOT_NAMESPACE}"
 
 flash-firmware: _install-yq _run-as-user
     #!/bin/bash
@@ -29,9 +29,9 @@ flash-firmware: _install-yq _run-as-user
         gpio_chip=/dev/gpiochip4
         serial_port=/dev/ttyS4
     else
-        echo "Probably user laptop"
+        echo "Probably user computer"
         gpio_chip=/dev/bus/usb
-        serial_port=$SERIAL_PORT
+        serial_port=/dev/ttyUSB0
         enable_usb="--usb"
     fi
 
@@ -42,13 +42,13 @@ flash-firmware: _install-yq _run-as-user
         docker-rosbot \
         ros2 run rosbot_utils flash_firmware ${enable_usb}
 
-run:
+run_hardware:
     #/bin/bash
-    docker compose up
+    docker compose -f compose.hardware.yaml up
 
-build:
+build_hardware:
     #/bin/bash
-    docker compose build
+    docker compose -f compose.hardware.yaml build
 
 _run-as-root:
     #!/bin/bash

@@ -6,25 +6,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  black:
-    name: Black
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Black
-        uses: psf/black@23.11.0
-        with:
-          options: --line-length=99
-
-  spellcheck:
-    name: Spellcheck
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Spellcheck
-        uses: rojopolis/spellcheck-github-actions@0.33.1
+  pre-commit:
+    name: Pre-commit
+    uses: ros-controls/ros2_control_ci/.github/workflows/reusable-pre-commit.yml@master
+    with:
+      ros_distro: humble
 
   industrial_ci:
     name: Industrial CI
@@ -36,20 +22,15 @@ jobs:
         ROS_DISTRO: [humble]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Act + Docker fix
-        run: |
-          sudo chown runner:docker /var/run/docker.sock
+        uses: actions/checkout@v4
 
       - name: Setup ROS2 Workspace and Clone Repositories
         run: |
-          mkdir -p src
-          find . -maxdepth 1 -not -name src -not -name . -exec mv {} src/ \;
+          mkdir -p src/rosbot_ros
+          find . -maxdepth 1 -not -name src -not -name . -exec mv {} src/rosbot_ros \;
           python3 -m pip install -U vcstool
-          vcs import src < src/rosbot/rosbot_hardware.repos
-          vcs import src < src/rosbot/rosbot_simulation.repos
-          cp -r src/ros2_controllers/diff_drive_controller src/
+          vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
+          vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos
           cp -r src/ros2_controllers/imu_sensor_broadcaster src/
           rm -rf src/ros2_controllers
 
@@ -58,7 +39,6 @@ jobs:
       - name: Leave only ROSbot tests
         shell: bash
         run: |
-          sed '/if(BUILD_TESTING)/,/endif()/d' src/diff_drive_controller/CMakeLists.txt -i
           sed '/if(BUILD_TESTING)/,/endif()/d' src/imu_sensor_broadcaster/CMakeLists.txt -i
           sed '/if(BUILD_TESTING)/,/endif()/d' src/micro_ros_msgs/CMakeLists.txt -i
 

@@ -31,19 +31,19 @@ from test_utils import SimulationTestNode, diff_test
 
 @launch_pytest.fixture
 def generate_test_description():
-    # IncludeLaunchDescription does not work with robots argument
+    gz_world_path = (
+        get_package_share_directory("husarion_gz_worlds") + "/worlds/empty_with_plugins.sdf"
+    )
     simulation_launch = ExecuteProcess(
         cmd=[
             "ros2",
             "launch",
             "rosbot_gazebo",
             "simulation.launch.py",
-            (
-                f'world:={get_package_share_directory("husarion_gz_worlds")}'
-                "/worlds/empty_with_plugins.sdf"
-            ),
+            "gz_headless_mode:=True",
+            f"gz_world:={gz_world_path}",
+            "microros:=False",
             "robots:=robot1={y: -4.0}; robot2={y: 0.0};",
-            "headless:=True",
         ],
         output="screen",
     )

@@ -14,8 +14,15 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, TimerAction
+from launch.actions import (
+    DeclareLaunchArgument,
+    EmitEvent,
+    RegisterEventHandler,
+    TimerAction,
+)
 from launch.conditions import UnlessCondition
+from launch.event_handlers import OnProcessIO
+from launch.events import Shutdown
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -23,47 +30,25 @@ from launch.substitutions import (
     PathJoinSubstitution,
     PythonExpression,
 )
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
+    mecanum = LaunchConfiguration("mecanum")
+    use_sim = LaunchConfiguration("use_sim", default="False")
+
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
         description="Adds a namespace to all running nodes.",
     )
 
-    mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
-        description=(
-            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
-        ),
-    )
-
-    use_sim = LaunchConfiguration("use_sim")
-    declare_use_sim_arg = DeclareLaunchArgument(
-        "use_sim",
-        default_value="False",
-        description="Whether simulation is used",
-    )
-
-    use_gpu = LaunchConfiguration("use_gpu")
-    declare_use_gpu_arg = DeclareLaunchArgument(
-        "use_gpu",
-        default_value="False",
-        description="Whether GPU acceleration is used",
-    )
-
-    simulation_engine = LaunchConfiguration("simulation_engine")
-    declare_simulation_engine_arg = DeclareLaunchArgument(
-        "simulation_engine",
-        default_value="webots",
-        description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "gazebo-classic", "webots"],
+        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
     )
 
     controller_config_name = PythonExpression(
@@ -83,7 +68,6 @@ def generate_launch_description():
         default=[namespace_ext, "controller_manager"],
     )
 
-    # Get URDF via xacro
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -97,14 +81,10 @@ def generate_launch_description():
             ),
             " mecanum:=",
             mecanum,
-            " use_sim:=",
-            use_sim,
-            " use_gpu:=",
-            use_gpu,
-            " simulation_engine:=",
-            simulation_engine,
             " namespace:=",
             namespace,
+            " use_sim:=",
+            use_sim,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -120,10 +100,7 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[
-            robot_description,
-            robot_controllers,
-        ],
+        parameters=[robot_description, robot_controllers],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
@@ -183,27 +160,51 @@ def generate_launch_description():
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
-    # Wrap the spawner nodes in a TimerAction to delay execution by 2 seconds
+    # spawners expect ros2_control_node to be running
     delayed_spawner_nodes = TimerAction(
-        period=1.0,
+        period=3.0,
         actions=[
-            control_node,
             joint_state_broadcaster_spawner,
             robot_controller_spawner,
             imu_broadcaster_spawner,
         ],
     )
 
+    def check_if_log_is_fatal(event):
+        red_color = "\033[91m"
+        reset_color = "\033[0m"
+        if "fatal" in event.text.decode().lower() or "failed" in event.text.decode().lower():
+            print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
+            return EmitEvent(event=Shutdown(reason="Spawner failed"))
+
+    joint_state_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=joint_state_broadcaster_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+    robot_controller_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=robot_controller_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+    imu_broadcaster_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=imu_broadcaster_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+
     return LaunchDescription(
         [
             declare_namespace_arg,
             declare_mecanum_arg,
-            declare_use_sim_arg,
-            declare_use_gpu_arg,
-            declare_simulation_engine_arg,
-            SetParameter("use_sim_time", value=use_sim),
             control_node,
             robot_state_pub_node,
             delayed_spawner_nodes,
+            joint_state_monitor,
+            robot_controller_monitor,
+            imu_broadcaster_monitor,
         ]
     )

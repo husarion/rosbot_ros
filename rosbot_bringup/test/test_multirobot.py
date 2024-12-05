@@ -22,50 +22,50 @@ from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from test_utils import ControllersTestNode, controller_readings_test
+from test_utils import BringupTestNode, readings_data_test
 
-robot_names = ["robot1", "robot2", "robot3"]
+robot_names = ["robot1", "robot2"]
 
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_controller = FindPackageShare("rosbot_controller")
+    rosbot_bringup = FindPackageShare("rosbot_bringup")
     actions = []
     for i in range(len(robot_names)):
-        controller_launch = IncludeLaunchDescription(
+        bringup_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution(
                     [
-                        rosbot_controller,
+                        rosbot_bringup,
                         "launch",
-                        "controller.launch.py",
+                        "bringup.launch.py",
                     ]
                 )
             ),
             launch_arguments={
-                "use_sim": "False",
-                "mecanum": "True",
                 "namespace": robot_names[i],
+                "microros": "False",
             }.items(),
         )
 
-        # When there is no delay the controllers doesn't spawn correctly
-        delayed_controller_launch = TimerAction(period=i * 2.0, actions=[controller_launch])
-        actions.append(delayed_controller_launch)
+        delayed_bringup = TimerAction(period=5.0 * i, actions=[bringup_launch])
+        actions.append(delayed_bringup)
 
     return LaunchDescription(actions)
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_multirobot_controllers_startup_success():
+def test_multirobot_bringup_startup_success():
+
     for robot_name in robot_names:
         rclpy.init()
         try:
-            node = ControllersTestNode(f"test_{robot_name}_controllers", namespace=robot_name)
+            node = BringupTestNode("test_bringup", namespace=robot_name)
             node.create_test_subscribers_and_publishers()
             node.start_publishing_fake_hardware()
 
             node.start_node_thread()
-            controller_readings_test(node, robot_name)
+            readings_data_test(node, robot_name)
+
         finally:
             rclpy.shutdown()

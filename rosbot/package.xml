@@ -4,7 +4,9 @@
   <name>rosbot</name>
   <version>0.13.2</version>
   <description>Meta package that contains all packages of Rosbot 2 2R PRO</description>
+
   <maintainer email="support@husarion.com">Husarion</maintainer>
+
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
@@ -18,9 +20,8 @@
   <depend>rosbot_bringup</depend>
   <depend>rosbot_controller</depend>
   <depend>rosbot_description</depend>
-  <depend>rosbot_utils</depend>
-
-  <depend condition="($HUSARION_ROS_BUILD == simulation)">rosbot_gazebo</depend>
+  <depend condition="($HUSARION_ROS_BUILD_TYPE == simulation)">rosbot_gazebo</depend>
+  <depend condition="($HUSARION_ROS_BUILD_TYPE == hardware)">rosbot_utils</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

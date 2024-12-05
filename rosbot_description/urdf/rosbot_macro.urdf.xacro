@@ -1,27 +1,16 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="mecanum use_sim use_gpu simulation_engine namespace ">
+  <xacro:macro name="rosbot_robot" params="mecanum use_sim simulation_engine namespace ">
 
-    <xacro:if value="${namespace == 'None'}">
-      <xacro:property name="namespace_ext" value="" />
-    </xacro:if>
-    <xacro:unless value="${namespace == 'None'}">
-        <xacro:property name="namespace_ext" value="${namespace}/" />
-    </xacro:unless>
-
-    <xacro:if value="${mecanum}">
-      <xacro:property name="wheel_radius" value="0.0470" />
-    </xacro:if>
-    <xacro:unless value="${mecanum}">
-      <xacro:property name="wheel_radius" value="0.0425" />
-    </xacro:unless>
+    <xacro:property name="ns" value="${namespace + '/' if namespace != 'None' else ''}" />
+    <xacro:property name="wheel_radius" value="${0.0470 if mecanum else 0.0425}" />
 
     <!-- INCLUDE ROBOT PARTS DEFINITIONS -->
     <xacro:include filename="$(find rosbot_description)/urdf/body.urdf.xacro" ns="body" />
     <xacro:include filename="$(find rosbot_description)/urdf/wheel.urdf.xacro" ns="wheel" />
 
     <!-- BODY DECLARATION -->
-    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" use_gpu="${use_gpu}" namespace="${namespace}" />
+    <xacro:body.body wheel_radius="${wheel_radius}" mecanum="${mecanum}" namespace="${namespace}" />
 
     <!-- WHEEL DECLARATION -->
     <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fr" mecanum="${mecanum}" />
@@ -31,13 +20,13 @@
 
     <!-- ROS2 CONTROL -->
     <xacro:unless value="$(arg use_sim)">
-      <ros2_control name="${namespace_ext}imu" type="sensor">
+      <ros2_control name="${ns}imu" type="sensor">
         <hardware>
           <plugin>rosbot_hardware_interfaces/RosbotImuSensor</plugin>
           <param name="connection_timeout_ms">120000</param>
           <param name="connection_check_period_ms">500</param>
         </hardware>
-        <sensor name="${namespace_ext}imu">
+        <sensor name="${ns}imu">
           <state_interface name="orientation.x" />
           <state_interface name="orientation.y" />
           <state_interface name="orientation.z" />
@@ -52,7 +41,7 @@
       </ros2_control>
     </xacro:unless>
 
-    <ros2_control name="${namespace_ext}wheels" type="system">
+    <ros2_control name="${ns}wheels" type="system">
       <hardware>
         <xacro:unless value="$(arg use_sim)">
           <plugin>rosbot_hardware_interfaces/RosbotSystem</plugin>
@@ -101,7 +90,7 @@
 
       <xacro:if value="${use_sim}">
         <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
-          <sensor name="${namespace_ext}imu">
+          <sensor name="${ns}imu">
             <state_interface name="orientation.x" />
             <state_interface name="orientation.y" />
             <state_interface name="orientation.z" />
@@ -140,16 +129,16 @@
           </plugin>
         </gazebo>
         <gazebo reference="imu_link">
-          <sensor name="${namespace_ext}imu" type="imu">
+          <sensor name="${ns}imu" type="imu">
             <always_on>true</always_on>
             <update_rate>25</update_rate>
-            <topic>${namespace_ext}imu/data_raw</topic>
+            <topic>${ns}imu/data_raw</topic>
             <visualize>false</visualize>
             <enable_metrics>false</enable_metrics>
             <frame_id>imu_link</frame_id>
             <ignition_frame_id>imu_link</ignition_frame_id>
             <ros>
-              <namespace>${namespace_ext}</namespace>
+              <namespace>${namespace}</namespace>
             </ros>
           </sensor>
         </gazebo>
