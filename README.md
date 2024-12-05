@@ -95,6 +95,37 @@ source install/setup.bash
 ros2 launch rosbot_gazebo simulation.launch.py
 ```
 
+### Launch Arguments
+
+| Symbol | Meaning                      |
+| ------ | ---------------------------- |
+| 🤖      | Available for physical robot |
+| 🖥️      | Available in simulation      |
+
+| 🤖   | 🖥️   | Argument            | Description <br/> ***Type:*** `Default`                                                                                                                                                            |
+| --- | --- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅   | ✅   | `namespace`         | Namespace for all topics and tfs. <br/> ***string:*** `env(ROBOT_NAMESPACE)`                                                                                                                       |
+| ✅   | ❌   | `mecanum`           | Whether to use mecanum drive controller (otherwise diff drive controller is used). <br/> ***bool:*** `False`                                                                                       |
+| ✅   | ❌   | `microros`          | Automatically connect with hardware using microros. <br/> ***bool:*** `True`                                                                                                                       |
+| ✅   | ❌   | `serial_baudrate`   | Baud rate for serial communication . <br/> ***string:*** `576000`                                                                                                                                  |
+| ✅   | ❌   | `serial_port`       | Automatically connect with hardware using microros. <br/> ***string:*** `/dev/ttySERIAL`                                                                                                           |
+| ✅   | ❌   | `fastrtps_profiles` | Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only setup. <br/> ***string:*** [`microros_localhost_only.xml`](./rosbot_bringup/config/microros_localhost_only.xml) |
+| ❌   | ✅   | `gz_gui`            | Run simulation with specific GUI layout. <br/> ***string:*** [`teleop.config`](https://github.com/husarion/husarion_gz_worlds/blob/main/config/teleop.config)                                      |
+| ❌   | ✅   | `gz_headless_mode`  | Run the simulation in headless mode. Useful when a GUI is not needed or to reduce the number of calculations. <br/> ***bool:*** `False`                                                            |
+| ❌   | ✅   | `gz_log_level`      | Adjust the level of console output. <br/> ***int:*** `1` (choices: `0`, `1`, `2`, `3`, `4`)                                                                                                        |
+| ❌   | ✅   | `gz_world`          | Absolute path to SDF world file. <br/> ***string:*** [`husarion_world.sdf`](https://github.com/husarion/husarion_gz_worlds/blob/main/worlds/husarion_world.sdf)                                    |
+| ❌   | ✅   | `robots`            | Spawning multiple robots at positions with yaw orientations e.g.robots:='robot1={x: 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0};' <br/> ***string:*** `''`                                             |
+| ❌   | ✅   | `x`                 | Initial robot position in the global 'x' axis. <br/> ***float:*** `0.0`                                                                                                                            |
+| ❌   | ✅   | `y`                 | Initial robot position in the global 'y' axis. <br/> ***float:***`-2.0`                                                                                                                           |
+| ❌   | ✅   | `z`                 | Initial robot position in the global 'z' axis. <br/> ***float:*** `0.0`                                                                                                                            |
+| ❌   | ✅   | `roll`              | Initial robot 'roll' orientation. <br/> ***float:*** `0.0`                                                                                                                                         |
+| ❌   | ✅   | `pitch`             | Initial robot 'pitch' orientation. <br/> ***float:*** `0.0`                                                                                                                                        |
+| ❌   | ✅   | `yaw`               | Initial robot 'yaw' orientation. <br/> ***float:*** `0.0`                                                                                                                                          |
+
+> [!TIP]
+>
+> To read the arguments for individual packages, add the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch rosbot_bringup bringup.launch.py ​​-s`)
+
 ## 🕹️ Demo
 
 Explore demos showcasing the capabilities of ROSbots:

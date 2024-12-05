@@ -17,17 +17,6 @@ Package that contains launch, which starts all base functionalities with the mic
 - `bringup.launch.py` - is responsible for communicating with firmware and activating all logic related to the robot's movement and processing of sensory data.
 - `microros.launch.py` - establishes connection with the firmware.
 
-**Launch Params:**
-
-| PARAMETER                | DESCRIPTION                                                       | VALUE      |
-| ------------------------ | ----------------------------------------------------------------- | ---------- |
-| **camera_model**         | Add camera model to the robot URDF                                | **None**\* |
-| **lidar_model**          | Add LiDAR model to the robot URDF                                 | **None**\* |
-| **include_camera_mount** | Whether to include camera mount to the robot URDF                 | **False**  |
-| **mecanum**              | Whether to use mecanum drive controller, otherwise use diff drive | **False**  |
-| **namespace**            | Namespace for all topics and tfs                                  | **""**     |
-
-> \*You can check all available options using `-s`/`--show-args` flag. (e.g. `ros2 launch rosbot_bringup bringup.launch.py -s`).
 
 ### `rosbot_controller`
 
@@ -52,44 +41,9 @@ Launch files for Ignition Gazebo working with ROS2 control.
 
 - `simulations.launch.py` - running a rosbot in Gazebo simulator and simulate all specified sensors.
 
-**Launch Params:**
-
-| PARAMETER                | DESCRIPTION                                                       | VALUE                                                       |
-| ------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------- |
-| **camera_model**         | Add camera model to the robot URDF                                | **None**\*                                                  |
-| **lidar_model**          | Add LiDAR model to the robot URDF                                 | **None**\*                                                  |
-| **include_camera_mount** | Whether to include camera mount to the robot URDF                 | **False**                                                   |
-| **mecanum**              | Whether to use mecanum drive controller, otherwise use diff drive | **False**                                                   |
-| **namespace**            | Namespace for all topics and tfs                                  | **""**                                                      |
-| **world**                | Path to SDF world file                                            | **`husarion_gz_worlds/`<br /> `worlds/husarion_world.sdf`** |
-| **headless**             | Run Gazebo Ignition in the headless mode                          | **False**                                                   |
-| **robots**               | List of robots that will be spawn in the simulation               | **[]**\*\*                                                  |
-
-> \*You can check all available options using `-s`/`--show-args` flag. (e.g. `ros2 launch rosbot_bringup bringup.launch.py -s`).
->
-> \*\*Example of use: `robots:='robot1={x: 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0};'`
-
 ### `rosbot_utils`
 
 This package contains the stable firmware version with the flash script.
-
-### `rosbot_navigation`
-
-Package that contains navigation configurations and launch files for ROSbot. It integrates with `nav2` for autonomous navigation.
-
-**Available Launch Files:**
-
-- `navigation.launch.py` - launches the navigation stack with predefined parameters.
-
-**Launch Params:**
-
-| PARAMETER                | DESCRIPTION                                                       | VALUE      |
-| ------------------------ | ----------------------------------------------------------------- | ---------- |
-| **map**                  | Path to the map file used for navigation                          | **""**     |
-| **use_sim_time**         | Whether to use simulation time                                    | **False**  |
-| **params_file**          | Path to the parameters file for navigation stack                  | **""**     |
-
-> You can check all available options using `-s`/`--show-args` flag. (e.g. `ros2 launch rosbot_navigation navigation.launch.py -s`).
 
 ## ROS API
 
