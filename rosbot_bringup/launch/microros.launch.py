@@ -37,9 +37,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
 
     serial_port = LaunchConfiguration("serial_port").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
-    localhost_only_fastrtps_profiles_file = LaunchConfiguration(
-        "localhost_only_fastrtps_profiles_file"
-    ).perform(context)
+    fastrtps_profiles = LaunchConfiguration("fastrtps_profiles").perform(context)
 
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
         env_setup_actions.extend(
@@ -47,14 +45,14 @@ def generate_microros_agent_node(context, *args, **kwargs):
                 LogInfo(
                     msg=[
                         "ROS_LOCALHOST_ONLY set to 1. Using FASTRTPS_DEFAULT_PROFILES_FILE=",
-                        localhost_only_fastrtps_profiles_file,
+                        fastrtps_profiles,
                         ".",
                     ]
                 ),
                 SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value="rmw_fastrtps_cpp"),
                 SetEnvironmentVariable(
                     name="FASTRTPS_DEFAULT_PROFILES_FILE",
-                    value=localhost_only_fastrtps_profiles_file,
+                    value=fastrtps_profiles,
                 ),
             ]
         )
@@ -92,12 +90,11 @@ def generate_launch_description():
     fastrtps_profiles_file = PathJoinSubstitution(
         [FindPackageShare("rosbot_bringup"), "config", "microros_localhost_only.xml"]
     )
-    declare_localhost_only_fastrtps_profiles_file_arg = DeclareLaunchArgument(
-        "localhost_only_fastrtps_profiles_file",
+    declare_fastrtps_profiles_arg = DeclareLaunchArgument(
+        "fastrtps_profiles",
         default_value=fastrtps_profiles_file,
         description=(
-            "Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only"
-            " setup"
+            "Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only setup"
         ),
     )
 
@@ -105,7 +102,7 @@ def generate_launch_description():
         [
             declare_serial_port_arg,
             declare_serial_baudrate_arg,
-            declare_localhost_only_fastrtps_profiles_file_arg,
+            declare_fastrtps_profiles_arg,
             OpaqueFunction(function=generate_microros_agent_node),
         ]
     )

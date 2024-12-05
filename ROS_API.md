@@ -17,21 +17,6 @@ Package that contains launch, which starts all base functionalities with the mic
 - `bringup.launch.py` - is responsible for communicating with firmware and activating all logic related to the robot's movement and processing of sensory data.
 - `microros.launch.py` - establishes connection with the firmware.
 
-**Launch Params:**
-
-| PARAMETER                | DESCRIPTION                                                       | VALUE      |
-| ------------------------ | ----------------------------------------------------------------- | ---------- |
-| **camera_model**         | Add camera model to the robot URDF                                | **None**\* |
-| **lidar_model**          | Add LiDAR model to the robot URDF                                 | **None**\* |
-| **include_camera_mount** | Whether to include camera mount to the robot URDF                 | **False**  |
-| **mecanum**              | Whether to use mecanum drive controller, otherwise use diff drive | **False**  |
-| **namespace**            | Namespace for all topics and tfs                                  | **""**     |
-
-```xml
-<plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
-<plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors"/>
-```
-
 ### `rosbot_controller`
 
 ROS2 hardware controller for ROSbot. It manages inputs and outputs data from ROS2 control, forwarding it via ROS topics to be read by microROS. The controller.launch.py file loads the robot model defined in rosbot_description along with ROS2 control dependencies from [rosbot_hardware_interfaces](https://github.com/husarion/rosbot_hardware_interfaces).
@@ -54,23 +39,6 @@ Launch files for Ignition Gazebo working with ROS2 control.
 **Available Launch Files:**
 
 - `simulations.launch.py` - running a rosbot in Gazebo simulator and simulate all specified sensors.
-
-**Launch Params:**
-
-| PARAMETER                | DESCRIPTION                                                       | VALUE                                                       |
-| ------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------- |
-| **camera_model**         | Add camera model to the robot URDF                                | **None**\*                                                  |
-| **lidar_model**          | Add LiDAR model to the robot URDF                                 | **None**\*                                                  |
-| **include_camera_mount** | Whether to include camera mount to the robot URDF                 | **False**                                                   |
-| **mecanum**              | Whether to use mecanum drive controller, otherwise use diff drive | **False**                                                   |
-| **namespace**            | Namespace for all topics and tfs                                  | **""**                                                      |
-| **world**                | Path to SDF world file                                            | **`husarion_gz_worlds/`<br /> `worlds/husarion_world.sdf`** |
-| **headless**             | Run Gazebo Ignition in the headless mode                          | **False**                                                   |
-| **robots**               | List of robots that will be spawn in the simulation               | **[]**\*\*                                                  |
-
-> \*You can check all available options using `-s`/`--show-args` flag. (e.g. `ros2 launch rosbot_bringup bringup.launch.py -s`).
->
-> \*\*Example of use: `robots:='robot1={x: 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0};'`
 
 ### `rosbot_utils`
 
