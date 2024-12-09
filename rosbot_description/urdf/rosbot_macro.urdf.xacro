@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="mecanum use_sim namespace">
+  <xacro:macro name="rosbot" params="mecanum use_sim namespace">
 
     <xacro:property name="ns" value="${namespace + '/' if namespace != 'None' else ''}" />
     <xacro:property name="wheel_radius" value="${0.0470 if mecanum else 0.0425}" />
@@ -116,7 +116,6 @@
               <namespace>${namespace}</namespace>
             </xacro:unless>
             <remapping>rosbot_base_controller/cmd_vel:=cmd_vel</remapping>
-            <remapping>/tf:=tf</remapping>
           </ros>
         </plugin>
       </gazebo>

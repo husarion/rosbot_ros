@@ -29,7 +29,7 @@ from launch.substitutions import (
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
+from nav2_common.launch import ReplaceString
 
 def generate_launch_description():
     microros = LaunchConfiguration("microros")
@@ -74,25 +74,24 @@ def generate_launch_description():
         package="robot_localization",
         executable="ekf_node",
         output="screen",
-        parameters=[ekf_config],
-        remappings=[
-            ("/diagnostics", "diagnostics"),
-            ("/tf", "tf"),
-            ("/tf_static", "tf_static"),
-        ],
+        parameters=[ekf_config, {"tf_prefix": namespace}],
+        remappings=[("/diagnostics", "diagnostics")],
         namespace=namespace,
     )
 
     laser_filter_config = PathJoinSubstitution([rosbot_bringup, "config", "laser_filter.yaml"])
+    
+    namespace_ext = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
+
+    laser_filter_config = ReplaceString(
+        source_file=laser_filter_config,
+        replacements={'<namespace>/': namespace_ext}
+    )
 
     laser_filter_node = Node(
         package="laser_filters",
         executable="scan_to_scan_filter_chain",
         parameters=[laser_filter_config],
-        remappings=[
-            ("/tf", "tf"),
-            ("/tf_static", "tf_static"),
-        ],
         namespace=namespace,
     )
 

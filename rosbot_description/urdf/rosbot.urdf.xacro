@@ -6,7 +6,7 @@
   <xacro:arg name="namespace" default="None" />
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
-  <xacro:husarion.rosbot_robot
+  <xacro:husarion.rosbot
     mecanum="$(arg mecanum)"
     use_sim="$(arg use_sim)"
     namespace="$(arg namespace)" />
@@ -16,12 +16,14 @@
       parent_link="cover_link"
       xyz="0.02 0.0 0.0"
       rpy="0.0 0.0 0.0"
-      model="a3" />
+      model="s2"
+      namespace="$(arg namespace)" />
 
-    <xacro:include filename="$(find ros_components_description)/urdf/orbbec_astra.urdf.xacro" ns="camera" />
-    <xacro:camera.orbbec_astra
-      parent_link="camera_mount_link"
-      xyz="0.0 0.0 0.0"
-      rpy="0.0 0.0 0.0" />
+	<xacro:include filename="$(find depthai_descriptions)/urdf/include/depthai_macro.urdf.xacro" ns="camera" />
+	<xacro:camera.depthai_camera camera_name="oak_camera" parent="camera_mount_link"
+		camera_model="OAK-D-PRO" base_frame="oak_camera"
+		cam_pos_x="0.0" cam_pos_y="0.0" cam_pos_z="0.02"
+		cam_roll="0.0" cam_pitch="0.0" cam_yaw="0.0"
+    r="0.2" g="0.2" b="0.2" a="1.0"	rs_compat="false" simulation="$(arg use_sim)" />
 
 </robot>

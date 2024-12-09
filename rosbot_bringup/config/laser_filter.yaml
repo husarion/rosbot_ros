@@ -5,7 +5,7 @@
       name: box_filter
       type: laser_filters/LaserScanBoxFilter
       params:
-        box_frame: base_link
+        box_frame: <namespace>/base_link
 
         max_x: 0.1
         min_x: -0.12

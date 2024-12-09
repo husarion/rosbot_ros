@@ -41,7 +41,7 @@ def generate_launch_description():
     )
 
     declare_x_arg = DeclareLaunchArgument(
-        "x", default_value="0.0", description="Initial robot position in the global 'x' axis."
+        "x", default_value="-1.0", description="Initial robot position in the global 'x' axis."
     )
 
     declare_y_arg = DeclareLaunchArgument(
@@ -128,10 +128,6 @@ def generate_launch_description():
         executable="parameter_bridge",
         name="ros_gz_bridge",
         parameters=[{"config_file": namespaced_gz_remappings_file}],
-        remappings=[
-            ("/tf", "tf"),
-            ("/tf_static", "tf_static"),
-        ],
         namespace=namespace,
     )
 

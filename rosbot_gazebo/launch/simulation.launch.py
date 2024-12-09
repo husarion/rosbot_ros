@@ -28,8 +28,8 @@ from nav2_common.launch import ParseMultiRobotPose
 
 def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
-    x = LaunchConfiguration("x", default="0.0")
-    y = LaunchConfiguration("y", default="2.0")
+    x = LaunchConfiguration("x", default="-1.0")
+    y = LaunchConfiguration("y", default="-2.0")
     z = LaunchConfiguration("z", default="0.0")
     roll = LaunchConfiguration("roll", default="0.0")
     pitch = LaunchConfiguration("pitch", default="0.0")
