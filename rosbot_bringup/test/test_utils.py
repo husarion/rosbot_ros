@@ -130,10 +130,9 @@ def wait_for_all_events(events, timeout):
     start_time = time.time()
     while time.time() - start_time < timeout:
         if all(event.is_set() for event in events):
-            return True, []  # All events have been set
-        time.sleep(0.1)  # Short interval between checks
+            return True, []
+        time.sleep(0.1)
 
-    # Identify which events were not set
     not_set_events = [i for i, event in enumerate(events) if not event.is_set()]
     return False, not_set_events
 

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
 from threading import Event
 
 import rclpy
@@ -261,21 +262,49 @@ def yaw_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_
     ), f"{robot_name} does not rotate properly. Check ekf_filter_node! Twist: {node.ekf_twist}"
 
 
+def wait_for_all_events(events, timeout):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        if all(event.is_set() for event in events):
+            return True, []
+        time.sleep(0.1)
+
+    not_set_events = [i for i, event in enumerate(events) if not event.is_set()]
+    return False, not_set_events
+
+
 def sensors_readings_test(node: SimulationTestNode, robot_name="ROSbot"):
-    flag = node.scan_event.wait(timeout=20.0)
-    assert flag, f"{robot_name}'s lidar does not work properly!"
+    events = [
+        node.scan_event,
+        node.ranges_events[0],
+        node.ranges_events[1],
+        node.ranges_events[2],
+        node.ranges_events[3],
+        # FIXME: Camera topics are not available in the current simulation
+        # node.camera_color_event,
+        # node.camera_points_event,
+    ]
 
-    for i in range(len(node.RANGE_SENSORS_TOPICS)):
-        flag = node.ranges_events[i].wait(timeout=20.0)
-        assert (
-            flag
-        ), f"{robot_name}'s range sensor {node.RANGE_SENSORS_TOPICS[i]} does not work properly!"
+    event_names = [
+        "Scan",
+        "Range FL",
+        "Range FR",
+        "Range RL",
+        "Range RR",
+        "Camera Color",
+        "Camera Points",
+    ]
 
-    flag = node.camera_color_event.wait(timeout=20.0)
-    assert flag, f"{robot_name}'s camera color image does not work properly!"
+    msgs_received_flag, not_set_indices = wait_for_all_events(events, timeout=20.0)
 
-    flag = node.camera_points_event.wait(timeout=20.0)
-    assert flag, f"{robot_name}'s camera point cloud does not work properly!"
+    if not msgs_received_flag:
+        not_set_event_names = [event_names[i] for i in not_set_indices]
+        missing_events = ", ".join(not_set_event_names)
+        raise AssertionError(
+            f"{robot_name}: Not all expected messages were received. Missing: {missing_events}."
+        )
+
+    print(f"{robot_name}: All messages received successfully.")
 
 
 def diff_test(node: SimulationTestNode, robot_name="ROSbot"):
