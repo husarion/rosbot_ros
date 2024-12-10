@@ -82,7 +82,7 @@ repos:
       - id: ament_copyright
         name: ament_copyright
         description: Check if copyright notice is available in all files.
-        stages: [commit]
+        stages: [pre-commit]
         entry: ament_copyright
         language: system
         exclude: ^.*\.md$

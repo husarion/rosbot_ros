@@ -31,6 +31,7 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
+
 def generate_launch_description():
     microros = LaunchConfiguration("microros")
     namespace = LaunchConfiguration("namespace")
@@ -80,12 +81,11 @@ def generate_launch_description():
     )
 
     laser_filter_config = PathJoinSubstitution([rosbot_bringup, "config", "laser_filter.yaml"])
-    
+
     namespace_ext = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
 
     laser_filter_config = ReplaceString(
-        source_file=laser_filter_config,
-        replacements={'<namespace>/': namespace_ext}
+        source_file=laser_filter_config, replacements={"<namespace>/": namespace_ext}
     )
 
     laser_filter_node = Node(
