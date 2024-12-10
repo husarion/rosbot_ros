@@ -41,7 +41,7 @@
       </ros2_control>
     </xacro:unless>
 
-    <ros2_control name="${ns}wheels" type="system">
+    <ros2_control name="${ns}rosbot_system" type="system">
       <hardware>
         <xacro:unless value="$(arg use_sim)">
           <plugin>rosbot_hardware_interfaces/RosbotSystem</plugin>
