@@ -20,13 +20,13 @@
 
     <!-- ROS2 CONTROL -->
     <xacro:unless value="$(arg use_sim)">
-      <ros2_control name="imu" type="sensor">
+      <ros2_control name="${ns}imu" type="sensor">
         <hardware>
           <plugin>rosbot_hardware_interfaces/RosbotImuSensor</plugin>
           <param name="connection_timeout_ms">30000</param>
           <param name="connection_check_period_ms">1000</param>
         </hardware>
-        <sensor name="imu">
+        <sensor name="${ns}imu">
           <state_interface name="orientation.x" />
           <state_interface name="orientation.y" />
           <state_interface name="orientation.z" />
@@ -84,7 +84,7 @@
       </joint>
 
       <xacro:if value="${use_sim}">
-        <sensor name="imu">
+        <sensor name="${ns}imu">
           <state_interface name="orientation.x" />
           <state_interface name="orientation.y" />
           <state_interface name="orientation.z" />
@@ -120,7 +120,7 @@
         </plugin>
       </gazebo>
       <gazebo reference="imu_link">
-        <sensor name="imu" type="imu">
+        <sensor name="${ns}imu" type="imu">
           <always_on>true</always_on>
           <update_rate>25</update_rate>
           <topic>imu/data_raw</topic>

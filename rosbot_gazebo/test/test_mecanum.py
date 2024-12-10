@@ -44,7 +44,7 @@ def generate_test_description():
             )
         ),
         launch_arguments={
-            "gz_headless_mode": "False",
+            "gz_headless_mode": "True",
             "gz_world": PathJoinSubstitution(
                 [FindPackageShare("husarion_gz_worlds"), "worlds", "empty_with_plugins.sdf"]
             ),
