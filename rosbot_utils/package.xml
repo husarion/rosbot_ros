@@ -4,7 +4,9 @@
   <name>rosbot_utils</name>
   <version>0.13.2</version>
   <description>Utilities for ROSbot 2R and 2 PRO</description>
+
   <maintainer email="support@husarion.com">Husarion</maintainer>
+
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
@@ -15,16 +17,15 @@
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
+  <exec_depend>launch_ros</exec_depend>
   <exec_depend>python3-libgpiod</exec_depend>
   <exec_depend>python3-pyftdi-pip</exec_depend>
   <exec_depend>python3-requests</exec_depend>
   <exec_depend>python3-serial</exec_depend>
   <exec_depend>python3-sh</exec_depend>
   <exec_depend>usbutils</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
 

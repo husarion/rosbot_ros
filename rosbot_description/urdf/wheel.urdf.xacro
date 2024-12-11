@@ -44,15 +44,15 @@
       <xacro:property name="fdir" value="1.0 1.0 0.0" />
     </xacro:if>
     <xacro:if value="${side == 'rl'}">
-      <xacro:property name="x" value="${-wheel_separation_x/2}" />
-      <xacro:property name="y" value="${wheel_separation_y/2}" />
+      <xacro:property name="x" value="${-wheel_separation_x/2.0}" />
+      <xacro:property name="y" value="${wheel_separation_y/2.0}" />
       <xacro:property name="mesh" value="package://rosbot_description/meshes/${wheel_file}_a.dae" />
       <xacro:property name="visual_rotation" value="${0.0}" />
       <xacro:property name="fdir" value="1.0 1.0 0.0" />
     </xacro:if>
     <xacro:if value="${side == 'rr'}">
-      <xacro:property name="x" value="${-wheel_separation_x/2}" />
-      <xacro:property name="y" value="${-wheel_separation_y/2}" />
+      <xacro:property name="x" value="${-wheel_separation_x/2.0}" />
+      <xacro:property name="y" value="${-wheel_separation_y/2.0}" />
       <xacro:property name="mesh" value="package://rosbot_description/meshes/${wheel_file}_b.dae" />
       <xacro:property name="visual_rotation" value="${0.0}" />
       <xacro:property name="fdir" value="1.0 -1.0 0.0" />
@@ -90,21 +90,39 @@
       </inertial>
     </link>
 
-    <xacro:if value="${mecanum}">
-      <gazebo reference="${side}_wheel_link" xmlns:ignition="http://ignitionrobotics.org/schema">
+    <gazebo reference="${side}_wheel_link" xmlns:gz="http://gazeborobotics.org/schema">
+      <xacro:unless value="${mecanum}">
         <collision>
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>0.0</mu2>
-                <fdir1 ignition:expressed_in="base_link">${fdir}</fdir1>
+                <mu>1</mu>
+                <mu2>1</mu2>
+                <slip1>0.035</slip1>
+                <slip2>0</slip2>
+                <fdir1>0 0 1</fdir1>
               </ode>
             </friction>
           </surface>
         </collision>
-      </gazebo>
-    </xacro:if>
+      </xacro:unless>
+
+      <xacro:if value="${mecanum}">
+        <collision>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.8</mu>
+                <mu2>0.2</mu2>
+                  <slip1>0.035</slip1>
+                <slip2>0</slip2>
+                <fdir1 gz:expressed_in="base_link">${fdir}</fdir1>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+      </xacro:if>
+    </gazebo>
 
   </xacro:macro>
 </robot>

@@ -60,34 +60,41 @@ class FirmwareFlasher:
         time.sleep(0.1)
         self.ftdi.close()
 
-    def try_flash_operation(self, operation_name, flash_command, flash_args):
+    def try_flash_operation(self, operation_name):
+        print(f"\n{operation_name} operation started")
+        self.enter_bootloader_mode()
+        sh.usbreset("0403:6015")
         for i in range(self.max_approach_no):
+            print(f"Attempt {i + 1}/{self.max_approach_no}")
             try:
-                self.enter_bootloader_mode()
-                sh.usbreset("0403:6015")
-                time.sleep(2.0)
-                flash_command(self.port, *flash_args, _out=sys.stdout)
-                self.exit_bootloader_mode()
-                time.sleep(0.2)
+                if operation_name == "Flashing":
+                    flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
+                    sh.stm32flash(self.port, *flash_args, _out=sys.stdout)
+                    print("Success! The robot firmware has been uploaded.")
+                elif operation_name == "Write-UnProtection":
+                    sh.stm32flash(self.port, "-u")
+                elif operation_name == "Read-UnProtection":
+                    sh.stm32flash(self.port, "-k")
+                else:
+                    raise ("Unknown operation.")
                 break
             except Exception as e:
-                print(f"{operation_name} error! Trying again.")
-                print(f"Error: {e}")
-                print("---------------------------------------")
-        else:
-            print(f"WARNING! {operation_name} went wrong.")
+                stderr = e.stderr.decode("utf-8")
+                if stderr:
+                    print(f"ERROR: {stderr.strip()}")
+
+        print("Success!")
+        self.exit_bootloader_mode()
 
     def flash_firmware(self):
         # Disable the flash write-protection
-        self.try_flash_operation("Write-UnProtection", sh.stm32flash, ["-u"])
+        self.try_flash_operation("Write-UnProtection")
 
         # Disable the flash read-protection
-        self.try_flash_operation("Read-UnProtection", sh.stm32flash, ["-k"])
+        self.try_flash_operation("Read-UnProtection")
 
         # Flashing the firmware
-        # /usr/bin/stm32flash /dev/ttyUSB0 -v -w /root/firmware.bin -b 115200
-        flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
-        self.try_flash_operation("Flashing", sh.stm32flash, flash_args)
+        self.try_flash_operation("Flashing")
 
         sh.usbreset("0403:6015")
 
@@ -117,7 +124,6 @@ def main():
 
     flasher = FirmwareFlasher(binary_file, port)
     flasher.flash_firmware()
-    print("Done.")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,89 @@
+set dotenv-load # to read ROBOT_NAMESPACE from .env file
+
+[private]
+default:
+    @just --list --unsorted
+
+[private]
+alias flash := flash-firmware
+
+[private]
+alias teleop := run-teleop-docker
+
+# run teleop_twist_keybaord (inside rviz2 container)
+run-teleop-docker: _run-as-user
+    #!/bin/bash
+    docker compose exec rosbot /bin/bash -c "/ros_entrypoint.sh ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r __ns:=/${ROBOT_NAMESPACE}"
+
+flash-firmware: _install-yq _run-as-user
+    #!/bin/bash
+    echo "Stopping all running containers"
+    docker ps -q | xargs -r docker stop
+
+    if grep -q "Raspberry Pi" /proc/cpuinfo; then
+        echo "Setting up Raspberry Pi GPIO Port"
+        gpio_chip=/dev/gpiochip0
+        serial_port=/dev/ttyAMA0
+    elif grep -q "Intel(R) Atom(TM) x5-Z8350" /proc/cpuinfo; then
+        echo "Setting up UpBoard GPIO Port"
+        gpio_chip=/dev/gpiochip4
+        serial_port=/dev/ttyS4
+    else
+        echo "Probably user computer"
+        gpio_chip=/dev/bus/usb
+        serial_port=/dev/ttyUSB0
+        enable_usb="--usb"
+    fi
+
+    echo "Flashing the firmware for STM32 microcontroller in ROSbot through $serial_port"
+    docker run --rm -it \
+        --device $gpio_chip \
+        --device $serial_port \
+        docker-rosbot \
+        ros2 run rosbot_utils flash_firmware ${enable_usb}
+
+run_hardware:
+    #/bin/bash
+    docker compose -f compose.hardware.yaml up
+
+build_hardware:
+    #/bin/bash
+    docker compose -f compose.hardware.yaml build
+
+_run-as-root:
+    #!/bin/bash
+    if [ "$EUID" -ne 0 ]; then
+        echo -e "\e[1;33mPlease re-run as root user to install dependencies\e[0m"
+        exit 0
+    fi
+
+_run-as-user:
+    #!/bin/bash
+    if [ "$EUID" -eq 0 ]; then
+        echo -e "\e[1;33mPlease re-run as non-root user\e[0m"
+        exit 0
+    fi
+
+_install-yq:
+    #!/bin/bash
+    if ! command -v /usr/bin/yq &> /dev/null; then
+        if [ "$EUID" -ne 0 ]; then
+            echo -e "\e[1;33mPlease run as root to install dependencies\e[0m"
+            exit 0
+        fi
+
+        YQ_VERSION=v4.35.1
+        ARCH=$(arch)
+
+        if [ "$ARCH" = "x86_64" ]; then
+            YQ_ARCH="amd64"
+        elif [ "$ARCH" = "aarch64" ]; then
+            YQ_ARCH="arm64"
+        else
+            YQ_ARCH="$ARCH"
+        fi
+
+        curl -L https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${YQ_ARCH} -o /usr/bin/yq
+        chmod +x /usr/bin/yq
+        echo "yq installed successfully!"
+    fi

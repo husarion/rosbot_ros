@@ -1,0 +1,25 @@
+services:
+  devcontainer:
+    build: .
+    ipc: host
+    network_mode: host
+    privileged: true
+    tty: true
+    runtime: nvidia
+    volumes:
+      - ros2_ws_volume:/home/husarion/ros2_ws
+      - ../:/home/husarion/ros2_ws/src/rosbot_ros:cached
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /home/${USER}/.ssh:/home/husarion/.ssh
+      - /lib/modules:/lib/modules:ro
+    environment:
+      - DISPLAY
+      - RMW_IMPLEMENTATION
+      - QT_X11_NO_MITSHM=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - PIP_BREAK_SYSTEM_PACKAGES=1
+    command: sleep infinity
+
+volumes:
+  ros2_ws_volume:

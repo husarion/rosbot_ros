@@ -25,6 +25,7 @@ import time
 import gpiod
 import sh
 
+
 def get_raspberry_pi_model():
     try:
         with open("/proc/cpuinfo", "r") as f:
@@ -40,36 +41,37 @@ def get_raspberry_pi_model():
     except FileNotFoundError:
         return "Not a Raspberry Pi"
 
+
 class FirmwareFlasher:
-    def __init__(self, sys_arch, binary_file):
+    def __init__(self, binary_file):
         self.binary_file = binary_file
-        self.sys_arch = sys_arch
+        sys_arch = str(sh.uname("-m")).strip()
 
         self.max_approach_no = 3
 
-        print(f"System architecture: {self.sys_arch}")
+        print(f"System architecture: {sys_arch}")
 
-        if self.sys_arch == "armv7l":
+        if sys_arch == "armv7l":
             # Setups ThinkerBoard pins
             print("Device: ThinkerBoard\n")
-            self.serial_port = "/dev/ttyS1"
+            self.port = "/dev/ttyS1"
             gpio_chip = "/dev/gpiochip0"
             boot0_pin_no = 164
             reset_pin_no = 184
 
-        elif self.sys_arch == "x86_64":
+        elif sys_arch == "x86_64":
             # Setups UpBoard pins
             print("Device: UpBoard\n")
-            self.serial_port = "/dev/ttyS4"
+            self.port = "/dev/ttyS4"
             gpio_chip = "/dev/gpiochip4"
             boot0_pin_no = 17
             reset_pin_no = 18
 
-        elif self.sys_arch == "aarch64":
+        elif sys_arch == "aarch64":
             # Setups RPi pins
             model = get_raspberry_pi_model()
             print(f"Device: {model}\n")
-            self.serial_port = "/dev/ttyAMA0"
+            self.port = "/dev/ttyAMA0"
 
             if model == "Raspberry Pi 4":
                 gpio_chip = "/dev/gpiochip0"
@@ -77,7 +79,7 @@ class FirmwareFlasher:
                 gpio_chip = "/dev/gpiochip4"
             else:
                 gpio_chip = "/dev/gpiochip0"  # Default or error handling
-    
+
             boot0_pin_no = 17
             reset_pin_no = 18
         else:
@@ -104,33 +106,40 @@ class FirmwareFlasher:
         self.reset_pin.set_value(0)
         time.sleep(0.2)
 
-    def try_flash_operation(self, operation_name, flash_command, flash_args):
+    def try_flash_operation(self, operation_name):
+        print(f"\n{operation_name} operation started")
+        self.enter_bootloader_mode()
         for i in range(self.max_approach_no):
+            print(f"Attempt {i + 1}/{self.max_approach_no}")
             try:
-                flash_command(self.serial_port, *flash_args, _out=sys.stdout)
-                time.sleep(0.2)
+                if operation_name == "Flashing":
+                    flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
+                    sh.stm32flash(self.port, *flash_args, _out=sys.stdout)
+                    print("Success! The robot firmware has been uploaded.")
+                elif operation_name == "Write-UnProtection":
+                    sh.stm32flash(self.port, "-u")
+                elif operation_name == "Read-UnProtection":
+                    sh.stm32flash(self.port, "-k")
+                else:
+                    raise ("Unknown operation.")
                 break
             except Exception as e:
-                print(f"{operation_name} error! Trying again.")
-                print(f"Error: {e}")
-                print("---------------------------------------")
-        else:
-            print(f"WARNING! {operation_name} went wrong.")
+                stderr = e.stderr.decode("utf-8")
+                if stderr:
+                    print(f"ERROR: {stderr.strip()}")
+
+        print("Success!")
+        self.exit_bootloader_mode()
 
     def flash_firmware(self):
-        self.enter_bootloader_mode()
-
         # Disable the flash write-protection
-        self.try_flash_operation("Write-UnProtection", sh.stm32flash, ["-u"])
+        self.try_flash_operation("Write-UnProtection")
 
         # Disable the flash read-protection
-        self.try_flash_operation("Read-UnProtection", sh.stm32flash, ["-k"])
+        self.try_flash_operation("Read-UnProtection")
 
         # Flashing the firmware
-        flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
-        self.try_flash_operation("Flashing", sh.stm32flash, flash_args)
-
-        self.exit_bootloader_mode()
+        self.try_flash_operation("Flashing")
 
 
 def main():
@@ -147,11 +156,9 @@ def main():
     )
 
     binary_file = parser.parse_args().file
-    sys_arch = sh.uname("-m").stdout.decode().strip()
 
-    flasher = FirmwareFlasher(sys_arch, binary_file)
+    flasher = FirmwareFlasher(binary_file)
     flasher.flash_firmware()
-    print("Done!")
 
 
 if __name__ == "__main__":

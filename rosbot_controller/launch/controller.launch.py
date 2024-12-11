@@ -13,10 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Import necessary modules
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, TimerAction
+from launch.actions import (
+    DeclareLaunchArgument,
+    EmitEvent,
+    RegisterEventHandler,
+    TimerAction,
+)
 from launch.conditions import UnlessCondition
+from launch.event_handlers import OnProcessIO
+from launch.events import Shutdown
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -24,68 +30,27 @@ from launch.substitutions import (
     PathJoinSubstitution,
     PythonExpression,
 )
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-# from nav2_common.launch import ReplaceString
+
 
 def generate_launch_description():
-    # Declare launch arguments
     namespace = LaunchConfiguration("namespace")
+    mecanum = LaunchConfiguration("mecanum")
+    use_sim = LaunchConfiguration("use_sim", default="False")
+
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
-        description="Namespace for all topics and TFs",
+        description="Adds a namespace to all running nodes.",
     )
 
-    mecanum = LaunchConfiguration("mecanum")
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
-        description=(
-            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
-        ),
+        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
     )
 
-    use_sim = LaunchConfiguration("use_sim")
-    declare_use_sim_arg = DeclareLaunchArgument(
-        "use_sim",
-        default_value="False",
-        description="Whether simulation is used",
-    )
-
-    use_gpu = LaunchConfiguration("use_gpu")
-    declare_use_gpu_arg = DeclareLaunchArgument(
-        "use_gpu",
-        default_value="False",
-        description="Whether GPU acceleration is used",
-    )
-
-    simulation_engine = LaunchConfiguration("simulation_engine")
-    declare_simulation_engine_arg = DeclareLaunchArgument(
-        "simulation_engine",
-        default_value="webots",
-        description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "gazebo-classic", "webots"],
-    )
-
-    controller_config_name = PythonExpression(
-        [
-            "'mecanum_drive_controller.yaml' if ",
-            mecanum,
-            " else 'diff_drive_controller.yaml'",
-        ]
-    )
-
-    namespace_ext = PythonExpression(
-        ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
-    )
-
-    controller_manager_name = LaunchConfiguration(
-        "controller_manager_name",
-        default=[namespace_ext, "controller_manager"],
-    )
-
-    # Get URDF via xacro
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -99,23 +64,19 @@ def generate_launch_description():
             ),
             " mecanum:=",
             mecanum,
-            " use_sim:=",
-            use_sim,
-            " use_gpu:=",
-            use_gpu,
-            " simulation_engine:=",
-            simulation_engine,
             " namespace:=",
             namespace,
-            # Uncomment the line below if you need to include the 'use_ros2_control' parameter
-            # " use_ros2_control:=True",
+            " use_sim:=",
+            use_sim,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
 
-    # Controller configurations
-    # robot_controllers_config = PathJoinSubstitution(
-    robot_controllers = PathJoinSubstitution(
+    controller_config_name = PythonExpression(
+        ["'mecanum_drive_controller.yaml' if ", mecanum, " else 'diff_drive_controller.yaml'"]
+    )
+
+    controllers_config_file = PathJoinSubstitution(
         [
             FindPackageShare("rosbot_controller"),
             "config",
@@ -123,55 +84,43 @@ def generate_launch_description():
         ]
     )
 
-    # namespaced_robot_controllers_config = ReplaceString(
-    #     source_file=robot_controllers_config,
-    #     replacements={"<robot_namespace>": namespace, "//": "/"},
-    # )
-
-    # Define nodes
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[
-            robot_description,
-            # namespaced_robot_controllers_config,
-            robot_controllers,
-        ],
+        parameters=[robot_description, controllers_config_file],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
             ("rosbot_base_controller/cmd_vel", "cmd_vel"),
-            ("/tf", "tf"),
-            ("/tf_static", "tf_static"),
         ],
         condition=UnlessCondition(use_sim),
         namespace=namespace,
-        respawn=True,
-        respawn_delay=2.0,
     )
+
+    namespace_ext = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
 
     robot_state_pub_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        parameters=[robot_description],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+        parameters=[
+            {"robot_description": robot_description_content},
+            {"frame_prefix": namespace_ext},
+        ],
         namespace=namespace,
     )
 
-    # Create spawner nodes
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
             "joint_state_broadcaster",
             "--controller-manager",
-            controller_manager_name,
+            "controller_manager",
             "--controller-manager-timeout",
             "10",
-            # "--namespace",
-            # namespace,
         ],
+        namespace=namespace,
     )
 
     robot_controller_spawner = Node(
@@ -180,12 +129,11 @@ def generate_launch_description():
         arguments=[
             "rosbot_base_controller",
             "--controller-manager",
-            controller_manager_name,
+            "controller_manager",
             "--controller-manager-timeout",
             "10",
-            # "--namespace",
-            # namespace,
         ],
+        namespace=namespace,
     )
 
     imu_broadcaster_spawner = Node(
@@ -194,38 +142,58 @@ def generate_launch_description():
         arguments=[
             "imu_broadcaster",
             "--controller-manager",
-            controller_manager_name,
+            "controller_manager",
             "--controller-manager-timeout",
             "10",
-            # "--namespace",
-            # namespace,
         ],
+        namespace=namespace,
     )
 
-    # Wrap the spawner nodes in a TimerAction to delay execution by 2 seconds
+    # spawners expect ros2_control_node to be running
     delayed_spawner_nodes = TimerAction(
-        period=1.0,
+        period=3.0,
         actions=[
-            control_node,
             joint_state_broadcaster_spawner,
             robot_controller_spawner,
             imu_broadcaster_spawner,
         ],
     )
 
-    # Set 'use_sim_time' parameter
-    # set_use_sim_time = SetParameter('use_sim_time', value=use_sim)fr
+    def check_if_log_is_fatal(event):
+        red_color = "\033[91m"
+        reset_color = "\033[0m"
+        if "fatal" in event.text.decode().lower() or "failed" in event.text.decode().lower():
+            print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
+            return EmitEvent(event=Shutdown(reason="Spawner failed"))
 
-    # Assemble the LaunchDescription
+    joint_state_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=joint_state_broadcaster_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+    robot_controller_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=robot_controller_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+    imu_broadcaster_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=imu_broadcaster_spawner,
+            on_stderr=lambda event: check_if_log_is_fatal(event),
+        )
+    )
+
     return LaunchDescription(
         [
             declare_namespace_arg,
             declare_mecanum_arg,
-            declare_use_sim_arg,
-            declare_use_gpu_arg,
-            declare_simulation_engine_arg,
-            SetParameter("use_sim_time", value=use_sim),
+            control_node,
             robot_state_pub_node,
-            delayed_spawner_nodes,  # Add the delayed spawner nodes here
+            delayed_spawner_nodes,
+            joint_state_monitor,
+            robot_controller_monitor,
+            imu_broadcaster_monitor,
         ]
     )

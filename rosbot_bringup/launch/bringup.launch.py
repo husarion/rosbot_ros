@@ -13,76 +13,60 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    IncludeLaunchDescription,
+    LogInfo,
+    TimerAction,
+)
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression,
 )
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
+    microros = LaunchConfiguration("microros")
     namespace = LaunchConfiguration("namespace")
+    use_sim = LaunchConfiguration("use_sim", default="False")
+
+    declare_microros_arg = DeclareLaunchArgument(
+        "microros",
+        default_value="True",
+        description="Automatically connect with hardware using microros.",
+        choices=["True", "true", "False", "false"],
+    )
+
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
         description="Namespace for all topics and tfs",
     )
 
-    use_sim = LaunchConfiguration("use_sim")
-    declare_use_sim_arg = DeclareLaunchArgument(
-        "use_sim",
-        default_value="False",
-        description="Whether simulation is used",
-    )
-
-    use_gpu = LaunchConfiguration("use_gpu")
-    declare_use_gpu_arg = DeclareLaunchArgument(
-        "use_gpu",
-        default_value="False",
-        description="Whether GPU acceleration is used",
-    )
-
-    simulation_engine = LaunchConfiguration("simulation_engine")
-    declare_simulation_engine_arg = DeclareLaunchArgument(
-        "simulation_engine",
-        default_value="webots",
-        description="Which simulation engine to be used",
-        choices=["ignition-gazebo", "gazebo-classic", "webots"],
-    )
-
-    rosbot_controller = FindPackageShare("rosbot_controller")
     rosbot_bringup = FindPackageShare("rosbot_bringup")
-
-    mecanum = LaunchConfiguration("mecanum")
-    declare_mecanum_arg = DeclareLaunchArgument(
-        "mecanum",
-        default_value="False",
-        description=(
-            "Whether to use mecanum drive controller (otherwise diff drive controller is used)"
-        ),
-    )
+    rosbot_controller = FindPackageShare("rosbot_controller")
 
     controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    rosbot_controller,
-                    "launch",
-                    "controller.launch.py",
-                ]
-            )
+            PathJoinSubstitution([rosbot_controller, "launch", "controller.launch.py"])
         ),
         launch_arguments={
-            "use_sim": use_sim,
-            "mecanum": mecanum,
-            "use_gpu": use_gpu,
-            "simulation_engine": simulation_engine,
             "namespace": namespace,
         }.items(),
+    )
+
+    microros_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_bringup, "launch", "microros.launch.py"])
+        ),
+        condition=IfCondition(PythonExpression([microros, " and not ", use_sim])),
     )
 
     ekf_config = PathJoinSubstitution([rosbot_bringup, "config", "ekf.yaml"])
@@ -91,24 +75,42 @@ def generate_launch_description():
         package="robot_localization",
         executable="ekf_node",
         output="screen",
-        parameters=[ekf_config],
-        remappings=[
-            ("/diagnostics", "diagnostics"),
-            ("/tf", "tf"),
-            ("/tf_static", "tf_static"),
-        ],
+        parameters=[ekf_config, {"tf_prefix": namespace}],
+        remappings=[("/diagnostics", "diagnostics")],
         namespace=namespace,
     )
 
+    laser_filter_config = PathJoinSubstitution([rosbot_bringup, "config", "laser_filter.yaml"])
+
+    namespace_ext = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
+
+    laser_filter_config = ReplaceString(
+        source_file=laser_filter_config, replacements={"<namespace>/": namespace_ext}
+    )
+
+    laser_filter_node = Node(
+        package="laser_filters",
+        executable="scan_to_scan_filter_chain",
+        parameters=[laser_filter_config],
+        namespace=namespace,
+    )
+
+    green_color = "\033[92m"
+    reset_color = "\033[0m"
+
+    status_info = TimerAction(
+        period=15.0,
+        actions=[LogInfo(msg=f"{green_color}All systems are up and running!{reset_color}")],
+    )
+
     actions = [
+        declare_microros_arg,
         declare_namespace_arg,
-        declare_mecanum_arg,
-        declare_use_sim_arg,
-        declare_use_gpu_arg,
-        declare_simulation_engine_arg,
-        SetParameter(name="use_sim_time", value=use_sim),
         controller_launch,
+        microros_launch,
+        laser_filter_node,
         robot_localization_node,
+        status_info,
     ]
 
     return LaunchDescription(actions)

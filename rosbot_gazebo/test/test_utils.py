@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
 from threading import Event
 
 import rclpy
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, TwistStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from sensor_msgs.msg import Image, Imu, JointState, LaserScan, PointCloud2
@@ -35,7 +36,7 @@ class SimulationTestNode(Node):
 
     def __init__(self, name="test_node", namespace=None):
         super().__init__(name, namespace=namespace)
-        self.cmd_vel_pub = self.create_publisher(Twist, "cmd_vel", 10)
+        self.cmd_vel_pub = self.create_publisher(TwistStamped, "cmd_vel", 10)
 
         # Robot callback
         self.joint_sub = self.create_subscription(
@@ -60,7 +61,9 @@ class SimulationTestNode(Node):
         for range_topic_name in self.RANGE_SENSORS_TOPICS:
             sub = self.create_subscription(LaserScan, range_topic_name, self.ranges_callback, 10)
             self.range_subs.append(sub)
-        self.scan_sub = self.create_subscription(LaserScan, "scan", self.scan_callback, 10)
+        self.scan_sub = self.create_subscription(
+            LaserScan, "scan_filtered", self.scan_callback, 10
+        )
 
         # Timer - send cmd_vel and check if the time needed for speed stabilization has elapsed
         self.timer = self.create_timer(0.1, self.timer_callback)
@@ -128,26 +131,26 @@ class SimulationTestNode(Node):
             self.robot_initialized_event.set()
         return self.robot_initialized_event.is_set()
 
-    def controller_callback(self, data: Odometry):
+    def controller_callback(self, msg: Odometry):
         if not self.is_controller_msg:
             self.get_logger().info("Controller message arrived")
         self.is_controller_msg = True
-        self.controller_twist = data.twist.twist
-        self.is_controller_odom_correct = self.is_twist_ok(data.twist.twist)
+        self.controller_twist = msg.twist.twist
+        self.is_controller_odom_correct = self.is_twist_ok(msg.twist.twist)
 
-    def ekf_callback(self, data: Odometry):
+    def ekf_callback(self, msg: Odometry):
         if not self.is_ekf_msg:
             self.get_logger().info("EKF message arrived")
         self.is_ekf_msg = True
-        self.ekf_twist = data.twist.twist
-        self.is_ekf_odom_correct = self.is_twist_ok(data.twist.twist)
+        self.ekf_twist = msg.twist.twist
+        self.is_ekf_odom_correct = self.is_twist_ok(msg.twist.twist)
 
-    def imu_callback(self, data):
+    def imu_callback(self, msg: Imu):
         if not self.is_imu_msg:
             self.get_logger().info("IMU message arrived")
         self.is_imu_msg = True
 
-    def joint_states_callback(self, data):
+    def joint_states_callback(self, msg: JointState):
         if not self.is_joint_msg:
             self.get_logger().info("Joint State message arrived")
         self.is_joint_msg = True
@@ -164,30 +167,31 @@ class SimulationTestNode(Node):
                 )
                 self.vel_stabilization_time_event.set()
 
-    def scan_callback(self, data: LaserScan):
-        self.get_logger().debug(f"Received scan length: {len(data.ranges)}")
-        if data.ranges:
+    def scan_callback(self, msg: LaserScan):
+        self.get_logger().debug(f"Received scan length: {len(msg.ranges)}")
+        if msg.ranges:
             self.scan_event.set()
 
-    def ranges_callback(self, data: LaserScan):
-        index = self.RANGE_SENSORS_FRAMES.index(data.header.frame_id)
-        if len(data.ranges) == 1:
+    def ranges_callback(self, msg: LaserScan):
+        index = self.RANGE_SENSORS_FRAMES.index(msg.header.frame_id)
+        if len(msg.ranges) == 1:
             self.ranges_events[index].set()
 
-    def camera_image_callback(self, data: Image):
-        if data.data:
+    def camera_image_callback(self, msg: Image):
+        if msg.data:
             self.camera_color_event.set()
 
-    def camera_points_callback(self, data: PointCloud2):
-        if data.data:
+    def camera_points_callback(self, msg: PointCloud2):
+        if msg.data:
             self.camera_points_event.set()
 
     def publish_cmd_vel_msg(self):
-        twist_msg = Twist()
+        twist_msg = TwistStamped()
 
-        twist_msg.linear.x = self.v_x
-        twist_msg.linear.y = self.v_y
-        twist_msg.angular.z = self.v_yaw
+        twist_msg.header.stamp = self.get_clock().now().to_msg()
+        twist_msg.twist.linear.x = self.v_x
+        twist_msg.twist.linear.y = self.v_y
+        twist_msg.twist.angular.z = self.v_yaw
 
         self.cmd_vel_pub.publish(twist_msg)
 
@@ -209,13 +213,14 @@ def x_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_na
         f" {(node.current_time - node.goal_received_time):.1f}."
     )
     assert node.is_controller_odom_correct, (
-        f"{robot_name}: does not move properly in x direction. Check"
-        f" rosbot_base_controller! Twist: {node.twist}"
+        f"{robot_name}: does not move properly in x direction. Check rosbot_base_controller!"
+        f"\nTwist: {node.controller_twist}"
         f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
     assert node.is_ekf_odom_correct, (
         f"{robot_name}: does not move properly in x direction. Check ekf_filter_node!"
-        f" Twist: {node.twist}"
+        f" Twist: {node.ekf_twist}"
+        f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
 
 
@@ -228,13 +233,14 @@ def y_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_na
         f" {(node.current_time - node.goal_received_time):.1f}."
     )
     assert node.is_controller_odom_correct, (
-        f"{robot_name} does not move properly in y direction. Check"
-        f" rosbot_base_controller! Twist: {node.twist}"
+        f"{robot_name}: does not move properly in y direction. Check rosbot_base_controller!"
+        f"\nTwist: {node.controller_twist}"
         f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
     assert node.is_ekf_odom_correct, (
-        f"{robot_name} does not move properly in y direction. Check ekf_filter_node!"
-        f" Twist: {node.twist}"
+        f"{robot_name}: does not move properly in y direction. Check ekf_filter_node!"
+        f"\nTwist: {node.ekf_twist}"
+        f"\nCommand: x: {v_x}, y:{v_y}, yaw:{v_yaw}"
     )
 
 
@@ -256,21 +262,49 @@ def yaw_speed_test(node: SimulationTestNode, v_x=0.0, v_y=0.0, v_yaw=0.0, robot_
     ), f"{robot_name} does not rotate properly. Check ekf_filter_node! Twist: {node.ekf_twist}"
 
 
+def wait_for_all_events(events, timeout):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        if all(event.is_set() for event in events):
+            return True, []
+        time.sleep(0.1)
+
+    not_set_events = [i for i, event in enumerate(events) if not event.is_set()]
+    return False, not_set_events
+
+
 def sensors_readings_test(node: SimulationTestNode, robot_name="ROSbot"):
-    flag = node.scan_event.wait(timeout=20.0)
-    assert flag, f"{robot_name}'s lidar does not work properly!"
+    events = [
+        node.scan_event,
+        node.ranges_events[0],
+        node.ranges_events[1],
+        node.ranges_events[2],
+        node.ranges_events[3],
+        # FIXME: Camera topics are not available in the current simulation
+        # node.camera_color_event,
+        # node.camera_points_event,
+    ]
 
-    for i in range(len(node.RANGE_SENSORS_TOPICS)):
-        flag = node.ranges_events[i].wait(timeout=20.0)
-        assert (
-            flag
-        ), f"{robot_name}'s range sensor {node.RANGE_SENSORS_TOPICS[i]} does not work properly!"
+    event_names = [
+        "Scan",
+        "Range FL",
+        "Range FR",
+        "Range RL",
+        "Range RR",
+        "Camera Color",
+        "Camera Points",
+    ]
 
-    flag = node.camera_color_event.wait(timeout=20.0)
-    assert flag, f"{robot_name}'s camera color image does not work properly!"
+    msgs_received_flag, not_set_indices = wait_for_all_events(events, timeout=20.0)
 
-    flag = node.camera_points_event.wait(timeout=20.0)
-    assert flag, f"{robot_name}'s camera point cloud does not work properly!"
+    if not msgs_received_flag:
+        not_set_event_names = [event_names[i] for i in not_set_indices]
+        missing_events = ", ".join(not_set_event_names)
+        raise AssertionError(
+            f"{robot_name}: Not all expected messages were received. Missing: {missing_events}."
+        )
+
+    print(f"{robot_name}: All messages received successfully.")
 
 
 def diff_test(node: SimulationTestNode, robot_name="ROSbot"):

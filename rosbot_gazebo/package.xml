@@ -4,7 +4,9 @@
   <name>rosbot_gazebo</name>
   <version>0.13.2</version>
   <description>Gazebo Ignition simulation for ROSbot 2, 2R, PRO</description>
+
   <maintainer email="support@husarion.com">Husarion</maintainer>
+
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
@@ -12,32 +14,25 @@
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
-  <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
   <author email="krzysztof.wojciechowski@husarion.com">Krzysztof Wojciechowski</author>
+  <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
-  <exec_depend>rosbot_bringup</exec_depend>
-
+  <exec_depend>gz_ros2_control</exec_depend>
+  <exec_depend>husarion_gz_worlds</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-
-  <exec_depend>husarion_gz_worlds</exec_depend>
-  <exec_depend>ros_gz_sim</exec_depend>
-  <!-- Ignition dependency is specified in the ros_gz_sim package,
-    version can chosen using GZ_VERSION (or IGNITION_VERSION) env variable,
-    for details refer to the ros_gz_sim package -->
-  <exec_depend>ros_gz_bridge</exec_depend>
-  <exec_depend>gz_ros2_control</exec_depend>
   <exec_depend>nav2_common</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>rosbot_bringup</exec_depend>
 
-  <test_depend>python3-pytest</test_depend>
-  <test_depend>launch</test_depend>
-  <test_depend>launch_ros</test_depend>
-  <test_depend>launch_pytest</test_depend>
-
-  <test_depend>tf_transformations</test_depend>
-  <!-- <test_depend>python-transforms3d-pip</test_depend> -->
-  <test_depend>nav_msgs</test_depend>
   <test_depend>geometry_msgs</test_depend>
+  <test_depend>launch</test_depend>
+  <test_depend>launch_pytest</test_depend>
+  <test_depend>launch_ros</test_depend>
+  <test_depend>nav_msgs</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <test_depend>tf_transformations</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

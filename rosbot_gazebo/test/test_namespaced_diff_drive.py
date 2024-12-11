@@ -27,7 +27,7 @@ from launch_ros.substitutions import FindPackageShare
 from launch_testing.actions import ReadyToTest
 from launch_testing.util import KeepAliveProc
 from test_ign_kill_utils import kill_ign_linux_processes
-from test_utils import SimulationTestNode, mecanum_test
+from test_utils import SimulationTestNode, diff_test
 
 
 @launch_pytest.fixture
@@ -44,16 +44,12 @@ def generate_test_description():
             )
         ),
         launch_arguments={
-            "mecanum": "True",
-            "world": PathJoinSubstitution(
-                [
-                    FindPackageShare("husarion_gz_worlds"),
-                    "worlds",
-                    "empty_with_plugins.sdf",
-                ]
+            "gz_headless_mode": "True",
+            "gz_world": PathJoinSubstitution(
+                [FindPackageShare("husarion_gz_worlds"), "worlds", "empty_with_plugins.sdf"]
             ),
-            "headless": "True",
-            "namespace": "rosbot2r",
+            "microros": "False",
+            "namespace": "rosbot",
         }.items(),
     )
 
@@ -68,13 +64,13 @@ def generate_test_description():
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_namespaced_mecanum_simulation():
+def test_namespaced_diff_drive_simulation():
     rclpy.init()
     try:
-        node = SimulationTestNode("test_namespaced_mecanum_simulation", namespace="rosbot2r")
+        node = SimulationTestNode("test_namespaced_diff_drive_simulation", namespace="rosbot")
         Thread(target=lambda node: rclpy.spin(node), args=(node,)).start()
 
-        mecanum_test(node)
+        diff_test(node)
 
     finally:
         # The pytest cannot kill properly the Gazebo Ignition's tasks what blocks launching
