@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
         stm32flash \
         ros-${ROS_DISTRO}-teleop-twist-keyboard && \
     # Setup workspace
-    vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos && \
+    vcs import src < src/rosbot_ros/rosbot/rosbot_$HUSARION_ROS_BUILD_TYPE.repos && \
     cp -r src/ros2_controllers/diff_drive_controller src/ && \
     cp -r src/ros2_controllers/imu_sensor_broadcaster src/ && \
     rm -rf src/ros2_controllers && \
