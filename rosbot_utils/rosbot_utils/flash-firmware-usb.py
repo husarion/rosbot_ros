@@ -66,17 +66,17 @@ class FirmwareFlasher:
         sh.usbreset("0403:6015")
         time.sleep(1.0)
 
-        # Disable the flash read-protection
-        flash_args = ["-k", "-b", "115200"]
-        sh.stm32flash(self.port, *flash_args, _out=sys.stdout)
+        # # Disable the flash read-protection
+        # flash_args = ["-k", "-b", "115200"]
+        # sh.stm32flash(self.port, *flash_args, _out=sys.stdout)
 
-        time.sleep(0.5)
+        # time.sleep(0.5)
 
-        # Disable the flash write-protection
-        flash_args = ["-u", "-b", "115200"]
-        sh.stm32flash(self.port, *flash_args, _out=sys.stdout)
+        # # Disable the flash write-protection
+        # flash_args = ["-u", "-b", "115200"]
+        # sh.stm32flash(self.port, *flash_args, _out=sys.stdout)
 
-        time.sleep(0.5)
+        # time.sleep(0.5)
 
         # Flashing the firmware
         flash_args = ["-v", "-w", self.binary_file, "-b", "115200"]
