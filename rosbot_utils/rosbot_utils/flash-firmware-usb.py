@@ -63,6 +63,8 @@ class FirmwareFlasher:
 
     def flash_firmware(self):
         self.enter_bootloader_mode()
+        sh.usbreset("0403:6015")
+        time.sleep(1.0)
 
         # Disable the flash read-protection
         flash_args = ["-k", "-b", "115200"]
