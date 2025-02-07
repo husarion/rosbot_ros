@@ -27,6 +27,7 @@
   <exec_depend>rviz2</exec_depend>
   <exec_depend>xacro</exec_depend>
 
+  <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>python3-pytest</test_depend>
   <test_depend>xacro</test_depend>
 
