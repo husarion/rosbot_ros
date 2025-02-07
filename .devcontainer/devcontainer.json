@@ -2,8 +2,7 @@
   "dockerComposeFile": "compose.yaml",
   "initializeCommand": "xhost +local:docker",
   "service": "devcontainer",
-  "workspaceFolder": "/home/husarion/ros2_ws/src",
-  //   "postCreateCommand": "~/ros2_ws/src/ros/.vscode/scripts/install_dependencies.sh && ~/ros2_ws/src/ros/.vscode/scripts/install_dependencies.sh",
+  "workspaceFolder": "/home/husarion/ros2_ws",
   "shutdownAction": "stopCompose",
   "customizations": {
     "vscode": {
