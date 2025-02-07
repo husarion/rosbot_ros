@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from glob import glob
 
 from setuptools import find_packages, setup
@@ -26,13 +25,14 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
         ("share/" + package_name, ["package.xml"]),
-        (os.path.join("share", package_name, "firmware"), glob("firmware/*.bin")),
+        ("share/" + package_name + "/firmware/rosbot", glob("firmware/rosbot/*.bin")),
+        ("share/" + package_name + "/firmware/rosbot_xl", glob("firmware/rosbot/*.bin")),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="Husarion",
     maintainer_email="support@husarion.com",
-    description="Utilities for ROSbot 2R and 2 PRO",
+    description="Utilities for ROSbot Series",
     license="Apache License 2.0",
     tests_require=["pytest"],
     entry_points={

@@ -1,0 +1,50 @@
+---
+name: Run tests
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Run tests ${{ matrix.build_type }} build type
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:noble
+    strategy:
+      matrix:
+        build_type: [simulation, hardware]
+    env:
+      HUSARION_ROS_BUILD_TYPE: ${{ matrix.build_type }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup ROS environment
+        uses: ros-tooling/setup-ros@0.7.9
+        with:
+          use-ros2-testing: true
+
+      - name: Set test package
+        run: |
+          if [ "${{ matrix.build_type }}" = "hardware" ]; then
+            echo 'TEST_PACKAGE=["rosbot_bringup"]' >> $GITHUB_ENV
+          else
+            echo 'TEST_PACKAGE=["rosbot_gazebo"]' >> $GITHUB_ENV
+          fi
+
+      - name: Build and test
+        uses: ros-tooling/action-ros-ci@0.3.16
+        with:
+          vcs-repo-file-url: ${{ github.workspace }}/rosbot/${{ env.HUSARION_ROS_BUILD_TYPE }}_deps.repos
+          target-ros2-distro: jazzy
+          colcon-defaults: |
+            {
+              "build": {
+                "packages-up-to": ["rosbot"]
+              },
+              "test": {
+                "packages-select": ${{ env.TEST_PACKAGE }}
+              }
+            }

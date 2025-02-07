@@ -1,0 +1,17 @@
+repositories:
+  husarion_controllers:
+    type: git
+    url: https://github.com/husarion/husarion_controllers
+    version: jazzy
+  micro-ROS-Agent:
+    type: git
+    url: https://github.com/rafal-gorecki/micro-ROS-Agent
+    version: jazzy
+  ros_components_description:
+    type: git
+    url: https://github.com/husarion/ros_components_description.git
+    version: jazzy
+  rosbot_hardware_interfaces:
+    type: git
+    url: https://github.com/husarion/rosbot_hardware_interfaces.git
+    version: jazzy

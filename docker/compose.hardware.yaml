@@ -13,7 +13,8 @@ services:
     ipc: host
     restart: unless-stopped
     devices:
-      - ${SERIAL_PORT:-/dev/ttyUSB0}
+      - ${SERIAL_PORT:-/dev/ttyUSB0} # ROSbot flashing firmware
+      - /dev/ttyUSBDB # ROSbot XL flashing firmware
       - /dev/bus/usb/ # FTDI
     environment:
       - USER
@@ -21,4 +22,5 @@ services:
       ros2 launch rosbot_bringup bringup.launch.py
         mecanum:=${MECANUM:-False}
         namespace:=${ROBOT_NAMESPACE:-rosbot}
+        rosbot_model:=${ROBOT_MODEL_NAME:-rosbot}
         serial_port:=${SERIAL_PORT:-/dev/ttyUSB0}

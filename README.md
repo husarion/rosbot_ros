@@ -1,6 +1,6 @@
-# Rosbot ROS
+# ROSbot ROS
 
-ROS 2 packages for Husarion ROSbot series.
+ROS 2 packages for Husarion ROSbot Series.
 
 ![ROSbot](https://husarion.com/assets/images/rosbot3-preview2-f7dee8f0b4ea4de02e80d4dc9f2ca286.png)
 
@@ -22,78 +22,65 @@ Documentation is available in ROS_API.md.
 2. Create a workspace folder and clone the rosbot_ros repository:
 
     ```bash
-    mkdir -p ros2_ws
-    cd ros2_ws
-    git clone -b jazzy https://github.com/husarion/rosbot_ros src/rosbot_ros
+    mkdir rosbot_ws
+    cd rosbot_ws
+    git clone https://github.com/husarion/rosbot_ros.git src/rosbot_ros
     ```
 
-### 🤖 Hardware
+### Configure environment
 
-#### Building
+The repository is used to run the code both on the real robot and in the simulation. Specify `HUSARION_ROS_BUILD_TYPE` the variable according to your needs.
+
+Real robot:
+
+``` bash
+export HUSARION_ROS_BUILD_TYPE=hardware
+```
+
+Simulation:
 
 ```bash
-export HUSARION_ROS_BUILD_TYPE=hardware
+export HUSARION_ROS_BUILD_TYPE=simulation
+```
 
+### Build
+
+```bash
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
-cp -r src/ros2_controllers/diff_drive_controller src/
-cp -r src/ros2_controllers/imu_sensor_broadcaster src/
-rm -rf src/ros2_controllers
-rm -r src/rosbot_ros/rosbot_gazebo
+vcs import src < src/rosbot_ros/rosbot/${HUSARION_ROS_BUILD_TYPE}_deps.repos
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
+
 colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 #### Run the Robot
 
-1. Flash the firmware:
-
-    ```bash
-    sudo su
-    source install/setup.bash
-    ros2 run rosbot_utils flash_firmware
-    exit
-    ```
-
-> [!NOTE]
-> To run the software on real ROSbots, communication with the CORE2 is required. Ensure the firmware is updated before running the micro-ROS agent. For detailed instructions, refer to the rosbot_ros2_firmware repository.
-
-2. Launch the robot:
-
-    ```bash
-    source install/setup.bash
-    ros2 launch rosbot_bringup bringup.launch.py
-    ```
-
-### 🖥️ Simulation
-
-#### Building
-
-```bash
-export HUSARION_ROS_BUILD_TYPE=simulation
-
-source /opt/ros/$ROS_DISTRO/setup.bash
-
-vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos
-cp -r src/ros2_controllers/diff_drive_controller src/
-cp -r src/ros2_controllers/imu_sensor_broadcaster src/
-rm -rf src/ros2_controllers
-
-sudo rosdep init
-rosdep update --rosdistro $ROS_DISTRO
-rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
-colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
-```
-
-#### Run the Simulation
+Real robot:
 
 ```bash
 source install/setup.bash
-ros2 launch rosbot_gazebo simulation.launch.py
+ros2 launch rosbot_bringup bringup.launch.py robot_model:=<rosbot/rosbot_xl>
+```
+
+> [!NOTE]
+> To run the software on real ROSbots, communication with the CORE2 is required. Ensure the firmware is updated before running the micro-ROS agent. For detailed instructions, refer to the rosbot_ros2_firmware repository.
+>
+> ```bash
+> sudo su
+> source install/setup.bash
+> ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
+> exit
+> ```
+
+Simulation:
+
+```bash
+source install/setup.bash
+ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 ```
 
 ### Launch Arguments
@@ -115,7 +102,6 @@ ros2 launch rosbot_gazebo simulation.launch.py
 | ❌   | ✅   | `gz_headless_mode`  | Run the simulation in headless mode. Useful when a GUI is not needed or to reduce the number of calculations. <br/> ***bool:*** `False`                                                            |
 | ❌   | ✅   | `gz_log_level`      | Adjust the level of console output. <br/> ***int:*** `1` (choices: `0`, `1`, `2`, `3`, `4`)                                                                                                        |
 | ❌   | ✅   | `gz_world`          | Absolute path to SDF world file. <br/> ***string:*** [`husarion_world.sdf`](https://github.com/husarion/husarion_gz_worlds/blob/main/worlds/husarion_world.sdf)                                    |
-| ❌   | ✅   | `robots`            | Spawning multiple robots at positions with yaw orientations e.g.robots:='robot1={x: 0.0, y: -1.0}; robot2={x: 1.0, y: -1.0};' <br/> ***string:*** `''`                                             |
 | ❌   | ✅   | `x`                 | Initial robot position in the global 'x' axis. <br/> ***float:*** `0.0`                                                                                                                            |
 | ❌   | ✅   | `y`                 | Initial robot position in the global 'y' axis. <br/> ***float:*** `2.0`                                                                                                                           |
 | ❌   | ✅   | `z`                 | Initial robot position in the global 'z' axis. <br/> ***float:*** `0.0`                                                                                                                            |

@@ -44,15 +44,10 @@ jobs:
           git_user: action-bot
           git_email: action-bot@action-bot.com
 
-  build-docker-image:
-    name: Trigger rosbot-docker to build image
-    runs-on: ubuntu-latest
+  ros_test:
+    name: Build Docker
     needs: catkin-release
-    steps:
-      - name: trigger the endpoint
-        run: >
-          curl -X POST
-          -H "Accept: application/vnd.github+json"
-          -H "Authorization: Bearer ${{ secrets.GH_PAT }}"
-          https://api.github.com/repos/husarion/rosbot-docker/dispatches
-          -d '{"event_type":"ros-package-update"}'
+    uses: ./.github/workflows/build-docker.yaml
+    with:
+      branch_name: ${{ github.event.pull_request.base.ref }}
+      build_type: development

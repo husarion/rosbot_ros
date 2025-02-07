@@ -33,7 +33,7 @@ setup(
     zip_safe=True,
     maintainer="Husarion",
     maintainer_email="contact@husarion.com",
-    description="Gazebo Ignition simulation for ROSbot 2, 2R, PRO",
+    description="Gazebo simulation for ROSbot Series",
     license="Apache License 2.0",
     tests_require=["pytest"],
     entry_points={

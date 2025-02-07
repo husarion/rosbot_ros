@@ -1,6 +1,0 @@
-[submodule "src/rosbot_hardware_interfaces"]
-	path = rosbot_hardware_interfaces
-	url = https://github.com/husarion/rosbot_hardware_interfaces.git
-[submodule "rosbot_hardware_interfaces"]
-	path = rosbot_hardware_interfaces
-	url = https://github.com/husarion/rosbot_hardware_interfaces.git

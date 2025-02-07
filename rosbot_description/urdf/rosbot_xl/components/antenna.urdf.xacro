@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="antenna"
+               params="parent_link
+                       xyz:='0.0 0.0 0.0'
+                       rpy:='0.0 0.0 0.0'
+                       tf_prefix:=''
+                       antenna_angle:=0.0">
+
+    <xacro:property name="prefix" value="${tf_prefix + '_' if tf_prefix != '' else ''}" />
+
+    <xacro:property name="antenna_length" value="0.1" />
+    <xacro:property name="antenna_radius" value="0.0052" />
+
+    <joint name="${parent_link.rstrip('_link')}_to_${prefix}antenna_connector_joint" type="fixed">
+      <origin xyz="${xyz}" rpy="${rpy}" />
+      <parent link="${parent_link}" />
+      <child link="${prefix}antenna_connector_link" />
+    </joint>
+
+    <link name="${prefix}antenna_connector_link">
+      <visual>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/components/antenna_connector.dae"
+            scale="1 1 1" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      </visual>
+    </link>
+
+    <joint name="${prefix}antenna_connector_to_${prefix}antenna_joint" type="fixed">
+      <origin xyz="-0.013 0.0 0.008" rpy="0.0 ${antenna_angle} 0.0" />
+      <parent link="${prefix}antenna_connector_link" />
+      <child link="${prefix}antenna_link" />
+    </joint>
+
+    <link name="${prefix}antenna_link">
+      <visual>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/components/antenna.dae"
+            scale="1 1 1" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="${antenna_radius}" length="${antenna_length}" />
+        </geometry>
+        <origin xyz="0.0 0.0 ${antenna_length/2.}" rpy="0.0 0.0 0.0" />
+      </collision>
+    </link>
+
+  </xacro:macro>
+</robot>

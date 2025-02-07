@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="body" params="wheel_radius">
+
+    <link name="base_link" />
+
+    <joint name="base_to_body_joint" type="fixed">
+      <origin xyz="0.0 0.0 ${wheel_radius}" rpy="0.0 0.0 0.0" />
+      <parent link="base_link" />
+      <child link="body_link" />
+    </joint>
+
+    <link name="body_link">
+      <visual>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/body.dae" scale="1 1 1" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      </visual>
+
+      <collision>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/body_colision.stl" scale="1 1 1" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      </collision>
+
+      <inertial>
+        <mass value="3.5" />
+        <origin xyz="0.0 0.0 0.0358" rpy="0.0 0.0 0.0" />
+        <inertia ixx="0.01393" ixy="-0.000020968097" ixz="0.000010399694"
+                               iyy= "0.01081"        iyz="0.000059372953"
+                                                     izz="0.02048" />
+      </inertial>
+    </link>
+
+    <joint name="body_to_cover_joint" type="fixed">
+      <origin xyz="0.0 0.0 0.08345" rpy="0.0 0.0 0.0" />
+      <parent link="body_link" />
+      <child link="cover_link" />
+    </joint>
+
+    <link name="cover_link" />
+
+    <joint name="body_to_imu_joint" type="fixed">
+      <origin xyz="-0.1369 -0.0419 0.0370" rpy="3.14159 0.0 0.0" />
+      <parent link="body_link" />
+      <child link="imu_link" />
+    </joint>
+
+    <link name="imu_link" />
+
+  </xacro:macro>
+</robot>

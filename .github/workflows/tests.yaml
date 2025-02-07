@@ -6,12 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  pre-commit:
-    name: Pre-commit
-    uses: ros-controls/ros2_control_ci/.github/workflows/reusable-pre-commit.yml@master
-    with:
-      ros_distro: jazzy
-
   industrial_ci:
     name: Industrial CI
     runs-on: ubuntu-24.04

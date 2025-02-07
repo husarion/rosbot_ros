@@ -1,0 +1,13 @@
+repositories:
+  husarion_controllers:
+    type: git
+    url: https://github.com/husarion/husarion_controllers
+    version: jazzy
+  husarion_gz_worlds:
+    type: git
+    url: https://github.com/husarion/husarion_gz_worlds
+    version: jazzy
+  ros_components_description:
+    type: git
+    url: https://github.com/husarion/ros_components_description.git
+    version: jazzy
