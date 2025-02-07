@@ -21,5 +21,6 @@
   <xacro:components.create_components
     components_config_path="$(arg components_config)"
     namespace=""
-  />
+    use_sim="$(arg use_sim)" />
+
 </robot>

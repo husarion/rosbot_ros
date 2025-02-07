@@ -4,13 +4,13 @@
 # components: []
 
 components:
-  - type: LDR06
+  - type: LDR01
     parent_link: cover_link
     xyz: 0.0 0.0 0.0
     rpy: 0.0 0.0 0.0
     device_namespace: ''
 
-  - type: CAM01
+  - type: CAM11
     parent_link: camera_mount_link
     xyz: 0.0 0.0 0.0
     rpy: 0.0 0.0 0.0
