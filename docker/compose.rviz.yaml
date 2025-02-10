@@ -23,6 +23,9 @@ x-cpu-config:
 services:
   rviz:
     image: husarion/rosbot:jazzy-rosbot-xl-merge
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile.simulation
     network_mode: host
     ipc: host
     <<: [ *cpu-config]

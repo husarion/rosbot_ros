@@ -22,9 +22,10 @@ x-cpu-config:
 
 services:
   rosbot:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.simulation
+    image: husarion/rosbot-gazebo:jazzy-rosbot-xl-merge
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile.simulation
     network_mode: host
     ipc: host
     <<: [ *gpu-config]

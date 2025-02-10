@@ -6,9 +6,10 @@
 
 services:
   rosbot:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.hardware
+    image: husarion/rosbot:jazzy-rosbot-xl-merge
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile.hardware
     network_mode: host
     ipc: host
     restart: unless-stopped
