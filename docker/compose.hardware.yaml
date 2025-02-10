@@ -22,5 +22,5 @@ services:
       ros2 launch rosbot_bringup bringup.launch.py
         mecanum:=${MECANUM:-False}
         namespace:=${ROBOT_NAMESPACE:-rosbot}
-        rosbot_model:=${ROBOT_MODEL_NAME:-rosbot}
+        robot_model:=${ROBOT_MODEL_NAME:-Error: Specify robot model}
         serial_port:=${SERIAL_PORT:-/dev/ttyUSB0}

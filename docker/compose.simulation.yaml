@@ -32,4 +32,4 @@ services:
       ros2 launch rosbot_gazebo simulation.launch.py
         mecanum:=${MECANUM:-False}
         namespace:=${ROBOT_NAMESPACE:-rosbot}
-        rosbot_model:=${ROBOT_MODEL_NAME:-rosbot}
+        robot_model:=${ROBOT_MODEL_NAME:-Error: Specify robot model}
