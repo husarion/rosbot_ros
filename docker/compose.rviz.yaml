@@ -1,0 +1,32 @@
+# Quick Start
+#
+# 1. Run `xhost +local:docker && docker compose -f compose.simulation.yaml up` on the laptop
+#    (optionally you can chang `gpu-config` -> `cpu config`).
+# 2. Open a shell inside a docker container `docker compose -f compose.simulation.yaml exec -it rosbot bash`
+# 3. Run `ros2 run teleop_twist_keyboard teleop_twist_keyboard` inside the container
+
+x-gpu-config:
+  &gpu-config
+  runtime: nvidia
+  environment:
+    - USER
+    - DISPLAY=${DISPLAY:?err}
+    - NVIDIA_VISIBLE_DEVICES=all
+    - NVIDIA_DRIVER_CAPABILITIES=all
+
+x-cpu-config:
+  &cpu-config
+  environment:
+    - USER
+    - DISPLAY=${DISPLAY:?err}
+
+services:
+  rviz:
+    image: husarion/rosbot:jazzy-rosbot-xl-merge
+    network_mode: host
+    ipc: host
+    <<: [ *cpu-config]
+    command: >
+      ros2 launch rosbot_description rviz.launch.py
+        namespace:=${ROBOT_NAMESPACE:-rosbot}
+        robot_model:=${ROBOT_MODEL_NAME:-Error: Specify robot model}
