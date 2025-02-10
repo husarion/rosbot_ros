@@ -61,7 +61,11 @@ jobs:
       matrix:
         include:
           - dockerfile: ./docker/Dockerfile.hardware
-            platforms: linux/amd64, linux/arm64
+            platforms: linux/amd64
+            repo_name: rosbot
+            ros_distro: jazzy
+          - dockerfile: ./docker/Dockerfile.hardware
+            platforms: linux/arm64
             repo_name: rosbot
             ros_distro: jazzy
           - dockerfile: ./docker/Dockerfile.simulation
