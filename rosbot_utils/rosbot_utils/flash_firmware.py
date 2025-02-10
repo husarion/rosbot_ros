@@ -80,19 +80,18 @@ def main(args=None):
     parser.add_argument(
         "--usb",
         action="store_true",
-        help="Flash via USB. Automatically set for ROSbot XL; other ROSbots use UART by default.",
+        help="Flash via USB. Automatically set for ROSbot XL; other ROSbots use UART by default. (You can flash firmware to ROSbot via USB-A from your PC)",
     )
-    parser.add_argument("-p", "--port", help="Specify the communication port")
-    parser.add_argument("--file", help="Specify the firmware file")
+    parser.add_argument(
+        "-p", "--port", default="/dev/ttyUSB0", help="Specify the communication port"
+    )
+    parser.add_argument("-f", "--file", help="Specify the firmware file")
     args = parser.parse_args(args)
 
+    port = args.port
     robot_model = args.robot_model
     if robot_model == "rosbot_xl":
         args.usb = True
-
-    # You can flash firmware to ROSbot via USB-A from your PC
-    port_dict = {"rosbot": "/dev/ttyUSB0", "rosbot_xl": "/dev/ttyUSBDB"}
-    port = args.port if args.port else port_dict[robot_model]
 
     rosbot_utils = get_package_share_directory("rosbot_utils")
     rosbot_firmware = os.path.join(rosbot_utils, "firmware", "rosbot", "range_laserscan_fix.bin")
