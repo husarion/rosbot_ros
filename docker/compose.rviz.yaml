@@ -29,4 +29,3 @@ services:
     command: >
       ros2 launch rosbot_description rviz.launch.py
         namespace:=${ROBOT_NAMESPACE:-rosbot}
-        robot_model:=${ROBOT_MODEL_NAME:-Error: Specify robot model}
