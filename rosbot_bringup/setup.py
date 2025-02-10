@@ -19,8 +19,6 @@ from setuptools import find_packages, setup
 
 package_name = "rosbot_bringup"
 common_config = [f for f in glob("config/*") if os.path.isfile(f)]
-rosbot_config = [f for f in glob("config/rosbot/*.yaml") if os.path.isfile(f)]
-rosbot_config = [f for f in glob("config/rosbot_xl/*.yaml") if os.path.isfile(f)]
 launch_files = glob("launch/*.launch.py")
 
 setup(
@@ -31,8 +29,6 @@ setup(
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         ("share/" + package_name, ["package.xml"]),
         ("share/" + package_name + "/config", common_config),
-        ("share/" + package_name + "/config/rosbot", rosbot_config),
-        ("share/" + package_name + "/config/rosbot_xl", rosbot_config),
         ("share/" + package_name + "/launch", launch_files),
     ],
     install_requires=["setuptools"],

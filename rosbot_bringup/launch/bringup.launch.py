@@ -26,7 +26,7 @@ from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
 )
-from launch_ros.actions import Node, PushROSNamespace, SetRemap
+from launch_ros.actions import PushROSNamespace, SetRemap
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -57,6 +57,8 @@ def generate_launch_description():
 
     rosbot_bringup = FindPackageShare("rosbot_bringup")
     rosbot_controller = FindPackageShare("rosbot_controller")
+    rosbot_localization = FindPackageShare("rosbot_localization")
+    rosbot_utils = FindPackageShare("rosbot_utils")
 
     controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -74,25 +76,17 @@ def generate_launch_description():
         }.items(),
     )
 
-    ekf_config = PathJoinSubstitution([rosbot_bringup, "config", robot_model, "ekf.yaml"])
-
-    robot_localization_node = Node(
-        package="robot_localization",
-        executable="ekf_node",
-        name="ekf_node",
-        parameters=[ekf_config],
-        remappings=[("/diagnostics", "diagnostics")],
+    localization_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_localization, "launch", "ekf.launch.py"])
+        ),
     )
 
-    laser_filter_config = PathJoinSubstitution(
-        [rosbot_bringup, "config", robot_model, "laser_filter.yaml"]
-    )
-
-    laser_filter_node = Node(
-        package="laser_filters",
-        executable="scan_to_scan_filter_chain",
-        name="laser_filter",
-        parameters=[laser_filter_config],
+    laser_filter_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_utils, "launch", "laser_filter.launch.py"])
+        ),
+        launch_arguments={"robot_model": robot_model}.items(),
     )
 
     green_color = "\033[92m"
@@ -113,8 +107,8 @@ def generate_launch_description():
         SetRemap("/tf_static", "tf_static"),
         controller_launch,
         microros_launch,
-        laser_filter_node,
-        robot_localization_node,
+        localization_launch,
+        laser_filter_launch,
         status_info,
     ]
 

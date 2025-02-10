@@ -159,27 +159,20 @@ def generate_launch_description():
         }.items(),
     )
 
-    rosbot_bringup = FindPackageShare("rosbot_bringup")
+    rosbot_localization = FindPackageShare("rosbot_localization")
+    rosbot_utils = FindPackageShare("rosbot_utils")
 
-    ekf_config = PathJoinSubstitution([rosbot_bringup, "config", robot_model, "ekf.yaml"])
-
-    robot_localization_node = Node(
-        package="robot_localization",
-        executable="ekf_node",
-        name="ekf_node",
-        output="screen",
-        parameters=[ekf_config],
+    localization_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_localization, "launch", "ekf.launch.py"])
+        ),
     )
 
-    laser_filter_config = PathJoinSubstitution(
-        [rosbot_bringup, "config", robot_model, "laser_filter.yaml"]
-    )
-
-    laser_filter_node = Node(
-        package="laser_filters",
-        executable="scan_to_scan_filter_chain",
-        name="laser_filter",
-        parameters=[laser_filter_config],
+    laser_filter_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_utils, "launch", "laser_filter.launch.py"])
+        ),
+        launch_arguments={"robot_model": robot_model}.items(),
     )
 
     return LaunchDescription(
@@ -202,7 +195,7 @@ def generate_launch_description():
             gz_bridge,
             gz_spawn_entity,
             controller_launch,
-            robot_localization_node,
-            laser_filter_node,
+            localization_launch,
+            laser_filter_launch,
         ]
     )

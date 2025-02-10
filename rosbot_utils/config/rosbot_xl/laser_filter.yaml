@@ -13,7 +13,7 @@
         max_y: 0.145
         min_y: -0.145
 
-        max_z: 0.5
-        min_z: -0.5
+        max_z: 0.3
+        min_z: 0.0
 
         invert: false

@@ -26,14 +26,6 @@ jobs:
         with:
           use-ros2-testing: true
 
-      - name: Set test package
-        run: |
-          if [ "${{ matrix.build_type }}" = "hardware" ]; then
-            echo 'TEST_PACKAGE=["rosbot_bringup"]' >> $GITHUB_ENV
-          else
-            echo 'TEST_PACKAGE=["rosbot_gazebo"]' >> $GITHUB_ENV
-          fi
-
       - name: Build and test
         uses: ros-tooling/action-ros-ci@0.3.16
         with:
@@ -45,6 +37,6 @@ jobs:
                 "packages-up-to": ["rosbot"]
               },
               "test": {
-                "packages-select": ${{ env.TEST_PACKAGE }}
+                "packages-up-to": ["rosbot"]
               }
             }
