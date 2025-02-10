@@ -71,7 +71,6 @@ class FirmwareFlasherUART:
             # Setups RPi pins
             device = get_raspberry_pi_model()
             self.port = "/dev/ttyAMA0"
-
             if device == "Raspberry Pi 4":
                 gpio_chip = "/dev/gpiochip0"
             elif device == "Raspberry Pi 5":

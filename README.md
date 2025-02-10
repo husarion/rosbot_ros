@@ -75,6 +75,14 @@ ros2 launch rosbot_bringup bringup.launch.py robot_model:=<rosbot/rosbot_xl>
 > ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
 > exit
 > ```
+> 
+> or using Docker
+>
+> ```bash
+> docker stop rosbot
+> docker run --rm -it --privileged husarion/rosbot:jazzy \
+> ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
+> ```
 
 Simulation:
 

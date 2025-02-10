@@ -90,6 +90,7 @@ def main(args=None):
     if robot_model == "rosbot_xl":
         args.usb = True
 
+    # You can flash firmware to ROSbot via USB-A from your PC
     port_dict = {"rosbot": "/dev/ttyUSB0", "rosbot_xl": "/dev/ttyUSBDB"}
     port = args.port if args.port else port_dict[robot_model]
 
