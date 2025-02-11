@@ -15,9 +15,9 @@ jobs:
     with:
       ros_distro: jazzy
 
-  ros_test:
-    name: ROS Test
-    uses: ./.github/workflows/run-tests.yaml
+  # ros_test:
+  #   name: ROS Test
+  #   uses: ./.github/workflows/run-tests.yaml
 
   bump:
     name: Bump

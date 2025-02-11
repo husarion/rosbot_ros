@@ -27,6 +27,7 @@ from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
+    components_config = LaunchConfiguration("components_config")
     namespace = LaunchConfiguration("namespace")
     robot_model = LaunchConfiguration("robot_model")
     x = LaunchConfiguration("x")
@@ -35,6 +36,17 @@ def generate_launch_description():
     roll = LaunchConfiguration("roll")
     pitch = LaunchConfiguration("pitch")
     yaw = LaunchConfiguration("yaw")
+
+    declare_components_config_arg = DeclareLaunchArgument(
+        "components_config",
+        default_value=PathJoinSubstitution(
+            [FindPackageShare("rosbot_description"), "config", "components.yaml"]
+        ),
+        description=(
+            "Specify file which contains components. These components will be included in URDF. "
+            "Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors)"
+        ),
+    )
 
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
@@ -151,8 +163,18 @@ def generate_launch_description():
         }.items(),
     )
 
+    ros_components_description = FindPackageShare("ros_components_description")
     rosbot_localization = FindPackageShare("rosbot_localization")
     rosbot_utils = FindPackageShare("rosbot_utils")
+
+    gz_components = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([ros_components_description, "launch", "gz_components.launch.py"])
+        ),
+        launch_arguments={
+            "components_config_path": components_config,
+        }.items(),
+    )
 
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -169,6 +191,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            declare_components_config_arg,
             declare_namespace_arg,
             declare_robot_model_arg,
             declare_x_arg,
@@ -185,6 +208,7 @@ def generate_launch_description():
             welcome_msg,
             gz_bridge,
             gz_spawn_entity,
+            gz_components,
             controller_launch,
             localization_launch,
             laser_filter_launch,
