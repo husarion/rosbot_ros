@@ -38,6 +38,6 @@ jobs:
                 "packages-up-to": ["rosbot"]
               },
               "test": {
-                "parallel-workers": 1
+                "packages-up-to": ["rosbot"]
               }
             }
