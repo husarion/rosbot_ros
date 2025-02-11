@@ -38,6 +38,6 @@ jobs:
                 "packages-up-to": ["rosbot"]
               },
               "test": {
-                "packages-up-to": ["rosbot"]
+                "packages-skip": ["rosbot_bringup", "rosbot_gazebo"]
               }
             }
