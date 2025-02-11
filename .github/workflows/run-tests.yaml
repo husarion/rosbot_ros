@@ -31,12 +31,13 @@ jobs:
         with:
           vcs-repo-file-url: ${{ github.workspace }}/rosbot/${{ env.HUSARION_ROS_BUILD_TYPE }}_deps.repos
           target-ros2-distro: jazzy
+          # rosbot_bringup and rosbot_gazebo works only locally
           colcon-defaults: |
             {
               "build": {
                 "packages-up-to": ["rosbot"]
               },
               "test": {
-                "packages-up-to": ["rosbot"]
+                "packages-skip": ["rosbot_bringup", "rosbot_gazebo"]
               }
             }
