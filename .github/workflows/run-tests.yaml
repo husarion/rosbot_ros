@@ -38,7 +38,6 @@ jobs:
                 "packages-up-to": ["rosbot"]
               },
               "test": {
-                "packages-skip": ["rosbot_bringup", "rosbot_gazebo"],
-                parallel-workers: 1
+                "packages-skip": ["rosbot_bringup", "rosbot_gazebo"]
               }
             }
