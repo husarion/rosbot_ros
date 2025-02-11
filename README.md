@@ -2,7 +2,10 @@
 
 ROS 2 packages for Husarion ROSbot Series.
 
-![ROSbot](https://husarion.com/assets/images/rosbot3-preview2-f7dee8f0b4ea4de02e80d4dc9f2ca286.png)
+<div style="display: flex; justify-content: center; gap: 10px;">
+  <img src="https://husarion.com/assets/images/rosbot3-preview2-f7dee8f0b4ea4de02e80d4dc9f2ca286.png" style="width: 45%;"/>
+  <img src="https://husarion.com/assets/images/RbXL_5_medium-a3a59b28a740574879d9e80d56c5268f.png" style="width: 40%;"/>
+</div>
 
 ## 📚 ROS API
 
