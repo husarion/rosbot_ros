@@ -98,8 +98,8 @@ def generate_launch_description():
             [FindPackageShare("rosbot_description"), "config", "components.yaml"]
         ),
         description=(
-            "Specify file which contains components. These components will be included in URDF."
-            "Available options can be found in manuals: https://husarion.com/manuals"
+            "Specify file which contains components. These components will be included in URDF. "
+            "Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors)"
         ),
     )
 

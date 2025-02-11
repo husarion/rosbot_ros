@@ -48,7 +48,7 @@ def generate_launch_description():
         "use_sim",
         default_value="False",
         description="Whether simulation is used.",
-        choices=["True", "true", "False", "false"],
+        choices=["True", "False"],
     )
 
     rviz_node = Node(

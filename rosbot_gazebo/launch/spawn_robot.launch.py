@@ -27,7 +27,6 @@ from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
-    mecanum = LaunchConfiguration("mecanum")
     namespace = LaunchConfiguration("namespace")
     robot_model = LaunchConfiguration("robot_model")
     x = LaunchConfiguration("x")
@@ -37,16 +36,10 @@ def generate_launch_description():
     pitch = LaunchConfiguration("pitch")
     yaw = LaunchConfiguration("yaw")
 
-    declare_mecanum_arg = DeclareLaunchArgument(
-        "mecanum",
-        default_value="False",
-        description="Whether to use mecanum drive controller, otherwise use diff drive",
-    )
-
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
-        default_value="",
-        description="Namespace for all topics and tfs",
+        default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
+        description="Add namespace to all launched nodes.",
     )
 
     declare_robot_model_arg = DeclareLaunchArgument(
@@ -153,7 +146,6 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "mecanum": mecanum,
             "robot_model": robot_model,
             "use_sim": "True",
         }.items(),
@@ -177,7 +169,6 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_mecanum_arg,
             declare_namespace_arg,
             declare_robot_model_arg,
             declare_x_arg,

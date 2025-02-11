@@ -14,18 +14,18 @@ Documentation is available in ROS_API.md.
 
 1. Install all necessary tools:
 
-    ```bash
-    sudo apt-get update
-    sudo apt-get install -y python3-pip ros-dev-tools stm32flash
-    ```
+   ```bash
+   sudo apt-get update
+   sudo apt-get install -y python3-pip ros-dev-tools stm32flash
+   ```
 
 2. Create a workspace folder and clone the rosbot_ros repository:
 
-    ```bash
-    mkdir rosbot_ws
-    cd rosbot_ws
-    git clone https://github.com/husarion/rosbot_ros.git src/rosbot_ros
-    ```
+   ```bash
+   mkdir rosbot_ws
+   cd rosbot_ws
+   git clone https://github.com/husarion/rosbot_ros.git src/rosbot_ros
+   ```
 
 ### Configure environment
 
@@ -33,7 +33,7 @@ The repository is used to run the code both on the real robot and in the simulat
 
 Real robot:
 
-``` bash
+```bash
 export HUSARION_ROS_BUILD_TYPE=hardware
 ```
 
@@ -95,27 +95,31 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 
 | Symbol | Meaning                      |
 | ------ | ---------------------------- |
-| 🤖      | Available for physical robot |
-| 🖥️      | Available in simulation      |
+| 🤖     | Available for physical robot |
+| 🖥️     | Available in simulation      |
 
-| 🤖   | 🖥️   | Argument            | Description <br/> ***Type:*** `Default`                                                                                                                                                            |
+| 🤖  | 🖥️  | Argument            | Description <br/> **_Type:_** `Default`                                                                                                                                                            |
 | --- | --- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ✅   | ✅   | `namespace`         | Namespace for all topics and tfs. <br/> ***string:*** `env(ROBOT_NAMESPACE)`                                                                                                                       |
-| ✅   | ❌   | `mecanum`           | Whether to use mecanum drive controller (otherwise diff drive controller is used). <br/> ***bool:*** `False`                                                                                       |
-| ✅   | ❌   | `microros`          | Automatically connect with hardware using microros. <br/> ***bool:*** `True`                                                                                                                       |
-| ✅   | ❌   | `serial_baudrate`   | Baud rate for serial communication . <br/> ***string:*** `576000`                                                                                                                                  |
-| ✅   | ❌   | `serial_port`       | Automatically connect with hardware using microros. <br/> ***string:*** `/dev/ttySERIAL`                                                                                                           |
-| ✅   | ❌   | `fastrtps_profiles` | Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only setup. <br/> ***string:*** [`microros_localhost_only.xml`](./rosbot_bringup/config/microros_localhost_only.xml) |
-| ❌   | ✅   | `gz_gui`            | Run simulation with specific GUI layout. <br/> ***string:*** [`teleop.config`](https://github.com/husarion/husarion_gz_worlds/blob/main/config/teleop.config)                                      |
-| ❌   | ✅   | `gz_headless_mode`  | Run the simulation in headless mode. Useful when a GUI is not needed or to reduce the number of calculations. <br/> ***bool:*** `False`                                                            |
-| ❌   | ✅   | `gz_log_level`      | Adjust the level of console output. <br/> ***int:*** `1` (choices: `0`, `1`, `2`, `3`, `4`)                                                                                                        |
-| ❌   | ✅   | `gz_world`          | Absolute path to SDF world file. <br/> ***string:*** [`husarion_world.sdf`](https://github.com/husarion/husarion_gz_worlds/blob/main/worlds/husarion_world.sdf)                                    |
-| ❌   | ✅   | `x`                 | Initial robot position in the global 'x' axis. <br/> ***float:*** `0.0`                                                                                                                            |
-| ❌   | ✅   | `y`                 | Initial robot position in the global 'y' axis. <br/> ***float:*** `2.0`                                                                                                                           |
-| ❌   | ✅   | `z`                 | Initial robot position in the global 'z' axis. <br/> ***float:*** `0.0`                                                                                                                            |
-| ❌   | ✅   | `roll`              | Initial robot 'roll' orientation. <br/> ***float:*** `0.0`                                                                                                                                         |
-| ❌   | ✅   | `pitch`             | Initial robot 'pitch' orientation. <br/> ***float:*** `0.0`                                                                                                                                        |
-| ❌   | ✅   | `yaw`               | Initial robot 'yaw' orientation. <br/> ***float:*** `0.0`                                                                                                                                          |
+| ✅  | ✅  | `components_config` | Specify file which contains components. These components will be included in URDF. Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors) <br/> **_string_:** [`components.yaml`](rosbot_description/config/components.yaml)                                                                                       |
+| ✅  | ✅  | `controller_config` | Path to controller configuration file. <br/> **_string:_** [`{robot_model}/{mecanum/diff}_drive_controller.yaml`](rosbot_controller/config/)                                                                                       |
+| ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `False`                                                                                       |
+| ✅  | ✅  | `namespace`         | Add namespace to all launched nodes. <br/> **_string:_** `env(ROBOT_NAMESPACE)`                                                                                                                       |
+| ✅  | ✅  | `robot_model`         | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL_NAME)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |
+| ✅  | ❌  | `microros`          | Automatically connect with hardware using microros. <br/> **_bool:_** `True`                                                                                                                       |
+| ✅  | ❌  | `port`   | **ROSbot XL only.** UDP4 port for micro-ROS agent. <br/> **_string:_** `8888`                                                                                                                                  |
+| ✅  | ❌  | `serial_baudrate`   | ROSbot only. Baud rate for serial communication. <br/> **_string:_** `576000`                                                                                                                                  |
+| ✅  | ❌  | `serial_port`       | ROSbot only. Serial port for micro-ROS agent. <br/> **_string:_** `/dev/ttySERIAL`                                                                                                           |
+| ✅  | ❌  | `fastrtps_profiles` | Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only setup. <br/> **_string:_** [`microros_localhost_only.xml`](./rosbot_bringup/config/microros_localhost_only.xml) |
+| ❌  | ✅  | `gz_gui`            | Run simulation with specific GUI layout. <br/> **_string:_** [`teleop.config`](https://github.com/husarion/husarion_gz_worlds/blob/main/config/teleop.config)                                      |
+| ❌  | ✅  | `gz_headless_mode`  | Run the simulation in headless mode. Useful when a GUI is not needed or to reduce the number of calculations. <br/> **_bool:_** `False`                                                            |
+| ❌  | ✅  | `gz_log_level`      | Adjust the level of console output. <br/> **_int:_** `1` (choices: `0`, `1`, `2`, `3`, `4`)                                                                                                        |
+| ❌  | ✅  | `gz_world`          | Absolute path to SDF world file. <br/> **_string:_** [`husarion_world.sdf`](https://github.com/husarion/husarion_gz_worlds/blob/main/worlds/husarion_world.sdf)                                    |
+| ❌  | ✅  | `x`                 | Initial robot position in the global 'x' axis. <br/> **_float:_** `0.0`                                                                                                                            |
+| ❌  | ✅  | `y`                 | Initial robot position in the global 'y' axis. <br/> **_float:_** `2.0`                                                                                                                            |
+| ❌  | ✅  | `z`                 | Initial robot position in the global 'z' axis. <br/> **_float:_** `0.0`                                                                                                                            |
+| ❌  | ✅  | `roll`              | Initial robot 'roll' orientation. <br/> **_float:_** `0.0`                                                                                                                                         |
+| ❌  | ✅  | `pitch`             | Initial robot 'pitch' orientation. <br/> **_float:_** `0.0`                                                                                                                                        |
+| ❌  | ✅  | `yaw`               | Initial robot 'yaw' orientation. <br/> **_float:_** `0.0`                                                                                                                                          |
 
 > [!TIP]
 >
@@ -125,7 +129,7 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 
 Explore demos showcasing the capabilities of ROSbots:
 
-| 📎 Link                                                                 | 📖 Description                                                                                    |
+| 📎 Link                                                                | 📖 Description                                                                                   |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | [rosbot-telepresence](https://github.com/husarion/rosbot-telepresence) | Stream live video from Orbbec Astra to a PC and control the robot using `teleop-twist-keyboard`  |
 | [rosbot-autonomy](https://github.com/husarion/rosbot-autonomy)         | Enables simultaneous mapping and navigation, allowing the robot to move in unknown environments. |

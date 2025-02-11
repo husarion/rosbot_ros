@@ -55,15 +55,13 @@ def generate_launch_description():
     declare_controller_config_arg = DeclareLaunchArgument(
         "controller_config",
         default_value=default_controller_config,
-        description="Path to controller configuration file. By default, it is located in"
-        " 'rosbot_controller/config/{robot_model}/{mecanum/diff}_drive_controller.yaml'. You can also specify"
-        " the path to your custom controller configuration file here. ",
+        description="Path to controller configuration file.",
     )
 
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
-        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
+        description="Whether to use mecanum drive controller, otherwise use diff drive",
     )
 
     declare_robot_model_arg = DeclareLaunchArgument(

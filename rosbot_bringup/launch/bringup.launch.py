@@ -39,7 +39,7 @@ def generate_launch_description():
         "microros",
         default_value="True",
         description="Automatically connect with hardware using microros.",
-        choices=["True", "true", "False", "false"],
+        choices=["True", "False"],
     )
 
     declare_namespace_arg = DeclareLaunchArgument(
