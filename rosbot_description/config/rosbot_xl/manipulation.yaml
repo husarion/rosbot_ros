@@ -1,0 +1,8 @@
+---
+components:
+  - type: LDR01
+    parent_link: cover_link
+    xyz: 0.0 0.0 0.0
+    rpy: 0.0 0.0 0.0
+    device_namespace: ''
+

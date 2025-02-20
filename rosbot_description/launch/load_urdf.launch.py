@@ -24,6 +24,7 @@ from launch.substitutions import (
     FindExecutable,
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression,
 )
 from launch_ros.actions import Node, SetParameter, SetRemap
 from launch_ros.substitutions import FindPackageShare
@@ -39,12 +40,16 @@ def contains_cam_component(yaml_fil):
 
 def launch_setup(context, *args, **kwargs):
     components_config = LaunchConfiguration("components_config").perform(context)
+    configuration = LaunchConfiguration("configuration").perform(context)
     controller_config = LaunchConfiguration("controller_config").perform(context)
     mecanum = LaunchConfiguration("mecanum").perform(context)
     mock_joints = LaunchConfiguration("mock_joints", default="True").perform(context)
     namespace = LaunchConfiguration("namespace").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     use_sim = LaunchConfiguration("use_sim", default="False").perform(context)
+
+    if robot_model != "rosbot_xl" and configuration != "basic":
+        raise ValueError("Invalid configuration and robot model combination. Only 'rosbot_xl' has configuration options.")
 
     urdf_file = robot_model + ".urdf.xacro"
     include_camera_mount = str(contains_cam_component(components_config))
@@ -55,6 +60,8 @@ def launch_setup(context, *args, **kwargs):
             PathJoinSubstitution([FindPackageShare("rosbot_description"), "urdf", urdf_file]),
             " components_config:=",
             components_config,
+            " configuration:=",
+            configuration,
             " controller_config:=",
             controller_config,
             " include_camera_mount:=",
@@ -92,15 +99,28 @@ def launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
+    configuration = LaunchConfiguration("configuration")
+    robot_model = LaunchConfiguration("robot_model")
+    components_file = PythonExpression(["'", configuration, "' + '.yaml'"])
+    default_components_config = PathJoinSubstitution(
+        [FindPackageShare("rosbot_description"), "config", robot_model, components_file]
+    )
     declare_components_config_arg = DeclareLaunchArgument(
         "components_config",
-        default_value=PathJoinSubstitution(
-            [FindPackageShare("rosbot_description"), "config", "components.yaml"]
-        ),
+        default_value=default_components_config,
         description=(
             "Specify file which contains components. These components will be included in URDF. "
             "Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors)"
         ),
+    )
+
+    declare_configuration_arg = DeclareLaunchArgument(
+        "configuration",
+        default_value="basic",
+        description=(
+            "Specify configuration packages. Currently only ROSbot XL has available packages"
+        ),
+        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"]
     )
 
     declare_mecanum_arg = DeclareLaunchArgument(
@@ -121,9 +141,10 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_components_config_arg,
-            declare_mecanum_arg,
+            declare_configuration_arg,
             declare_robot_model_arg,
+            declare_components_config_arg, # depends on configuration and robot model
+            declare_mecanum_arg,
             publish_robot_description,
         ]
     )

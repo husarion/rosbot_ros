@@ -10,6 +10,10 @@
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
     rosbot_base_controller:
       type: diff_drive_controller/DiffDriveController
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    gripper_controller:
+      type: parallel_gripper_action_controller/GripperActionController
 
 /**/imu_broadcaster:
   ros__parameters:
@@ -81,3 +85,40 @@
         max_deceleration_reverse: 4.0 # rad/s^2
         max_jerk: .nan # rad/s^3
         min_jerk: .nan # rad/s^3
+
+/**/arm_controller:
+  ros__parameters:
+    joints:
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+
+    interface_name: position
+
+    command_interfaces:
+      - position
+
+    state_interfaces:
+      - position
+      - velocity
+
+    state_publish_rate: 200.0
+    action_monitor_rate: 20.0
+
+    allow_partial_joints_goal: false
+    open_loop_control: true
+    allow_integration_in_goal_trajectories: true
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.0 # Defaults to 0.0 (start immediately)
+
+/**/gripper_controller:
+  ros__parameters:
+    joint: gripper_left_joint
+    state_interfaces:
+      - position
+      - velocity
+    command_interfaces:
+      - position
+    conversion_factor: 0.0001

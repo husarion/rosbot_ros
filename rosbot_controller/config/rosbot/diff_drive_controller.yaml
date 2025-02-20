@@ -5,10 +5,10 @@
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-    rosbot_base_controller:
-      type: diff_drive_controller/DiffDriveController
     imu_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
+    rosbot_base_controller:
+      type: diff_drive_controller/DiffDriveController
 
 /**/imu_broadcaster:
   ros__parameters:
@@ -17,7 +17,7 @@
     frame_id: imu_link
     static_covariance_orientation: [1.9e-3, 0.0, 0.0, 0.0, 1.9e-3, 0.0, 0.0, 0.0, 1.9e-3] # Values taken from datasheet
     static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values measured experimentally
-    static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0, 0.0] # Values measured experimentally
+    static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0] # Values measured experimentally
 
 /**/rosbot_base_controller:
   ros__parameters:

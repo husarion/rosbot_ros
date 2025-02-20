@@ -1,0 +1,13 @@
+repositories:
+  dynamixel_hardware_interface:
+    type: git
+    url: https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git
+    version: humble
+  dynamixel_interfaces:
+    type: git
+    url: https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git
+    version: humble
+  open_manipulator_x:
+    type: git
+    url: https://github.com/husarion/open_manipulator_x
+    version: jazzy
