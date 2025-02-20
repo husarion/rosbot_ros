@@ -2,11 +2,11 @@ repositories:
   dynamixel_hardware_interface:
     type: git
     url: https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git
-    version: humble
+    version: 5cc5b126b279449348bc94201f794151ed24c95e # Wait for sync DynamixelSDK package https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface/issues/16
   dynamixel_interfaces:
     type: git
     url: https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git
-    version: humble
+    version: jazzy
   open_manipulator_x:
     type: git
     url: https://github.com/husarion/open_manipulator_x

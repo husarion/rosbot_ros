@@ -19,6 +19,7 @@
 
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">dynamixel_hardware_interface</exec_depend>
   <exec_depend>imu_sensor_broadcaster</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>launch</exec_depend>
