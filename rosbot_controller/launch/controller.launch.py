@@ -36,10 +36,12 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
+from rosbot_utils.utils import find_device_port
 
 def generate_launch_description():
     configuration = LaunchConfiguration("configuration")
     controller_config = LaunchConfiguration("controller_config")
+    manipulator_port_name = LaunchConfiguration("manipulator_port_name")
     mecanum = LaunchConfiguration("mecanum")
     namespace = LaunchConfiguration("namespace")
     robot_model = LaunchConfiguration("robot_model")
@@ -70,6 +72,12 @@ def generate_launch_description():
         choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"]
     )
 
+    default_manipulator_port_name = find_device_port("0403", "6014", "/dev/ttyUSB0")
+    declare_manipulator_port_name_arg = DeclareLaunchArgument(
+        "manipulator_port_name",
+        default_value=default_manipulator_port_name,
+    )
+
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
@@ -92,6 +100,7 @@ def generate_launch_description():
         launch_arguments={
             "configuration": configuration,
             "controller_config": controller_config,
+            "manipulator_port_name": manipulator_port_name,
             "mock_joints": "False",
             "robot_model": robot_model,
             "use_sim": use_sim,
@@ -190,6 +199,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             declare_configuration_arg,
+            declare_manipulator_port_name_arg,
             declare_mecanum_arg,
             declare_robot_model_arg,
             declare_controller_config_arg,  # controler_config base on mecanum and robot_model arg
