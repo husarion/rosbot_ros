@@ -30,7 +30,7 @@
 
     <xacro:open_manipulator_x
       parent_link="'cover_link'"
-      xyz="-0.122 0.0 0.0"
+      xyz="-0.11 0.0 0.0"
       device_namespace="''"
       use_sim="$(arg use_sim)"
       port_name="$(arg manipulator_port_name)"/>

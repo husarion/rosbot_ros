@@ -5,9 +5,6 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Status1
-        - /Map1
-        - /Map1/Grid1
       Splitter Ratio: 0.5
     Tree Height: 707
   - Class: rviz_common/Selection
@@ -87,21 +84,21 @@ Visualization Manager:
           Value: true
           Visual Enabled: true
         - Class: rviz_default_plugins/TF
-          Enabled: false
+          Enabled: true
           Filter (blacklist): ""
           Filter (whitelist): ""
           Frame Timeout: 15
           Frames:
             All Enabled: true
-          Marker Scale: 1
+          Marker Scale: 0.10000000149011612
           Name: TF
           Show Arrows: true
           Show Axes: true
-          Show Names: false
+          Show Names: true
           Tree:
             {}
           Update Interval: 0
-          Value: false
+          Value: true
         - Angle Tolerance: 0.10000000149011612
           Class: rviz_default_plugins/Odometry
           Covariance:

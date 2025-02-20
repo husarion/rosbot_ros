@@ -41,11 +41,11 @@ def contains_cam_component(yaml_fil):
 def launch_setup(context, *args, **kwargs):
     components_config = LaunchConfiguration("components_config").perform(context)
     configuration = LaunchConfiguration("configuration").perform(context)
-    controller_config = LaunchConfiguration("controller_config").perform(context)
-    manipulator_port_name = LaunchConfiguration("manipulator_port_name").perform(context)
+    controller_config = LaunchConfiguration("controller_config", default='').perform(context)
+    manipulator_port_name = LaunchConfiguration("manipulator_port_name", default='/dev/ttyUSB0').perform(context)
     mecanum = LaunchConfiguration("mecanum").perform(context)
     mock_joints = LaunchConfiguration("mock_joints", default="True").perform(context)
-    namespace = LaunchConfiguration("namespace").perform(context)
+    namespace = LaunchConfiguration("namespace", default='').perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     use_sim = LaunchConfiguration("use_sim", default="False").perform(context)
 
