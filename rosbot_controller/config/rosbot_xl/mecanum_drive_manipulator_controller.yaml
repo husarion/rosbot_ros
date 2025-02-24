@@ -10,7 +10,7 @@
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
     rosbot_base_controller:
       type: mecanum_drive_controller/MecanumDriveController
-    arm_controller:
+    manipulator_controller:
       type: joint_trajectory_controller/JointTrajectoryController
     gripper_controller:
       type: parallel_gripper_action_controller/GripperActionController
@@ -98,7 +98,7 @@
         # min_acceleration - When unspecified, -max_acceleration is used.
         max_jerk: 0.0 # rad/s^3
 
-/**/arm_controller:
+/**/manipulator_controller:
   ros__parameters:
     joints:
       - joint1

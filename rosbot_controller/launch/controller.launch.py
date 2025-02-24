@@ -91,6 +91,9 @@ def generate_launch_description():
         choices=["rosbot", "rosbot_xl"],
     )
 
+    ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
+    ns_controller_config = ReplaceString(controller_config, {"<namespace>/": ns})
+
     load_urdf = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -99,16 +102,13 @@ def generate_launch_description():
         ),
         launch_arguments={
             "configuration": configuration,
-            "controller_config": controller_config,
+            "controller_config": ns_controller_config,
             "manipulator_port_name": manipulator_port_name,
             "mock_joints": "False",
             "robot_model": robot_model,
             "use_sim": use_sim,
         }.items(),
     )
-
-    ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
-    ns_controller_config = ReplaceString(controller_config, {"<namespace>/": ns})
 
     control_node = Node(
         package="controller_manager",

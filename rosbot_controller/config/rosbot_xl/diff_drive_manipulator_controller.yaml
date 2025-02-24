@@ -10,7 +10,7 @@
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
     rosbot_base_controller:
       type: diff_drive_controller/DiffDriveController
-    arm_controller:
+    manipulator_controller:
       type: joint_trajectory_controller/JointTrajectoryController
     gripper_controller:
       type: parallel_gripper_action_controller/GripperActionController
@@ -86,7 +86,7 @@
         max_jerk: .nan # rad/s^3
         min_jerk: .nan # rad/s^3
 
-/**/arm_controller:
+/**/manipulator_controller:
   ros__parameters:
     joints:
       - joint1

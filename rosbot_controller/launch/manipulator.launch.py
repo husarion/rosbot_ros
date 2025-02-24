@@ -18,11 +18,11 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    arm_controller_spawner = Node(
+    manipulator_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "arm_controller",
+            "manipulator_controller",
             "-c",
             "controller_manager",
             "--controller-manager-timeout",
@@ -44,4 +44,4 @@ def generate_launch_description():
         output="screen",
     )
 
-    return LaunchDescription([arm_controller_spawner, gripper_controller_spawner])
+    return LaunchDescription([manipulator_controller_spawner, gripper_controller_spawner])
