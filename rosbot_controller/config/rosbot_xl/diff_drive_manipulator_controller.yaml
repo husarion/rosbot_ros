@@ -13,7 +13,7 @@
     manipulator_controller:
       type: joint_trajectory_controller/JointTrajectoryController
     gripper_controller:
-      type: parallel_gripper_action_controller/GripperActionController
+      type: position_controllers/GripperActionController
 
 /**/imu_broadcaster:
   ros__parameters:
