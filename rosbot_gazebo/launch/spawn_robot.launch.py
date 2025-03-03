@@ -57,7 +57,7 @@ def generate_launch_description():
         description=(
             "Specify configuration packages. Currently only ROSbot XL has available packages"
         ),
-        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"]
+        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
     )
 
     declare_namespace_arg = DeclareLaunchArgument(
@@ -208,7 +208,7 @@ def generate_launch_description():
             declare_configuration_arg,
             declare_namespace_arg,
             declare_robot_model_arg,
-            declare_components_config_arg, # depends on configuration and robot model
+            declare_components_config_arg,  # depends on configuration and robot model
             declare_x_arg,
             declare_y_arg,
             declare_z_arg,

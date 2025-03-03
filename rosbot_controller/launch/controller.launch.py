@@ -38,6 +38,7 @@ from nav2_common.launch import ReplaceString
 
 from rosbot_utils.utils import find_device_port
 
+
 def generate_launch_description():
     configuration = LaunchConfiguration("configuration")
     controller_config = LaunchConfiguration("controller_config")
@@ -69,7 +70,7 @@ def generate_launch_description():
         description=(
             "Specify configuration packages. Currently only ROSbot XL has available packages."
         ),
-        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"]
+        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
     )
 
     default_manipulator_port = find_device_port("0403", "6014", "/dev/ttyUSB0")

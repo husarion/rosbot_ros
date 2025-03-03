@@ -41,16 +41,20 @@ def contains_cam_component(yaml_fil):
 def launch_setup(context, *args, **kwargs):
     components_config = LaunchConfiguration("components_config").perform(context)
     configuration = LaunchConfiguration("configuration").perform(context)
-    controller_config = LaunchConfiguration("controller_config", default='').perform(context)
-    manipulator_port = LaunchConfiguration("manipulator_port", default='/dev/ttyUSB0').perform(context)
+    controller_config = LaunchConfiguration("controller_config", default="").perform(context)
+    manipulator_port = LaunchConfiguration("manipulator_port", default="/dev/ttyUSB0").perform(
+        context
+    )
     mecanum = LaunchConfiguration("mecanum").perform(context)
     mock_joints = LaunchConfiguration("mock_joints", default="True").perform(context)
-    namespace = LaunchConfiguration("namespace", default='').perform(context)
+    namespace = LaunchConfiguration("namespace", default="").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     use_sim = LaunchConfiguration("use_sim", default="False").perform(context)
 
     if robot_model != "rosbot_xl" and configuration != "basic":
-        raise ValueError("Invalid configuration and robot model combination. Only 'rosbot_xl' has configuration options.")
+        raise ValueError(
+            "Invalid configuration and robot model combination. Only 'rosbot_xl' has configuration options."
+        )
 
     urdf_file = robot_model + ".urdf.xacro"
     include_camera_mount = str(contains_cam_component(components_config))
@@ -123,7 +127,7 @@ def generate_launch_description():
         description=(
             "Specify configuration packages. Currently only ROSbot XL has available packages"
         ),
-        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"]
+        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
     )
 
     declare_mecanum_arg = DeclareLaunchArgument(
@@ -146,7 +150,7 @@ def generate_launch_description():
         [
             declare_configuration_arg,
             declare_robot_model_arg,
-            declare_components_config_arg, # depends on configuration and robot model
+            declare_components_config_arg,  # depends on configuration and robot model
             declare_mecanum_arg,
             publish_robot_description,
         ]

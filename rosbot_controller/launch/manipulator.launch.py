@@ -19,6 +19,7 @@ from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+
 def generate_launch_description():
 
     manipulator_controller_spawner = Node(
@@ -47,6 +48,14 @@ def generate_launch_description():
         output="screen",
     )
 
+    move_group_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [FindPackageShare("open_manipulator_x_moveit"), "launch", "move_group.launch.py"]
+            )
+        ),
+    )
+
     servo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -55,4 +64,11 @@ def generate_launch_description():
         ),
     )
 
-    return LaunchDescription([manipulator_controller_spawner, gripper_controller_spawner, servo_launch])
+    return LaunchDescription(
+        [
+            manipulator_controller_spawner,
+            gripper_controller_spawner,
+            move_group_launch,
+            servo_launch,
+        ]
+    )
