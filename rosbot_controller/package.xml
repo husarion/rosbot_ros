@@ -26,6 +26,7 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>mecanum_drive_controller</exec_depend>
   <exec_depend>nav2_common</exec_depend>
+  <exec_depend>open_manipulator_x_moveit</exec_depend>
   <exec_depend>rosbot_description</exec_depend>
   <exec_depend>rosbot_utils</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">rosbot_hardware_interfaces</exec_depend>

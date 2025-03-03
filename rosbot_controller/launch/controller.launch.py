@@ -41,7 +41,7 @@ from rosbot_utils.utils import find_device_port
 def generate_launch_description():
     configuration = LaunchConfiguration("configuration")
     controller_config = LaunchConfiguration("controller_config")
-    manipulator_port_name = LaunchConfiguration("manipulator_port_name")
+    manipulator_port = LaunchConfiguration("manipulator_port")
     mecanum = LaunchConfiguration("mecanum")
     namespace = LaunchConfiguration("namespace")
     robot_model = LaunchConfiguration("robot_model")
@@ -67,15 +67,16 @@ def generate_launch_description():
         "configuration",
         default_value="basic",
         description=(
-            "Specify configuration packages. Currently only ROSbot XL has available packages"
+            "Specify configuration packages. Currently only ROSbot XL has available packages."
         ),
         choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"]
     )
 
-    default_manipulator_port_name = find_device_port("0403", "6014", "/dev/ttyUSB0")
-    declare_manipulator_port_name_arg = DeclareLaunchArgument(
-        "manipulator_port_name",
-        default_value=default_manipulator_port_name,
+    default_manipulator_port = find_device_port("0403", "6014", "/dev/ttyUSB0")
+    declare_manipulator_port_arg = DeclareLaunchArgument(
+        "manipulator_port",
+        default_value=default_manipulator_port,
+        description="Port to connect to the manipulator.",
     )
 
     declare_mecanum_arg = DeclareLaunchArgument(
@@ -103,7 +104,7 @@ def generate_launch_description():
         launch_arguments={
             "configuration": configuration,
             "controller_config": ns_controller_config,
-            "manipulator_port_name": manipulator_port_name,
+            "manipulator_port": manipulator_port,
             "mock_joints": "False",
             "robot_model": robot_model,
             "use_sim": use_sim,
@@ -199,7 +200,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             declare_configuration_arg,
-            declare_manipulator_port_name_arg,
+            declare_manipulator_port_arg,
             declare_mecanum_arg,
             declare_robot_model_arg,
             declare_controller_config_arg,  # controler_config base on mecanum and robot_model arg
