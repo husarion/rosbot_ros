@@ -129,7 +129,7 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "10",
+            "20",
         ],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
@@ -142,7 +142,7 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "10",
+            "20",
         ],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
@@ -155,7 +155,7 @@ def generate_launch_description():
             "--controller-manager",
             controller_manager_name,
             "--controller-manager-timeout",
-            "10",
+            "20",
         ],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )

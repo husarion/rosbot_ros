@@ -100,7 +100,7 @@ def generate_launch_description():
     reset_color = "\033[0m"
 
     status_info = TimerAction(
-        period=15.0,
+        period=30.0,
         actions=[LogInfo(msg=f"{green_color}All systems are up and running!{reset_color}")],
     )
 
