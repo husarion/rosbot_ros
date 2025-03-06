@@ -49,10 +49,8 @@ def generate_launch_description():
         output="screen",
     )
 
-    move_to_ready_pose = TimerAction(period=5.0, actions=[Node(
-        package="open_manipulator_x_moveit",
-        executable="ready")]
-    )
+    ready_node = Node(package="open_manipulator_x_moveit", executable="ready")
+    move_to_ready_pose = TimerAction(period=5.0, actions=[ready_node])
 
     move_group_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -71,7 +69,7 @@ def generate_launch_description():
     )
 
     delayed_servo_launch = RegisterEventHandler(
-        OnProcessExit(target_action=move_to_ready_pose, on_exit=[servo_launch])
+        OnProcessExit(target_action=ready_node, on_exit=[servo_launch])
     )
 
     return LaunchDescription(
