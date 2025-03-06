@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, RegisterEventHandler
+from launch.actions import IncludeLaunchDescription, RegisterEventHandler, TimerAction
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
@@ -49,9 +49,9 @@ def generate_launch_description():
         output="screen",
     )
 
-    move_to_ready_pose = Node(
+    move_to_ready_pose = TimerAction(period=5.0, actions=[Node(
         package="open_manipulator_x_moveit",
-        executable="ready",
+        executable="ready")]
     )
 
     move_group_launch = IncludeLaunchDescription(

@@ -110,6 +110,7 @@
       - joint2
       - joint3
       - joint4
+    allow_nonzero_velocity_at_trajectory_end: true
 
 /**/gripper_controller:
   ros__parameters:
