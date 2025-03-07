@@ -56,8 +56,10 @@ def launch_setup(context, *args, **kwargs):
             "Invalid configuration and robot model combination. Only 'rosbot_xl' has configuration options."
         )
 
+    camera_configuration = str(contains_cam_component(components_config))
+    manipulator_configuration = PythonExpression(["'", configuration, "'.startswith('manipulation')"])
+    include_camera_mount = PythonExpression([camera_configuration, " and not ", manipulator_configuration])
     urdf_file = robot_model + ".urdf.xacro"
-    include_camera_mount = str(contains_cam_component(components_config))
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),

@@ -1,5 +1,5 @@
 ---
-/**/scan_to_scan_filter_chain:
+/**/laser_filter:
   ros__parameters:
     filter1:
       name: box_filter
@@ -8,7 +8,7 @@
         box_frame: base_link
 
         max_x: 0.1
-        min_x: -0.12
+        min_x: -0.15 # 0.12 + 0.05 (lidar uncertanity)
 
         max_y: 0.12
         min_y: -0.12

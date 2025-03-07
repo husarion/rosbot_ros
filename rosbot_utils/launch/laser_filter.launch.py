@@ -48,9 +48,7 @@ def generate_launch_description():
         parameters=[laser_filter_config],
     )
 
-    actions = [
+    return LaunchDescription([
         declare_robot_model_arg,
         laser_filter_node,
-    ]
-
-    return LaunchDescription(actions)
+    ])
