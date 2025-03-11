@@ -384,7 +384,7 @@
   </joint>
   <link name="link1">
     <visual>
-      <origin rpy="0 0 0" xyz="0 0 0.03"/>
+      <origin rpy="0 0 0" xyz="0 0 0.0325"/>
       <geometry>
         <!-- We use custom cylinder -->
         <cylinder length="0.065" radius="0.035"/>
