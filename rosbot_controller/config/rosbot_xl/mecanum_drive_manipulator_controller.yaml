@@ -37,8 +37,8 @@
     wheel_separation_y: 0.192
     wheel_radius: 0.047
 
-    wheel_separation_x_multiplier: 1.06  # Based on real measurments
-    wheel_separation_y_multiplier: 1.06  # Based on real measurments
+    wheel_separation_x_multiplier: 1.06  # Based on real measurements
+    wheel_separation_y_multiplier: 1.06  # Based on real measurements
 
     wheel_radius_multiplier: 1.0
 

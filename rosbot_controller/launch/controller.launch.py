@@ -48,7 +48,9 @@ def generate_launch_description():
     robot_model = LaunchConfiguration("robot_model")
     use_sim = LaunchConfiguration("use_sim", default="False")
 
-    base_controller_prefix = PythonExpression(["'mecanum_drive' if ", mecanum, " else 'diff_drive'"])
+    base_controller_prefix = PythonExpression(
+        ["'mecanum_drive' if ", mecanum, " else 'diff_drive'"]
+    )
     manipulator = PythonExpression(["'", configuration, "'.startswith('manipulation')"])
     manipulator_prefix = PythonExpression(["'manipulator_' if ", manipulator, " else ''"])
     controller_config_file = PythonExpression(
