@@ -52,7 +52,7 @@ export HUSARION_ROS_BUILD_TYPE=simulation
 source /opt/ros/$ROS_DISTRO/setup.bash
 
 vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos
-vcs import src < src/rosbot_ros/rosbot/manipulator.repos
+vcs import src < src/rosbot_ros/rosbot/manipulator.repos # For ROSbot XL manipulation package
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
