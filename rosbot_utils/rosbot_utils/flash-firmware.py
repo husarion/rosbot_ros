@@ -126,6 +126,7 @@ class FirmwareFlasher:
 
         self.exit_bootloader_mode()
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Flashing the firmware on STM32 microcontroller in ROSbot"
