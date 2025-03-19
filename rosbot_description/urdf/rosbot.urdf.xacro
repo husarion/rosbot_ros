@@ -5,13 +5,15 @@
   <xacro:arg name="mecanum" default="false" />
   <xacro:arg name="simulation_engine" default="ignition-gazebo" />
   <xacro:arg name="namespace" default="None" />
+  <xacro:arg name="controller_config" default="" />
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
   <xacro:husarion.rosbot_robot
     mecanum="$(arg mecanum)"
     use_sim="$(arg use_sim)"
     simulation_engine="$(arg simulation_engine)"
-    namespace="$(arg namespace)" />
+    namespace="$(arg namespace)"
+    controller_config="$(arg controller_config)" />
 
     <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar_a2.urdf.xacro" ns="lidar" />
     <xacro:lidar.slamtec_rplidar_a2

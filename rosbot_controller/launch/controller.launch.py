@@ -32,6 +32,7 @@ from launch.substitutions import (
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
@@ -50,7 +51,6 @@ def generate_launch_description():
         default_value="False",
         description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
     )
-
     controller_config_name = PythonExpression(
         [
             "'mecanum_drive_controller.yaml' if ",
@@ -59,14 +59,12 @@ def generate_launch_description():
         ]
     )
 
-    namespace_ext = PythonExpression(
-        ["''", " if '", namespace, "' == '' ", "else ", "'", namespace, "/'"]
+    robot_controllers = PathJoinSubstitution(
+        [FindPackageShare("rosbot_controller"), "config", controller_config_name]
     )
 
-    controller_manager_name = LaunchConfiguration(
-        "controller_manager_name",
-        default=[namespace_ext, "controller_manager"],
-    )
+    ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
+    ns_robot_controllers = ReplaceString(robot_controllers, {"<namespace>/": ns})
 
     robot_description_content = Command(
         [
@@ -79,6 +77,8 @@ def generate_launch_description():
                     "rosbot.urdf.xacro",
                 ]
             ),
+            " controller_config:=",
+            ns_robot_controllers,
             " mecanum:=",
             mecanum,
             " namespace:=",
@@ -87,20 +87,17 @@ def generate_launch_description():
             use_sim,
         ]
     )
-    robot_description = {"robot_description": robot_description_content}
 
-    robot_controllers = PathJoinSubstitution(
-        [
-            FindPackageShare("rosbot_controller"),
-            "config",
-            controller_config_name,
-        ]
+    controller_manager_name = LaunchConfiguration(
+        "controller_manager_name",
+        default=[ns, "controller_manager"],
     )
 
+    robot_description = {"robot_description": robot_description_content}
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description, robot_controllers],
+        parameters=[robot_description, ns_robot_controllers],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),

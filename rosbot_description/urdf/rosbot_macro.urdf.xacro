@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="rosbot_robot" params="mecanum use_sim simulation_engine namespace ">
+  <xacro:macro name="rosbot_robot" params="mecanum use_sim simulation_engine namespace controller_config">
 
     <xacro:property name="ns" value="${namespace + '/' if namespace != 'None' else ''}" />
     <xacro:property name="wheel_radius" value="${0.0470 if mecanum else 0.0425}" />
@@ -111,14 +111,7 @@
       <xacro:if value="${simulation_engine == 'ignition-gazebo'}">
         <gazebo>
           <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-
-            <xacro:if value="${mecanum}">
-              <parameters>$(find rosbot_controller)/config/mecanum_drive_controller.yaml</parameters>
-            </xacro:if>
-            <xacro:unless value="${mecanum}">
-              <parameters>$(find rosbot_controller)/config/diff_drive_controller.yaml</parameters>
-            </xacro:unless>
-
+            <parameters>${controller_config}</parameters>
             <ros>
               <xacro:unless value="${namespace == 'None'}">
                 <namespace>${namespace}</namespace>
