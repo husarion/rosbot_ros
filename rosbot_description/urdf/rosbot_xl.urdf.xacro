@@ -8,7 +8,7 @@
   <xacro:arg name="mecanum" default="false" />
   <xacro:arg name="namespace" default="" />
   <xacro:arg name="use_sim" default="false" />
-  <xacro:arg name="manipulator_port" default="/dev/ttyUSB0" />
+  <xacro:arg name="manipulator_serial_port" default="/dev/ttyUSB0" />
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/rosbot_xl_macro.urdf.xacro"
     ns="husarion" />
@@ -33,7 +33,7 @@
       xyz="-0.11 0.0 0.0"
       device_namespace="''"
       use_sim="$(arg use_sim)"
-      port_name="$(arg manipulator_port)"/>
+      port_name="$(arg manipulator_serial_port)"/>
   </xacro:if>
 
 </robot>

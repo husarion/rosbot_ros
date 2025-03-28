@@ -2,7 +2,7 @@
 /**/controller_manager:
   ros__parameters:
     use_sim_time: false
-    update_rate: 50 # Hz
+    update_rate: 100 # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -29,8 +29,8 @@
     rear_left_wheel_name: rl_wheel_joint
     rear_right_wheel_name: rr_wheel_joint
 
-    wheel_separation_x: 0.106
-    wheel_separation_y: 0.192
+    wheel_separation_x: 0.170
+    wheel_separation_y: 0.270
     wheel_radius: 0.047
 
     wheel_separation_x_multiplier: 1.06  # Based on real measurements

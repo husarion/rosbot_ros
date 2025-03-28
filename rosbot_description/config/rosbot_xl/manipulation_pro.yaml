@@ -4,10 +4,8 @@ components:
     parent_link: cover_link
     xyz: 0.0 0.0 0.0
     rpy: 0.0 0.0 0.0
-    device_namespace: ''
 
   - type: CAM11
     parent_link: link5
     xyz: 0.06 0.0 0.05
     rpy: 0.0 0.0 0.0
-    device_namespace: ''

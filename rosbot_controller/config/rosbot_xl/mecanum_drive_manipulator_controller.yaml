@@ -33,8 +33,8 @@
     rear_left_wheel_name: rl_wheel_joint
     rear_right_wheel_name: rr_wheel_joint
 
-    wheel_separation_x: 0.106
-    wheel_separation_y: 0.192
+    wheel_separation_x: 0.170
+    wheel_separation_y: 0.270
     wheel_radius: 0.047
 
     wheel_separation_x_multiplier: 1.06  # Based on real measurements

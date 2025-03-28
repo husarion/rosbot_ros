@@ -42,9 +42,9 @@ def launch_setup(context, *args, **kwargs):
     components_config = LaunchConfiguration("components_config").perform(context)
     configuration = LaunchConfiguration("configuration").perform(context)
     controller_config = LaunchConfiguration("controller_config", default="").perform(context)
-    manipulator_port = LaunchConfiguration("manipulator_port", default="/dev/ttyUSB0").perform(
-        context
-    )
+    manipulator_serial_port = LaunchConfiguration(
+        "manipulator_serial_port", default="/dev/ttyUSB0"
+    ).perform(context)
     mecanum = LaunchConfiguration("mecanum").perform(context)
     mock_joints = LaunchConfiguration("mock_joints", default="True").perform(context)
     namespace = LaunchConfiguration("namespace", default="").perform(context)
@@ -77,8 +77,8 @@ def launch_setup(context, *args, **kwargs):
             controller_config,
             " include_camera_mount:=",
             include_camera_mount,
-            " manipulator_port:=",
-            manipulator_port,
+            " manipulator_serial_port:=",
+            manipulator_serial_port,
             " mecanum:=",
             mecanum,
             " namespace:=",
