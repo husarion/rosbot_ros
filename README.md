@@ -56,6 +56,7 @@ vcs import src < src/rosbot_ros/rosbot/manipulator.repos # For ROSbot XL manipul
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
+export PIP_BREAK_SYSTEM_PACKAGES=1
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 
 colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
