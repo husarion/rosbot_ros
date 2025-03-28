@@ -5,7 +5,7 @@ repositories:
     version: jazzy
   micro-ROS-Agent:
     type: git
-    url: https://github.com/rafal-gorecki/micro-ROS-Agent
+    url: https://github.com/micro-ROS/micro-ROS-Agent
     version: jazzy
   ros_components_description:
     type: git

@@ -33,6 +33,4 @@ def generate_launch_description():
         remappings=[("/diagnostics", "diagnostics")],
     )
 
-    actions = [robot_localization_node]
-
-    return LaunchDescription(actions)
+    return LaunchDescription([robot_localization_node])

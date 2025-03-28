@@ -45,7 +45,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
     serial_port = LaunchConfiguration("serial_port").perform(context)
 
-    robot_communication_args = {
+    micoros_communication_args = {
         "rosbot": ["serial", "-b", serial_baudrate, "-D", serial_port],
         "rosbot_xl": ["udp4", "--port", port],
     }
@@ -70,7 +70,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
     microros_agent_node = Node(
         package="micro_ros_agent",
         executable="micro_ros_agent",
-        arguments=robot_communication_args[robot_model],
+        arguments=micoros_communication_args[robot_model],
         output="screen",
     )
 
