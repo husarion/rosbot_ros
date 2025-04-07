@@ -22,9 +22,10 @@ x-cpu-config:
 
 services:
   rosbot:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.simulation
+    image: husarion/rosbot-gazebo:jazzy-rosbot-xl-merge
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile.simulation
     network_mode: host
     ipc: host
     <<: [ *gpu-config]
@@ -32,3 +33,4 @@ services:
       ros2 launch rosbot_gazebo simulation.launch.py
         mecanum:=${MECANUM:-False}
         namespace:=${ROBOT_NAMESPACE:-rosbot}
+        robot_model:=${ROBOT_MODEL_NAME:-Error: Specify robot model}

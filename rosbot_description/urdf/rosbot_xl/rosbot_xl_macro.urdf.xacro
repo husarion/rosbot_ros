@@ -1,0 +1,51 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+  <xacro:macro name="rosbot_xl"
+    params="controller_config
+            include_camera_mount
+            mecanum
+            namespace
+            use_sim">
+
+    <!-- PROPERTIES -->
+    <xacro:property name="wheel_radius" value="${0.05 if mecanum else 0.048}" />
+
+    <!-- INCLUDE ROBOT MACRO -->
+    <xacro:include filename="$(find rosbot_description)/urdf/common/gazebo.urdf.xacro" ns="gazebo" />
+    <xacro:include filename="$(find rosbot_description)/urdf/common/ros2_control.urdf.xacro" ns="ros2_control" />
+    <!-- <xacro:include filename="$(find rosbot_description)/urdf/common/webots.urdf.xacro" ns="webots" /> -->
+    <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/body.urdf.xacro" ns="body" />
+    <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/components/antenna.urdf.xacro" ns="antenna" />
+    <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/wheel.urdf.xacro" ns="wheel" />
+    <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/components/camera_mount.urdf.xacro" ns="camera_mount" />
+
+    <!-- BODY -->
+    <xacro:body.body wheel_radius="${wheel_radius}" />
+    <xacro:antenna.antenna parent_link="cover_link" xyz="-0.155 -0.055 -0.02" />
+    <xacro:if value="${include_camera_mount}">
+      <xacro:camera_mount.camera_mount parent_link="cover_link" xyz="-0.1 0.0 0.0" />
+    </xacro:if>
+
+    <!-- WHEEL -->
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fr" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="rl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="rr" mecanum="${mecanum}" />
+
+    <!-- HARDWARE PLUGINS -->
+    <xacro:unless value="${use_sim}">
+      <xacro:ros2_control.imu namespace="${namespace}" />
+      <xacro:ros2_control.rosbot_system namespace="${namespace}" />
+    </xacro:unless>
+
+    <!-- GAZEBO PLUGINS -->
+    <xacro:if value="${use_sim}">
+      <xacro:ros2_control.gz_rosbot_system namespace="${namespace}" />
+      <xacro:gazebo.controller config_file="${controller_config}" namespace="${namespace}" />
+      <xacro:gazebo.imu reference_frame="imu_link" namespace="${namespace}" />
+      <!-- <xacro:if value="${simulation_engine == 'webots'}">
+        <xacro:webots.controller />
+      </xacro:if> -->
+    </xacro:if>
+  </xacro:macro>
+</robot>

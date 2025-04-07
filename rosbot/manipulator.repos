@@ -1,0 +1,13 @@
+repositories:
+  dynamixel_hardware_interface: # Should be available in apt after sync
+    type: git
+    url: https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git
+    version: jazzy
+  dynamixel_interfaces: # Should be available in apt after sync
+    type: git
+    url: https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git
+    version: jazzy
+  open_manipulator_x:
+    type: git
+    url: https://github.com/husarion/open_manipulator_x
+    version: jazzy

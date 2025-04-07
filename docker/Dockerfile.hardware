@@ -15,11 +15,7 @@ RUN apt-get update && apt-get install -y \
         stm32flash \
         ros-${ROS_DISTRO}-teleop-twist-keyboard && \
     # Setup workspace
-    vcs import src < src/rosbot_ros/rosbot/rosbot_$HUSARION_ROS_BUILD_TYPE.repos && \
-    cp -r src/ros2_controllers/diff_drive_controller src/ && \
-    cp -r src/ros2_controllers/imu_sensor_broadcaster src/ && \
-    rm -rf src/ros2_controllers && \
-    rm -r src/rosbot_ros/rosbot_gazebo && \
+    vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos && \
     # Install dependencies
     rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \
@@ -33,6 +29,9 @@ RUN apt-get update && apt-get install -y \
     export SUDO_FORCE_REMOVE=yes && \
     apt-get remove -y \
         ros-dev-tools && \
+    # python3-requests should not be removed
+    apt-get install -y \
+        python3-requests && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

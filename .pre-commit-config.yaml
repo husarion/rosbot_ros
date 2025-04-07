@@ -4,11 +4,10 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-added-large-files
-        # mesh files has to be taken into account
         args: [--maxkb=3000]
       - id: check-ast
       - id: check-json
-        exclude: ^.vscode/|^.devcontainer/
+        exclude: ^.vscode/
       - id: check-merge-conflict
       - id: check-symlinks
       - id: check-xml
@@ -23,7 +22,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
+    rev: 6.0.0
     hooks:
       - id: isort
         args: [--profile, black]
@@ -34,12 +33,12 @@ repos:
       - id: cmake-format
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v19.1.4
+    rev: v19.1.7
     hooks:
       - id: clang-format
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         name: codespell
@@ -57,7 +56,7 @@ repos:
         args: [--mapping, '2', --sequence, '4', --offset, '2', --width, '100']
 
   - repo: https://github.com/psf/black
-    rev: 24.10.0
+    rev: 25.1.0
     hooks:
       - id: black
         args: [--line-length=99]
@@ -67,15 +66,6 @@ repos:
     hooks:
       - id: flake8
         args: ['--ignore=E501,W503']
-
-  - repo: local
-    hooks:
-      - id: ament_lint_cmake
-        name: ament_lint_cmake
-        description: Check format of CMakeLists.txt files.
-        entry: ament_lint_cmake
-        language: system
-        files: CMakeLists\.txt$
 
   - repo: local
     hooks:
@@ -98,4 +88,16 @@ repos:
     rev: v0.10.0
     hooks:
       - id: prettier-package-xml
+      - id: ros-include-guard
       - id: sort-package-xml
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.44.0
+    hooks:
+      - id: markdownlint-fix
+        name: markdownlint-fix
+        description: Fixes the style of Markdown/Commonmark files.
+        entry: markdownlint --fix
+        language: node
+        types: [markdown]
+        minimum_pre_commit_version: 0.15.0

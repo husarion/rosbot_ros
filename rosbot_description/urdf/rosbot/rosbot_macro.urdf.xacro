@@ -1,0 +1,44 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+  <xacro:macro name="rosbot"
+    params="controller_config
+            mecanum
+            namespace
+            use_sim">
+
+    <!-- PROPERTIES -->
+    <xacro:property name="wheel_radius" value="${0.047 if mecanum else 0.0425}" />
+
+    <!-- INCLUDE ROBOT MACRO -->
+    <xacro:include filename="$(find rosbot_description)/urdf/common/gazebo.urdf.xacro" ns="gazebo" />
+    <xacro:include filename="$(find rosbot_description)/urdf/common/ros2_control.urdf.xacro" ns="ros2_control" />
+    <!-- <xacro:include filename="$(find rosbot_description)/urdf/common/webots.urdf.xacro" ns="webots" /> -->
+    <xacro:include filename="$(find rosbot_description)/urdf/rosbot/body.urdf.xacro" ns="body" />
+    <xacro:include filename="$(find rosbot_description)/urdf/rosbot/wheel.urdf.xacro" ns="wheel" />
+
+    <!-- BODY -->
+    <xacro:body.body wheel_radius="${wheel_radius}" namespace="${namespace}" />
+
+    <!-- WHEEL -->
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fr" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="rl" mecanum="${mecanum}" />
+    <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="rr" mecanum="${mecanum}" />
+
+    <!-- HARDWARE PLUGINS -->
+    <xacro:unless value="${use_sim}">
+      <xacro:ros2_control.imu namespace="${namespace}" />
+      <xacro:ros2_control.rosbot_system namespace="${namespace}" />
+    </xacro:unless>
+
+    <!-- GAZEBO PLUGINS -->
+    <xacro:if value="${use_sim}">
+      <xacro:ros2_control.gz_rosbot_system namespace="${namespace}" />
+      <xacro:gazebo.controller config_file="${controller_config}" namespace="${namespace}" />
+      <xacro:gazebo.imu reference_frame="imu_link" namespace="${namespace}" />
+      <!-- <xacro:if value="${simulation_engine == 'webots'}">
+        <xacro:webots.controller />
+      </xacro:if> -->
+    </xacro:if>
+  </xacro:macro>
+</robot>

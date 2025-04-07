@@ -1,29 +1,30 @@
 <?xml version='1.0'?>
 <robot name="rosbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:arg name="use_sim" default="false" />
+  <xacro:arg name="controller_config" default="" />
   <xacro:arg name="mecanum" default="false" />
-  <xacro:arg name="namespace" default="None" />
+  <xacro:arg name="namespace" default="" />
+  <xacro:arg name="use_sim" default="false" />
 
-  <xacro:include filename="$(find rosbot_description)/urdf/rosbot_macro.urdf.xacro" ns="husarion" />
+  <xacro:include filename="$(find rosbot_description)/urdf/rosbot/rosbot_macro.urdf.xacro" ns="husarion" />
+  <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar.urdf.xacro" ns="lidar" />
+	<xacro:include filename="$(find ros_components_description)/urdf/luxonis_depthai.urdf.xacro" ns="camera" />
+
   <xacro:husarion.rosbot
+    controller_config="$(arg controller_config)"
     mecanum="$(arg mecanum)"
-    use_sim="$(arg use_sim)"
-    namespace="$(arg namespace)" />
+    namespace="$(arg namespace)"
+    use_sim="$(arg use_sim)" />
 
-    <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar.urdf.xacro" ns="lidar" />
-    <xacro:lidar.slamtec_rplidar
-      parent_link="cover_link"
-      xyz="0.02 0.0 0.0"
-      rpy="0.0 0.0 0.0"
-      model="s2"
-      namespace="$(arg namespace)" />
+  <xacro:lidar.slamtec_rplidar
+    parent_link="cover_link"
+    xyz="0.02 0.0 0.0"
+    model="s2" />
 
-	<xacro:include filename="$(find depthai_descriptions)/urdf/include/depthai_macro.urdf.xacro" ns="camera" />
-	<xacro:camera.depthai_camera camera_name="oak_camera" parent="camera_mount_link"
-		camera_model="OAK-D-PRO" base_frame="oak_camera"
-		cam_pos_x="0.0" cam_pos_y="0.0" cam_pos_z="0.02"
-		cam_roll="0.0" cam_pitch="0.0" cam_yaw="0.0"
-    r="0.2" g="0.2" b="0.2" a="1.0"	rs_compat="false" simulation="$(arg use_sim)" />
+  <xacro:camera.luxonis_depthai
+    parent_link="camera_mount_link"
+    xyz="0.0 0.0 0.02"
+    model="OAK-D-PRO"
+    use_sim="$(arg use_sim)" />
 
 </robot>
