@@ -1,6 +1,7 @@
 ---
 /**/controller_manager:
   ros__parameters:
+    use_sim_time: false
     update_rate: 100 # Hz
 
     joint_state_broadcaster:
@@ -9,6 +10,10 @@
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
     rosbot_base_controller:
       type: mecanum_drive_controller/MecanumDriveController
+    manipulator_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    gripper_controller:
+      type: position_controllers/GripperActionController
 
 /**/imu_broadcaster:
   ros__parameters:
@@ -28,14 +33,14 @@
     rear_left_wheel_name: rl_wheel_joint
     rear_right_wheel_name: rr_wheel_joint
 
-    wheel_separation_x: 0.106
-    wheel_separation_y: 0.192
+    wheel_separation_x: 0.170
+    wheel_separation_y: 0.270
     wheel_radius: 0.047
 
-    wheel_separation_x_multiplier: 1.0
-    wheel_separation_y_multiplier: 1.0
+    wheel_separation_x_multiplier: 0.95  # Based on real measurements
+    wheel_separation_y_multiplier: 0.95  # Based on real measurements
 
-    wheel_radius_multiplier: 1.0
+    wheel_radius_multiplier: 1.05  # Based on real measurements
 
     # Feedback from motors is published at around 20 Hz
     publish_rate: 25.0
@@ -92,3 +97,27 @@
         max_acceleration: 3.0 # rad/s^2
         # min_acceleration - When unspecified, -max_acceleration is used.
         max_jerk: 0.0 # rad/s^3
+
+/**/manipulator_controller:
+  ros__parameters:
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    joints:
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+    allow_nonzero_velocity_at_trajectory_end: true
+
+/**/gripper_controller:
+  ros__parameters:
+    joint: gripper_left_joint
+    state_interfaces:
+      - position
+      - velocity
+    command_interfaces:
+      - position
+    conversion_factor: 0.0001

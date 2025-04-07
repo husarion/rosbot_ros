@@ -67,7 +67,7 @@
   <xacro:macro name="gz_rosbot_system" params="name:='rosbot_system' namespace:=''" >
     <xacro:property name="ns" value="${namespace + '/' if namespace != '' else ''}" />
 
-    <ros2_control name="${ns}${name}" type="sensor">
+    <ros2_control name="${ns}${name}" type="system">
       <hardware>
         <plugin>gz_ros2_control/GazeboSimSystem</plugin>
         <!-- <xacro:if value="${simulation_engine == 'webots'}">

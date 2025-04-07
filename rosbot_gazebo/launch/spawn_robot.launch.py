@@ -28,6 +28,7 @@ from nav2_common.launch import ReplaceString
 
 def generate_launch_description():
     components_config = LaunchConfiguration("components_config")
+    configuration = LaunchConfiguration("configuration")
     namespace = LaunchConfiguration("namespace")
     robot_model = LaunchConfiguration("robot_model")
     x = LaunchConfiguration("x")
@@ -37,15 +38,26 @@ def generate_launch_description():
     pitch = LaunchConfiguration("pitch")
     yaw = LaunchConfiguration("yaw")
 
+    components_file = PythonExpression(["'", configuration, "' + '.yaml'"])
+    default_components_config = PathJoinSubstitution(
+        [FindPackageShare("rosbot_description"), "config", robot_model, components_file]
+    )
     declare_components_config_arg = DeclareLaunchArgument(
         "components_config",
-        default_value=PathJoinSubstitution(
-            [FindPackageShare("rosbot_description"), "config", "components.yaml"]
-        ),
+        default_value=default_components_config,
         description=(
             "Specify file which contains components. These components will be included in URDF. "
             "Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors)"
         ),
+    )
+
+    declare_configuration_arg = DeclareLaunchArgument(
+        "configuration",
+        default_value="basic",
+        description=(
+            "Specify configuration packages. Currently only ROSbot XL has available packages"
+        ),
+        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
     )
 
     declare_namespace_arg = DeclareLaunchArgument(
@@ -158,6 +170,8 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
+            "components_config": components_config,
+            "configuration": configuration,
             "robot_model": robot_model,
             "use_sim": "True",
         }.items(),
@@ -191,9 +205,10 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_components_config_arg,
+            declare_configuration_arg,
             declare_namespace_arg,
             declare_robot_model_arg,
+            declare_components_config_arg,  # depends on configuration and robot model
             declare_x_arg,
             declare_y_arg,
             declare_z_arg,

@@ -52,9 +52,11 @@ export HUSARION_ROS_BUILD_TYPE=simulation
 source /opt/ros/$ROS_DISTRO/setup.bash
 
 vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos
+vcs import src < src/rosbot_ros/rosbot/manipulator.repos # For ROSbot XL manipulation package
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
+export PIP_BREAK_SYSTEM_PACKAGES=1
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 
 colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
@@ -78,14 +80,6 @@ ros2 launch rosbot_bringup bringup.launch.py robot_model:=<rosbot/rosbot_xl>
 > ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
 > exit
 > ```
->
-> or using Docker
->
-> ```bash
-> docker stop rosbot
-> docker run --rm -it --privileged husarion/rosbot:jazzy \
-> ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
-> ```
 
 Simulation:
 
@@ -104,12 +98,14 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 | 🤖  | 🖥️  | Argument            | Description <br/> **_Type:_** `Default`                                                                                                                                                            |
 | --- | --- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ✅  | ✅  | `components_config` | Specify file which contains components. These components will be included in URDF. Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors) <br/> **_string_:** [`components.yaml`](rosbot_description/config/components.yaml)                                                                                       |
+| ✅  | ✅  | `configuration` | Specify configuration packages. Currently only ROSbot XL has available packages. Packages: `basic`, `telepresence`, `autonomy`, `manipulation`, `manipulation_pro`. <br/> **_string:_** 'basic'                                                                          |
 | ✅  | ✅  | `controller_config` | Path to controller configuration file. <br/> **_string:_** [`{robot_model}/{mecanum/diff}_drive_controller.yaml`](rosbot_controller/config/)                                                                                       |
 | ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `False`                                                                                       |
 | ✅  | ✅  | `namespace`         | Add namespace to all launched nodes. <br/> **_string:_** `env(ROBOT_NAMESPACE)`                                                                                                                       |
-| ✅  | ✅  | `robot_model`         | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL_NAME)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |
+| ✅  | ✅  | `robot_model`       | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL_NAME)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |
+| ✅  | ❌  | `manipulator_serial_port`  | Port to connect to the manipulator. <br/> **_string:_** `8888`                                                                                                                                  |
 | ✅  | ❌  | `microros`          | Automatically connect with hardware using microros. <br/> **_bool:_** `True`                                                                                                                       |
-| ✅  | ❌  | `port`   | **ROSbot XL only.** UDP4 port for micro-ROS agent. <br/> **_string:_** `8888`                                                                                                                                  |
+| ✅  | ❌  | `port`              | **ROSbot XL only.** UDP4 port for micro-ROS agent. <br/> **_string:_** `8888`                                                                                                                         |
 | ✅  | ❌  | `serial_baudrate`   | ROSbot only. Baud rate for serial communication. <br/> **_string:_** `576000`                                                                                                                                  |
 | ✅  | ❌  | `serial_port`       | ROSbot only. Serial port for micro-ROS agent. <br/> **_string:_** `/dev/ttySERIAL`                                                                                                           |
 | ✅  | ❌  | `fastrtps_profiles` | Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only setup. <br/> **_string:_** [`microros_localhost_only.xml`](./rosbot_bringup/config/microros_localhost_only.xml) |

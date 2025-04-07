@@ -1,5 +1,5 @@
 ---
-/**/scan_to_scan_filter_chain:
+/**/laser_filter:
   ros__parameters:
     filter1:
       name: box_filter
@@ -8,7 +8,7 @@
         box_frame: base_link
 
         max_x: 0.165
-        min_x: -0.195 # 0.165 + 0.03 (wifi antenna)
+        min_x: -0.245 # 0.165 + 0.03 (wifi antenna) + 0.05 (lidar uncertanity)
 
         max_y: 0.145
         min_y: -0.145

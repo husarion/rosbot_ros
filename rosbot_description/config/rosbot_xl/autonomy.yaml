@@ -1,8 +1,4 @@
 ---
-# By default ROSbot XL is launched with RPlidar S3 and OAK-D PRO
-
-# components: []
-
 components:
   - type: LDR01
     parent_link: cover_link
@@ -12,6 +8,6 @@ components:
 
   - type: CAM11
     parent_link: camera_mount_link
-    xyz: 0.0 0.0 0.0
+    xyz: 0.01 0.035 0.02
     rpy: 0.0 0.0 0.0
     device_namespace: ''
