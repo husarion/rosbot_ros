@@ -22,7 +22,7 @@ x-cpu-config:
 
 services:
   rviz:
-    image: husarion/rosbot:jazzy-rosbot-xl-merge
+    image: husarion/rosbot:jazzy-0.15.0-20250407
     # build:
     #   context: ..
     #   dockerfile: docker/Dockerfile.simulation
