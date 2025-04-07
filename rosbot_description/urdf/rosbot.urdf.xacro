@@ -7,8 +7,7 @@
   <xacro:arg name="use_sim" default="false" />
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot/rosbot_macro.urdf.xacro" ns="husarion" />
-  <xacro:include filename="$(find ros_components_description)/urdf/slamtec_rplidar.urdf.xacro" ns="lidar" />
-	<xacro:include filename="$(find ros_components_description)/urdf/luxonis_depthai.urdf.xacro" ns="camera" />
+  <xacro:include filename="$(find ros_components_description)/urdf/components.urdf.xacro" ns="components" />
 
   <xacro:husarion.rosbot
     controller_config="$(arg controller_config)"
@@ -16,15 +15,9 @@
     namespace="$(arg namespace)"
     use_sim="$(arg use_sim)" />
 
-  <xacro:lidar.slamtec_rplidar
-    parent_link="cover_link"
-    xyz="0.02 0.0 0.0"
-    model="s2" />
-
-  <xacro:camera.luxonis_depthai
-    parent_link="camera_mount_link"
-    xyz="0.0 0.0 0.02"
-    model="OAK-D-PRO"
+  <xacro:components.create_components
+    components_config_path="$(arg components_config)"
+    namespace=""
     use_sim="$(arg use_sim)" />
 
 </robot>

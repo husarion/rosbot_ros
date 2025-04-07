@@ -10,8 +10,9 @@
   <xacro:arg name="use_sim" default="false" />
   <xacro:arg name="manipulator_serial_port" default="/dev/ttyUSB0" />
 
-  <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/rosbot_xl_macro.urdf.xacro"
-    ns="husarion" />
+  <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/rosbot_xl_macro.urdf.xacro" ns="husarion" />
+  <xacro:include filename="$(find ros_components_description)/urdf/components.urdf.xacro" ns="components" />
+
   <xacro:husarion.rosbot_xl
     controller_config="$(arg controller_config)"
     include_camera_mount="$(arg include_camera_mount)"
@@ -19,7 +20,6 @@
     namespace="$(arg namespace)"
     use_sim="$(arg use_sim)" />
 
-  <xacro:include filename="$(find ros_components_description)/urdf/components.urdf.xacro" ns="components" />
   <xacro:components.create_components
     components_config_path="$(arg components_config)"
     namespace=""

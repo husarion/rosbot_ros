@@ -64,7 +64,7 @@ colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUIL
 
 #### Run the Robot
 
-Real robot:
+**Real robot:**
 
 ```bash
 source install/setup.bash
@@ -81,7 +81,7 @@ ros2 launch rosbot_bringup bringup.launch.py robot_model:=<rosbot/rosbot_xl>
 > exit
 > ```
 
-Simulation:
+**Simulation:**
 
 ```bash
 source install/setup.bash
