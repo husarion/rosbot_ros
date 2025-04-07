@@ -9,8 +9,6 @@ jobs:
   build-and-test:
     name: Run tests ${{ matrix.build_type }} build type
     runs-on: ubuntu-24.04
-    container:
-      image: ubuntu:noble
     strategy:
       matrix:
         build_type: [simulation, hardware]
@@ -27,7 +25,7 @@ jobs:
           use-ros2-testing: true
 
       - name: Build and test
-        uses: ros-tooling/action-ros-ci@0.3.16
+        uses: ros-tooling/action-ros-ci@v0.4
         with:
           vcs-repo-file-url: ${{ github.workspace }}/rosbot/rosbot_${{ env.HUSARION_ROS_BUILD_TYPE }}.repos
           target-ros2-distro: jazzy
