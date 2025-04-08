@@ -165,9 +165,13 @@ class SimulationTestNode(Node):
         if self.is_initialized() and self.goal_received_time:
             self.publish_cmd_vel_msg()
 
-            if not self.vel_stabilization_time_event.is_set() and self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
+            if (
+                not self.vel_stabilization_time_event.is_set()
+                and self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY
+            ):
                 self.get_logger().info(
-                    "Velocities stabilization time has expired. Compare velocities...", throttle_duration_sec=2
+                    "Velocities stabilization time has expired. Compare velocities...",
+                    throttle_duration_sec=2,
                 )
                 self.vel_stabilization_time_event.set()
 
