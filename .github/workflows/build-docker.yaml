@@ -78,7 +78,7 @@ jobs:
         with:
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-          main_branch_name: ros2
+          main_branch_name: jazzy
           dockerfile: ${{ matrix.dockerfile }}
           repo_name: ${{ matrix.repo_name }}
           branch_name: ${{ inputs.branch_name }}
