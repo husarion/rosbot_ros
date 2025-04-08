@@ -6,7 +6,7 @@
 
 services:
   rosbot:
-    image: husarion/rosbot:jazzy-0.15.0-20250407
+    image: husarion/rosbot:jazzy-0.15.1-20250408
     # build:
     #   context: ..
     #   dockerfile: docker/Dockerfile.hardware

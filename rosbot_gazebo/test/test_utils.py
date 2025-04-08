@@ -56,10 +56,10 @@ class SimulationTestNode(Node):
 
         # Sensor callback
         self.camera_rgb_sub = self.create_subscription(
-            Image, "camera/color/image_raw", self.camera_image_callback, 10
+            Image, "oak/rgb/color", self.camera_image_callback, 10
         )
         self.camera_pc_sub = self.create_subscription(
-            PointCloud2, "camera/depth/points", self.camera_points_callback, 10
+            PointCloud2, "oak/stereo/depth/points", self.camera_points_callback, 10
         )
         self.range_subs = []
         for range_topic_name in self.RANGE_SENSORS_TOPICS:
@@ -165,9 +165,13 @@ class SimulationTestNode(Node):
         if self.is_initialized() and self.goal_received_time:
             self.publish_cmd_vel_msg()
 
-            if self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY:
+            if (
+                not self.vel_stabilization_time_event.is_set()
+                and self.current_time > self.goal_received_time + self.VELOCITY_STABILIZATION_DELAY
+            ):
                 self.get_logger().info(
-                    "Speed stabilization time has expired", throttle_duration_sec=2
+                    "Velocities stabilization time has expired. Compare velocities...",
+                    throttle_duration_sec=2,
                 )
                 self.vel_stabilization_time_event.set()
 

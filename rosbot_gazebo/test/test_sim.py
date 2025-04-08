@@ -93,7 +93,11 @@ def test_simulation(generate_test_description):
     _, mecanum, namespace, robot_model = generate_test_description
 
     sensor_to_test = {
-        "rosbot": [],  # Not simulated "camera_color", "camera_points" "scan_filtered", "range_fl","range_fr", "range_rl", "range_rr"
+        "rosbot": [
+            "camera_color",
+            "camera_points",
+            "scan_filtered",
+        ],  # Not simulated "range_fl","range_fr", "range_rl", "range_rr"
         "rosbot_xl": [],
     }
 
