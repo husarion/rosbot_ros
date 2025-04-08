@@ -14,6 +14,7 @@ jobs:
         build_type: [simulation, hardware]
     env:
       HUSARION_ROS_BUILD_TYPE: ${{ matrix.build_type }}
+      PIP_BREAK_SYSTEM_PACKAGES: True
 
     steps:
       - name: Checkout repository
@@ -27,7 +28,9 @@ jobs:
       - name: Build and test
         uses: ros-tooling/action-ros-ci@v0.4
         with:
-          vcs-repo-file-url: ${{ github.workspace }}/rosbot/rosbot_${{ env.HUSARION_ROS_BUILD_TYPE }}.repos
+          vcs-repo-file-url: |
+              ${{ github.workspace }}/rosbot/rosbot_${{ env.HUSARION_ROS_BUILD_TYPE }}.repos
+              ${{ github.workspace }}/rosbot/manipulator.repos
           target-ros2-distro: jazzy
           # rosbot_bringup and rosbot_gazebo works only locally
           colcon-defaults: |

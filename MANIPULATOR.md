@@ -2,7 +2,7 @@
 
 Below is a handful of the most important information for the manipulator. Please read them before starting the manipulator.
 
-> [!WARNING]  
+> [!WARNING]
 > **Limitations**
 >
 > 1. Before starting the power supply, set the manipulator so that all joints are within the position limits (including the gripper).
