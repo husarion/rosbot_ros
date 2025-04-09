@@ -13,7 +13,7 @@ on:
 jobs:
   get-bump:
     name: Get version bump
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       bump: ${{ env.BUMP }}
     steps:
@@ -28,7 +28,7 @@ jobs:
 
   catkin-release:
     name: Bump version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: get-bump
     outputs:
       new_version: ${{ steps.catkin-release.outputs.new_version }}
