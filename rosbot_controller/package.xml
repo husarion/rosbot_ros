@@ -2,8 +2,8 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_controller</name>
-  <version>0.14.0</version>
-  <description>Hardware configuration for ROSbot 2, 2R, PRO</description>
+  <version>0.15.1</version>
+  <description>Hardware configuration for ROSbot Series</description>
 
   <maintainer email="support@husarion.com">Husarion</maintainer>
 
@@ -19,20 +19,22 @@
 
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">dynamixel_hardware_interface</exec_depend>
   <exec_depend>imu_sensor_broadcaster</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>mecanum_drive_controller</exec_depend>
   <exec_depend>nav2_common</exec_depend>
-  <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>ros_components_description</exec_depend>
+  <exec_depend>open_manipulator_x_moveit</exec_depend>
+  <exec_depend>position_controllers</exec_depend>
   <exec_depend>rosbot_description</exec_depend>
-  <exec_depend>rosbot_hardware_interfaces</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">rosbot_hardware_interfaces</exec_depend>
+  <exec_depend>rosbot_utils</exec_depend>
   <exec_depend>xacro</exec_depend>
+  <!-- <exec_depend>parallel_gripper_controller</exec_depend> TODO: Should be used but right now no all function available (move_group)-->
 
   <test_depend>python3-pytest</test_depend>
-  <test_depend>ros_components_description</test_depend>
   <test_depend>rosbot_description</test_depend>
   <test_depend>xacro</test_depend>
 

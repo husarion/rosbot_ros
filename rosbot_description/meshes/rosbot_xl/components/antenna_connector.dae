@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <asset>
+    <contributor>
+      <author>Blender User</author>
+      <authoring_tool>Blender 3.0.1 commit date:2022-01-25, commit time:17:19, hash:dc2d18018171</authoring_tool>
+    </contributor>
+    <created>2023-01-31T17:26:26</created>
+    <modified>2023-01-31T17:26:26</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="Material_002-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.7948266 0.7948266 0.7948266 1</color>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="BlackGum_001-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.01954319 0.01954319 0.01954319 1</color>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Red_001-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.8000001 0 0.002751389 1</color>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Steel_001-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.3626408 0.3626408 0.3626408 1</color>
+            </diffuse>
+            <reflectivity>
+              <float sid="specular">1</float>
+            </reflectivity>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Green_001-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.05261938 0.8000001 0.066229 1</color>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="blackMetal_001-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.01027211 0.01027211 0.01027211 1</color>
+            </diffuse>
+            <reflectivity>
+              <float sid="specular">1</float>
+            </reflectivity>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Light_001-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">1 1 1 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.8 0.8 0.8 1</color>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_images/>
+  <library_materials>
+    <material id="Material_002-material" name="Material.002">
+      <instance_effect url="#Material_002-effect"/>
+    </material>
+    <material id="BlackGum_001-material" name="BlackGum.001">
+      <instance_effect url="#BlackGum_001-effect"/>
+    </material>
+    <material id="Red_001-material" name="Red.001">
+      <instance_effect url="#Red_001-effect"/>
+    </material>
+    <material id="Steel_001-material" name="Steel.001">
+      <instance_effect url="#Steel_001-effect"/>
+    </material>
+    <material id="Green_001-material" name="Green.001">
+      <instance_effect url="#Green_001-effect"/>
+    </material>
+    <material id="blackMetal_001-material" name="blackMetal.001">
+      <instance_effect url="#blackMetal_001-effect"/>
+    </material>
+    <material id="Light_001-material" name="Light.001">
+      <instance_effect url="#Light_001-effect"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="light_panels_002-mesh" name="light panels.002">
+      <mesh>
+        <source id="light_panels_002-mesh-positions">
+          <float_array id="light_panels_002-mesh-positions-array" count="147">-0.00492829 0.01056051 0.01107716 -0.00475794 0.009266436 0.01161324 -0.004258394 0.008060514 0.01211273 -0.003463804 0.007025003 0.01254165 -0.002428293 0.006230413 0.01287072 -0.001222372 0.005730926 0.01307761 7.16803e-5 0.005560517 0.01314824 0.00136578 0.005730926 0.01307761 0.002571642 0.006230413 0.01287072 0.003607213 0.007025003 0.01254165 0.004401803 0.008060514 0.01211273 0.004901289 0.009266436 0.01161324 0.00507164 0.01056051 0.01107716 -0.00475794 0.01147562 0.01016211 0.004901289 0.01147562 0.01016211 0.004401803 0.01232832 0.009309411 -0.004258394 0.01232832 0.009309411 0.003607213 0.01306051 0.008577167 -0.003463804 0.01306051 0.008577167 0.002571642 0.0136224 0.008015334 -0.002428293 0.0136224 0.008015334 0.00136578 0.01397562 0.007662117 -0.001222372 0.01397562 0.007662117 7.16766e-5 0.01409602 0.007541656 -0.00492829 -7.53165e-4 -2.36526e-4 -0.00475794 -0.001668274 6.78547e-4 -0.004258394 -0.002520918 0.001531243 -0.003463804 -0.003253161 0.002263426 -0.002428293 -0.003815054 0.002825319 -0.001222372 -0.004168272 0.003178536 7.16803e-5 -0.004288613 0.003298997 0.00136578 -0.004168272 0.003178536 0.002571642 -0.003815054 0.002825319 0.003607213 -0.003253161 0.002263426 0.004401803 -0.002520918 0.001531243 0.004901289 -0.001668274 6.78547e-4 0.00507164 -7.53165e-4 -2.36526e-4 0.004901289 1.6193e-4 -0.001151561 0.004401803 0.00101459 -0.002004265 0.003607213 0.001746773 -0.002736508 0.002571642 0.002308726 -0.003298342 0.00136578 0.002661883 -0.003651559 7.16803e-5 0.002782344 -0.00377202 -0.001222372 0.002661883 -0.003651559 -0.002428293 0.002308726 -0.003298342 -0.003463804 0.001746773 -0.002736508 -0.004258394 0.00101459 -0.002004265 -0.00475794 1.6193e-4 -0.001151561 9.5044e-4 0.007726609 0.01213306</float_array>
+          <technique_common>
+            <accessor source="#light_panels_002-mesh-positions-array" count="49" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="light_panels_002-mesh-normals">
+          <float_array id="light_panels_002-mesh-normals-array" count="216">0 0.7070955 0.7071181 0 0.7070953 0.7071183 0 0.7071129 0.7071008 0 0.707113 0.7071007 0 0.707113 0.7071006 0 0.7071146 0.707099 0 0.7070981 0.7071155 0 0.7070976 0.707116 0 0.7070908 0.7071228 0 0.7070894 0.7071242 0 0.7073195 0.706894 0.9914454 0.09229367 -0.09229356 0.9914454 -0.09229397 0.09229367 0.9914457 -0.09229177 0.09229207 0.9238797 -0.2705978 0.2705979 0.923878 -0.2706009 0.2706006 0.7933434 -0.430469 0.430468 0.7933514 -0.4304605 0.4304619 0.6087542 -0.560989 0.56099 0.6087695 -0.5609792 0.5609831 0.3826641 -0.653285 0.6532894 0.3826895 -0.6532758 0.6532837 0.1305626 -0.7010498 0.7010582 0.1304796 -0.701063 0.7010605 -0.1304811 -0.701063 0.7010603 -0.1305641 -0.7010496 0.7010582 -0.3826863 -0.6532768 0.6532846 -0.3826611 -0.6532858 0.6532904 -0.6087735 -0.5609772 0.5609808 -0.6087585 -0.5609865 0.5609879 -0.7933488 -0.4304632 0.430464 -0.793341 -0.4304711 0.4304703 -0.923878 -0.2706009 0.2706006 -0.9238797 -0.2705979 0.2705979 -0.9914453 -0.09229385 0.09229403 -0.9914449 -0.092296 0.09229564 -0.991445 0.09229552 -0.0922954 -0.9914457 0.09229147 -0.09229183 -0.9238799 0.2705973 -0.270598 -0.9238786 0.2705997 -0.2705998 -0.7933456 0.4304664 -0.4304665 -0.7933472 0.4304648 -0.4304653 -0.6087788 0.5609762 -0.5609761 -0.6087686 0.5609823 -0.560981 -0.3826759 0.6532844 -0.6532829 -0.3826903 0.6532794 -0.6532796 -0.1304967 0.7010601 -0.7010602 -0.1304768 0.7010631 -0.7010609 0.1304953 0.7010614 -0.7010591 0.1304754 0.7010621 -0.7010622 0.3826789 0.6532828 -0.6532828 0.3826934 0.6532796 -0.6532776 0.6087748 0.5609791 -0.5609775 0.6087645 0.5609839 -0.5609838 0.7933481 0.4304644 -0.4304641 0.7933493 0.4304636 -0.4304626 0.9238798 0.2705978 -0.2705974 0.9238786 0.2705999 -0.2705997 0.9914454 0.09229385 -0.09229338 -0.02903002 0.3857963 0.9221271 0.02141451 0.3901537 0.9205008 -0.03374034 0.4044375 0.9139431 0 0.3491478 0.9370677 -0.03270429 0.394011 0.9185238 0.01535034 0.4140465 0.9101263 0.02023643 0.4049736 0.9141044 -0.0300275 0.4156345 0.9090359 -0.02039819 0.4242394 0.9053204 0.02185505 0.3968425 0.9176265 0.0197764 0.3848444 0.9227696 0.006157636 0.4223057 0.9064326 -0.006837189 0.4266265 0.904402</float_array>
+          <technique_common>
+            <accessor source="#light_panels_002-mesh-normals-array" count="72" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="light_panels_002-mesh-vertices">
+          <input semantic="POSITION" source="#light_panels_002-mesh-positions"/>
+        </vertices>
+        <triangles material="BlackGum_001-material" count="72">
+          <input semantic="VERTEX" source="#light_panels_002-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#light_panels_002-mesh-normals" offset="1"/>
+          <p>0 0 12 0 13 0 13 1 12 1 14 1 13 2 14 2 15 2 13 3 15 3 16 3 16 4 15 4 17 4 16 5 17 5 18 5 18 6 17 6 19 6 18 7 19 7 20 7 20 8 19 8 21 8 20 9 21 9 22 9 22 10 21 10 23 10 14 11 12 11 36 11 36 12 12 12 11 12 36 13 11 13 35 13 35 14 11 14 10 14 35 15 10 15 34 15 34 16 10 16 9 16 34 17 9 17 33 17 33 18 9 18 8 18 33 19 8 19 32 19 32 20 8 20 7 20 32 21 7 21 31 21 31 22 7 22 6 22 31 23 6 23 30 23 30 24 6 24 29 24 29 25 6 25 5 25 29 26 5 26 28 26 28 27 5 27 4 27 28 28 4 28 27 28 27 29 4 29 3 29 27 30 3 30 26 30 26 31 3 31 2 31 26 32 2 32 25 32 25 33 2 33 1 33 25 34 1 34 24 34 24 35 1 35 0 35 24 36 0 36 47 36 47 37 0 37 13 37 47 38 13 38 46 38 46 39 13 39 16 39 46 40 16 40 45 40 45 41 16 41 18 41 45 42 18 42 44 42 44 43 18 43 20 43 44 44 20 44 43 44 43 45 20 45 22 45 43 46 22 46 42 46 42 47 22 47 23 47 42 48 23 48 41 48 41 49 23 49 21 49 41 50 21 50 40 50 40 51 21 51 19 51 40 52 19 52 39 52 39 53 19 53 17 53 39 54 17 54 38 54 38 55 17 55 15 55 38 56 15 56 37 56 37 57 15 57 14 57 37 58 14 58 36 58 11 59 12 59 48 59 1 60 2 60 48 60 9 61 10 61 48 61 12 62 0 62 48 62 10 63 11 63 48 63 4 64 5 64 48 64 3 65 4 65 48 65 8 66 9 66 48 66 7 67 8 67 48 67 2 68 3 68 48 68 0 69 1 69 48 69 5 70 6 70 48 70 6 71 7 71 48 71</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Body_001" name="Body.001" type="NODE">
+        <matrix sid="transform">7.54979e-8 -0.9848077 -0.1736482 -3.72529e-9 1 7.96558e-8 -1.69757e-8 7.27596e-12 3.05499e-8 -0.1736482 0.9848077 -1.11759e-8 0 0 0 1</matrix>
+        <instance_geometry url="#light_panels_002-mesh" name="Body.001">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Material_002-material" target="#Material_002-material"/>
+              <instance_material symbol="BlackGum_001-material" target="#BlackGum_001-material"/>
+              <instance_material symbol="Red_001-material" target="#Red_001-material"/>
+              <instance_material symbol="Steel_001-material" target="#Steel_001-material"/>
+              <instance_material symbol="Green_001-material" target="#Green_001-material"/>
+              <instance_material symbol="blackMetal_001-material" target="#blackMetal_001-material"/>
+              <instance_material symbol="Light_001-material" target="#Light_001-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>

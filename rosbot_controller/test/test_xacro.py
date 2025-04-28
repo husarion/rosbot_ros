@@ -20,30 +20,39 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def test_rosbot_description_parsing():
-    mecanum_values = ["true", "false"]
-    use_sim_values = ["true", "false"]
-    use_multirobot_system_values = ["true", "false"]
+    robot_model_values = ["rosbot", "rosbot_xl"]
+    mecanum_values = ["True", "False"]
+    use_sim_values = ["True", "False"]
 
     all_combinations = list(
         itertools.product(
+            robot_model_values,
             mecanum_values,
             use_sim_values,
-            use_multirobot_system_values,
         )
     )
 
     for combination in all_combinations:
-        mecanum, use_sim, use_multirobot_system = combination
+        robot_model, mecanum, use_sim = combination
+
+        rosbot_controller = get_package_share_directory("rosbot_controller")
+        controller_config_filename = (
+            "mecanum_drive_controller.yaml" if mecanum else "diff_drive_controller.yaml"
+        )
+        controller_config = os.path.join(
+            rosbot_controller, "config", robot_model, controller_config_filename
+        )
+
         mappings = {
+            "controller_config": controller_config,
             "mecanum": mecanum,
             "use_sim": use_sim,
-            "use_multirobot_system": use_multirobot_system,
         }
         rosbot_description = get_package_share_directory("rosbot_description")
-        xacro_path = os.path.join(rosbot_description, "urdf/rosbot.urdf.xacro")
+        xacro_path = os.path.join(rosbot_description, "urdf", f"{robot_model}.urdf.xacro")
         try:
             xacro.process_file(xacro_path, mappings=mappings)
         except xacro.XacroException as e:
-            assert False, (
-                f"xacro parsing failed: {str(e)} for mecanum: {mecanum}, use_sim:" f" {use_sim}"
-            )
+            assert (
+                False
+            ), f"xacro parsing failed: {str(e)} for mecanum: {mecanum}, use_sim: {use_sim}"

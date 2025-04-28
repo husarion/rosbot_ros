@@ -13,7 +13,7 @@ on:
 jobs:
   get-bump:
     name: Get version bump
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       bump: ${{ env.BUMP }}
     steps:
@@ -28,7 +28,7 @@ jobs:
 
   catkin-release:
     name: Bump version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: get-bump
     outputs:
       new_version: ${{ steps.catkin-release.outputs.new_version }}
@@ -44,15 +44,11 @@ jobs:
           git_user: action-bot
           git_email: action-bot@action-bot.com
 
-  build-docker-image:
-    name: Trigger rosbot-docker to build image
-    runs-on: ubuntu-latest
+  ros_test:
+    name: Build Docker
     needs: catkin-release
-    steps:
-      - name: trigger the endpoint
-        run: >
-          curl -X POST
-          -H "Accept: application/vnd.github+json"
-          -H "Authorization: Bearer ${{ secrets.GH_PAT }}"
-          https://api.github.com/repos/husarion/rosbot-docker/dispatches
-          -d '{"event_type":"ros-package-update"}'
+    uses: ./.github/workflows/build-docker.yaml
+    secrets: inherit
+    with:
+      branch_name: ${{ github.event.pull_request.base.ref }}
+      build_type: development

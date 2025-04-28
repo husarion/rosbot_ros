@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:macro name="controller" params="config_file namespace:=''">
+    <gazebo>
+      <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+        <parameters>${config_file}</parameters>
+        <ros>
+          <namespace>${namespace}</namespace>
+          <remapping>/diagnostics:=diagnostics</remapping>
+          <remapping>rosbot_base_controller/cmd_vel_unstamped:=cmd_vel</remapping>
+          <remapping>/tf:=tf</remapping>
+          <remapping>/tf_static:=tf_static</remapping>
+        </ros>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- Gauss noise macro -->
+  <xacro:macro name="gauss_noise"
+    params="mean:=0.0 stddev:=0.0 bias_mean:=0.0 bias_stddev:=0.0 precision:=0.0">
+    <noise type="gaussian">
+      <mean>${mean}</mean>
+      <stddev>${stddev}</stddev>
+      <bias_mean>${bias_mean}</bias_mean>
+      <bias_stddev>${bias_stddev}</bias_stddev>
+      <precision>${precision}</precision>
+    </noise>
+  </xacro:macro>
+
+  <!-- IMU specification: https://dl.btc.pl/kamami_wa/bst_bno055_ds000_12.pdf -->
+  <xacro:macro name="imu" params="reference_frame namespace:=''">
+
+    <xacro:property name="ns" value="${namespace + '/' if namespace != '' else ''}" />
+
+    <gazebo reference="${reference_frame}">
+      <sensor name="${ns}imu" type="imu">
+        <always_on>true</always_on>
+        <update_rate>25</update_rate>
+        <topic>${ns}imu/data_raw</topic>
+        <visualize>false</visualize>
+        <enable_metrics>false</enable_metrics>
+        <ign_frame_id>imu_link</ign_frame_id>
+        <imu>
+          <angular_velocity>
+            <!-- rad/s | no bias_mean in datasheet -->
+            <x>
+              <xacro:gauss_noise stddev="5.24e-3" bias_mean="2.0e-3" precision="1.07e-3" />
+            </x>
+            <y>
+              <xacro:gauss_noise stddev="5.24e-3" bias_mean="2.0e-3" precision="1.07e-3" />
+            </y>
+            <z>
+              <xacro:gauss_noise stddev="5.24e-3" bias_mean="2.0e-3" precision="1.07e-3" />
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <!-- m/s^2 | no bias_mean in datasheet -->
+            <x>
+              <xacro:gauss_noise stddev="1.86e-3" bias_mean="1.0e-3" precision="2.40e-3" />
+            </x>
+            <y>
+              <xacro:gauss_noise stddev="1.86e-3" bias_mean="1.0e-3" precision="2.40e-3" />
+            </y>
+            <z>
+              <xacro:gauss_noise stddev="1.86e-3" bias_mean="1.0e-3" precision="2.40e-3" />
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

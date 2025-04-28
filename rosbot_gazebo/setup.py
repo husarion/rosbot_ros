@@ -21,7 +21,7 @@ package_name = "rosbot_gazebo"
 
 setup(
     name=package_name,
-    version="0.8.0",
+    version="0.15.1",
     packages=find_packages(exclude=["test"]),
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
@@ -33,7 +33,7 @@ setup(
     zip_safe=True,
     maintainer="Husarion",
     maintainer_email="contact@husarion.com",
-    description="Gazebo Ignition simulation for ROSbot 2, 2R, PRO",
+    description="Gazebo simulation for ROSbot Series",
     license="Apache License 2.0",
     tests_require=["pytest"],
     entry_points={

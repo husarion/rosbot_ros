@@ -2,8 +2,8 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_gazebo</name>
-  <version>0.14.0</version>
-  <description>Gazebo Ignition simulation for ROSbot 2, 2R, PRO</description>
+  <version>0.15.1</version>
+  <description>Gazebo simulation for ROSbot Series</description>
 
   <maintainer email="support@husarion.com">Husarion</maintainer>
 
@@ -17,23 +17,25 @@
   <author email="krzysztof.wojciechowski@husarion.com">Krzysztof Wojciechowski</author>
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
-  <exec_depend>husarion_gz_worlds</exec_depend>
-  <exec_depend>ign_ros2_control</exec_depend>
-  <exec_depend>launch</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
-  <exec_depend>nav2_common</exec_depend>
-  <exec_depend>ros_gz_bridge</exec_depend>
-  <exec_depend>ros_gz_sim</exec_depend>
-  <exec_depend>rosbot_bringup</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">gz_ros2_control</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">husarion_gz_worlds</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">laser_filters</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch_ros</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">nav2_common</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">ros_gz_bridge</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">ros_gz_sim</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">rosbot_controller</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">rosbot_localization</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">rosbot_utils</exec_depend>
 
-  <test_depend>geometry_msgs</test_depend>
-  <test_depend>launch</test_depend>
-  <test_depend>launch_pytest</test_depend>
-  <test_depend>launch_ros</test_depend>
-  <test_depend>nav_msgs</test_depend>
-  <test_depend>python-transforms3d-pip</test_depend>
-  <test_depend>python3-pytest</test_depend>
-  <test_depend>tf_transformations</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">geometry_msgs</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch_pytest</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch_ros</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">nav_msgs</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">python3-pytest</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">tf_transformations</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

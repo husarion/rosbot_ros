@@ -1,0 +1,22 @@
+# Quick Start
+#
+# 1. Run `docker compose -f compose.rosbot_xl.yaml up` on the ROSbot
+# 2. Open a shell inside a docker container `docker compose -f compose.hardware.yaml exec -it rosbot bash`
+# 3. Run `ros2 run teleop_twist_keyboard teleop_twist_keyboard` inside the container
+
+services:
+  rosbot:
+    image: husarion/rosbot:humble-devel
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile.hardware
+    network_mode: host
+    ipc: host
+    restart: unless-stopped
+    environment:
+      - USER
+    command: >
+      ros2 launch rosbot_bringup bringup.launch.py
+        mecanum:=${MECANUM:-False}
+        namespace:=${ROBOT_NAMESPACE:-rosbot}
+        robot_model:=rosbot_xl

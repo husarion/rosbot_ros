@@ -1,0 +1,34 @@
+{
+  "dockerComposeFile": "compose.yaml",
+  "initializeCommand": "xhost +local:docker",
+  "service": "devcontainer",
+  "workspaceFolder": "/home/husarion/ros2_ws",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "althack.ament-task-provider",
+        "charliermarsh.ruff",
+        "eamodio.gitlens",
+        "GitHub.copilot",
+        "ms-python.python",
+        "ms-iot.vscode-ros",
+        "ms-vscode.cpptools-extension-pack",
+        "smilerobotics.urdf",
+        "redhat.vscode-xml",
+        "tamasfe.even-better-toml",
+        "timonwong.shellcheck",
+        "streetsidesoftware.code-spell-checker",
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "files.associations": {
+          "*.rviz": "yaml",
+          "*.srdf": "xml",
+          "*.urdf": "xml",
+          "*.xacro": "xml"
+        }
+      }
+    }
+  }
+}
