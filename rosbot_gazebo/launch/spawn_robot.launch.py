@@ -21,7 +21,7 @@ from launch.substitutions import (
     PathJoinSubstitution,
     PythonExpression,
 )
-from launch_ros.actions import Node, PushROSNamespace, SetParameter, SetRemap
+from launch_ros.actions import Node, PushRosNamespace, SetParameter, SetRemap
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
@@ -215,7 +215,7 @@ def generate_launch_description():
             declare_roll_arg,
             declare_pitch_arg,
             declare_yaw_arg,
-            PushROSNamespace(namespace),
+            PushRosNamespace(namespace),
             SetRemap("/diagnostics", "diagnostics"),
             SetRemap("/tf", "tf"),
             SetRemap("/tf_static", "tf_static"),

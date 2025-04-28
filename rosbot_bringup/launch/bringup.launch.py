@@ -26,7 +26,7 @@ from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
 )
-from launch_ros.actions import PushROSNamespace, SetRemap
+from launch_ros.actions import PushRosNamespace, SetRemap
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -101,7 +101,7 @@ def generate_launch_description():
         declare_microros_arg,
         declare_namespace_arg,
         declare_robot_model_arg,
-        PushROSNamespace(namespace),
+        PushRosNamespace(namespace),
         SetRemap("/diagnostics", "diagnostics"),
         SetRemap("/tf", "tf"),
         SetRemap("/tf_static", "tf_static"),

@@ -38,7 +38,7 @@
     wheel_radius_multiplier: 1.0
 
     # Feedback from motors is published at around 20 Hz
-    publish_rate: 25.0
+    publish_rate: 20.0
     odom_frame_id: odom
     base_frame_id: base_link
     pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
@@ -57,6 +57,7 @@
 
     cmd_vel_timeout: 0.5
     #publish_limited_velocity: true
+    use_stamped_vel: false
 
     # Velocity and acceleration limits
     # Whenever a min_* is unspecified, default to -max_*

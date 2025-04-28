@@ -90,7 +90,7 @@
       </inertial>
     </link>
 
-    <gazebo reference="${side}_wheel_link" xmlns:gz="http://gazeborobotics.org/schema">
+    <gazebo reference="${side}_wheel_link" xmlns:ignition="http://gazeborobotics.org/schema">
       <xacro:unless value="${mecanum}">
         <collision>
           <surface>
@@ -116,7 +116,7 @@
                 <mu2>0.2</mu2>
                   <slip1>0.035</slip1>
                 <slip2>0</slip2>
-                <fdir1 gz:expressed_in="base_link">${fdir}</fdir1>
+                <fdir1 ignition:expressed_in="base_link">${fdir}</fdir1>
               </ode>
             </friction>
           </surface>

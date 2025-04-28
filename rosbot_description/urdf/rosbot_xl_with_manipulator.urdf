@@ -99,7 +99,7 @@
       <inertia ixx="5.0587413e-05" ixy="0.0" ixz="0.0" iyy="8.5933192e-05" iyz="0.0" izz="5.0587829e-05"/>
     </inertial>
   </link>
-  <gazebo reference="fl_wheel_link" xmlns:gz="http://gazeborobotics.org/schema">
+  <gazebo reference="fl_wheel_link" xmlns:ignition="http://gazeborobotics.org/schema">
     <collision>
       <surface>
         <friction>
@@ -140,7 +140,7 @@
       <inertia ixx="5.0587413e-05" ixy="0.0" ixz="0.0" iyy="8.5933192e-05" iyz="0.0" izz="5.0587829e-05"/>
     </inertial>
   </link>
-  <gazebo reference="fr_wheel_link" xmlns:gz="http://gazeborobotics.org/schema">
+  <gazebo reference="fr_wheel_link" xmlns:ignition="http://gazeborobotics.org/schema">
     <collision>
       <surface>
         <friction>
@@ -181,7 +181,7 @@
       <inertia ixx="5.0587413e-05" ixy="0.0" ixz="0.0" iyy="8.5933192e-05" iyz="0.0" izz="5.0587829e-05"/>
     </inertial>
   </link>
-  <gazebo reference="rl_wheel_link" xmlns:gz="http://gazeborobotics.org/schema">
+  <gazebo reference="rl_wheel_link" xmlns:ignition="http://gazeborobotics.org/schema">
     <collision>
       <surface>
         <friction>
@@ -222,7 +222,7 @@
       <inertia ixx="5.0587413e-05" ixy="0.0" ixz="0.0" iyy="8.5933192e-05" iyz="0.0" izz="5.0587829e-05"/>
     </inertial>
   </link>
-  <gazebo reference="rr_wheel_link" xmlns:gz="http://gazeborobotics.org/schema">
+  <gazebo reference="rr_wheel_link" xmlns:ignition="http://gazeborobotics.org/schema">
     <collision>
       <surface>
         <friction>

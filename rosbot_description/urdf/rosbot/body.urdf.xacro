@@ -18,11 +18,11 @@
           <mesh filename="package://rosbot_description/meshes/rosbot/body.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <origin xyz="0.0 0.0 -0.0173" rpy="${pi/2} 0.0 ${pi/2}" />
-        <material name="Black">
-          <color rgba="0.1 0.1 0.1 1.0" />
+        <material name="White">
+          <color rgba="1.0 1.0 1.0 1.0" />
         </material>
         <gazebo reference="body_link">
-          <material>Gazebo/Black</material>
+          <material>Gazebo/White</material>
         </gazebo>
       </visual>
 
@@ -41,6 +41,9 @@
         <origin xyz="0.0 0.0 ${0.040 - 0.02}" rpy="0.0 0.0 0.0" />
       </inertial>
     </link>
+    <gazebo reference="body_link">
+      <material>Gazebo/White</material>
+    </gazebo>
 
     <joint name="body_to_cover_joint" type="fixed">
       <origin xyz="0.0 0.0 0.0603" rpy="0.0 0.0 0.0" />
@@ -54,13 +57,13 @@
           <mesh filename="package://rosbot_description/meshes/rosbot/cover.stl" scale="0.001 0.001 0.001" />
         </geometry>
         <origin xyz="0.0 0.0 -0.002" rpy="${pi/2} 0.0 ${pi/2}" />
-        <material name="Black">
-          <color rgba="0.1 0.1 0.1 1.0" />
+        <material name="Red">
+          <color rgba="0.8 0.0 0.0 1.0" />
         </material>
-        <gazebo reference="cover_link">
-          <material>Gazebo/Black</material>
-        </gazebo>
       </visual>
+      <gazebo reference="cover_link">
+        <material>Gazebo/Red</material>
+      </gazebo>
     </link>
 
     <joint name="body_to_imu_joint" type="fixed">

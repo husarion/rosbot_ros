@@ -27,7 +27,7 @@ Documentation is available in ROS_API.md.
    ```bash
    mkdir rosbot_ws
    cd rosbot_ws
-   git clone https://github.com/husarion/rosbot_ros.git src/rosbot_ros
+   git clone -b humble https://github.com/husarion/rosbot_ros.git src/rosbot_ros
    ```
 
 ### Configure environment
