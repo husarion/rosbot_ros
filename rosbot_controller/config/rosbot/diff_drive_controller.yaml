@@ -68,7 +68,7 @@
         has_acceleration_limits: true
         has_jerk_limits: false
         # top speed is around 1.2m/s
-        max_velocity: 0.9 # m/s
+        max_velocity: 1.0 # m/s
         # min_velocity -  When unspecified, -max_velocity is used
         max_acceleration: 1.0 # m/s^2
         # min_acceleration - When unspecified, -max_acceleration is used.
@@ -79,7 +79,7 @@
         has_velocity_limits: true
         has_acceleration_limits: true
         has_jerk_limits: false
-        max_velocity: 3.0 # rad/s
+        max_velocity: 3.14 # rad/s
         # min_velocity -  When unspecified, -max_velocity is used
         max_acceleration: 4.0 # rad/s^2
         # min_acceleration - When unspecified, -max_acceleration is used.
