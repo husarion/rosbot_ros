@@ -20,7 +20,7 @@ import rclpy
 from ament_index_python.packages import get_package_share_directory
 from gz_kill_process import kill_ign_linux_processes
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess
+from launch.actions import ExecuteProcess, TimerAction
 from launch_testing.actions import ReadyToTest
 from launch_testing.util import KeepAliveProc
 from rclpy.executors import SingleThreadedExecutor
@@ -42,7 +42,6 @@ def generate_test_description():
             "launch",
             "rosbot_gazebo",
             "simulation.launch.py",
-            "gz_headless_mode:=True",
             f"gz_world:={gz_world_path}",
             "namespace:=robot1",
             "robot_model:=rosbot",
@@ -50,7 +49,8 @@ def generate_test_description():
         output="screen",
     )
 
-    spawn_secound_robot = ExecuteProcess(
+    spawn_secound_robot = TimerAction(period=5.0, actions=[
+        ExecuteProcess(
         cmd=[
             "ros2",
             "launch",
@@ -62,6 +62,7 @@ def generate_test_description():
         ],
         output="screen",
     )
+    ])
 
     return LaunchDescription(
         [
