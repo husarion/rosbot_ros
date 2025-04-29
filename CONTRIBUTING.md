@@ -2,7 +2,7 @@
 
 ## USB-A connection
 
-You can connect to the robot hardware on your own computer. To establish a connection, connect your computer to the robot using a USB-A cable. Then build the code locally and specify via the serial_port argument which processor should be used to establish the connection.
+You can connect with the ROSbot hardware on your own computer. To establish a connection, connect your computer to the robot using a USB-A cable. Then build the code locally and specify via the serial_port argument which processor should be used to establish the connection.
 
 ```bash
 ros2 launch rosbot_bringup bringup.launch.py serial_port:=/dev/ttyUSB0
@@ -26,34 +26,3 @@ pre-commit run -a
 ```
 
 After initialization [pre-commit configuration](.pre-commit-config.yaml) will applied on every commit.
-
-## Industrial CI
-
-```bash
-colcon test
-```
-
-> [!NOTE]
-> Command `colcon test` does not build the code. Remember to build your code after changes.
-
-If tests finish with errors print logs:
-
-``` bash
-colcon test-result --verbose
-```
-
-
-### Testing `.github/workflows/industrial_ci.yaml` Locally
-
-At fist install [act](https://github.com/nektos/act):
-
-```bash
-cd /
-curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
-```
-
-And test the workflow with:
-
-```bash
-act -W .github/workflows/industrial_ci.yaml
-```

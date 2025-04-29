@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="camera_mount"
+               params="parent_link
+                       xyz:='0.0 0.0 0.0'
+                       rpy:='0.0 0.0 0.0'
+                       tf_prefix:=''
+                       camera_mount_angle_1:=0.0
+                       camera_mount_angle_2:=0.0">
+
+    <xacro:property name="prefix" value="${tf_prefix + '_' if tf_prefix != '' else ''}" />
+
+    <joint name="${parent_link.rstrip('_link')}_to_${prefix}camera_mount_bot_joint"
+      type="fixed">
+      <origin xyz="${xyz}" rpy="${rpy}" />
+      <parent link="${parent_link}" />
+      <child link="${prefix}camera_mount_bot_link" />
+    </joint>
+
+    <link name="${prefix}camera_mount_bot_link">
+      <visual>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/components/camera_mount_bot.dae" scale="1 1 1" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.0275 0.0275 0.023" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0115" rpy="0.0 0.0 0.0" />
+      </collision>
+    </link>
+
+    <joint name="${prefix}camera_mount_bot_to_${prefix}camera_mount_mid_joint" type="fixed">
+      <origin xyz="0.0 0.0 0.016" rpy="0.0 ${camera_mount_angle_1} 0.0" />
+      <parent link="${prefix}camera_mount_bot_link" />
+      <child link="${prefix}camera_mount_mid_link" />
+    </joint>
+
+    <link name="${prefix}camera_mount_mid_link">
+      <visual>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/components/camera_mount_mid.dae" scale="1 1 1" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.015 0.017 0.101" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0425" rpy="0.0 0.0 0.0" />
+      </collision>
+    </link>
+
+    <joint name="${prefix}camera_mount_mid_to_${prefix}camera_mount_top_joint" type="fixed">
+      <origin xyz="0.0 0.0 0.086" rpy="0.0 ${camera_mount_angle_2} 0.0" />
+      <parent link="${prefix}camera_mount_mid_link" />
+      <child link="${prefix}camera_mount_top_link" />
+    </joint>
+
+    <link name="${prefix}camera_mount_top_link">
+      <visual>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/components/camera_mount_top.dae"
+      scale="1 1 1" />
+        </geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.023 0.023 0.025" />
+        </geometry>
+        <origin xyz="0.0 -0.00232 0.0065" rpy="0.0 0.0 0.0" />
+      </collision>
+    </link>
+
+    <joint name="${prefix}camera_mount_top_to_${prefix}camera_mount_joint"
+      type="fixed">
+      <origin xyz="0.0 -0.00232 0.019" rpy="0.0 0.0 0.0" />
+      <parent link="${prefix}camera_mount_top_link" />
+      <child link="${prefix}camera_mount_link" />
+    </joint>
+
+    <link name="${prefix}camera_mount_link" />
+
+  </xacro:macro>
+</robot>

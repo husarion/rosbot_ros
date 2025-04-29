@@ -1,0 +1,91 @@
+---
+name: Build Docker
+
+on:
+  workflow_call:
+    inputs:
+      branch_name:
+        description: Tag used in the docker image (branch/tag/commit).
+        required: true
+        type: string
+      build_type:
+        description: Is it a "development" or a "stable" release?
+        required: true
+        type: string
+        default: development
+      target_distro:
+        description: In case of "stable" release specify the ROS distro of the existing docker image (eg.
+          humble)
+        type: string
+        default: humble
+      target_release:
+        description: In case of "stable" release specify the version of the existing docker image (eg.
+          1.0.12)
+        type: string
+        default: 0.0.0
+      target_date:
+        description: In case of "stable" release specify the date of the existing docker image in format
+          YYYYMMDD (eg. 20220124)
+        type: string
+        default: '20131206'
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: Is it a "development" or a "stable" release?
+        required: true
+        type: choice
+        default: development
+        options:
+          - development
+          - stable
+      target_distro:
+        description: In case of "stable" release specify the ROS distro of the existing docker image (eg.
+          humble)
+        type: string
+        default: humble
+      target_release:
+        description: In case of "stable" release specify the version of the existing docker image (eg.
+          1.0.12)
+        type: string
+        default: 0.0.0
+      target_date:
+        description: In case of "stable" release specify the date of the existing docker image in format
+          YYYYMMDD (eg. 20220124)
+        type: string
+        default: '20131206'
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./docker/Dockerfile.hardware
+            platforms: linux/amd64, linux/arm64
+            repo_name: rosbot
+            ros_distro: humble
+          - dockerfile: ./docker/Dockerfile.simulation
+            platforms: linux/amd64
+            repo_name: rosbot-gazebo
+            ros_distro: humble
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        uses: husarion-ci/ros-docker-img-action@v0.8
+        with:
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+          main_branch_name: humble
+          dockerfile: ${{ matrix.dockerfile }}
+          repo_name: ${{ matrix.repo_name }}
+          branch_name: ${{ inputs.branch_name }}
+          build_type: ${{ inputs.build_type }}
+          ros_distro: ${{ matrix.ros_distro }}
+          platforms: ${{ matrix.platforms }}
+          # variables important only for stable release
+          target_distro: ${{ inputs.target_distro }}
+          target_release: ${{ inputs.target_release }}
+          target_date: ${{ inputs.target_date }}

@@ -18,53 +18,52 @@ import launch_pytest
 import pytest
 import rclpy
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
-from launch_ros.substitutions import FindPackageShare
+from launch.actions import ExecuteProcess
 from test_utils import BringupTestNode, readings_data_test
-
-robot_names = ["robot1", "robot2"]
 
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_bringup = FindPackageShare("rosbot_bringup")
-    actions = []
-    for i in range(len(robot_names)):
-        bringup_launch = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                PathJoinSubstitution(
-                    [
-                        rosbot_bringup,
-                        "launch",
-                        "bringup.launch.py",
-                    ]
-                )
-            ),
-            launch_arguments={
-                "namespace": robot_names[i],
-                "microros": "False",
-            }.items(),
-        )
+    rosbot_launch = ExecuteProcess(
+        cmd=[
+            "ros2",
+            "launch",
+            "rosbot_bringup",
+            "bringup.launch.py",
+            "microros:=False",
+            "namespace:=robot1",
+            "robot_model:=rosbot",
+        ],
+        output="screen",
+    )
 
-        delayed_bringup = TimerAction(period=5.0 * i, actions=[bringup_launch])
-        actions.append(delayed_bringup)
+    rosbot_xl_launch = ExecuteProcess(
+        cmd=[
+            "ros2",
+            "launch",
+            "rosbot_bringup",
+            "bringup.launch.py",
+            "microros:=False",
+            "namespace:=robot2",
+            "robot_model:=rosbot_xl",
+        ],
+        output="screen",
+    )
 
-    return LaunchDescription(actions)
+    return LaunchDescription([rosbot_launch, rosbot_xl_launch])
 
 
 @pytest.mark.launch(fixture=generate_test_description)
-def test_multirobot_bringup_startup_success():
+def test_multirobot_bringup():
+    robot_names = ["robot1", "robot2"]
 
     for robot_name in robot_names:
         rclpy.init()
         try:
-            node = BringupTestNode("test_bringup", namespace=robot_name)
-            node.create_test_subscribers_and_publishers()
+            node = BringupTestNode("test_multirobot_bringup", namespace=robot_name)
             node.start_publishing_fake_hardware()
-
             node.start_node_thread()
+
             readings_data_test(node, robot_name)
 
         finally:

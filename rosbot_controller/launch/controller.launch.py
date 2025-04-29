@@ -17,15 +17,17 @@ from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     EmitEvent,
+    GroupAction,
+    IncludeLaunchDescription,
     RegisterEventHandler,
     TimerAction,
 )
-from launch.conditions import UnlessCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessIO
 from launch.events import Shutdown
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
-    Command,
-    FindExecutable,
+    EnvironmentVariable,
     LaunchConfiguration,
     PathJoinSubstitution,
     PythonExpression,
@@ -34,174 +36,181 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
+from rosbot_utils.utils import find_device_port
+
 
 def generate_launch_description():
-    namespace = LaunchConfiguration("namespace")
+    configuration = LaunchConfiguration("configuration")
+    controller_config = LaunchConfiguration("controller_config")
+    manipulator_serial_port = LaunchConfiguration("manipulator_serial_port")
     mecanum = LaunchConfiguration("mecanum")
+    namespace = LaunchConfiguration("namespace")
+    robot_model = LaunchConfiguration("robot_model")
     use_sim = LaunchConfiguration("use_sim", default="False")
 
-    declare_namespace_arg = DeclareLaunchArgument(
-        "namespace",
-        default_value="",
-        description="Adds a namespace to all running nodes.",
+    base_controller_prefix = PythonExpression(
+        ["'mecanum_drive' if ", mecanum, " else 'diff_drive'"]
+    )
+    manipulator = PythonExpression(["'", configuration, "'.startswith('manipulation')"])
+    manipulator_prefix = PythonExpression(["'manipulator_' if ", manipulator, " else ''"])
+    controller_config_file = PythonExpression(
+        ["'", base_controller_prefix, "' + '_' + '", manipulator_prefix, "' + 'controller.yaml'"]
+    )
+    default_controller_config = PathJoinSubstitution(
+        [FindPackageShare("rosbot_controller"), "config", robot_model, controller_config_file]
+    )
+
+    declare_controller_config_arg = DeclareLaunchArgument(
+        "controller_config",
+        default_value=default_controller_config,
+        description="Path to controller configuration file.",
+    )
+
+    declare_configuration_arg = DeclareLaunchArgument(
+        "configuration",
+        default_value="basic",
+        description=(
+            "Specify configuration packages. Currently only ROSbot XL has available packages."
+        ),
+        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
+    )
+
+    default_manipulator_serial_port = find_device_port("0403", "6014", "/dev/ttyUSB0")
+    declare_manipulator_serial_port_arg = DeclareLaunchArgument(
+        "manipulator_serial_port",
+        default_value=default_manipulator_serial_port,
+        description="Port to connect to the manipulator.",
     )
 
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value="False",
-        description="Whether to use mecanum drive controller (otherwise diff drive controller is used)",
-    )
-    controller_config_name = PythonExpression(
-        [
-            "'mecanum_drive_controller.yaml' if ",
-            mecanum,
-            " else 'diff_drive_controller.yaml'",
-        ]
+        description="Whether to use mecanum drive controller, otherwise use diff drive",
     )
 
-    robot_controllers = PathJoinSubstitution(
-        [FindPackageShare("rosbot_controller"), "config", controller_config_name]
+    declare_robot_model_arg = DeclareLaunchArgument(
+        "robot_model",
+        default_value=EnvironmentVariable("ROBOT_MODEL_NAME", default_value=""),
+        description="Specify robot model",
+        choices=["rosbot", "rosbot_xl"],
     )
 
     ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
-    ns_robot_controllers = ReplaceString(robot_controllers, {"<namespace>/": ns})
+    ns_controller_config = ReplaceString(controller_config, {"<namespace>/": ns})
 
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
+    load_urdf = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
             PathJoinSubstitution(
-                [
-                    FindPackageShare("rosbot_description"),
-                    "urdf",
-                    "rosbot.urdf.xacro",
-                ]
-            ),
-            " controller_config:=",
-            ns_robot_controllers,
-            " mecanum:=",
-            mecanum,
-            " namespace:=",
-            namespace,
-            " use_sim:=",
-            use_sim,
-        ]
+                [FindPackageShare("rosbot_description"), "launch", "load_urdf.launch.py"]
+            )
+        ),
+        launch_arguments={
+            "configuration": configuration,
+            "controller_config": ns_controller_config,
+            "manipulator_serial_port": manipulator_serial_port,
+            "mock_joints": "False",
+            "robot_model": robot_model,
+            "use_sim": use_sim,
+        }.items(),
     )
 
-    controller_manager_name = LaunchConfiguration(
-        "controller_manager_name",
-        default=[ns, "controller_manager"],
-    )
-
-    robot_description = {"robot_description": robot_description_content}
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description, ns_robot_controllers],
+        parameters=[ns_controller_config],
         remappings=[
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
             ("rosbot_base_controller/cmd_vel_unstamped", "cmd_vel"),
-            ("/tf", "tf"),
-            ("/tf_static", "tf_static"),
+            ("~/robot_description", "/robot_description"),
         ],
         condition=UnlessCondition(use_sim),
-        namespace=namespace,
     )
 
-    robot_state_pub_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[robot_description],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
-        namespace=namespace,
-    )
-
-    joint_state_broadcaster_spawner = Node(
+    joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
             "joint_state_broadcaster",
-            "--controller-manager",
-            controller_manager_name,
+            "-c",
+            "controller_manager",
             "--controller-manager-timeout",
             "20",
         ],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
-    robot_controller_spawner = Node(
+    robot_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
             "rosbot_base_controller",
-            "--controller-manager",
-            controller_manager_name,
+            "-c",
+            "controller_manager",
             "--controller-manager-timeout",
             "20",
         ],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
 
-    imu_broadcaster_spawner = Node(
+    imu_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
             "imu_broadcaster",
-            "--controller-manager",
-            controller_manager_name,
+            "-c",
+            "controller_manager",
             "--controller-manager-timeout",
             "20",
         ],
-        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
     )
+
+    manipulator_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [FindPackageShare("rosbot_controller"), "launch", "manipulator.launch.py"]
+            )
+        ),
+        condition=IfCondition(manipulator),
+    )
+
+    controllers = [joint_state_broadcaster, imu_broadcaster, robot_controller]
 
     # spawners expect ros2_control_node to be running
     delayed_spawner_nodes = TimerAction(
         period=3.0,
-        actions=[
-            joint_state_broadcaster_spawner,
-            robot_controller_spawner,
-            imu_broadcaster_spawner,
-        ],
+        actions=controllers + [manipulator_launch],
     )
 
     def check_if_log_is_fatal(event):
         red_color = "\033[91m"
         reset_color = "\033[0m"
-        if "fatal" in event.text.decode().lower() or "failed" in event.text.decode().lower():
+        msg = event.text.decode().lower()
+        if ("fatal" in msg or "failed" in msg) and "attempt" not in msg:
             print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
             return EmitEvent(event=Shutdown(reason="Spawner failed"))
 
-    joint_state_monitor = RegisterEventHandler(
-        OnProcessIO(
-            target_action=joint_state_broadcaster_spawner,
-            on_stderr=lambda event: check_if_log_is_fatal(event),
+    controllers_monitor = [
+        RegisterEventHandler(
+            OnProcessIO(
+                target_action=spawner,
+                on_stderr=check_if_log_is_fatal,
+            )
         )
-    )
-    robot_controller_monitor = RegisterEventHandler(
-        OnProcessIO(
-            target_action=robot_controller_spawner,
-            on_stderr=lambda event: check_if_log_is_fatal(event),
-        )
-    )
-    imu_broadcaster_monitor = RegisterEventHandler(
-        OnProcessIO(
-            target_action=imu_broadcaster_spawner,
-            on_stderr=lambda event: check_if_log_is_fatal(event),
-        )
-    )
+        for spawner in controllers
+    ]
+
+    controllers_monitor = GroupAction(controllers_monitor)
 
     return LaunchDescription(
         [
-            declare_namespace_arg,
+            declare_configuration_arg,
+            declare_manipulator_serial_port_arg,
             declare_mecanum_arg,
+            declare_robot_model_arg,
+            declare_controller_config_arg,  # controler_config base on mecanum and robot_model arg
+            load_urdf,
             control_node,
-            robot_state_pub_node,
             delayed_spawner_nodes,
-            joint_state_monitor,
-            robot_controller_monitor,
-            imu_broadcaster_monitor,
+            controllers_monitor,
         ]
     )

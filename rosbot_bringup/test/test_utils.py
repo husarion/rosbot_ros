@@ -30,7 +30,12 @@ class BringupTestNode(Node):
     __test__ = False
 
     def __init__(self, name="test_node", namespace=None):
-        super().__init__(name, namespace=namespace)
+        super().__init__(
+            name,
+            namespace=namespace,
+            cli_args=["--ros-args", "-r", "/tf:=tf", "-r", "/tf_static:=tf_static"],
+        )
+
         self.joint_state_msg_event = Event()
         self.controller_odom_msg_event = Event()
         self.imu_msg_event = Event()
@@ -39,6 +44,8 @@ class BringupTestNode(Node):
 
         self.ros_spin_thread = None
         self.timer = None
+
+        self.create_test_subscribers_and_publishers()
 
     def create_test_subscribers_and_publishers(self):
         self.imu_pub = self.create_publisher(Imu, "/_imu/data_raw", 10)
@@ -130,10 +137,9 @@ def wait_for_all_events(events, timeout):
     start_time = time.time()
     while time.time() - start_time < timeout:
         if all(event.is_set() for event in events):
-            return True, []  # All events have been set
-        time.sleep(0.1)  # Short interval between checks
+            return True, []
+        time.sleep(0.1)
 
-    # Identify which events were not set
     not_set_events = [i for i, event in enumerate(events) if not event.is_set()]
     return False, not_set_events
 

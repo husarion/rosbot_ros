@@ -1,0 +1,6 @@
+---
+components:
+  - type: CAM11
+    parent_link: camera_mount_link
+    xyz: 0.01 0.035 0.02
+    rpy: 0.0 0.0 0.0

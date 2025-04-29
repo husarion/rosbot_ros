@@ -1,0 +1,19 @@
+---
+/**/laser_filter:
+  ros__parameters:
+    filter1:
+      name: box_filter
+      type: laser_filters/LaserScanBoxFilter
+      params:
+        box_frame: base_link
+
+        max_x: 0.165
+        min_x: -0.245 # 0.165 + 0.03 (wifi antenna) + 0.05 (lidar uncertanity)
+
+        max_y: 0.145
+        min_y: -0.145
+
+        max_z: 0.3
+        min_z: 0.0
+
+        invert: false

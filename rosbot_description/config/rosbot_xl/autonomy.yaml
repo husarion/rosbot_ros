@@ -1,0 +1,13 @@
+---
+components:
+  - type: LDR01
+    parent_link: cover_link
+    xyz: 0.0 0.0 0.0
+    rpy: 0.0 0.0 0.0
+    device_namespace: ''
+
+  - type: CAM11
+    parent_link: camera_mount_link
+    xyz: 0.01 0.035 0.02
+    rpy: 0.0 0.0 0.0
+    device_namespace: ''
