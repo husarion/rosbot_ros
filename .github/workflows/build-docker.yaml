@@ -63,11 +63,11 @@ jobs:
           - dockerfile: ./docker/Dockerfile.hardware
             platforms: linux/amd64, linux/arm64
             repo_name: rosbot
-            ros_distro: jazzy
+            ros_distro: humble
           - dockerfile: ./docker/Dockerfile.simulation
             platforms: linux/amd64
             repo_name: rosbot-gazebo
-            ros_distro: jazzy
+            ros_distro: humble
 
     steps:
       - name: Checkout
@@ -78,7 +78,7 @@ jobs:
         with:
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-          main_branch_name: jazzy
+          main_branch_name: humble
           dockerfile: ${{ matrix.dockerfile }}
           repo_name: ${{ matrix.repo_name }}
           branch_name: ${{ inputs.branch_name }}

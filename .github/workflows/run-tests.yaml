@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-test:
     name: Run tests ${{ matrix.build_type }} build type
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         build_type: [simulation, hardware]
@@ -31,7 +31,7 @@ jobs:
           vcs-repo-file-url: |
             ${{ github.workspace }}/rosbot/rosbot_${{ env.HUSARION_ROS_BUILD_TYPE }}.repos
             ${{ github.workspace }}/rosbot/manipulator.repos
-          target-ros2-distro: jazzy
+          target-ros2-distro: humble
           # rosbot_bringup and rosbot_gazebo works only locally
           colcon-defaults: |
             {

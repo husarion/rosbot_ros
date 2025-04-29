@@ -49,20 +49,23 @@ def generate_test_description():
         output="screen",
     )
 
-    spawn_secound_robot = TimerAction(period=5.0, actions=[
-        ExecuteProcess(
-        cmd=[
-            "ros2",
-            "launch",
-            "rosbot_gazebo",
-            "spawn_robot.launch.py",
-            "namespace:=robot2",
-            "robot_model:=rosbot_xl",
-            "y:=-4.0",
+    spawn_secound_robot = TimerAction(
+        period=5.0,
+        actions=[
+            ExecuteProcess(
+                cmd=[
+                    "ros2",
+                    "launch",
+                    "rosbot_gazebo",
+                    "spawn_robot.launch.py",
+                    "namespace:=robot2",
+                    "robot_model:=rosbot_xl",
+                    "y:=-4.0",
+                ],
+                output="screen",
+            )
         ],
-        output="screen",
     )
-    ])
 
     return LaunchDescription(
         [

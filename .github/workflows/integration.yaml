@@ -13,7 +13,7 @@ jobs:
     name: Pre-commit
     uses: ros-controls/ros2_control_ci/.github/workflows/reusable-pre-commit.yml@master
     with:
-      ros_distro: jazzy
+      ros_distro: humble
 
   ros_test:
     name: ROS Test
