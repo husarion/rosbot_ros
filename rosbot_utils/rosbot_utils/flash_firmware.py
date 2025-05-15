@@ -24,6 +24,7 @@ from ament_index_python.packages import get_package_share_directory
 
 from rosbot_utils.flash_firmware_uart import FirmwareFlasherUART
 from rosbot_utils.flash_firmware_usb import FirmwareFlasherUSB
+from rosbot_utils.utils import find_device_port
 
 # Global variable to hold the subprocess reference
 subproc = None
@@ -82,8 +83,9 @@ def main(args=None):
         action="store_true",
         help="Flash via USB. Automatically set for ROSbot XL; other ROSbots use UART by default. (You can flash firmware to ROSbot via USB-A from your PC)",
     )
+    default_manipulator_serial_port = find_device_port("0403", "6015", "/dev/ttyUSB0")
     parser.add_argument(
-        "-p", "--port", default="/dev/ttyUSB0", help="Specify the communication port"
+        "-p", "--port", default=default_manipulator_serial_port, help="Specify the communication port"
     )
     parser.add_argument("-f", "--file", help="Specify the firmware file")
     args = parser.parse_args(args)
