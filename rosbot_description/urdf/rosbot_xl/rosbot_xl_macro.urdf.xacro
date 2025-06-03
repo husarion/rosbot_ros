@@ -21,7 +21,7 @@
 
     <!-- BODY -->
     <xacro:body.body wheel_radius="${wheel_radius}" />
-    <xacro:antenna.antenna parent_link="cover_link" xyz="-0.155 -0.055 -0.02" />
+    <xacro:antenna.antenna parent_link="cover_link" xyz="-0.155 -0.055 -0.02" rpy="-0.4 0.0 0.0" antenna_angle="0.3" />
     <xacro:if value="${include_camera_mount}">
       <xacro:camera_mount.camera_mount parent_link="cover_link" xyz="-0.1 0.0 0.0" />
     </xacro:if>

@@ -96,26 +96,40 @@
         max_jerk: .nan # rad/s^3
         min_jerk: .nan # rad/s^3
 
+# Based on: https://github.com/ROBOTIS-GIT/open_manipulator/blob/humble/open_manipulator_x_bringup/config/hardware_controller_manager.yaml
 /**/manipulator_controller:
   ros__parameters:
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-      - velocity
     joints:
       - joint1
       - joint2
       - joint3
       - joint4
+
+    interface_name: position
+
+    command_interfaces:
+      - position
+
+    state_interfaces:
+      - position
+      - velocity
+
+    state_publish_rate: 200.0
+    action_monitor_rate: 20.0
     allow_nonzero_velocity_at_trajectory_end: true
+
+    allow_partial_joints_goal: false
+    open_loop_control: true
+    allow_integration_in_goal_trajectories: true
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.0 # Defaults to 0.0 (start immediately)
 
 /**/gripper_controller:
   ros__parameters:
     joint: gripper_left_joint
     state_interfaces:
       - position
-      - velocity
     command_interfaces:
       - position
     conversion_factor: 0.0001

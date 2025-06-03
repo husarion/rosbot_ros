@@ -89,6 +89,12 @@ def generate_launch_description():
         launch_arguments={"robot_model": robot_model}.items(),
     )
 
+    joy_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_bringup, "launch", "joy.launch.py"])
+        )
+    )
+
     green_color = "\033[92m"
     reset_color = "\033[0m"
 
@@ -109,6 +115,7 @@ def generate_launch_description():
         microros_launch,
         localization_launch,
         laser_filter_launch,
+        joy_launch,
         status_info,
     ]
 

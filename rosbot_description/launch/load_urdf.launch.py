@@ -136,9 +136,10 @@ def generate_launch_description():
         choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
     )
 
+    default_mecanum_value = PythonExpression(["'", robot_model, "' == 'rosbot_xl'"])
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
-        default_value="False",
+        default_value=default_mecanum_value,
         description="Whether to use mecanum drive controller, otherwise use diff drive",
         choices=["True", "False"],
     )
@@ -157,7 +158,7 @@ def generate_launch_description():
             declare_configuration_arg,
             declare_robot_model_arg,
             declare_components_config_arg,  # depends on configuration and robot model
-            declare_mecanum_arg,
+            declare_mecanum_arg,  # mecanum base on robot_model arg
             publish_robot_description,
         ]
     )
