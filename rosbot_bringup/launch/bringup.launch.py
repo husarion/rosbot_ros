@@ -57,6 +57,7 @@ def generate_launch_description():
 
     rosbot_bringup = FindPackageShare("rosbot_bringup")
     rosbot_controller = FindPackageShare("rosbot_controller")
+    rosbot_joy = FindPackageShare("rosbot_joy")
     rosbot_localization = FindPackageShare("rosbot_localization")
     rosbot_utils = FindPackageShare("rosbot_utils")
 
@@ -91,7 +92,7 @@ def generate_launch_description():
 
     joy_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution([rosbot_bringup, "launch", "joy.launch.py"])
+            PathJoinSubstitution([rosbot_joy, "launch", "joy.launch.py"])
         )
     )
 

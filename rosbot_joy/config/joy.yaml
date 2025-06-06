@@ -28,4 +28,4 @@
       require_enable_button: true
       enable_button: 4  # LB
       enable_turbo_button: 5 # RB
-      publish_stamped_twist: true
+      publish_stamped_twist: false

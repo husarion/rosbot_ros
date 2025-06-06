@@ -16,14 +16,13 @@
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
-  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">joy</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">launch</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">launch_ros</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">micro_ros_agent</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">rosbot_controller</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">rosbot_joy</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">rosbot_localization</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">rosbot_utils</exec_depend>
-  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">teleop_twist_joy</exec_depend>
 
   <test_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">launch</test_depend>
   <test_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">launch_pytest</test_depend>

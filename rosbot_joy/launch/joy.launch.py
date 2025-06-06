@@ -28,11 +28,11 @@ def generate_launch_description():
     joy_vel = LaunchConfiguration("joy_vel")
     namespace = LaunchConfiguration("namespace")  # Capture the namespace
 
-    rosbot_bringup = FindPackageShare("rosbot_bringup")
+    rosbot_joy = FindPackageShare("rosbot_joy")
 
     declare_joy_config_arg = DeclareLaunchArgument(
         "joy_config",
-        default_value=PathJoinSubstitution([rosbot_bringup, "config", "joy.yaml"]),
+        default_value=PathJoinSubstitution([rosbot_joy, "config", "joy.yaml"]),
         description="The file path to the configuration YAML file for the teleop_twist_joy node.",
     )
 
