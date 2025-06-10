@@ -123,7 +123,7 @@ def generate_launch_description():
         default_value=default_components_config,
         description=(
             "Specify file which contains components. These components will be included in URDF. "
-            "Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors)"
+            "Available options can be found in [husarion_components_description](https://github.com/husarion/husarion_components_description/blob/ros2/README.md#available-urdf-sensors)"
         ),
     )
 

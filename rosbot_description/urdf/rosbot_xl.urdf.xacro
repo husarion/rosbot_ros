@@ -11,7 +11,7 @@
   <xacro:arg name="use_sim" default="false" />
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/rosbot_xl_macro.urdf.xacro" ns="husarion" />
-  <xacro:include filename="$(find ros_components_description)/urdf/components.urdf.xacro" ns="components" />
+  <xacro:include filename="$(find husarion_components_description)/urdf/components.urdf.xacro" ns="components" />
 
   <xacro:husarion.rosbot_xl
     controller_config="$(arg controller_config)"
