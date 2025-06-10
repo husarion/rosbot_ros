@@ -52,7 +52,6 @@ def generate_launch_description():
         package="joy",
         executable="joy_node",
         name="joy_node",
-        namespace=namespace,
         parameters=[joy_config],
     )
 
@@ -60,7 +59,6 @@ def generate_launch_description():
         package="teleop_twist_joy",
         executable="teleop_node",
         name="joy2twist",
-        namespace=namespace,
         parameters=[joy_config],
         remappings={("/cmd_vel", joy_vel)},
     )
