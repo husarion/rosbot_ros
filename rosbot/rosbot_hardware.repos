@@ -10,7 +10,7 @@ repositories:
   husarion_components_description:
     type: git
     url: https://github.com/husarion/husarion_components_description.git
-    version: 0a828de00e2ab59cfd7bc397b8af021c60d52ba5
+    version: a46871980289a845c0b6defaba5161e3b505daa8
   rosbot_hardware_interfaces:
     type: git
     url: https://github.com/husarion/rosbot_hardware_interfaces.git
