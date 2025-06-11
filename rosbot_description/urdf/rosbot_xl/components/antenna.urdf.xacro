@@ -9,6 +9,8 @@
 
     <xacro:property name="prefix" value="${tf_prefix + '_' if tf_prefix != '' else ''}" />
 
+    <xacro:property name="antenna_connector_length" value="0.02" />
+    <xacro:property name="antenna_connector_radius" value="0.007" />
     <xacro:property name="antenna_length" value="0.1" />
     <xacro:property name="antenna_radius" value="0.0052" />
 
@@ -26,6 +28,12 @@
         </geometry>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
       </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="${antenna_connector_radius}" length="${antenna_connector_length}" />
+        </geometry>
+        <origin xyz="-0.005 0.0 0.0" rpy="0.0 ${-pi/4} 0.0" />
+      </collision>
     </link>
 
     <joint name="${prefix}antenna_connector_to_${prefix}antenna_joint" type="fixed">
