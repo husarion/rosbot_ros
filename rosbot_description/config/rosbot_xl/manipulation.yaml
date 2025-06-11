@@ -1,6 +1,6 @@
 ---
 components:
-  - type: LDR01
+  - type: LDR06
     parent_link: cover_link
-    xyz: 0.0 0.0 0.0
+    xyz: -0.01 0.0 0.0
     rpy: 0.0 0.0 0.0

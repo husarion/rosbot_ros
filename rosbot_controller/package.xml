@@ -19,7 +19,6 @@
 
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
-  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">dynamixel_hardware_interface</exec_depend>
   <exec_depend>imu_sensor_broadcaster</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>launch</exec_depend>
@@ -29,7 +28,6 @@
   <exec_depend>open_manipulator_x_moveit</exec_depend>
   <exec_depend>position_controllers</exec_depend>
   <exec_depend>rosbot_description</exec_depend>
-  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">rosbot_hardware_interfaces</exec_depend>
   <exec_depend>rosbot_utils</exec_depend>
   <exec_depend>xacro</exec_depend>
   <!-- <exec_depend>parallel_gripper_controller</exec_depend> TODO: Should be used but right now no all function available (move_group)-->

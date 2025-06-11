@@ -64,60 +64,72 @@
     #publish_limited_velocity: true
 
     # Velocity and acceleration limits
-    # Whenever a min_* is unspecified, default to -max_*
     linear:
       x:
-        has_velocity_limits: true
-        has_acceleration_limits: true
-        has_jerk_limits: false
-        # top speed is around 1.2m/s
         max_velocity: 1.0 # m/s
-        # min_velocity -  When unspecified, -max_velocity is used
+        min_velocity: -1.0 # m/s
         max_acceleration: 0.75 # m/s^2
-        # min_acceleration - When unspecified, -max_acceleration is used.
-        max_jerk: 0.0 # m/s^3
+        max_deceleration: -0.75 # m/s^2
+        max_acceleration_reverse: -0.75 # m/s^2
+        max_deceleration_reverse: 0.75 # m/s^2
+        max_jerk: .nan # m/s^3
+        min_jerk: .nan # m/s^3
+
       y:
-        has_velocity_limits: true
-        has_acceleration_limits: true
-        has_jerk_limits: false
-        # top speed is around 1.2m/s
         max_velocity: 1.0 # m/s
-        # min_velocity -  When unspecified, -max_velocity is used
-        max_acceleration: 0.5 # m/s^2
-        # min_acceleration - When unspecified, -max_acceleration is used.
-        max_jerk: 0.0 # m/s^3
+        min_velocity: -1.0 # m/s
+        max_acceleration: 0.75 # m/s^2
+        max_deceleration: -0.75 # m/s^2
+        max_acceleration_reverse: -0.75 # m/s^2
+        max_deceleration_reverse: 0.75 # m/s^2
+        max_jerk: .nan # m/s^3
+        min_jerk: .nan # m/s^3
 
     angular:
       z:
-        has_velocity_limits: true
-        has_acceleration_limits: true
-        has_jerk_limits: false
         max_velocity: 3.14 # rad/s
-        # min_velocity -  When unspecified, -max_velocity is used
+        min_velocity: -3.14 # rad/s
         max_acceleration: 3.0 # rad/s^2
-        # min_acceleration - When unspecified, -max_acceleration is used.
-        max_jerk: 0.0 # rad/s^3
+        max_deceleration: -3.0 # rad/s^2
+        max_acceleration_reverse: -3.0 # rad/s^2
+        max_deceleration_reverse: 3.0 # rad/s^2
+        max_jerk: .nan # rad/s^3
+        min_jerk: .nan # rad/s^3
 
+# Based on: https://github.com/ROBOTIS-GIT/open_manipulator/blob/humble/open_manipulator_x_bringup/config/hardware_controller_manager.yaml
 /**/manipulator_controller:
   ros__parameters:
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-      - velocity
     joints:
       - joint1
       - joint2
       - joint3
       - joint4
+
+    interface_name: position
+
+    command_interfaces:
+      - position
+
+    state_interfaces:
+      - position
+      - velocity
+
+    state_publish_rate: 200.0
+    action_monitor_rate: 20.0
     allow_nonzero_velocity_at_trajectory_end: true
+
+    allow_partial_joints_goal: false
+    open_loop_control: true
+    allow_integration_in_goal_trajectories: true
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.0 # Defaults to 0.0 (start immediately)
 
 /**/gripper_controller:
   ros__parameters:
     joint: gripper_left_joint
     state_interfaces:
       - position
-      - velocity
     command_interfaces:
       - position
     conversion_factor: 0.0001
