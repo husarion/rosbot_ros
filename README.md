@@ -27,7 +27,7 @@ Documentation is available in ROS_API.md.
    ```bash
    mkdir rosbot_ws
    cd rosbot_ws
-   git clone https://github.com/husarion/rosbot_ros.git src/rosbot_ros
+   git clone -b jazzy https://github.com/husarion/rosbot_ros.git src/rosbot_ros
    ```
 
 ### Configure environment
@@ -56,7 +56,6 @@ vcs import src < src/rosbot_ros/rosbot/manipulator.repos # For ROSbot XL manipul
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
-export PIP_BREAK_SYSTEM_PACKAGES=1
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 
 colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
@@ -100,6 +99,8 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 | ✅  | ✅  | `components_config` | Specify file which contains components. These components will be included in URDF. Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors) <br/> **_string_:** [`components.yaml`](rosbot_description/config/components.yaml)                                                                                       |
 | ✅  | ✅  | `configuration` | Specify configuration packages. Currently only ROSbot XL has available packages. Packages: `basic`, `telepresence`, `autonomy`, `manipulation`, `manipulation_pro`. <br/> **_string:_** 'basic'                                                                          |
 | ✅  | ✅  | `controller_config` | Path to controller configuration file. <br/> **_string:_** [`{robot_model}/{mecanum/diff}_drive_controller.yaml`](rosbot_controller/config/)                                                                                       |
+| ✅  | ✅  | `joy_config`       | The file path to the configuration YAML file for the `teleop_twist_joy` node. <br/> **_string:_** [`joy.yaml`](rosbot_bringup/config/joy.yaml) |
+| ✅  | ✅  | `joy_vel`       | The topic name to which velocity commands will be published. <br/> **_string:_** `cmd_vel` |
 | ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `False`                                                                                       |
 | ✅  | ✅  | `namespace`         | Add namespace to all launched nodes. <br/> **_string:_** `env(ROBOT_NAMESPACE)`                                                                                                                       |
 | ✅  | ✅  | `robot_model`       | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL_NAME)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |

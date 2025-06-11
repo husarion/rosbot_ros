@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>rosbot_joy</name>
+  <version>0.15.1</version>
+  <description>The rosbot_joy package</description>
+
+  <maintainer email="support@husarion.com">Husarion</maintainer>
+
+  <license>Apache License 2.0</license>
+
+  <url type="website">https://husarion.com/</url>
+  <url type="repository">https://github.com/husarion/rosbot_ros</url>
+  <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
+
+  <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>joy</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>teleop_twist_joy</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

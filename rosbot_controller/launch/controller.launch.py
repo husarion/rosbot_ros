@@ -82,10 +82,12 @@ def generate_launch_description():
         description="Port to connect to the manipulator.",
     )
 
+    default_mecanum_value = PythonExpression(["'", robot_model, "' == 'rosbot_xl'"])
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
-        default_value="False",
+        default_value=default_mecanum_value,
         description="Whether to use mecanum drive controller, otherwise use diff drive",
+        choices=["True", "False"],
     )
 
     declare_robot_model_arg = DeclareLaunchArgument(
@@ -175,10 +177,10 @@ def generate_launch_description():
     controllers = [joint_state_broadcaster, imu_broadcaster, robot_controller]
 
     # spawners expect ros2_control_node to be running
-    delayed_spawner_nodes = TimerAction(
-        period=3.0,
-        actions=controllers + [manipulator_launch],
-    )
+    delayed_controllers = TimerAction(period=3.0, actions=controllers)
+
+    # Delay start of manipulator
+    delayed_manipulator_launch = TimerAction(period=6.0, actions=[manipulator_launch])
 
     def check_if_log_is_fatal(event):
         red_color = "\033[91m"
@@ -204,12 +206,13 @@ def generate_launch_description():
         [
             declare_configuration_arg,
             declare_manipulator_serial_port_arg,
-            declare_mecanum_arg,
             declare_robot_model_arg,
+            declare_mecanum_arg,  # mecanum base on robot_model arg
             declare_controller_config_arg,  # controler_config base on mecanum and robot_model arg
             load_urdf,
             control_node,
-            delayed_spawner_nodes,
+            delayed_controllers,
+            delayed_manipulator_launch,
             controllers_monitor,
         ]
     )
