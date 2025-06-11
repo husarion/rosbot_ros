@@ -89,7 +89,7 @@
       </inertial>
     </link>
 
-    <gazebo reference="${side}_wheel_link" xmlns:ignition="http://gazeborobotics.org/schema">
+    <gazebo reference="${side}_wheel_link" xmlns:ignition="http://ignitionrobotics.org/schema">
       <xacro:unless value="${mecanum}">
         <collision>
           <surface>

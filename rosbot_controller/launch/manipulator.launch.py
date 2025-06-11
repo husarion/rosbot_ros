@@ -13,8 +13,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, RegisterEventHandler, TimerAction
-from launch.event_handlers import OnProcessExit
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
@@ -49,9 +48,6 @@ def generate_launch_description():
         output="screen",
     )
 
-    ready_node = Node(package="open_manipulator_x_moveit", executable="ready")
-    move_to_ready_pose = TimerAction(period=5.0, actions=[ready_node])
-
     move_group_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -68,16 +64,15 @@ def generate_launch_description():
         )
     )
 
-    delayed_servo_launch = RegisterEventHandler(
-        OnProcessExit(target_action=ready_node, on_exit=[servo_launch])
-    )
+    ready_node = Node(package="open_manipulator_x_moveit", executable="ready")
+    move_to_home_pose = TimerAction(period=10.0, actions=[ready_node])
 
     return LaunchDescription(
         [
             manipulator_controller_spawner,
             gripper_controller_spawner,
             move_group_launch,
-            move_to_ready_pose,
-            delayed_servo_launch,
+            servo_launch,
+            move_to_home_pose,
         ]
     )

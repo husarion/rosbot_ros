@@ -85,7 +85,10 @@ def main(args=None):
     )
     default_manipulator_serial_port = find_device_port("0403", "6015", "/dev/ttyUSB0")
     parser.add_argument(
-        "-p", "--port", default=default_manipulator_serial_port, help="Specify the communication port"
+        "-p",
+        "--port",
+        default=default_manipulator_serial_port,
+        help="Specify the communication port",
     )
     parser.add_argument("-f", "--file", help="Specify the firmware file")
     args = parser.parse_args(args)

@@ -40,7 +40,7 @@
         <topic>${ns}imu/data_raw</topic>
         <visualize>false</visualize>
         <enable_metrics>false</enable_metrics>
-        <ign_frame_id>imu_link</ign_frame_id>
+        <ignition_frame_id>imu_link</ignition_frame_id>
         <imu>
           <angular_velocity>
             <!-- rad/s | no bias_mean in datasheet -->
