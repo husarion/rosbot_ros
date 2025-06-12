@@ -29,6 +29,10 @@ services:
     network_mode: host
     ipc: host
     <<: [ *cpu-config]
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     command: >
       ros2 launch rosbot_description rviz.launch.py
         namespace:=${ROBOT_NAMESPACE:-rosbot}

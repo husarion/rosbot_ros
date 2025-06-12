@@ -29,6 +29,10 @@ services:
     network_mode: host
     ipc: host
     <<: [ *gpu-config]
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     command: >
       ros2 launch rosbot_gazebo simulation.launch.py
         mecanum:=${MECANUM:-False}
