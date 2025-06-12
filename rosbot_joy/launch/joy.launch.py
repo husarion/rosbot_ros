@@ -14,11 +14,7 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import (
-    EnvironmentVariable,
-    LaunchConfiguration,
-    PathJoinSubstitution,
-)
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -26,7 +22,6 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     joy_config = LaunchConfiguration("joy_config")
     joy_vel = LaunchConfiguration("joy_vel")
-    namespace = LaunchConfiguration("namespace")  # Capture the namespace
 
     rosbot_joy = FindPackageShare("rosbot_joy")
 
@@ -42,17 +37,10 @@ def generate_launch_description():
         description="The topic name to which velocity commands will be published.",
     )
 
-    declare_namespace_arg = DeclareLaunchArgument(
-        "namespace",
-        default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
-        description="Add namespace to all launched nodes.",
-    )
-
     joy_node = Node(
         package="joy",
         executable="joy_node",
         name="joy_node",
-        namespace=namespace,
         parameters=[joy_config],
     )
 
@@ -60,7 +48,6 @@ def generate_launch_description():
         package="teleop_twist_joy",
         executable="teleop_node",
         name="joy2twist",
-        namespace=namespace,
         parameters=[joy_config],
         remappings={("/cmd_vel", joy_vel)},
     )
@@ -69,7 +56,6 @@ def generate_launch_description():
         [
             declare_joy_config_arg,
             declare_joy_vel_arg,
-            declare_namespace_arg,
             joy_node,
             joy2twist_node,
         ]
