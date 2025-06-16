@@ -96,7 +96,7 @@ def test_simulation(generate_test_description):
         "rosbot": [
             # "camera_color",
             # "camera_points",
-            # "scan_filtered", # FIXME: Remove add param for tf_prefix in ros_components_description
+            # "scan_filtered", # FIXME: Remove add param for tf_prefix in husarion_components_description
         ],  # Not simulated "range_fl","range_fr", "range_rl", "range_rr"
         "rosbot_xl": [],
     }
