@@ -47,7 +47,7 @@ def generate_launch_description():
         default_value=default_components_config,
         description=(
             "Specify file which contains components. These components will be included in URDF. "
-            "Available options can be found in [ros_components_description](https://github.com/husarion/ros_components_description/blob/jazzy/README.md#available-urdf-sensors)"
+            "Available options can be found in [husarion_components_description](https://github.com/husarion/husarion_components_description/blob/ros2/README.md#available-urdf-sensors)"
         ),
     )
 
@@ -177,13 +177,15 @@ def generate_launch_description():
         }.items(),
     )
 
-    ros_components_description = FindPackageShare("ros_components_description")
+    husarion_components_description = FindPackageShare("husarion_components_description")
     rosbot_localization = FindPackageShare("rosbot_localization")
     rosbot_utils = FindPackageShare("rosbot_utils")
 
     gz_components = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution([ros_components_description, "launch", "gz_components.launch.py"])
+            PathJoinSubstitution(
+                [husarion_components_description, "launch", "gz_components.launch.py"]
+            )
         ),
         launch_arguments={
             "components_config_path": components_config,
