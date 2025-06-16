@@ -64,8 +64,8 @@ def generate_launch_description():
         )
     )
 
-    ready_node = Node(package="open_manipulator_x_moveit", executable="ready")
-    move_to_home_pose = TimerAction(period=10.0, actions=[ready_node])
+    home_node = Node(package="open_manipulator_x_moveit", executable="home")
+    move_to_home_pose = TimerAction(period=10.0, actions=[home_node])
 
     return LaunchDescription(
         [
