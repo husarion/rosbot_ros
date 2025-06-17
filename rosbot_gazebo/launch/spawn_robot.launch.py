@@ -183,7 +183,9 @@ def generate_launch_description():
 
     gz_components = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution([husarion_components_description, "launch", "gz_components.launch.py"])
+            PathJoinSubstitution(
+                [husarion_components_description, "launch", "gz_components.launch.py"]
+            )
         ),
         launch_arguments={
             "components_config_path": components_config,
