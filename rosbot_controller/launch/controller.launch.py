@@ -179,10 +179,10 @@ def generate_launch_description():
     controllers = [joint_state_broadcaster, imu_broadcaster, robot_controller]
 
     # spawners expect ros2_control_node to be running
-    delayed_controllers = TimerAction(period=3.0, actions=controllers)
+    delayed_controllers = TimerAction(period=4.0, actions=controllers)
 
     # Delay start of manipulator
-    delayed_manipulator_launch = TimerAction(period=6.0, actions=[manipulator_launch])
+    delayed_manipulator_launch = TimerAction(period=8.0, actions=[manipulator_launch])
 
     def check_if_log_is_fatal(event):
         red_color = "\033[91m"

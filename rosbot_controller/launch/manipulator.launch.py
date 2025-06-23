@@ -13,7 +13,15 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import (
+    EmitEvent,
+    GroupAction,
+    IncludeLaunchDescription,
+    RegisterEventHandler,
+    TimerAction,
+)
+from launch.event_handlers import OnProcessIO
+from launch.events import Shutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
@@ -22,7 +30,7 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
 
-    manipulator_controller_spawner = Node(
+    manipulator_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
@@ -30,12 +38,12 @@ def generate_launch_description():
             "-c",
             "controller_manager",
             "--controller-manager-timeout",
-            "20",
+            "15",
         ],
         output="screen",
     )
 
-    gripper_controller_spawner = Node(
+    gripper_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
@@ -43,7 +51,7 @@ def generate_launch_description():
             "-c",
             "controller_manager",
             "--controller-manager-timeout",
-            "20",
+            "15",
         ],
         output="screen",
     )
@@ -67,10 +75,33 @@ def generate_launch_description():
     home_node = Node(package="open_manipulator_x_moveit", executable="home")
     move_to_home_pose = TimerAction(period=10.0, actions=[home_node])
 
+    controllers = [manipulator_controller, gripper_controller]
+
+    def check_if_log_is_fatal(event):
+        red_color = "\033[91m"
+        reset_color = "\033[0m"
+        msg = event.text.decode().lower()
+        if ("fatal" in msg or "failed" in msg) and "attempt" not in msg:
+            print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
+            return EmitEvent(event=Shutdown(reason="Spawner failed"))
+
+    controllers_monitor = [
+        RegisterEventHandler(
+            OnProcessIO(
+                target_action=spawner,
+                on_stderr=check_if_log_is_fatal,
+            )
+        )
+        for spawner in controllers
+    ]
+
+    controllers_monitor = GroupAction(controllers_monitor)
+
+
     return LaunchDescription(
         [
-            manipulator_controller_spawner,
-            gripper_controller_spawner,
+            manipulator_controller,
+            gripper_controller,
             move_group_launch,
             servo_launch,
             move_to_home_pose,
