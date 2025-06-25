@@ -63,6 +63,8 @@ colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUIL
 
 #### Run the Robot
 
+For ROSbot XL, you can specify a particular configuration using the launch `configuration` argument. If you are using the `manipulation` configuration, please refer to [MANIPULATOR.md](MANIPULATOR.md) for detailed instructions.
+
 **Real robot:**
 
 ```bash
