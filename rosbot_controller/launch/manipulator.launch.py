@@ -97,7 +97,6 @@ def generate_launch_description():
 
     controllers_monitor = GroupAction(controllers_monitor)
 
-
     return LaunchDescription(
         [
             manipulator_controller,
