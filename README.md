@@ -3,7 +3,7 @@
 ROS 2 packages for Husarion ROSbot Series.
 
 <div style="display: flex; justify-content: center; gap: 10px;">
-  <img src="https://husarion.com/assets/images/2r_colour_perspective-14e3679e451eb9fe4e79eeecf7b82e65.png" alt="ROSbot" style="width: 45%;"/>
+  <img src="https://husarion.com/assets/images/2r_colour_perspective-bdf84fd9c22667bb07ddfddd9741d0df.png" alt="ROSbot" style="width: 45%;"/>
   <img src="https://husarion.com/assets/images/RbXL_5_medium-a3a59b28a740574879d9e80d56c5268f.png" alt="ROSbot XL" style="width: 40%;"/>
 </div>
 

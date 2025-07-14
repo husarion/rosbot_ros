@@ -6,4 +6,4 @@ repositories:
   dynamixel_hardware_interface: # This package is required due to bug in the original one https://github.com/ROBOTIS-GIT/open_manipulator/issues/310#issuecomment-2989389552
     type: git
     url: https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git
-    version: humble
+    version: dac08f7c8deeb7548e9e3b53263ae0b3b170c942
