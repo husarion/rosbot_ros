@@ -54,6 +54,7 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos
 vcs import src < src/rosbot_ros/rosbot/manipulator.repos # For ROSbot XL manipulation package
 
+export PIP_BREAK_SYSTEM_PACKAGES=1
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
