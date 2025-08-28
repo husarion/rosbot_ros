@@ -15,7 +15,3 @@ repositories:
     type: git
     url: https://github.com/husarion/rosbot_hardware_interfaces.git
     version: jazzy
-  launch: # There is a bug in official launch package. Track issue: https://github.com/ros2/launch/issues/894
-    type: git
-    url: https://github.com/rafal-gorecki/launch.git
-    version: backport-timer-reset 
