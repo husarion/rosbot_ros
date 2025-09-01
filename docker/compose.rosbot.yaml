@@ -6,10 +6,10 @@
 
 services:
   rosbot:
-    image: husarion/rosbot:jazzy-0.15.1-20250409
-    # build:
-    #   context: ..
-    #   dockerfile: docker/Dockerfile.hardware
+    # image: husarion/rosbot:jazzy-0.15.1-20250409
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.hardware
     network_mode: host
     ipc: host
     restart: unless-stopped
