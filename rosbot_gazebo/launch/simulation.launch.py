@@ -22,9 +22,9 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    use_rviz = LaunchConfiguration("use_rviz")
-    declare_use_rviz_arg = DeclareLaunchArgument(
-        "use_rviz",
+    rviz = LaunchConfiguration("rviz")
+    declare_rviz_arg = DeclareLaunchArgument(
+        "rviz",
         default_value="True",
         description="Run RViz simultaneously.",
         choices=["True", "true", "False", "false"],
@@ -71,12 +71,13 @@ def generate_launch_description():
                 ]
             )
         ),
-        condition=IfCondition(use_rviz),
+        launch_arguments={"namespace": ""}.items(),
+        condition=IfCondition(rviz),
     )
 
     return LaunchDescription(
         [
-            declare_use_rviz_arg,
+            declare_rviz_arg,
             SetRemap("/diagnostics", "diagnostics"),
             SetRemap("/tf", "tf"),
             SetRemap("/tf_static", "tf_static"),

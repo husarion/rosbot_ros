@@ -121,10 +121,17 @@ def generate_launch_description():
         executable="ros2_control_node",
         parameters=[ns_controller_config],
         remappings=[
+            ("drive_controller/cmd_vel", "cmd_vel"),
+            ("drive_controller/odom", "odometry/wheels"),
+            ("drive_controller/transition_event", "_drive_controller/transition_event"),
             ("imu_sensor_node/imu", "/_imu/data_raw"),
+            ("imu_broadcaster/transition_event", "_imu_broadcaster/transition_event"),
+            (
+                "joint_state_broadcaster/transition_event",
+                "_joint_state_broadcaster/transition_event",
+            ),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
-            ("rosbot_base_controller/cmd_vel", "cmd_vel"),
         ],
         condition=UnlessCondition(use_sim),
     )
@@ -141,11 +148,11 @@ def generate_launch_description():
         ],
     )
 
-    robot_controller = Node(
+    drive_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "rosbot_base_controller",
+            "drive_controller",
             "-c",
             "controller_manager",
             "--controller-manager-timeout",
@@ -174,7 +181,7 @@ def generate_launch_description():
         condition=IfCondition(manipulator),
     )
 
-    controllers = [joint_state_broadcaster, imu_broadcaster, robot_controller]
+    controllers = [joint_state_broadcaster, imu_broadcaster, drive_controller]
 
     # spawners expect ros2_control_node to be running
     delayed_controllers = TimerAction(period=3.0, actions=controllers)

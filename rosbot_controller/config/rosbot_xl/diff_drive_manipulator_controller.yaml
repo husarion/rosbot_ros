@@ -8,7 +8,7 @@
       type: joint_state_broadcaster/JointStateBroadcaster
     imu_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
-    rosbot_base_controller:
+    drive_controller:
       type: diff_drive_controller/DiffDriveController
     manipulator_controller:
       type: joint_trajectory_controller/JointTrajectoryController
@@ -24,7 +24,7 @@
     static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values measured experimentally
     static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0] # Values measured experimentally
 
-/**/rosbot_base_controller:
+/**/drive_controller:
   ros__parameters:
     tf_frame_prefix_enable: false
     left_wheel_names: [fl_wheel_joint, rl_wheel_joint]
