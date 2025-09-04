@@ -27,7 +27,7 @@ class SimulationTestNode(Node):
     __test__ = False
 
     # The inaccuracies in measurement uncertainties and wheel slippage
-    # cause the rosbot_base_controller to determine inaccurate odometry.
+    # cause the drive_controller to determine inaccurate odometry.
     ACCURACY = 0.20  # 20% accuracy (due wheel_separation angular speed differs between hw and sim)
     VELOCITY_STABILIZATION_DELAY = 3
 
@@ -47,7 +47,7 @@ class SimulationTestNode(Node):
             JointState, "joint_states", self.joint_states_callback, 10
         )
         self.controller_sub = self.create_subscription(
-            Odometry, "rosbot_base_controller/odom", self.controller_callback, 10
+            Odometry, "odometry/wheels", self.controller_callback, 10
         )
         self.ekf_sub = self.create_subscription(
             Odometry, "odometry/filtered", self.ekf_callback, 10
@@ -224,7 +224,7 @@ def speed_test(
     )
     assert node.is_controller_odom_correct, (
         f"{test_name}"
-        f"\n{robot_name}: does not move properly. Check rosbot_base_controller!"
+        f"\n{robot_name}: does not move properly. Check drive_controller!"
         f"\nTwist: {node.controller_twist}"
         f"\nCommand: x: {v_x}, y: {v_y}, yaw: {v_yaw}"
     )
