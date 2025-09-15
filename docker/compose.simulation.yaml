@@ -22,7 +22,7 @@ x-cpu-config:
 
 services:
   rosbot:
-    # image: husarion/rosbot-gazebo:jazzy-0.15.1-20250409
+    # image: husarion/rosbot-gazebo:jazzy
     build:
       context: ..
       dockerfile: docker/Dockerfile.simulation
