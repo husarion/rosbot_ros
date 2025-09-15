@@ -13,14 +13,23 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node, SetParameter, SetRemap
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    rviz = LaunchConfiguration("rviz")
+    declare_rviz_arg = DeclareLaunchArgument(
+        "rviz",
+        default_value="True",
+        description="Run RViz simultaneously.",
+        choices=["True", "true", "False", "false"],
+    )
+
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -52,8 +61,23 @@ def generate_launch_description():
         ),
     )
 
+    rviz_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [
+                    FindPackageShare("rosbot_description"),
+                    "launch",
+                    "rviz.launch.py",
+                ]
+            )
+        ),
+        launch_arguments={"namespace": ""}.items(),
+        condition=IfCondition(rviz),
+    )
+
     return LaunchDescription(
         [
+            declare_rviz_arg,
             SetRemap("/diagnostics", "diagnostics"),
             SetRemap("/tf", "tf"),
             SetRemap("/tf_static", "tf_static"),
@@ -61,5 +85,6 @@ def generate_launch_description():
             gz_sim,
             gz_bridge,
             spawn_robot,
+            rviz_launch,
         ]
     )

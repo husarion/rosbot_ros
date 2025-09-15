@@ -17,7 +17,7 @@
         publish_tf: true
         publish_acceleration: false
 
-        odom0: rosbot_base_controller/odom
+        odom0: odometry/wheels
         odom0_config: [false, false, false, # X , Y , Z
                       false, false, false, # roll , pitch ,yaw
                       true, true, false, # dX , dY , dZ

@@ -42,13 +42,18 @@ flash-firmware: _install-yq _run-as-user
         docker-rosbot \
         ros2 run rosbot_utils flash_firmware ${enable_usb}
 
-run_hardware:
+start_rosbot:
     #/bin/bash
-    docker compose -f compose.hardware.yaml up
+    docker compose -f compose.rosbot.yaml up
 
-build_hardware:
+start_rosbot_xl:
     #/bin/bash
-    docker compose -f compose.hardware.yaml build
+    docker compose -f compose.rosbot_xl.yaml up
+
+start-simulation:
+    #!/bin/bash
+    xhost +local:docker
+    docker compose -f compose.simulation.yaml up
 
 _run-as-root:
     #!/bin/bash

@@ -6,10 +6,10 @@
 
 services:
   rosbot:
-    image: husarion/rosbot:humble-devel
-    # build:
-    #   context: ..
-    #   dockerfile: docker/Dockerfile.hardware
+    # image: husarion/rosbot:humble
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.hardware
     network_mode: host
     ipc: host
     restart: unless-stopped
@@ -19,6 +19,4 @@ services:
       - USER
     command: >
       ros2 launch rosbot_bringup bringup.launch.py
-        mecanum:=${MECANUM:-False}
-        namespace:=${ROBOT_NAMESPACE:-rosbot}
         robot_model:=rosbot

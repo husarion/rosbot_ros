@@ -9,7 +9,7 @@ ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 COPY .. src/rosbot_ros
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         python3-pip \
         ros-dev-tools \
         stm32flash \

@@ -56,7 +56,7 @@ class BringupTestNode(Node):
             JointState, "joint_states", self.joint_states_callback, 10
         )
         self.controller_odom_sub = self.create_subscription(
-            Odometry, "rosbot_base_controller/odom", self.controller_odometry_callback, 10
+            Odometry, "odometry/wheels", self.controller_odometry_callback, 10
         )
         self.imu_sub = self.create_subscription(Imu, "imu_broadcaster/imu", self.imu_callback, 10)
         self.ekf_odom_sub = self.create_subscription(
