@@ -22,7 +22,7 @@ x-cpu-config:
 
 services:
   rviz:
-    image: husarion/rosbot:humble-devel
+    image: husarion/rosbot:humble
     # build:
     #   context: ..
     #   dockerfile: docker/Dockerfile.simulation
