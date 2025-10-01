@@ -4,19 +4,23 @@
 # 2. Open a shell inside a docker container `docker compose -f compose.hardware.yaml exec -it rosbot bash`
 # 3. Run `ros2 run teleop_twist_keyboard teleop_twist_keyboard` inside the container
 
+x-common-config:
+  &common-config
+  restart: unless-stopped
+  network_mode: host
+  ipc: host
+  env_file:
+    - .env
+
 services:
   rosbot:
     # image: husarion/rosbot:jazzy
     build:
       context: ..
       dockerfile: docker/Dockerfile.hardware
-    network_mode: host
-    ipc: host
-    restart: unless-stopped
-    environment:
-      - USER
+    <<: *common-config
+    volumes:
+      - ./dds-config-udp.xml:/udp_profiles.xml:ro
     command: >
       ros2 launch rosbot_bringup bringup.launch.py
-        mecanum:=${MECANUM:-False}
-        namespace:=${ROBOT_NAMESPACE:-rosbot}
         robot_model:=rosbot_xl

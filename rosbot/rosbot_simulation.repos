@@ -2,11 +2,11 @@ repositories:
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
-    version: jazzy
+    version: 9916ab4e087930b3ff947efec321ab9f8df531c5
   husarion_gz_worlds:
     type: git
     url: https://github.com/husarion/husarion_gz_worlds
-    version: jazzy
+    version: 56b5788a9584d3bc31ba85d36582ba965752c27e
   husarion_components_description:
     type: git
     url: https://github.com/husarion/husarion_components_description.git
