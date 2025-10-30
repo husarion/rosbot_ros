@@ -128,6 +128,7 @@ def generate_launch_description():
             ),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
+            ("~/robot_description", "robot_description"),
         ],
         condition=UnlessCondition(use_sim),
     )
