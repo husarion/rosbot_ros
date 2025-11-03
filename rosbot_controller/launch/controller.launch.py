@@ -16,10 +16,15 @@
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
+    EmitEvent,
+    GroupAction,
     IncludeLaunchDescription,
+    RegisterEventHandler,
     TimerAction,
 )
 from launch.conditions import IfCondition, UnlessCondition
+from launch.event_handlers import OnProcessIO
+from launch.events import Shutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
@@ -186,6 +191,28 @@ def generate_launch_description():
     # Delay start of manipulator
     delayed_manipulator_launch = TimerAction(period=6.0, actions=[manipulator_launch])
 
+    def check_if_log_is_fatal(event):
+        red_color = "\033[91m"
+        reset_color = "\033[0m"
+        msg = event.text.decode().lower()
+        if (
+            "fatal" in msg or "failed" in msg and "cyclonedds" not in msg
+        ) and "attempt" not in msg:
+            print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
+            return EmitEvent(event=Shutdown(reason="Spawner failed"))
+
+    controllers_monitor = [
+        RegisterEventHandler(
+            OnProcessIO(
+                target_action=spawner,
+                on_stderr=check_if_log_is_fatal,
+            )
+        )
+        for spawner in controllers
+    ]
+
+    controllers_monitor = GroupAction(controllers_monitor)
+
     return LaunchDescription(
         [
             declare_configuration_arg,
@@ -197,5 +224,6 @@ def generate_launch_description():
             control_node,
             delayed_controllers,
             delayed_manipulator_launch,
+            controllers_monitor,
         ]
     )
