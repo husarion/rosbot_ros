@@ -193,7 +193,9 @@ def generate_launch_description():
         red_color = "\033[91m"
         reset_color = "\033[0m"
         msg = event.text.decode().lower()
-        if ("fatal" in msg or "failed" in msg) and "attempt" not in msg:
+        if (
+            "fatal" in msg or "failed" in msg and "cyclonedds" not in msg
+        ) and "attempt" not in msg:
             print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
             return EmitEvent(event=Shutdown(reason="Spawner failed"))
 
