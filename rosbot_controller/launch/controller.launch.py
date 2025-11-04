@@ -40,14 +40,25 @@ from rosbot_utils.utils import find_device_port
 
 
 def generate_launch_description():
+    config_dir = LaunchConfiguration("config_dir")
     configuration = LaunchConfiguration("configuration")
-    controller_config = LaunchConfiguration("controller_config")
     manipulator_serial_port = LaunchConfiguration("manipulator_serial_port")
     mecanum = LaunchConfiguration("mecanum")
     namespace = LaunchConfiguration("namespace")
     robot_model = LaunchConfiguration("robot_model")
     use_sim = LaunchConfiguration("use_sim", default="False")
 
+    config_search_path = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_controller' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_controller"),
+            "'",
+        ]
+    )
     base_controller_prefix = PythonExpression(
         ["'mecanum_drive' if ", mecanum, " else 'diff_drive'"]
     )
@@ -56,14 +67,14 @@ def generate_launch_description():
     controller_config_file = PythonExpression(
         ["'", base_controller_prefix, "' + '_' + '", manipulator_prefix, "' + 'controller.yaml'"]
     )
-    default_controller_config = PathJoinSubstitution(
-        [FindPackageShare("rosbot_controller"), "config", robot_model, controller_config_file]
+    controller_config = PathJoinSubstitution(
+        [config_search_path, "config", robot_model, controller_config_file]
     )
 
-    declare_controller_config_arg = DeclareLaunchArgument(
-        "controller_config",
-        default_value=default_controller_config,
-        description="Path to controller configuration file.",
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory.",
     )
 
     declare_configuration_arg = DeclareLaunchArgument(
@@ -72,7 +83,14 @@ def generate_launch_description():
         description=(
             "Specify configuration packages. Currently only ROSbot XL has available packages."
         ),
-        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
+        choices=[
+            "basic",
+            "telepresence",
+            "autonomy",
+            "manipulation",
+            "manipulation_pro",
+            "custom",
+        ],
     )
 
     default_manipulator_serial_port = find_device_port("0403", "6014", "/dev/ttyUSB0")
@@ -217,7 +235,7 @@ def generate_launch_description():
             declare_manipulator_serial_port_arg,
             declare_robot_model_arg,
             declare_mecanum_arg,  # mecanum base on robot_model arg
-            declare_controller_config_arg,  # controler_config base on mecanum and robot_model arg
+            declare_config_dir_arg,  # controler_config base on mecanum and robot_model arg
             load_urdf,
             control_node,
             delayed_controllers,

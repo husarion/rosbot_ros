@@ -25,6 +25,7 @@ from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression,
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -39,11 +40,26 @@ def generate_microros_agent_node(context, *args, **kwargs):
             SetEnvironmentVariable(name="XRCE_DOMAIN_ID_OVERRIDE", value=ros_domain_id)
         )
 
-    fastrtps_profiles = LaunchConfiguration("fastrtps_profiles").perform(context)
+    config_dir = LaunchConfiguration("config_dir").perform(context)
     port = LaunchConfiguration("port").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
     serial_port = LaunchConfiguration("serial_port").perform(context)
+
+    config_rosbot_bringup_dir = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_bringup' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_bringup"),
+            "'",
+        ]
+    )
+    fastrtps_profiles = PathJoinSubstitution(
+        [config_rosbot_bringup_dir, "config", "microros_localhost_only.xml"]
+    )
 
     micoros_communication_args = {
         "rosbot": ["serial", "-b", serial_baudrate, "-D", serial_port],
@@ -78,15 +94,10 @@ def generate_microros_agent_node(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    default_fastrtps_profiles = PathJoinSubstitution(
-        [FindPackageShare("rosbot_bringup"), "config", "microros_localhost_only.xml"]
-    )
-    declare_fastrtps_profiles_arg = DeclareLaunchArgument(
-        "fastrtps_profiles",
-        default_value=default_fastrtps_profiles,
-        description=(
-            "Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only setup"
-        ),
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory.",
     )
 
     declare_port_arg = DeclareLaunchArgument(
@@ -116,7 +127,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_fastrtps_profiles_arg,
+            declare_config_dir_arg,
             declare_port_arg,
             declare_robot_model_arg,
             declare_serial_baudrate_arg,

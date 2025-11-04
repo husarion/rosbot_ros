@@ -14,22 +14,38 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import (
+    LaunchConfiguration,
+    PathJoinSubstitution,
+    PythonExpression,
+)
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    joy_config = LaunchConfiguration("joy_config")
+    config_dir = LaunchConfiguration("config_dir")
     joy_vel = LaunchConfiguration("joy_vel")
 
-    rosbot_joy = FindPackageShare("rosbot_joy")
-
-    declare_joy_config_arg = DeclareLaunchArgument(
-        "joy_config",
-        default_value=PathJoinSubstitution([rosbot_joy, "config", "joy.yaml"]),
-        description="The file path to the configuration YAML file for the teleop_twist_joy node.",
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory.",
     )
+
+    config_rosbot_joy_dir = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_joy' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_joy"),
+            "'",
+        ]
+    )
+
+    joy_config = PathJoinSubstitution([config_rosbot_joy_dir, "config", "joy.yaml"])
 
     declare_joy_vel_arg = DeclareLaunchArgument(
         "joy_vel",
@@ -54,7 +70,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_joy_config_arg,
+            declare_config_dir_arg,
             declare_joy_vel_arg,
             joy_node,
             joy2twist_node,

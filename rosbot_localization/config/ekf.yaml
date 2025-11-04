@@ -3,7 +3,7 @@
 ## ekf config file ###
 /**/ekf_node:
     ros__parameters:
-        frequency: 20.0
+        frequency: 30.0
         sensor_timeout: 0.05
         two_d_mode: true
 
