@@ -26,7 +26,11 @@ def copy_config_folder(pkg_name, dest_dir):
     Copies the entire <pkg_share>/config directory (files + subfolders)
     into dest_dir. Prompts user if destination exists.
     """
-    pkg_share = get_package_share_directory(pkg_name)
+    try:
+        pkg_share = get_package_share_directory(pkg_name)
+    except:
+        print(f"Package '{pkg_name}' not found.") # Hardware/Simulation specific package difference
+        return
     src_config_dir = os.path.join(pkg_share, "config")
     dest_config_dir = os.path.join(dest_dir, pkg_name, "config")
 
