@@ -99,6 +99,7 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 
 | 🤖  | 🖥️  | Argument            | Description <br/> **_Type:_** `Default`                                                                                                                                                            |
 | --- | --- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅  | ✅  | `config_dir`    | Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`. <br/> **_string:_** `""`                                                                          |
 | ✅  | ✅  | `configuration` | Specify configuration packages. Currently only ROSbot XL has available packages. Packages: `basic`, `telepresence`, `autonomy`, `manipulation`, `manipulation_pro`, `custom`. <br/> **_string:_** 'basic'                                                                          |
 | ✅  | ✅  | `joy_vel`       | The topic name to which velocity commands will be published. <br/> **_string:_** `cmd_vel` |
 | ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `False`                                                                                       |
@@ -122,8 +123,7 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 | ❌  | ✅  | `yaw`               | Initial robot 'yaw' orientation. <br/> **_float:_** `0.0`                                                                                                                                          |
 
 > [!TIP]
->
-> To read the arguments for individual packages, add the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch rosbot_bringup bringup.launch.py ​​-s`)
+> To read the arguments for individual launch file by adding the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch rosbot_bringup bringup.launch.py ​​-s`)
 
 ## 🕹️ Demo
 

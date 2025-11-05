@@ -64,7 +64,7 @@ def generate_launch_description():
     declare_config_dir_arg = DeclareLaunchArgument(
         "config_dir",
         default_value="",
-        description="Path to the common configuration directory.",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
     )
 
     declare_configuration_arg = DeclareLaunchArgument(
