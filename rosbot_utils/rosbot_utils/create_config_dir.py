@@ -73,7 +73,7 @@ def main(args=None):
             .lower()
         )
         if response != "y":
-            print("Aborted.")  
+            print("Aborted.")
             exit()
         shutil.rmtree(args.destination)
 
