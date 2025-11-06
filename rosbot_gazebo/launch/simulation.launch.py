@@ -16,13 +16,25 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import (
+    LaunchConfiguration,
+    PathJoinSubstitution,
+    PythonExpression,
+)
 from launch_ros.actions import Node, SetParameter, SetRemap
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    config_dir = LaunchConfiguration("config_dir")
     rviz = LaunchConfiguration("rviz")
+
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    )
+
     declare_rviz_arg = DeclareLaunchArgument(
         "rviz",
         default_value="True",
@@ -39,9 +51,19 @@ def generate_launch_description():
         launch_arguments={"gz_log_level": "1"}.items(),
     )
 
-    gz_bridge_config = PathJoinSubstitution(
-        [FindPackageShare("rosbot_gazebo"), "config", "gz_bridge.yaml"]
+    config_rosbot_gazebo_dir = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_gazebo' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_gazebo"),
+            "'",
+        ]
     )
+
+    gz_bridge_config = PathJoinSubstitution([config_rosbot_gazebo_dir, "config", "gz_bridge.yaml"])
     gz_bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
@@ -77,6 +99,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            declare_config_dir_arg,
             declare_rviz_arg,
             SetRemap("/diagnostics", "diagnostics"),
             SetRemap("/tf", "tf"),

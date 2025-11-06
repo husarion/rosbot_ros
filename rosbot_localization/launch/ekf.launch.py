@@ -15,15 +15,37 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.substitutions import PathJoinSubstitution
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import (
+    LaunchConfiguration,
+    PathJoinSubstitution,
+    PythonExpression,
+)
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    config_dir = LaunchConfiguration("config_dir")
 
-    rosbot_localization = FindPackageShare("rosbot_localization")
-    ekf_config = PathJoinSubstitution([rosbot_localization, "config", "ekf.yaml"])
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    )
+
+    config_rosbot_localization_dirs = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_localization' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_localization"),
+            "'",
+        ]
+    )
+    ekf_config = PathJoinSubstitution([config_rosbot_localization_dirs, "config", "ekf.yaml"])
 
     robot_localization_node = Node(
         package="robot_localization",
@@ -33,4 +55,4 @@ def generate_launch_description():
         remappings=[("/diagnostics", "diagnostics")],
     )
 
-    return LaunchDescription([robot_localization_node])
+    return LaunchDescription([declare_config_dir_arg, robot_localization_node])

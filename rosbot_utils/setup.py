@@ -47,6 +47,9 @@ setup(
     license="Apache License 2.0",
     tests_require=["pytest"],
     entry_points={
-        "console_scripts": ["flash_firmware = rosbot_utils.flash_firmware:main"],
+        "console_scripts": [
+            "flash_firmware = rosbot_utils.flash_firmware:main",
+            "create_config_dir = rosbot_utils.create_config_dir:main",
+        ],
     },
 )
