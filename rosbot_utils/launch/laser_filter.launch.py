@@ -20,13 +20,21 @@ from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression,
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    config_dir = LaunchConfiguration("config_dir")
     robot_model = LaunchConfiguration("robot_model")
+
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    )
 
     declare_robot_model_arg = DeclareLaunchArgument(
         "robot_model",
@@ -35,10 +43,20 @@ def generate_launch_description():
         choices=["rosbot", "rosbot_xl"],
     )
 
-    rosbot_utils = FindPackageShare("rosbot_utils")
+    config_rosbot_utils_dir = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_utils' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_utils"),
+            "'",
+        ]
+    )
 
     laser_filter_config = PathJoinSubstitution(
-        [rosbot_utils, "config", robot_model, "laser_filter.yaml"]
+        [config_rosbot_utils_dir, "config", robot_model, "laser_filter.yaml"]
     )
 
     laser_filter_node = Node(
@@ -48,4 +66,10 @@ def generate_launch_description():
         parameters=[laser_filter_config],
     )
 
-    return LaunchDescription([declare_robot_model_arg, laser_filter_node])
+    return LaunchDescription(
+        [
+            declare_config_dir_arg,
+            declare_robot_model_arg,
+            laser_filter_node,
+        ]
+    )

@@ -14,7 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 import yaml
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.conditions import IfCondition
@@ -39,7 +42,7 @@ def contains_cam_component(yaml_fil):
 
 
 def launch_setup(context, *args, **kwargs):
-    components_config = LaunchConfiguration("components_config").perform(context)
+    config_dir = LaunchConfiguration("config_dir").perform(context)
     configuration = LaunchConfiguration("configuration").perform(context)
     controller_config = LaunchConfiguration("controller_config", default="").perform(context)
     manipulator_serial_port = LaunchConfiguration(
@@ -51,7 +54,17 @@ def launch_setup(context, *args, **kwargs):
     robot_model = LaunchConfiguration("robot_model").perform(context)
     use_sim = LaunchConfiguration("use_sim", default="False").perform(context)
 
-    if robot_model != "rosbot_xl" and configuration != "basic":
+    config_rosbot_description_dir = (
+        config_dir + "/rosbot_description"
+        if config_dir
+        else get_package_share_directory("rosbot_description")
+    )
+    components_file = f"{configuration}.yaml"
+    components_config = os.path.join(
+        config_rosbot_description_dir, "config", robot_model, components_file
+    )
+
+    if robot_model != "rosbot_xl" and configuration not in ("basic", "custom"):
         raise ValueError(
             "Invalid configuration and robot model combination. Only 'rosbot_xl' has configuration options."
         )
@@ -112,19 +125,12 @@ def launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    configuration = LaunchConfiguration("configuration")
     robot_model = LaunchConfiguration("robot_model")
-    components_file = PythonExpression(["'", configuration, "' + '.yaml'"])
-    default_components_config = PathJoinSubstitution(
-        [FindPackageShare("rosbot_description"), "config", robot_model, components_file]
-    )
-    declare_components_config_arg = DeclareLaunchArgument(
-        "components_config",
-        default_value=default_components_config,
-        description=(
-            "Specify file which contains components. These components will be included in URDF. "
-            "Available options can be found in [husarion_components_description](https://github.com/husarion/husarion_components_description/blob/ros2/README.md#available-urdf-sensors)"
-        ),
+
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
     )
 
     declare_configuration_arg = DeclareLaunchArgument(
@@ -133,7 +139,14 @@ def generate_launch_description():
         description=(
             "Specify configuration packages. Currently only ROSbot XL has available packages"
         ),
-        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
+        choices=[
+            "basic",
+            "telepresence",
+            "autonomy",
+            "manipulation",
+            "manipulation_pro",
+            "custom",
+        ],
     )
 
     default_mecanum_value = PythonExpression(["'", robot_model, "' == 'rosbot_xl'"])
@@ -155,9 +168,9 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            declare_config_dir_arg,
             declare_configuration_arg,
             declare_robot_model_arg,
-            declare_components_config_arg,  # depends on configuration and robot model
             declare_mecanum_arg,  # mecanum base on robot_model arg
             publish_robot_description,
         ]

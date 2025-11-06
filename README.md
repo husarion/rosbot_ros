@@ -99,10 +99,8 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 
 | 🤖  | 🖥️  | Argument            | Description <br/> **_Type:_** `Default`                                                                                                                                                            |
 | --- | --- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ✅  | ✅  | `components_config` | Specify file which contains components. These components will be included in URDF. Available options can be found in [husarion_components_description](https://github.com/husarion/husarion_components_description/blob/ros2/README.md#available-urdf-sensors) <br/> **_string_:** [`components.yaml`](rosbot_description/config/components.yaml)                                                                                       |
-| ✅  | ✅  | `configuration` | Specify configuration packages. Currently only ROSbot XL has available packages. Packages: `basic`, `telepresence`, `autonomy`, `manipulation`, `manipulation_pro`. <br/> **_string:_** 'basic'                                                                          |
-| ✅  | ✅  | `controller_config` | Path to controller configuration file. <br/> **_string:_** [`{robot_model}/{mecanum/diff}_drive_controller.yaml`](rosbot_controller/config/)                                                                                       |
-| ✅  | ✅  | `joy_config`       | The file path to the configuration YAML file for the `teleop_twist_joy` node. <br/> **_string:_** [`joy.yaml`](rosbot_bringup/config/joy.yaml) |
+| ✅  | ✅  | `config_dir`    | Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`. <br/> **_string:_** `""`                                                                          |
+| ✅  | ✅  | `configuration` | Specify configuration packages. Currently only ROSbot XL has available packages. Packages: `basic`, `telepresence`, `autonomy`, `manipulation`, `manipulation_pro`, `custom`. <br/> **_string:_** 'basic'                                                                          |
 | ✅  | ✅  | `joy_vel`       | The topic name to which velocity commands will be published. <br/> **_string:_** `cmd_vel` |
 | ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `False`                                                                                       |
 | ✅  | ✅  | `namespace`         | Add namespace to all launched nodes. <br/> **_string:_** `env(ROBOT_NAMESPACE)`                                                                                                                       |
@@ -112,7 +110,6 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 | ✅  | ❌  | `port`              | **ROSbot XL only.** UDP4 port for micro-ROS agent. <br/> **_string:_** `8888`                                                                                                                         |
 | ✅  | ❌  | `serial_baudrate`   | ROSbot only. Baud rate for serial communication. <br/> **_string:_** `576000`                                                                                                                                  |
 | ✅  | ❌  | `serial_port`       | ROSbot only. Serial port for micro-ROS agent. <br/> **_string:_** `/dev/ttySERIAL`                                                                                                           |
-| ✅  | ❌  | `fastrtps_profiles` | Path to the Fast RTPS default profiles file for Micro-ROS agent for localhost only setup. <br/> **_string:_** [`microros_localhost_only.xml`](./rosbot_bringup/config/microros_localhost_only.xml) |
 | ❌  | ✅  | `gz_gui`            | Run simulation with specific GUI layout. <br/> **_string:_** [`teleop.config`](https://github.com/husarion/husarion_gz_worlds/blob/main/config/teleop.config)                                      |
 | ❌  | ✅  | `gz_headless_mode`  | Run the simulation in headless mode. Useful when a GUI is not needed or to reduce the number of calculations. <br/> **_bool:_** `False`                                                            |
 | ❌  | ✅  | `gz_log_level`      | Adjust the level of console output. <br/> **_int:_** `1` (choices: `0`, `1`, `2`, `3`, `4`)                                                                                                        |
@@ -126,8 +123,7 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 | ❌  | ✅  | `yaw`               | Initial robot 'yaw' orientation. <br/> **_float:_** `0.0`                                                                                                                                          |
 
 > [!TIP]
->
-> To read the arguments for individual packages, add the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch rosbot_bringup bringup.launch.py ​​-s`)
+> To read the arguments for individual launch files, add the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch rosbot_bringup bringup.launch.py ​​-s`)
 
 ## 🕹️ Demo
 
