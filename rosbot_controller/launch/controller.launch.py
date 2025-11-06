@@ -235,7 +235,7 @@ def generate_launch_description():
             declare_manipulator_serial_port_arg,
             declare_robot_model_arg,
             declare_mecanum_arg,  # mecanum base on robot_model arg
-            declare_config_dir_arg,  # controler_config base on mecanum and robot_model arg
+            declare_config_dir_arg,  # config_dir base on mecanum and robot_model arg
             load_urdf,
             control_node,
             delayed_controllers,

@@ -64,7 +64,7 @@ def launch_setup(context, *args, **kwargs):
         config_rosbot_description_dir, "config", robot_model, components_file
     )
 
-    if robot_model != "rosbot_xl" and configuration != "basic":
+    if robot_model != "rosbot_xl" and configuration not in ("basic", "custom"):
         raise ValueError(
             "Invalid configuration and robot model combination. Only 'rosbot_xl' has configuration options."
         )

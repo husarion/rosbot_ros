@@ -197,7 +197,6 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "components_config": components_config,
             "configuration": configuration,
             "robot_model": robot_model,
             "use_sim": "True",
