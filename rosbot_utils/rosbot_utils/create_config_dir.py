@@ -30,7 +30,7 @@ def copy_config_folder(pkg_name, dest_dir):
     """
     try:
         pkg_share = get_package_share_directory(pkg_name)
-    except:
+    except Exception:
         print(
             f"Package '{pkg_name}' not found."
         )  # Hardware/Simulation specific package difference
