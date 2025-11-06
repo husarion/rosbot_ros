@@ -27,7 +27,7 @@ from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
-    components_config = LaunchConfiguration("components_config")
+    config_dir = LaunchConfiguration("config_dir")
     configuration = LaunchConfiguration("configuration")
     namespace = LaunchConfiguration("namespace")
     robot_model = LaunchConfiguration("robot_model")
@@ -38,17 +38,33 @@ def generate_launch_description():
     pitch = LaunchConfiguration("pitch")
     yaw = LaunchConfiguration("yaw")
 
-    components_file = PythonExpression(["'", configuration, "' + '.yaml'"])
-    default_components_config = PathJoinSubstitution(
-        [FindPackageShare("rosbot_description"), "config", robot_model, components_file]
+    config_rosbot_description_dir = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_description' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_description"),
+            "'",
+        ]
     )
-    declare_components_config_arg = DeclareLaunchArgument(
-        "components_config",
-        default_value=default_components_config,
-        description=(
-            "Specify file which contains components. These components will be included in URDF. "
-            "Available options can be found in [husarion_components_description](https://github.com/husarion/husarion_components_description/blob/ros2/README.md#available-urdf-sensors)"
-        ),
+    config_rosbot_gazebo_dir = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_gazebo' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_gazebo"),
+            "'",
+        ]
+    )
+
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
     )
 
     declare_configuration_arg = DeclareLaunchArgument(
@@ -57,7 +73,14 @@ def generate_launch_description():
         description=(
             "Specify configuration packages. Currently only ROSbot XL has available packages"
         ),
-        choices=["basic", "telepresence", "autonomy", "manipulation", "manipulation_pro"],
+        choices=[
+            "basic",
+            "telepresence",
+            "autonomy",
+            "manipulation",
+            "manipulation_pro",
+            "custom",
+        ],
     )
 
     declare_namespace_arg = DeclareLaunchArgument(
@@ -148,15 +171,19 @@ def generate_launch_description():
     )
 
     gz_bridge_path = PathJoinSubstitution(
-        [FindPackageShare("rosbot_gazebo"), "config", "rosbot_bridge.yaml"]
+        [config_rosbot_gazebo_dir, "config", "rosbot_bridge.yaml"]
     )
     gz_bridge_config = ReplaceString(gz_bridge_path, {"<namespace>/": ns})
-
     gz_bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
         name="rosbot_gz_bridge",
         parameters=[{"config_file": gz_bridge_config}],
+    )
+
+    components_file = PythonExpression(["'", configuration, "' + '.yaml'"])
+    components_config = PathJoinSubstitution(
+        [config_rosbot_description_dir, "config", robot_model, components_file]
     )
 
     controller_launch = IncludeLaunchDescription(
@@ -170,7 +197,6 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "components_config": components_config,
             "configuration": configuration,
             "robot_model": robot_model,
             "use_sim": "True",
@@ -207,10 +233,10 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            declare_config_dir_arg,
             declare_configuration_arg,
             declare_namespace_arg,
             declare_robot_model_arg,
-            declare_components_config_arg,  # depends on configuration and robot model
             declare_x_arg,
             declare_y_arg,
             declare_z_arg,
