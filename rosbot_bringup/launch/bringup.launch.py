@@ -17,6 +17,7 @@ from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
     LogInfo,
+    SetEnvironmentVariable,
     TimerAction,
 )
 from launch.conditions import IfCondition
@@ -108,6 +109,7 @@ def generate_launch_description():
         declare_microros_arg,
         declare_namespace_arg,
         declare_robot_model_arg,
+        SetEnvironmentVariable(name="RCUTILS_COLORIZED_OUTPUT", value="1"),
         PushRosNamespace(namespace),
         SetRemap("/diagnostics", "diagnostics"),
         SetRemap("/tf", "tf"),
