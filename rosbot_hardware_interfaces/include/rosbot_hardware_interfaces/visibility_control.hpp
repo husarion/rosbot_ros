@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROSBOT_HARDWARE_INTERFACES__VISIBILITY_CONTROL_H_
-#define ROSBOT_HARDWARE_INTERFACES__VISIBILITY_CONTROL_H_
+#ifndef ROSBOT_HARDWARE_INTERFACES__VISIBILITY_CONTROL_HPP_
+#define ROSBOT_HARDWARE_INTERFACES__VISIBILITY_CONTROL_HPP_
 
 // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
 //     https://gcc.gnu.org/wiki/Visibility
@@ -47,4 +47,4 @@
 #define ROSBOT_HARDWARE_INTERFACES_PUBLIC_TYPE
 #endif
 
-#endif  // ROSBOT_HARDWARE_INTERFACES__VISIBILITY_CONTROL_H_
+#endif  // ROSBOT_HARDWARE_INTERFACES__VISIBILITY_CONTROL_HPP_

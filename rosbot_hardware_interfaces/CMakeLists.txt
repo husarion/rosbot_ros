@@ -19,17 +19,9 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(realtime_tools REQUIRED)
 
-add_library(
-  ${PROJECT_NAME}
-  SHARED
-  src/rosbot_system.cpp
-  src/rosbot_imu_sensor.cpp
-)
-target_include_directories(
-  ${PROJECT_NAME}
-  PRIVATE
-  include
-)
+add_library(${PROJECT_NAME} SHARED src/rosbot_system.cpp
+                                   src/rosbot_imu_sensor.cpp)
+target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 ament_target_dependencies(
   ${PROJECT_NAME}
@@ -38,45 +30,31 @@ ament_target_dependencies(
   rclcpp_lifecycle
   rclcpp
   pluginlib
-  std_msgs
-)
+  std_msgs)
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE "ROSBOT_HARDWARE_INTERFACES_BUILDING_DLL")
+target_compile_definitions(${PROJECT_NAME}
+                           PRIVATE "ROSBOT_HARDWARE_INTERFACES_BUILDING_DLL")
 
-# target_compile_definitions(${PROJECT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS"s)
-pluginlib_export_plugin_description_file(hardware_interface rosbot_hardware_interfaces.xml)
+# target_compile_definitions(${PROJECT_NAME} PUBLIC
+# "PLUGINLIB__DISABLE_BOOST_FUNCTIONS"s)
+pluginlib_export_plugin_description_file(hardware_interface
+                                         rosbot_hardware_interfaces.xml)
 
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
+install(DIRECTORY include/ DESTINATION include)
 
-install(
-  DIRECTORY config urdf
-  DESTINATION share/${PROJECT_NAME}
-)
+install(DIRECTORY config urdf DESTINATION share/${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin
   ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-)
+  LIBRARY DESTINATION lib)
 
-ament_export_include_directories(
-  include
-)
+ament_export_include_directories(include)
 
-ament_export_libraries(
-  ${PROJECT_NAME}
-)
+ament_export_libraries(${PROJECT_NAME})
 
-ament_export_dependencies(
-  hardware_interface
-  realtime_tools
-  rclcpp_lifecycle
-  rclcpp
-  std_msgs
-)
+ament_export_dependencies(hardware_interface realtime_tools rclcpp_lifecycle
+                          rclcpp std_msgs)
 
 ament_package()

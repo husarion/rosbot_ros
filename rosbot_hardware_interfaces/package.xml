@@ -13,14 +13,14 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>ros2_control</depend>
-  <depend>hardware_interface</depend>
-  <depend>rclcpp_lifecycle</depend>
-  <depend>rclcpp</depend>
-  <depend>std_msgs</depend>
-  <depend>realtime_tools</depend>
   <depend>diff_drive_controller</depend>
+  <depend>hardware_interface</depend>
   <depend>imu_sensor_broadcaster</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>realtime_tools</depend>
+  <depend>ros2_control</depend>
+  <depend>std_msgs</depend>
 
   <build_depend>pluginlib</build_depend>
   <test_depend>ament_cmake_gtest</test_depend>
