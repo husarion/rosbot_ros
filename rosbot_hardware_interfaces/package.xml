@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>rosbot_hardware_interfaces</name>
+  <version>1.0.0</version>
+  <description>Hardware controller for rosbot 2 and rosbot XL</description>
+  <license>Apache License 2.0</license>
+
+  <author email="krzysztof.wojciechowski@husarion.com">Krzysztof Wojciechowski</author>
+  <author email="maciej.stepien@husarion.com">Maciej Stępień</author>
+
+  <maintainer email="maciej.stepien@husarion.com">Maciej Stępień</maintainer>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>diff_drive_controller</depend>
+  <depend>hardware_interface</depend>
+  <depend>imu_sensor_broadcaster</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>realtime_tools</depend>
+  <depend>ros2_control</depend>
+  <depend>std_msgs</depend>
+
+  <build_depend>pluginlib</build_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

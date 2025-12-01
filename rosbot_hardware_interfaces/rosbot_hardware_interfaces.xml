@@ -1,0 +1,17 @@
+<library path="rosbot_hardware_interfaces">
+  <class name="rosbot_hardware_interfaces/RosbotSystem"
+         type="rosbot_hardware_interfaces::RosbotSystem"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Hardware system controller for Rosbot
+    </description>
+  </class>
+
+  <class name="rosbot_hardware_interfaces/RosbotImuSensor"
+         type="rosbot_hardware_interfaces::RosbotImuSensor"
+          base_class_type="hardware_interface::SensorInterface">
+    <description>
+      IMU sensor broadcaster for Rosbot
+    </description>
+  </class>
+</library>
