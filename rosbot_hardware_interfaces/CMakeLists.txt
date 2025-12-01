@@ -42,8 +42,6 @@ pluginlib_export_plugin_description_file(hardware_interface
 
 install(DIRECTORY include/ DESTINATION include)
 
-install(DIRECTORY config urdf DESTINATION share/${PROJECT_NAME})
-
 install(
   TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin
