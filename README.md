@@ -19,7 +19,7 @@ Documentation is available in ROS_API.md.
 
    ```bash
    sudo apt-get update
-   sudo apt-get install -y python3-pip ros-dev-tools stm32flash
+   sudo apt-get install -y python3-pip ros-dev-tools
    ```
 
 2. Create a workspace folder and clone the rosbot_ros repository:
