@@ -7,15 +7,10 @@ install
 log
 
 # ROSbots submodules
-rosbot_hardware_interfaces/
-rosbot_controllers/
 husarion_components_description/
-husarion_gz_worlds
-gazebosim/gz_ros2_control
-diff_drive_controller
-imu_sensor_broadcaster
+husarion_controllers/
+husarion_gz_worlds/
 micro-ROS-Agent/
-micro_ros_msgs/
 
 # pyspelling
 *.dic
