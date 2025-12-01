@@ -71,13 +71,14 @@ CallbackReturn RosbotImuSensor::on_activate(const rclcpp_lifecycle::State &) {
   for (uint wait_time = 0; wait_time <= connection_timeout_ms_;
        wait_time += connection_check_period_ms_) {
     if (!rclcpp::ok()) {
-      RCLCPP_WARN(rclcpp::get_logger("RosbotSystem"),
-                  "Shutdown signal received, exiting the loop.");
+      RCLCPP_WARN(
+          rclcpp::get_logger("RosbotImuSensor"),
+          "ROS shutdown signal detected while waiting for IMU messages.");
       return CallbackReturn::ERROR;
     }
-
-    RCLCPP_WARN(rclcpp::get_logger("RosbotImuSensor"),
-                "Feedback message from imu wasn't received yet");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+        rclcpp::get_logger("RosbotImuSensor"), *node_->get_clock(), 5000,
+        "Feedback message from imu wasn't received yet");
     received_imu_msg_ptr_.get([&](const auto &msg) { imu_msg = msg; });
     if (imu_msg) {
       RCLCPP_DEBUG(node_->get_logger(),

@@ -165,12 +165,14 @@ CallbackReturn RosbotSystem::on_activate(const rclcpp_lifecycle::State &) {
        wait_time += connection_check_period_ms_) {
     if (!rclcpp::ok()) {
       RCLCPP_WARN(rclcpp::get_logger("RosbotSystem"),
-                  "Shutdown signal received, exiting the loop.");
+                  "ROS shutdown signal detected while waiting for motor "
+                  "feedback messages.");
       return CallbackReturn::ERROR;
     }
 
-    RCLCPP_WARN(rclcpp::get_logger("RosbotSystem"),
-                "Feedback message from motors wasn't received yet");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+        rclcpp::get_logger("RosbotSystem"), *node_->get_clock(), 5000,
+        "Feedback message from motors wasn't received yet");
     received_motor_state_msg_ptr_.get(
         [&](const auto &msg) { motor_state = msg; });
 
