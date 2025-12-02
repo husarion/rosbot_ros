@@ -22,7 +22,7 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    activate_arm = LaunchConfiguration("activate_arm", default="False")
+    arm_activate = LaunchConfiguration("arm_activate", default="True")
 
     active_arm_controllers_spawner = Node(
         package="controller_manager",
@@ -36,7 +36,7 @@ def generate_launch_description():
             "20",
         ],
         output="screen",
-        condition=IfCondition(activate_arm),
+        condition=IfCondition(arm_activate),
     )
 
     inactive_arm_controllers_spawner = Node(
@@ -52,7 +52,7 @@ def generate_launch_description():
             "--inactive",
         ],
         output="screen",
-        condition=UnlessCondition(activate_arm),
+        condition=UnlessCondition(arm_activate),
     )
 
     move_group_launch = IncludeLaunchDescription(
@@ -73,7 +73,7 @@ def generate_launch_description():
 
     home_node = Node(package="open_manipulator_x_moveit", executable="home")
     move_to_home_pose = TimerAction(
-        period=10.0, actions=[home_node], condition=IfCondition(activate_arm)
+        period=10.0, actions=[home_node], condition=IfCondition(arm_activate)
     )
 
     return LaunchDescription(

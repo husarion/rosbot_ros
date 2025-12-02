@@ -27,6 +27,7 @@ from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
+    arm_activate = LaunchConfiguration("arm_activate", default="True")
     config_dir = LaunchConfiguration("config_dir")
     configuration = LaunchConfiguration("configuration")
     namespace = LaunchConfiguration("namespace")
@@ -197,6 +198,7 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
+            "arm_activate": arm_activate,
             "configuration": configuration,
             "robot_model": robot_model,
             "use_sim": "True",

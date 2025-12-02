@@ -39,7 +39,7 @@ from rosbot_utils.utils import find_device_port
 
 
 def generate_launch_description():
-    activate_arm = LaunchConfiguration("activate_arm")
+    arm_activate = LaunchConfiguration("arm_activate")
     config_dir = LaunchConfiguration("config_dir")
     configuration = LaunchConfiguration("configuration")
     manipulator_serial_port = LaunchConfiguration("manipulator_serial_port")
@@ -64,10 +64,11 @@ def generate_launch_description():
         [config_search_path, "config", robot_model, "controllers.yaml"]
     )
 
-    declare_activate_arm_arg = DeclareLaunchArgument(
-        "activate_arm",
+    declare_arm_activate_arg = DeclareLaunchArgument(
+        "arm_activate",
         default_value="False",
         description="Whether to activate the manipulator arm on startup.",
+        choices=["True", "False"],
     )
 
     declare_config_dir_arg = DeclareLaunchArgument(
@@ -115,7 +116,7 @@ def generate_launch_description():
     )
 
     ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
-    manipulator_state = PythonExpression(["'active' if '", activate_arm, "' else 'inactive'"])
+    manipulator_state = PythonExpression(["'active' if '", arm_activate, "' else 'inactive'"])
     ns_controller_config = ReplaceString(
         controller_config, {"<namespace>/": ns, "<manipulator_state>": manipulator_state}
     )
@@ -189,6 +190,9 @@ def generate_launch_description():
                 [FindPackageShare("rosbot_controller"), "launch", "manipulator.launch.py"]
             )
         ),
+        launch_arguments={
+            "arm_activate": arm_activate,
+        }.items(),
         condition=IfCondition(manipulator),
     )
 
@@ -217,7 +221,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_activate_arm_arg,
+            declare_arm_activate_arg,
             declare_config_dir_arg,
             declare_configuration_arg,
             declare_manipulator_serial_port_arg,
