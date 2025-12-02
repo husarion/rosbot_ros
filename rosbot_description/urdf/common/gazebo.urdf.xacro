@@ -4,14 +4,18 @@
   <xacro:macro name="controller" params="config_file namespace:=''">
     <gazebo>
       <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <controller_manager_name>controller_manager</controller_manager_name>
         <parameters>${config_file}</parameters>
         <ros>
           <namespace>${namespace}</namespace>
-          <remapping>drive_controller/cmd_vel:=cmd_vel</remapping>
-          <remapping>drive_controller/odom:=odometry/wheels</remapping>
-          <remapping>drive_controller/transition_event:=_drive_controller/transition_event</remapping>
+          <remapping>differential_drive_controller/cmd_vel:=cmd_vel</remapping>
+          <remapping>differential_drive_controller/odom:=odometry/wheels</remapping>
+          <remapping>differential_drive_controller/transition_event:=_differential_drive_controller/transition_event</remapping>
           <remapping>imu_broadcaster/transition_event:=_imu_broadcaster/transition_event</remapping>
           <remapping>joint_state_broadcaster/transition_event:=_joint_state_broadcaster/transition_event</remapping>
+          <remapping>mecanum_drive_controller/cmd_vel:=cmd_vel</remapping>
+          <remapping>mecanum_drive_controller/odom:=odometry/wheels</remapping>
+          <remapping>mecanum_drive_controller/transition_event:=_mecanum_drive_controller/transition_event</remapping>
           <remapping>/diagnostics:=diagnostics</remapping>
           <remapping>/tf:=tf</remapping>
           <remapping>/tf_static:=tf_static</remapping>

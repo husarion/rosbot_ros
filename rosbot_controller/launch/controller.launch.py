@@ -59,16 +59,9 @@ def generate_launch_description():
             "'",
         ]
     )
-    base_controller_prefix = PythonExpression(
-        ["'mecanum_drive' if ", mecanum, " else 'diff_drive'"]
-    )
     manipulator = PythonExpression(["'", configuration, "'.startswith('manipulation')"])
-    manipulator_prefix = PythonExpression(["'manipulator_' if ", manipulator, " else ''"])
-    controller_config_file = PythonExpression(
-        ["'", base_controller_prefix, "' + '_' + '", manipulator_prefix, "' + 'controller.yaml'"]
-    )
     controller_config = PathJoinSubstitution(
-        [config_search_path, "config", robot_model, controller_config_file]
+        [config_search_path, "config", robot_model, 'controllers.yaml']
     )
 
     declare_config_dir_arg = DeclareLaunchArgument(
@@ -116,7 +109,8 @@ def generate_launch_description():
     )
 
     ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
-    ns_controller_config = ReplaceString(controller_config, {"<namespace>/": ns})
+    manipulator_state = PythonExpression(["'active' if '", use_sim, "' else 'inactive'"])
+    ns_controller_config = ReplaceString(controller_config, {"<namespace>/": ns, "<manipulator_state>": manipulator_state})
 
     load_urdf = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -134,20 +128,23 @@ def generate_launch_description():
         }.items(),
     )
 
-    control_node = Node(
+    controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[ns_controller_config],
         remappings=[
-            ("drive_controller/cmd_vel", "cmd_vel"),
-            ("drive_controller/odom", "odometry/wheels"),
-            ("drive_controller/transition_event", "_drive_controller/transition_event"),
+            ("differential_drive_controller/cmd_vel", "cmd_vel"),
+            ("differential_drive_controller/odom", "odometry/wheels"),
+            ("differential_drive_controller/transition_event", "_differential_drive_controller/transition_event"),
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("imu_broadcaster/transition_event", "_imu_broadcaster/transition_event"),
             (
                 "joint_state_broadcaster/transition_event",
                 "_joint_state_broadcaster/transition_event",
             ),
+            ("mecanum_drive_controller/cmd_vel", "cmd_vel"),
+            ("mecanum_drive_controller/odom", "odometry/wheels"),
+            ("mecanum_drive_controller/transition_event", "_mecanum_drive_controller/transition_event"),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
         ],
@@ -166,11 +163,12 @@ def generate_launch_description():
         ],
     )
 
+    drive_controller_name = PythonExpression(["'mecanum_drive_controller' if ", mecanum, " else 'differential_drive_controller'"])
     drive_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "drive_controller",
+            drive_controller_name,
             "-c",
             "controller_manager",
             "--controller-manager-timeout",
@@ -237,7 +235,7 @@ def generate_launch_description():
             declare_robot_model_arg,
             declare_mecanum_arg,  # mecanum base on robot_model arg
             load_urdf,
-            control_node,
+            controller_manager_node,
             delayed_controllers,
             delayed_manipulator_launch,
             controllers_monitor,

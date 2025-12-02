@@ -13,14 +13,15 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    use_sim = LaunchConfiguration("use_sim", default="False")
 
     manipulator_controller_spawner = Node(
         package="controller_manager",
@@ -64,15 +65,11 @@ def generate_launch_description():
         )
     )
 
-    home_node = Node(package="open_manipulator_x_moveit", executable="home")
-    move_to_home_pose = TimerAction(period=10.0, actions=[home_node])
-
     return LaunchDescription(
         [
             manipulator_controller_spawner,
             gripper_controller_spawner,
             move_group_launch,
             servo_launch,
-            move_to_home_pose,
         ]
     )
