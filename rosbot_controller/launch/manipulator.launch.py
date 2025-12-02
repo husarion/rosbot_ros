@@ -13,33 +13,37 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    activate_arm = LaunchConfiguration("activate_arm", default="False")
 
-    manipulator_controller_spawner = Node(
+    active_arm_controllers_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
             "manipulator_controller",
+            "gripper_controller",
             "-c",
             "controller_manager",
             "--controller-manager-timeout",
             "20",
-            "--inactive",
         ],
         output="screen",
+        condition=IfCondition(activate_arm),
     )
 
-    gripper_controller_spawner = Node(
+    inactive_arm_controllers_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
+            "manipulator_controller",
             "gripper_controller",
             "-c",
             "controller_manager",
@@ -48,6 +52,7 @@ def generate_launch_description():
             "--inactive",
         ],
         output="screen",
+        condition=UnlessCondition(activate_arm),
     )
 
     move_group_launch = IncludeLaunchDescription(
@@ -66,11 +71,17 @@ def generate_launch_description():
         )
     )
 
+    home_node = Node(package="open_manipulator_x_moveit", executable="home")
+    move_to_home_pose = TimerAction(
+        period=10.0, actions=[home_node], condition=IfCondition(activate_arm)
+    )
+
     return LaunchDescription(
         [
-            manipulator_controller_spawner,
-            gripper_controller_spawner,
+            active_arm_controllers_spawner,
+            inactive_arm_controllers_spawner,
             move_group_launch,
             servo_launch,
+            move_to_home_pose,
         ]
     )

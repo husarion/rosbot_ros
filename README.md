@@ -99,6 +99,7 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 
 | 🤖  | 🖥️  | Argument            | Description <br/> **_Type:_** `Default`                                                                                                                                                            |
 | --- | --- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅  | ✅  | `activate_arm`    | Whether to activate the manipulator arm on startup.. <br/> **_bool:_** `False`                                                                          |
 | ✅  | ✅  | `config_dir`    | Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`. <br/> **_string:_** `""`                                                                          |
 | ✅  | ✅  | `configuration` | Specify configuration packages. Currently only ROSbot XL has available packages. Packages: `basic`, `telepresence`, `autonomy`, `manipulation`, `manipulation_pro`, `custom`. <br/> **_string:_** 'basic'                                                                          |
 | ✅  | ✅  | `joy_vel`       | The topic name to which velocity commands will be published. <br/> **_string:_** `cmd_vel` |

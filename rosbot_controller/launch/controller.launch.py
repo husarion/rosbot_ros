@@ -17,7 +17,6 @@ from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     EmitEvent,
-    GroupAction,
     IncludeLaunchDescription,
     RegisterEventHandler,
     TimerAction,
@@ -40,6 +39,7 @@ from rosbot_utils.utils import find_device_port
 
 
 def generate_launch_description():
+    activate_arm = LaunchConfiguration("activate_arm")
     config_dir = LaunchConfiguration("config_dir")
     configuration = LaunchConfiguration("configuration")
     manipulator_serial_port = LaunchConfiguration("manipulator_serial_port")
@@ -62,6 +62,12 @@ def generate_launch_description():
     manipulator = PythonExpression(["'", configuration, "'.startswith('manipulation')"])
     controller_config = PathJoinSubstitution(
         [config_search_path, "config", robot_model, "controllers.yaml"]
+    )
+
+    declare_activate_arm_arg = DeclareLaunchArgument(
+        "activate_arm",
+        default_value="False",
+        description="Whether to activate the manipulator arm on startup.",
     )
 
     declare_config_dir_arg = DeclareLaunchArgument(
@@ -109,7 +115,7 @@ def generate_launch_description():
     )
 
     ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
-    manipulator_state = PythonExpression(["'active' if '", use_sim, "' else 'inactive'"])
+    manipulator_state = PythonExpression(["'active' if '", activate_arm, "' else 'inactive'"])
     ns_controller_config = ReplaceString(
         controller_config, {"<namespace>/": ns, "<manipulator_state>": manipulator_state}
     )
@@ -160,38 +166,16 @@ def generate_launch_description():
         condition=UnlessCondition(use_sim),
     )
 
-    joint_state_broadcaster = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "joint_state_broadcaster",
-            "-c",
-            "controller_manager",
-            "--controller-manager-timeout",
-            "20",
-        ],
-    )
-
     drive_controller_name = PythonExpression(
         ["'mecanum_drive_controller' if ", mecanum, " else 'differential_drive_controller'"]
     )
-    drive_controller = Node(
+    controllers_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
             drive_controller_name,
-            "-c",
-            "controller_manager",
-            "--controller-manager-timeout",
-            "20",
-        ],
-    )
-
-    imu_broadcaster = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
             "imu_broadcaster",
+            "joint_state_broadcaster",
             "-c",
             "controller_manager",
             "--controller-manager-timeout",
@@ -208,13 +192,11 @@ def generate_launch_description():
         condition=IfCondition(manipulator),
     )
 
-    controllers = [joint_state_broadcaster, imu_broadcaster, drive_controller]
-
-    # spawners expect ros2_control_node to be running
-    delayed_controllers = TimerAction(period=3.0, actions=controllers)
+    # Spawners expect controller_manager to be running
+    delayed_controllers_spawner = TimerAction(period=2.0, actions=[controllers_spawner])
 
     # Delay start of manipulator
-    delayed_manipulator_launch = TimerAction(period=6.0, actions=[manipulator_launch])
+    delayed_manipulator_launch = TimerAction(period=5.0, actions=[manipulator_launch])
 
     def check_if_log_is_fatal(event):
         red_color = "\033[91m"
@@ -226,20 +208,16 @@ def generate_launch_description():
             print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
             return EmitEvent(event=Shutdown(reason="Spawner failed"))
 
-    controllers_monitor = [
-        RegisterEventHandler(
-            OnProcessIO(
-                target_action=spawner,
-                on_stderr=check_if_log_is_fatal,
-            )
+    controllers_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=controllers_spawner,
+            on_stderr=check_if_log_is_fatal,
         )
-        for spawner in controllers
-    ]
-
-    controllers_monitor = GroupAction(controllers_monitor)
+    )
 
     return LaunchDescription(
         [
+            declare_activate_arm_arg,
             declare_config_dir_arg,
             declare_configuration_arg,
             declare_manipulator_serial_port_arg,
@@ -247,7 +225,7 @@ def generate_launch_description():
             declare_mecanum_arg,  # mecanum base on robot_model arg
             load_urdf,
             controller_manager_node,
-            delayed_controllers,
+            delayed_controllers_spawner,
             delayed_manipulator_launch,
             controllers_monitor,
         ]
