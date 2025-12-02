@@ -30,7 +30,7 @@
       odom0_differential: false
       odom0_relative: true
 
-      imu0: imu_broadcaster/imu
+      imu0: imu/data
       imu0_config: [false, false, false, # X , Y , Z
                   false, false, true, # roll , pitch ,yaw
                   false, false, false, # dX , dY , dZ

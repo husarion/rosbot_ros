@@ -11,6 +11,7 @@
           <remapping>differential_drive_controller/cmd_vel:=cmd_vel</remapping>
           <remapping>differential_drive_controller/odom:=odometry/wheels</remapping>
           <remapping>differential_drive_controller/transition_event:=_differential_drive_controller/transition_event</remapping>
+          <remapping>imu_broadcaster/imu:=imu/data</remapping>
           <remapping>imu_broadcaster/transition_event:=_imu_broadcaster/transition_event</remapping>
           <remapping>joint_state_broadcaster/transition_event:=_joint_state_broadcaster/transition_event</remapping>
           <remapping>mecanum_drive_controller/cmd_vel:=cmd_vel</remapping>

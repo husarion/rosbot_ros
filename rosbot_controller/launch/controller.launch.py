@@ -137,6 +137,7 @@ def generate_launch_description():
             ("differential_drive_controller/odom", "odometry/wheels"),
             ("differential_drive_controller/transition_event", "_differential_drive_controller/transition_event"),
             ("imu_sensor_node/imu", "/_imu/data_raw"),
+            ("imu_broadcaster/imu", "imu/data"),
             ("imu_broadcaster/transition_event", "_imu_broadcaster/transition_event"),
             (
                 "joint_state_broadcaster/transition_event",

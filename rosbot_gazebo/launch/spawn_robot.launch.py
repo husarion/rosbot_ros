@@ -204,9 +204,10 @@ def generate_launch_description():
     )
 
     husarion_components_description = FindPackageShare("husarion_components_description")
+    rosbot_joy = FindPackageShare("rosbot_joy")
     rosbot_localization = FindPackageShare("rosbot_localization")
     rosbot_utils = FindPackageShare("rosbot_utils")
-
+    
     gz_components = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
@@ -216,6 +217,12 @@ def generate_launch_description():
         launch_arguments={
             "components_config_path": components_config,
         }.items(),
+    )
+
+    joy_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_joy, "launch", "joy.launch.py"])
+        )
     )
 
     localization_launch = IncludeLaunchDescription(
@@ -253,6 +260,7 @@ def generate_launch_description():
             gz_spawn_entity,
             gz_components,
             controller_launch,
+            joy_launch,
             localization_launch,
             laser_filter_launch,
         ]

@@ -56,7 +56,7 @@ Detailed information about content of rosbot package for ROS2.
 | ✅  | ✅  | **`cmd_vel`**                                  | Sends velocity commands for controlling robot motion. <br /> _[geometry_msgs/Twist]_                                          |
 | ✅  | ✅  | **`diagnostics`**                              | Contains diagnostic information about the robot's systems. <br /> _[diagnostic_msgs/DiagnosticArray]_                         |
 | ✅  | ✅  | **`dynamic_joint_states`**                     | Publishes information about the dynamic state of joints. <br /> _[control_msgs/DynamicJointState]_                            |
-| ✅  | ✅  | **`imu_broadcaster/imu`**                      | Broadcasts IMU (Inertial Measurement Unit) data. <br /> _[sensor_msgs/Imu]_                                                   |
+| ✅  | ✅  | **`imu/data`**                      | Broadcasts IMU (Inertial Measurement Unit) data. <br /> _[sensor_msgs/Imu]_                                                   |
 | ✅  | ✅  | **`joint_states`**                             | Publishes information about the state of robot joints. <br /> _[sensor_msgs/JointState]_                                      |
 | ✅  | ✅  | **`odometry/filtered`**                        | Publishes filtered odometry data. <br /> _[nav_msgs/Odometry]_                                                                |
 | ✅  | ✅  | **`odometry/wheels`**              | Provides odometry data from the base controller of the ROSbot XL. <br /> _[nav_msgs/Odometry]_                                |
