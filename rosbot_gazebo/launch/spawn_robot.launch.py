@@ -207,7 +207,7 @@ def generate_launch_description():
     rosbot_joy = FindPackageShare("rosbot_joy")
     rosbot_localization = FindPackageShare("rosbot_localization")
     rosbot_utils = FindPackageShare("rosbot_utils")
-    
+
     gz_components = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(

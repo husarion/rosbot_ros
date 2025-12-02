@@ -61,7 +61,7 @@ def generate_launch_description():
     )
     manipulator = PythonExpression(["'", configuration, "'.startswith('manipulation')"])
     controller_config = PathJoinSubstitution(
-        [config_search_path, "config", robot_model, 'controllers.yaml']
+        [config_search_path, "config", robot_model, "controllers.yaml"]
     )
 
     declare_config_dir_arg = DeclareLaunchArgument(
@@ -110,7 +110,9 @@ def generate_launch_description():
 
     ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
     manipulator_state = PythonExpression(["'active' if '", use_sim, "' else 'inactive'"])
-    ns_controller_config = ReplaceString(controller_config, {"<namespace>/": ns, "<manipulator_state>": manipulator_state})
+    ns_controller_config = ReplaceString(
+        controller_config, {"<namespace>/": ns, "<manipulator_state>": manipulator_state}
+    )
 
     load_urdf = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -135,7 +137,10 @@ def generate_launch_description():
         remappings=[
             ("differential_drive_controller/cmd_vel", "cmd_vel"),
             ("differential_drive_controller/odom", "odometry/wheels"),
-            ("differential_drive_controller/transition_event", "_differential_drive_controller/transition_event"),
+            (
+                "differential_drive_controller/transition_event",
+                "_differential_drive_controller/transition_event",
+            ),
             ("imu_sensor_node/imu", "/_imu/data_raw"),
             ("imu_broadcaster/imu", "imu/data"),
             ("imu_broadcaster/transition_event", "_imu_broadcaster/transition_event"),
@@ -145,7 +150,10 @@ def generate_launch_description():
             ),
             ("mecanum_drive_controller/cmd_vel", "cmd_vel"),
             ("mecanum_drive_controller/odom", "odometry/wheels"),
-            ("mecanum_drive_controller/transition_event", "_mecanum_drive_controller/transition_event"),
+            (
+                "mecanum_drive_controller/transition_event",
+                "_mecanum_drive_controller/transition_event",
+            ),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
         ],
@@ -164,7 +172,9 @@ def generate_launch_description():
         ],
     )
 
-    drive_controller_name = PythonExpression(["'mecanum_drive_controller' if ", mecanum, " else 'differential_drive_controller'"])
+    drive_controller_name = PythonExpression(
+        ["'mecanum_drive_controller' if ", mecanum, " else 'differential_drive_controller'"]
+    )
     drive_controller = Node(
         package="controller_manager",
         executable="spawner",
