@@ -1,0 +1,84 @@
+---
+/**/joy_servo:
+  ros__parameters:
+    joint_names: [joint1, joint2, joint3, joint4]
+    end_effector_name: end_effector_link
+
+    axis_deadzone: 0.05
+
+    dead_man_switch:
+      control_type: axis
+      axis_id: 5
+      inverted: true
+      pressing_threshold: -0.5 # 50% of the axis range
+
+    dock_manipulator:
+      control_type: single_button
+      button_id: 6
+
+    home_manipulator:
+      control_type: single_button
+      button_id: 7
+
+    velocity_scaling_factor: 0.3
+    acceleration_scaling_factor: 0.3
+
+    # max_velocity set to quite low values (for both cartesian and joints control)
+    # so that collision checker will have enough time to stop manipulator
+
+    # Cartesian control
+    cartesian_control_reference_frame: end_effector_link
+    cartesian_control_names: [linear_x, linear_y, linear_z, angular_y]
+    cartesian_drift_dimensions: [false, false, false, false, false, true] # translation x, y, z; rotation x, y, z
+    cartesian_control:
+      linear_x:
+        control_type: axis
+        axis_id: 1
+        max_velocity: 0.25 # m/s
+      linear_y:
+        control_type: axis
+        axis_id: 0
+        max_velocity: 0.25 # m/s
+      linear_z:
+        control_type: axis
+        axis_id: 4
+        max_velocity: 0.25 # m/s
+      angular_y:
+        control_type: axis
+        axis_id: 3
+        max_velocity: 1.5 # rad/s
+
+    # Joints control
+    joints_control:
+      joint1:
+        control_type: axis
+        axis_id: 6
+        max_velocity: 1.5 # rad/s
+      joint2:
+        control_type: axis
+        axis_id: 7
+        inverted: true
+        max_velocity: 1.5 # rad/s
+      joint3:
+        control_type: double_button
+        positive_button_id: 2
+        negative_button_id: 1
+        max_velocity: 1.5 # rad/s
+      joint4:
+        control_type: double_button
+        positive_button_id: 0
+        negative_button_id: 3
+        max_velocity: 1.5 # rad/s
+
+    gripper_control:
+      # Gripper position control
+      control:
+        control_type: axis
+        axis_id: 2
+      # Gripper trigger movement
+      trigger:
+        control_type: single_button
+        button_id: 5
+      max_position: 0.015 # max 0.019 - reduce the risk of setting the wrong starting position
+      min_position: -0.009
+      joint_name: gripper_left_joint
