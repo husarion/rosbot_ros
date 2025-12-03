@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 import subprocess
+import sys
+
 
 def run_command(cmd, timeout_sec):
     try:
@@ -25,6 +26,7 @@ def run_command(cmd, timeout_sec):
     except subprocess.CalledProcessError:
         # Mimics '|| true' in bash: ignore non-zero exit codes
         print(f"Command failed but continuing: {cmd}")
+
 
 def main():
     if len(sys.argv) < 2:
@@ -48,6 +50,7 @@ def main():
         print(f"Invalid state: '{state}'")
         print("Usage: ros2 run rosbot_controller arm_control [active|inactive]")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
