@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <rosbot_joy/joy_control.hpp>
+#include <rosbot_joy/servo/joy_control.hpp>
 
-namespace rosbot_joy::open_manipulator {
+namespace rosbot_joy::servo {
 
 AxisControl::AxisControl(int axis_id, double axis_deadzone, double scaling,
                          bool inverted_control, double pressing_threshold) {
@@ -139,5 +139,5 @@ std::unique_ptr<JoyControl> JoyControlFactory(
   return controller;
 }
 
-} // namespace rosbot_joy::open_manipulator {
+} // namespace rosbot_joy::servo {
 

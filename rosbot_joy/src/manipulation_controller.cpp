@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <rosbot_joy/manipulation_controller.hpp>
+#include <rosbot_joy/servo/manipulation_controller.hpp>
 
 #include <rclcpp/parameter.hpp>
 
-namespace rosbot_joy::open_manipulator {
+namespace rosbot_joy::servo {
 
 bool ManipulationController::CheckIfPressed(
     const sensor_msgs::msg::Joy::SharedPtr msg,
@@ -304,5 +304,5 @@ void ManipulatorMoveGroupController::MoveToHomePose() {
   gripper_group_->move(); // To make sure the action is finished
 }
 
-} // namespace rosbot_joy::open_manipulator {
+} // namespace rosbot_joy::servo {
 

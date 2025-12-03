@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROSBOT_JOY__OPEN_MANIPULATOR__JOY_SERVO_NODE_HPP_
-#define ROSBOT_JOY__OPEN_MANIPULATOR__JOY_SERVO_NODE_HPP_
+#ifndef ROSBOT_JOY__SERVO__JOY_SERVO_NODE_HPP_
+#define ROSBOT_JOY__SERVO__JOY_SERVO_NODE_HPP_
 
 #include <memory>
 #include <vector>
@@ -23,10 +23,10 @@
 
 #include <sensor_msgs/msg/joy.hpp>
 
-#include <rosbot_joy/joy_control.hpp>
-#include <rosbot_joy/manipulation_controller.hpp>
+#include <rosbot_joy/servo/joy_control.hpp>
+#include <rosbot_joy/servo/manipulation_controller.hpp>
 
-namespace rosbot_joy::open_manipulator {
+namespace rosbot_joy::servo {
 class JoyServoNode : public rclcpp::Node {
 public:
   JoyServoNode(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
@@ -53,7 +53,7 @@ private:
 
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
 };
-} // namespace rosbot_joy::open_manipulator {
+} // namespace rosbot_joy::servo {
 
 
-#endif // ROSBOT_JOY__OPEN_MANIPULATOR__JOY_SERVO_NODE_HPP_
+#endif // ROSBOT_JOY__SERVO__JOY_SERVO_NODE_HPP_

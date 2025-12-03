@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROSBOT_JOY__OPEN_MANIPULATOR__JOY_CONTROL_HPP_
-#define ROSBOT_JOY__OPEN_MANIPULATOR__JOY_CONTROL_HPP_
+#ifndef ROSBOT_JOY__SERVO__JOY_CONTROL_HPP_
+#define ROSBOT_JOY__SERVO__JOY_CONTROL_HPP_
 
 #include <rclcpp/parameter.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <sensor_msgs/msg/joy.hpp>
 
-namespace rosbot_joy::open_manipulator {
+namespace rosbot_joy::servo {
 class JoyControl {
 public:
   virtual ~JoyControl() = default;
@@ -88,7 +88,7 @@ std::unique_ptr<JoyControl> JoyControlFactory(
     const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr &logging_itf,
     std::string param_namespace, double scaling = 1.0);
 
-} // namespace rosbot_joy::open_manipulator {
+} // namespace rosbot_joy::servo {
 
 
-#endif // ROSBOT_JOY__OPEN_MANIPULATOR__JOY_CONTROL_HPP_
+#endif // ROSBOT_JOY__SERVO__JOY_CONTROL_HPP_

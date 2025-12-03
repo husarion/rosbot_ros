@@ -26,7 +26,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-namespace rosbot_joy::open_manipulator {
+namespace rosbot_joy::servo {
 
 enum CommandType {
   NONE = -1,
@@ -112,5 +112,5 @@ private:
   std::mutex joy_mutex_;  // Add this to your class
 };
 
-} // namespace rosbot_joy::open_manipulator {
+} // namespace rosbot_joy::servo {
 

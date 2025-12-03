@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROSBOT_JOY__OPEN_MANIPULATOR__MANIPULATION_CONTROLLER_HPP_
-#define ROSBOT_JOY__OPEN_MANIPULATOR__MANIPULATION_CONTROLLER_HPP_
+#ifndef ROSBOT_JOY__SERVO__MANIPULATION_CONTROLLER_HPP_
+#define ROSBOT_JOY__SERVO__MANIPULATION_CONTROLLER_HPP_
 
 #include <map>
 #include <vector>
@@ -27,9 +27,9 @@
 #include <moveit/move_group_interface/move_group_interface.hpp>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
-#include <rosbot_joy/joy_control.hpp>
+#include <rosbot_joy/servo/joy_control.hpp>
 
-namespace rosbot_joy::open_manipulator {
+namespace rosbot_joy::servo {
 
 using MGI = moveit::planning_interface::MoveGroupInterface;
 using MGI_Ptr = moveit::planning_interface::MoveGroupInterfacePtr;
@@ -133,7 +133,7 @@ private:
   double gripper_max_pose_;
 };
 
-} // namespace rosbot_joy::open_manipulator {
+} // namespace rosbot_joy::servo {
 
 
-#endif // ROSBOT_JOY__OPEN_MANIPULATOR__MANIPULATION_CONTROLLER_HPP_
+#endif // ROSBOT_JOY__SERVO__MANIPULATION_CONTROLLER_HPP_

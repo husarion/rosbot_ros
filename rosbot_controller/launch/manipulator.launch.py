@@ -51,7 +51,7 @@ def generate_launch_description():
     move_group_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
-                [FindPackageShare("open_manipulator_x_moveit"), "launch", "move_group.launch.py"]
+                [FindPackageShare("rosbot_moveit"), "launch", "move_group.launch.py"]
             )
         ),
     )
@@ -59,12 +59,12 @@ def generate_launch_description():
     servo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
-                [FindPackageShare("open_manipulator_x_moveit"), "launch", "servo.launch.py"]
+                [FindPackageShare("rosbot_moveit"), "launch", "servo.launch.py"]
             )
         )
     )
 
-    home_node = Node(package="open_manipulator_x_moveit", executable="home")
+    home_node = Node(package="rosbot_moveit", executable="home")
     move_to_home_pose = TimerAction(period=10.0, actions=[home_node])
 
     return LaunchDescription(

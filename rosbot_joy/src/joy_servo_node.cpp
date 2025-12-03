@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <rosbot_joy/joy_servo_node.hpp>
+#include <rosbot_joy/servo/joy_servo_node.hpp>
 
 #include <std_srvs/srv/trigger.hpp>
 
 #include <moveit_msgs/srv/change_drift_dimensions.hpp>
 
-namespace rosbot_joy::open_manipulator {
+namespace rosbot_joy::servo {
 
 JoyServoNode::JoyServoNode(const rclcpp::NodeOptions &options)
     : Node("joy_servo", options) {
@@ -140,12 +140,12 @@ void JoyServoNode::InitializeControllers() {
       std::make_unique<JointController>(this->shared_from_this()));
 }
 
-} // namespace rosbot_joy::open_manipulator {
+} // namespace rosbot_joy::servo {
 
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<rosbot_joy::JoyServoNode>());
+  rclcpp::spin(std::make_shared<rosbot_joy::servo::JoyServoNode>());
   rclcpp::shutdown();
   return 0;
 }
