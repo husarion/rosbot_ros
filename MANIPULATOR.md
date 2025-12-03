@@ -11,6 +11,17 @@
 
 Below is a handful of the most important information for the ROSbot Manipulation/Manipulation PRO package.
 
+## Activation
+
+By default, the arm remains in an idle state after the driver is launched. To activate it, execute:
+
+```bash
+sudo rosbot.arm-activate # if you are using snap
+ros2 run rosbot_controller arm_control active # if you are using local build
+```
+
+You can change the driver's default behavior using the `arm_activate` argument.
+
 ## Control
 
 After starting, the manipulator should be in the Home position after a few seconds. Now you can control ROSbot XL and OpenMANIPULATOR-X using a gamepad or RViz.
@@ -56,13 +67,15 @@ To do it, first you will have to disable the torque of the manipulator, for exam
 On your ROSbot XL execute. **Hold the manipulator** while doing it, as it disables the torque and the manipulator can fall.
 
 ```bash
-sudo rosbot.arm-disactivate
+sudo rosbot.arm-disactivate # if you are using snap
+ros2 run rosbot_controller arm_control inactive # if you are using local build
 ```
 
 Now you can manually move the manipulator to the desired position and launch:
 
 ```bash
-sudo rosbot.arm-activate
+sudo rosbot.arm-activate # if you are using snap
+ros2 run rosbot_controller arm_control active # if you are using local build
 ```
 
 ### Modifications
