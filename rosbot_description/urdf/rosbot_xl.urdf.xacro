@@ -26,7 +26,7 @@
     use_sim="$(arg use_sim)" />
 
   <xacro:if value="${'$(arg configuration)'.startswith('manipulation')}">
-    <xacro:include filename="$(find open_manipulator_x_description)/urdf/open_manipulator_x_macro.xacro" />
+    <xacro:include filename="$(find rosbot_description)/urdf/open_manipulator/open_manipulator_x_macro.xacro" />
 
     <xacro:open_manipulator_x
       parent_link="'cover_link'"

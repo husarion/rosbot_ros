@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="open_manipulator_x"
+            params="parent_link=''
+                    xyz:='0.0 0.0 0.0'
+                    rpy:='0.0 0.0 0.0'
+                    namespace:=''
+                    device_namespace:=''
+                    use_fake_hardware:=False
+                    fake_sensor_commands:=False
+                    use_sim:=False
+                    port_name:='/dev/ttyUSB0'">
+
+    <!-- PROPERTIES -->
+    <xacro:property name="prefix" value="${device_namespace + '_' if device_namespace != '' else ''}" />
+
+    <!-- INCLUDE ROBOT MACRO -->
+    <xacro:include filename="$(find rosbot_description)/urdf/open_manipulator/body.xacro" ns="body"/>
+    <xacro:include filename="$(find open_manipulator_description)/gazebo/open_manipulator_x.gazebo.xacro"  ns="gazebo" />
+    <xacro:include filename="$(find open_manipulator_description)/ros2_control/open_manipulator_x_position.ros2_control.xacro" ns="ros2_control" />
+
+    <!-- BODY -->
+    <xacro:body.open_manipulator_x
+      prefix="${prefix}"
+      parent_link="${parent_link}"
+      xyz="${xyz}"
+      rpy="${rpy}" />
+
+    <!-- ROS2 CONTROL PLUGINS -->
+    <xacro:ros2_control.open_manipulator_x_system
+      name="OpenManipulatorXSystem"
+      prefix="${prefix}"
+      use_sim="${use_sim}"
+      use_fake_hardware="${use_fake_hardware}"
+      fake_sensor_commands="${fake_sensor_commands}"
+      port_name="${port_name}" />
+
+    <!-- GAZEBO PLUGINS -->
+    <xacro:if value="${use_sim}">
+      <xacro:gazebo.open_manipulator_x_gazebo prefix="${prefix}" />
+    </xacro:if>
+
+  </xacro:macro>
+
+</robot>
