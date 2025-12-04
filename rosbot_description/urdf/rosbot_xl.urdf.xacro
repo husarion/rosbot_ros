@@ -22,8 +22,9 @@
 
   <xacro:components.create_components
     components_config_path="$(arg components_config)"
-    namespace=""
-    use_sim="$(arg use_sim)" />
+    namespace="$(arg namespace)"
+    use_sim="$(arg use_sim)"
+    use_tf_prefix="False" />
 
   <xacro:if value="${'$(arg configuration)'.startswith('manipulation')}">
     <xacro:include filename="$(find open_manipulator_x_description)/urdf/open_manipulator_x_macro.xacro" />
