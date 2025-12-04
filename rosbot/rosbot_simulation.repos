@@ -2,7 +2,7 @@ repositories:
   husarion_components_description:
     type: git
     url: https://github.com/husarion/husarion_components_description.git
-    version: 84387ce91caa357b2b0e6776ea9ce7f720c33fb3
+    version: a28a41ba059e689420a3e9d8552435781ebe286b
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
