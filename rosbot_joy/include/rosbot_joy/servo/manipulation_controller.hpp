@@ -133,7 +133,6 @@ private:
   double gripper_max_pose_;
 };
 
-} // namespace rosbot_joy::servo {
-
+} // namespace rosbot_joy::servo
 
 #endif // ROSBOT_JOY__SERVO__MANIPULATION_CONTROLLER_HPP_

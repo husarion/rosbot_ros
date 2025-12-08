@@ -88,7 +88,6 @@ std::unique_ptr<JoyControl> JoyControlFactory(
     const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr &logging_itf,
     std::string param_namespace, double scaling = 1.0);
 
-} // namespace rosbot_joy::servo {
-
+} // namespace rosbot_joy::servo
 
 #endif // ROSBOT_JOY__SERVO__JOY_CONTROL_HPP_

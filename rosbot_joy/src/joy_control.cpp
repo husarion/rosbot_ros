@@ -139,5 +139,4 @@ std::unique_ptr<JoyControl> JoyControlFactory(
   return controller;
 }
 
-} // namespace rosbot_joy::servo {
-
+} // namespace rosbot_joy::servo

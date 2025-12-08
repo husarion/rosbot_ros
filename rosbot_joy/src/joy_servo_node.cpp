@@ -140,8 +140,7 @@ void JoyServoNode::InitializeControllers() {
       std::make_unique<JointController>(this->shared_from_this()));
 }
 
-} // namespace rosbot_joy::servo {
-
+} // namespace rosbot_joy::servo
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);

@@ -109,8 +109,7 @@ private:
   CommandType cmd_type_ = CommandType::NONE;
   double joint_vel_cmd_; // TODO: Add scaler
   double gripper_position_;
-  std::mutex joy_mutex_;  // Add this to your class
+  std::mutex joy_mutex_; // Add this to your class
 };
 
-} // namespace rosbot_joy::servo {
-
+} // namespace rosbot_joy::servo

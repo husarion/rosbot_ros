@@ -19,7 +19,8 @@
 using MGI = moveit::planning_interface::MoveGroupInterface;
 
 bool wait_for_moveit_server(const std::shared_ptr<rclcpp::Node> &node) {
-  auto client = rclcpp_action::create_client<moveit_msgs::action::MoveGroup>(node, "move_action");
+  auto client = rclcpp_action::create_client<moveit_msgs::action::MoveGroup>(
+      node, "move_action");
   if (!client->wait_for_action_server(std::chrono::seconds(15))) {
     RCLCPP_ERROR(node->get_logger(), "MoveGroup server not available!");
     return false;
@@ -38,7 +39,10 @@ bool move_to_named_target(MGI &group, const std::string &target_name,
       success = true;
     } else {
       RCLCPP_WARN_STREAM(node->get_logger(),
-                         "Failed to move to '" << target_name << "' pose (attempt " << (attempt + 1) << "/" << max_attempts << "), retrying...");
+                         "Failed to move to '"
+                             << target_name << "' pose (attempt "
+                             << (attempt + 1) << "/" << max_attempts
+                             << "), retrying...");
       rclcpp::sleep_for(std::chrono::seconds(1));
     }
   }
@@ -61,23 +65,25 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  MGI::Options manip_opts("manipulator", "robot_description", node->get_namespace());
+  MGI::Options manip_opts("manipulator", "robot_description",
+                          node->get_namespace());
   MGI manipulator_group(node, manip_opts);
   manipulator_group.setMaxVelocityScalingFactor(0.2);
   manipulator_group.setMaxAccelerationScalingFactor(0.1);
 
   if (!move_to_named_target(manipulator_group, "Home", node, 3)) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to move to 'Home' pose after retries.");
+    RCLCPP_ERROR(node->get_logger(),
+                 "Failed to move to 'Home' pose after retries.");
     rclcpp::shutdown();
     return 1;
   }
 
-  MGI::Options gripper_opts("gripper", "robot_description", node->get_namespace());
+  MGI::Options gripper_opts("gripper", "robot_description",
+                            node->get_namespace());
   MGI gripper_group(node, gripper_opts);
   gripper_group.setMaxVelocityScalingFactor(0.6);
   gripper_group.setMaxAccelerationScalingFactor(0.6);
   move_to_named_target(gripper_group, "Open", node);
-
 
   rclcpp::shutdown();
   return 0;

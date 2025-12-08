@@ -53,7 +53,6 @@ private:
 
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
 };
-} // namespace rosbot_joy::servo {
-
+} // namespace rosbot_joy::servo
 
 #endif // ROSBOT_JOY__SERVO__JOY_SERVO_NODE_HPP_

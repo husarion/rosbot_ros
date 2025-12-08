@@ -19,8 +19,8 @@
 #include <memory>
 #include <moveit/move_group_interface/move_group_interface.hpp>
 #include <moveit_msgs/srv/servo_command_type.hpp>
-#include <rosbot_joy/servo/joy2servo.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <rosbot_joy/servo/joy2servo.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 #include <string>
 #include <unordered_map>
@@ -204,8 +204,7 @@ void Joy2Servo::UpdateReqCommand(const sensor_msgs::msg::Joy::SharedPtr msg) {
   }
 }
 
-} // namespace rosbot_joy::servo {
-
+} // namespace rosbot_joy::servo
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);

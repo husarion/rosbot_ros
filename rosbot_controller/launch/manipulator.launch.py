@@ -58,9 +58,7 @@ def generate_launch_description():
 
     servo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [FindPackageShare("rosbot_moveit"), "launch", "servo.launch.py"]
-            )
+            PathJoinSubstitution([FindPackageShare("rosbot_moveit"), "launch", "servo.launch.py"])
         )
     )
 

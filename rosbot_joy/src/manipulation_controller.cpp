@@ -304,5 +304,4 @@ void ManipulatorMoveGroupController::MoveToHomePose() {
   gripper_group_->move(); // To make sure the action is finished
 }
 
-} // namespace rosbot_joy::servo {
-
+} // namespace rosbot_joy::servo
