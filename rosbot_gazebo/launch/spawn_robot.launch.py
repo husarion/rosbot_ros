@@ -27,6 +27,7 @@ from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
+    arm_activate = LaunchConfiguration("arm_activate", default="True")
     config_dir = LaunchConfiguration("config_dir")
     configuration = LaunchConfiguration("configuration")
     namespace = LaunchConfiguration("namespace")
@@ -197,6 +198,7 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
+            "arm_activate": arm_activate,
             "configuration": configuration,
             "robot_model": robot_model,
             "use_sim": "True",
@@ -204,6 +206,7 @@ def generate_launch_description():
     )
 
     husarion_components_description = FindPackageShare("husarion_components_description")
+    rosbot_joy = FindPackageShare("rosbot_joy")
     rosbot_localization = FindPackageShare("rosbot_localization")
     rosbot_utils = FindPackageShare("rosbot_utils")
 
@@ -216,6 +219,12 @@ def generate_launch_description():
         launch_arguments={
             "components_config_path": components_config,
         }.items(),
+    )
+
+    joy_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([rosbot_joy, "launch", "joy.launch.py"])
+        )
     )
 
     localization_launch = IncludeLaunchDescription(
@@ -253,6 +262,7 @@ def generate_launch_description():
             gz_spawn_entity,
             gz_components,
             controller_launch,
+            joy_launch,
             localization_launch,
             laser_filter_launch,
         ]

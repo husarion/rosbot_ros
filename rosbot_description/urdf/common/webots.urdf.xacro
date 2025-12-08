@@ -6,7 +6,7 @@
       <plugin type="webots_ros2_control::Ros2Control" />
       <plugin type="webots_ros2_driver::Ros2IMU">
       <enabled>true</enabled>
-      <topicName>/imu_broadcaster/imu</topicName>
+      <topicName>/imu/data</topicName>
       <alwaysOn>true</alwaysOn>
       <frameName>imu_link</frameName>
       <gyroName>imu gyro</gyroName>

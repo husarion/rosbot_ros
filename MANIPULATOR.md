@@ -6,10 +6,21 @@
 > 1. **Before starting driver!** Make sure the manipulator is **undock**, manipulator is **away from a collision** (does not rest on robot objects) and **joints are away from its position limits** (e.g. one of the joints is started from extreme position).
 > 2. Controlling MoveIt and via the joystick are two independent processes. You should not send commands to both of these services at the same time.
 > 3. When the power supply is lost, the robot loses momentum and falls by inertia. Therefore, you should hold the manipulator when the power is cut off, or call the docking node `ros2 run open_manipulator_x_moveit dock` or press `RT` + `Back` buttons on gamepad.
-> 4. To improve the range of the manipulator's movements. The robot's URDF has hardcoded that the antenna is set at 90 degrees. It is a good idea to position the antenna in the same way on the physical robot.
+> 4. The manipulator does not analyze collisions with the antenna, to improve the range of the manipulator's movements. It's good practice to position the antenna horizontally on the physical robot.
 > 5. In the event of overload, loss of communication or sudden stopping of the manipulator process (e.g. during reboot), some joints may not receive the command to stop operation. This may prevent re-establishing communication. In such a case, it will be necessary to **reset the power supply**.
 
 Below is a handful of the most important information for the ROSbot Manipulation/Manipulation PRO package.
+
+## Activation
+
+By default, the arm remains in an idle state after the driver is launched. To activate it, execute:
+
+```bash
+sudo rosbot.arm-activate # if you are using snap
+ros2 run rosbot_controller arm_control active # if you are using local build
+```
+
+You can change the driver's default behavior using the `arm_activate` argument.
 
 ## Control
 
@@ -56,13 +67,15 @@ To do it, first you will have to disable the torque of the manipulator, for exam
 On your ROSbot XL execute. **Hold the manipulator** while doing it, as it disables the torque and the manipulator can fall.
 
 ```bash
-sudo rosbot.arm-disactivate
+sudo rosbot.arm-disactivate # if you are using snap
+ros2 run rosbot_controller arm_control inactive # if you are using local build
 ```
 
 Now you can manually move the manipulator to the desired position and launch:
 
 ```bash
-sudo rosbot.arm-activate
+sudo rosbot.arm-activate # if you are using snap
+ros2 run rosbot_controller arm_control active # if you are using local build
 ```
 
 ### Modifications
