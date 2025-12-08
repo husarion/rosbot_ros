@@ -1,0 +1,180 @@
+---
+/**:
+  controller_manager:
+    ros__parameters:
+      update_rate: 100 # Hz
+
+      differential_drive_controller:
+        type: diff_drive_controller/DiffDriveController
+      mecanum_drive_controller:
+        type: mecanum_drive_controller/MecanumDriveController
+      imu_broadcaster:
+        type: imu_sensor_broadcaster/IMUSensorBroadcaster
+      joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
+      manipulator_controller:
+        type: joint_trajectory_controller/JointTrajectoryController
+      gripper_controller:
+        type: position_controllers/GripperActionController
+
+      hardware_components_initial_state:
+        <manipulator_state>:
+          - OpenManipulatorXSystem
+
+  imu_broadcaster:
+    ros__parameters:
+      tf_frame_prefix_enable: false
+      sensor_name: <namespace>/imu
+      frame_id: imu_link
+      static_covariance_orientation: [1.9e-3, 0.0, 0.0, 0.0, 1.9e-3, 0.0, 0.0, 0.0, 1.9e-3] # Values taken from datasheet
+      static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values measured experimentally
+      static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0] # Values measured experimentally
+
+  differential_drive_controller:
+    ros__parameters:
+      # Robot Specific
+      tf_frame_prefix_enable: false
+      left_wheel_names: [fl_wheel_joint, rl_wheel_joint]
+      right_wheel_names: [fr_wheel_joint, rr_wheel_joint]
+      wheel_separation: 0.248
+      wheel_radius: 0.048
+      wheel_separation_multiplier: 1.3  # ICR coefficient isn't totally accurate and this coefficient can differ for various ground types
+      left_wheel_radius_multiplier: 1.0
+      right_wheel_radius_multiplier: 1.0
+      odom_frame_id: odom
+      base_frame_id: base_link
+      pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
+      twist_covariance_diagonal: [3.3e-5, 3.3e-5, 0.0, 0.0, 0.0, 2.8e-3] # Values measured experimentally
+
+      # Odometry
+      publish_rate: 20.0
+      open_loop: false
+      position_feedback: false
+      velocity_rolling_window_size: 1
+      enable_odom_tf: false
+
+      # Publication
+      cmd_vel_timeout: 0.5
+      publish_limited_velocity: false
+      use_stamped_vel: true
+
+      # Limits
+      linear:
+        x:
+          max_velocity: 1.0 # m/s
+          min_velocity: -1.0 # m/s
+          max_acceleration: 1.0 # m/s^2
+          max_deceleration: -1.0 # m/s^2
+          max_acceleration_reverse: -1.0 # m/s^2
+          max_deceleration_reverse: 1.0 # m/s^2
+          max_jerk: .nan # m/s^3
+          min_jerk: .nan # m/s^3
+
+      angular:
+        z:
+          max_velocity: 3.14 # rad/s
+          min_velocity: -3.14 # rad/s
+          max_acceleration: 4.0 # rad/s^2
+          max_deceleration: -4.0 # rad/s^2
+          max_acceleration_reverse: -4.0 # rad/s^2
+          max_deceleration_reverse: 4.0 # rad/s^2
+          max_jerk: .nan # rad/s^3
+          min_jerk: .nan # rad/s^3
+
+
+  mecanum_drive_controller:
+    ros__parameters:
+      # Robot Specific
+      tf_frame_prefix_enable: false
+      front_left_wheel_name: fl_wheel_joint
+      front_right_wheel_name: fr_wheel_joint
+      rear_left_wheel_name: rl_wheel_joint
+      rear_right_wheel_name: rr_wheel_joint
+      wheel_separation_x: 0.170
+      wheel_separation_y: 0.270
+      wheel_radius: 0.047
+      wheel_separation_x_multiplier: 0.95  # Based on real measurements
+      wheel_separation_y_multiplier: 0.95  # Based on real measurements
+      wheel_radius_multiplier: 1.05  # Based on real measurements
+      odom_frame_id: odom
+      base_frame_id: base_link
+      pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
+      twist_covariance_diagonal: [3.3e-5, 3.3e-5, 0.0, 0.0, 0.0, 2.8e-3] # Values measured experimentally
+
+      # Odometry
+      publish_rate: 20.0
+      open_loop: false
+      position_feedback: false
+      velocity_rolling_window_size: 1
+      enable_odom_tf: false
+
+      # Publication
+      cmd_vel_timeout: 0.5
+      publish_limited_velocity: false
+      use_stamped_vel: true
+
+      # Limits
+      linear:
+        x:
+          max_velocity: 1.0 # m/s
+          min_velocity: -1.0 # m/s
+          max_acceleration: 0.75 # m/s^2
+          max_deceleration: -0.75 # m/s^2
+          max_acceleration_reverse: -0.75 # m/s^2
+          max_deceleration_reverse: 0.75 # m/s^2
+          max_jerk: .nan # m/s^3
+          min_jerk: .nan # m/s^3
+        y:
+          max_velocity: 1.0 # m/s
+          min_velocity: -1.0 # m/s
+          max_acceleration: 0.75 # m/s^2
+          max_deceleration: -0.75 # m/s^2
+          max_acceleration_reverse: -0.75 # m/s^2
+          max_deceleration_reverse: 0.75 # m/s^2
+          max_jerk: .nan # m/s^3
+          min_jerk: .nan # m/s^3
+
+      angular:
+        z:
+          max_velocity: 3.14 # rad/s
+          min_velocity: -3.14 # rad/s
+          max_acceleration: 3.0 # rad/s^2
+          max_deceleration: -3.0 # rad/s^2
+          max_acceleration_reverse: -3.0 # rad/s^2
+          max_deceleration_reverse: 3.0 # rad/s^2
+          max_jerk: .nan # rad/s^3
+          min_jerk: .nan # rad/s^3
+
+
+  # Based on: https://github.com/ROBOTIS-GIT/open_manipulator/blob/humble/open_manipulator_x_bringup/config/hardware_controller_manager.yaml
+  manipulator_controller:
+    ros__parameters:
+      joints:
+        - joint1
+        - joint2
+        - joint3
+        - joint4
+      interface_name: position
+      command_interfaces:
+        - position
+      state_interfaces:
+        - position
+        - velocity
+      state_publish_rate: 200.0
+      action_monitor_rate: 20.0
+      allow_nonzero_velocity_at_trajectory_end: true
+      allow_partial_joints_goal: false
+      open_loop_control: true
+      allow_integration_in_goal_trajectories: true
+      constraints:
+        stopped_velocity_tolerance: 0.01
+        goal_time: 0.0 # Defaults to 0.0 (start immediately)
+
+  gripper_controller:
+    ros__parameters:
+      joint: gripper_left_joint
+      state_interfaces:
+        - position
+      command_interfaces:
+        - position
+      conversion_factor: 0.0001

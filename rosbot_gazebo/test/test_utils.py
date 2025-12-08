@@ -52,7 +52,7 @@ class SimulationTestNode(Node):
         self.ekf_sub = self.create_subscription(
             Odometry, "odometry/filtered", self.ekf_callback, 10
         )
-        self.imu_sub = self.create_subscription(Imu, "imu_broadcaster/imu", self.imu_callback, 10)
+        self.imu_sub = self.create_subscription(Imu, "imu/data", self.imu_callback, 10)
 
         # Sensor callback
         self.camera_rgb_sub = self.create_subscription(
