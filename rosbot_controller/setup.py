@@ -29,11 +29,11 @@ setup(
     packages=find_packages(exclude=["test"]),
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
-        ("share/" + package_name, ["package.xml"]),
-        ("share/" + package_name + "/config", common_config),
-        ("share/" + package_name + "/config/rosbot", rosbot_config),
-        ("share/" + package_name + "/config/rosbot_xl", rosbot_xl_config),
-        ("share/" + package_name + "/launch", launch_files),
+        (f"share/{package_name}", ["package.xml"]),
+        (f"share/{package_name}/config", common_config),
+        (f"share/{package_name}/config/rosbot", rosbot_config),
+        (f"share/{package_name}/config/rosbot_xl", rosbot_xl_config),
+        (f"share/{package_name}/launch", launch_files),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
@@ -43,6 +43,8 @@ setup(
     license="Apache License 2.0",
     tests_require=["pytest"],
     entry_points={
-        "console_scripts": [],
+        "console_scripts": [
+            "arm_control = rosbot_controller.arm_control:main",
+        ],
     },
 )

@@ -17,7 +17,6 @@ from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     EmitEvent,
-    GroupAction,
     IncludeLaunchDescription,
     RegisterEventHandler,
     TimerAction,
@@ -40,6 +39,7 @@ from rosbot_utils.utils import find_device_port
 
 
 def generate_launch_description():
+    arm_activate = LaunchConfiguration("arm_activate")
     config_dir = LaunchConfiguration("config_dir")
     configuration = LaunchConfiguration("configuration")
     manipulator_serial_port = LaunchConfiguration("manipulator_serial_port")
@@ -59,16 +59,16 @@ def generate_launch_description():
             "'",
         ]
     )
-    base_controller_prefix = PythonExpression(
-        ["'mecanum_drive' if ", mecanum, " else 'diff_drive'"]
-    )
     manipulator = PythonExpression(["'", configuration, "'.startswith('manipulation')"])
-    manipulator_prefix = PythonExpression(["'manipulator_' if ", manipulator, " else ''"])
-    controller_config_file = PythonExpression(
-        ["'", base_controller_prefix, "' + '_' + '", manipulator_prefix, "' + 'controller.yaml'"]
-    )
     controller_config = PathJoinSubstitution(
-        [config_search_path, "config", robot_model, controller_config_file]
+        [config_search_path, "config", robot_model, "controllers.yaml"]
+    )
+
+    declare_arm_activate_arg = DeclareLaunchArgument(
+        "arm_activate",
+        default_value="False",
+        description="Whether to activate the manipulator arm on startup.",
+        choices=["True", "False"],
     )
 
     declare_config_dir_arg = DeclareLaunchArgument(
@@ -116,7 +116,10 @@ def generate_launch_description():
     )
 
     ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
-    ns_controller_config = ReplaceString(controller_config, {"<namespace>/": ns})
+    manipulator_state = PythonExpression(["'active' if '", arm_activate, "' else 'inactive'"])
+    ns_controller_config = ReplaceString(
+        controller_config, {"<namespace>/": ns, "<manipulator_state>": manipulator_state}
+    )
 
     load_urdf = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -134,20 +137,29 @@ def generate_launch_description():
         }.items(),
     )
 
-    # SYNC_READ_FAIL occureswhile controller_manager uses /robot_description topic
-    control_node = Node(
+    controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[ns_controller_config],
         remappings=[
-            ("drive_controller/cmd_vel_unstamped", "cmd_vel"),
-            ("drive_controller/odom", "odometry/wheels"),
-            ("drive_controller/transition_event", "_drive_controller/transition_event"),
+            ("differential_drive_controller/cmd_vel_unstamped", "cmd_vel"),
+            ("differential_drive_controller/odom", "odometry/wheels"),
+            (
+                "differential_drive_controller/transition_event",
+                "_differential_drive_controller/transition_event",
+            ),
             ("imu_sensor_node/imu", "/_imu/data_raw"),
+            ("imu_broadcaster/imu", "imu/data"),
             ("imu_broadcaster/transition_event", "_imu_broadcaster/transition_event"),
             (
                 "joint_state_broadcaster/transition_event",
                 "_joint_state_broadcaster/transition_event",
+            ),
+            ("mecanum_drive_controller/cmd_vel_unstamped", "cmd_vel"),
+            ("mecanum_drive_controller/odom", "odometry/wheels"),
+            (
+                "mecanum_drive_controller/transition_event",
+                "_mecanum_drive_controller/transition_event",
             ),
             ("~/motors_cmd", "/_motors_cmd"),
             ("~/motors_response", "/_motors_response"),
@@ -156,35 +168,16 @@ def generate_launch_description():
         condition=UnlessCondition(use_sim),
     )
 
-    joint_state_broadcaster = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "joint_state_broadcaster",
-            "-c",
-            "controller_manager",
-            "--controller-manager-timeout",
-            "20",
-        ],
+    drive_controller_name = PythonExpression(
+        ["'mecanum_drive_controller' if ", mecanum, " else 'differential_drive_controller'"]
     )
-
-    drive_controller = Node(
+    controllers_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "drive_controller",
-            "-c",
-            "controller_manager",
-            "--controller-manager-timeout",
-            "20",
-        ],
-    )
-
-    imu_broadcaster = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
+            drive_controller_name,
             "imu_broadcaster",
+            "joint_state_broadcaster",
             "-c",
             "controller_manager",
             "--controller-manager-timeout",
@@ -198,16 +191,17 @@ def generate_launch_description():
                 [FindPackageShare("rosbot_controller"), "launch", "manipulator.launch.py"]
             )
         ),
+        launch_arguments={
+            "arm_activate": arm_activate,
+        }.items(),
         condition=IfCondition(manipulator),
     )
 
-    controllers = [joint_state_broadcaster, imu_broadcaster, drive_controller]
-
-    # spawners expect ros2_control_node to be running
-    delayed_controllers = TimerAction(period=3.0, actions=controllers)
+    # Spawners expect controller_manager to be running
+    delayed_controllers_spawner = TimerAction(period=2.0, actions=[controllers_spawner])
 
     # Delay start of manipulator
-    delayed_manipulator_launch = TimerAction(period=6.0, actions=[manipulator_launch])
+    delayed_manipulator_launch = TimerAction(period=5.0, actions=[manipulator_launch])
 
     def check_if_log_is_fatal(event):
         red_color = "\033[91m"
@@ -219,28 +213,24 @@ def generate_launch_description():
             print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
             return EmitEvent(event=Shutdown(reason="Spawner failed"))
 
-    controllers_monitor = [
-        RegisterEventHandler(
-            OnProcessIO(
-                target_action=spawner,
-                on_stderr=check_if_log_is_fatal,
-            )
+    controllers_monitor = RegisterEventHandler(
+        OnProcessIO(
+            target_action=controllers_spawner,
+            on_stderr=check_if_log_is_fatal,
         )
-        for spawner in controllers
-    ]
-
-    controllers_monitor = GroupAction(controllers_monitor)
+    )
 
     return LaunchDescription(
         [
+            declare_arm_activate_arg,
             declare_config_dir_arg,
             declare_configuration_arg,
             declare_manipulator_serial_port_arg,
             declare_robot_model_arg,
             declare_mecanum_arg,  # mecanum base on robot_model arg
             load_urdf,
-            control_node,
-            delayed_controllers,
+            controller_manager_node,
+            delayed_controllers_spawner,
             delayed_manipulator_launch,
             controllers_monitor,
         ]
