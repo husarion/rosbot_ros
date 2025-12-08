@@ -131,7 +131,7 @@
           min_velocity: -1.0 # m/s
           max_acceleration: 0.75 # m/s^2
           min_acceleration: -0.75 # m/s^2
-          max_jerk: 0.0 # m/s^3 
+          max_jerk: 0.0 # m/s^3
 
       angular:
         z:

@@ -76,28 +76,6 @@ def generate_launch_description():
         period=10.0, actions=[home_node], condition=IfCondition(arm_activate)
     )
 
-    controllers = [manipulator_controller, gripper_controller]
-
-    def check_if_log_is_fatal(event):
-        red_color = "\033[91m"
-        reset_color = "\033[0m"
-        msg = event.text.decode().lower()
-        if ("fatal" in msg or "failed" in msg) and "attempt" not in msg:
-            print(f"{red_color}Fatal error: {event.text}. Emitting shutdown...{reset_color}")
-            return EmitEvent(event=Shutdown(reason="Spawner failed"))
-
-    controllers_monitor = [
-        RegisterEventHandler(
-            OnProcessIO(
-                target_action=spawner,
-                on_stderr=check_if_log_is_fatal,
-            )
-        )
-        for spawner in controllers
-    ]
-
-    controllers_monitor = GroupAction(controllers_monitor)
-
     return LaunchDescription(
         [
             active_arm_controllers_spawner,
