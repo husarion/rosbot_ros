@@ -2,14 +2,15 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_hardware_interfaces</name>
-  <version>1.0.0</version>
-  <description>Hardware controller for rosbot 2 and rosbot XL</description>
+  <version>0.15.2</version>
+  <description>Hardware controller for ROSbot Series</description>
   <license>Apache License 2.0</license>
 
-  <author email="krzysztof.wojciechowski@husarion.com">Krzysztof Wojciechowski</author>
+  <author email="rafal.gorecki@husarion.com">Rafał Gorecki</author>
   <author email="maciej.stepien@husarion.com">Maciej Stępień</author>
+  <author email="krzysztof.wojciechowski@husarion.com">Krzysztof Wojciechowski</author>
 
-  <maintainer email="maciej.stepien@husarion.com">Maciej Stępień</maintainer>
+  <maintainer email="support@husarion.com">Maciej Stępień</maintainer>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

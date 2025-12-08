@@ -58,7 +58,7 @@ class BringupTestNode(Node):
         self.controller_odom_sub = self.create_subscription(
             Odometry, "odometry/wheels", self.controller_odometry_callback, 10
         )
-        self.imu_sub = self.create_subscription(Imu, "imu_broadcaster/imu", self.imu_callback, 10)
+        self.imu_sub = self.create_subscription(Imu, "imu/data", self.imu_callback, 10)
         self.ekf_odom_sub = self.create_subscription(
             Odometry, "odometry/filtered", self.ekf_odometry_callback, 10
         )
