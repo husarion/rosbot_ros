@@ -1,8 +1,4 @@
 repositories:
-  open_manipulator_x:
-    type: git
-    url: https://github.com/husarion/open_manipulator_x
-    version: jazzy
   dynamixel_hardware_interface: # This package often is changed which causes issues with the manipulation.
     type: git
     url: https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git
