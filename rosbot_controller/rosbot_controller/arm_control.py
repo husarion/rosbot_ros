@@ -38,13 +38,13 @@ def main():
     if state == "inactive":
         print("Manipulator torque will be turned off")
         run_command("ros2 control set_controller_state manipulator_controller inactive", 7)
-        run_command("ros2 control set_controller_state gripper_controller inactive", 3)
-        run_command("ros2 control set_hardware_component_state OpenManipulatorXSystem inactive", 3)
+        run_command("ros2 control set_controller_state gripper_controller inactive", 5)
+        run_command("ros2 control set_hardware_component_state OpenManipulatorXSystem inactive", 5)
 
     elif state == "active":
         run_command("ros2 control set_hardware_component_state OpenManipulatorXSystem active", 7)
-        run_command("ros2 control set_controller_state manipulator_controller active", 3)
-        run_command("ros2 control set_controller_state gripper_controller active", 3)
+        run_command("ros2 control set_controller_state manipulator_controller active", 5)
+        run_command("ros2 control set_controller_state gripper_controller active", 5)
 
     else:
         print(f"Invalid state: '{state}'")
