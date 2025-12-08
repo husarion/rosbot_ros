@@ -47,7 +47,7 @@
       twist_covariance_diagonal: [3.3e-5, 3.3e-5, 0.0, 0.0, 0.0, 2.8e-3] # Values measured experimentally
 
       # Odometry
-      publish_rate: 25.0
+      publish_rate: 20.0
       open_loop: false
       position_feedback: false
       velocity_rolling_window_size: 1
@@ -102,7 +102,7 @@
       twist_covariance_diagonal: [3.3e-5, 3.3e-5, 0.0, 0.0, 0.0, 2.8e-3] # Values measured experimentally
 
       # Odometry
-      publish_rate: 25.0
+      publish_rate: 20.0
       open_loop: false
       position_feedback: false
       velocity_rolling_window_size: 1
