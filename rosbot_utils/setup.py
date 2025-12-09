@@ -27,7 +27,7 @@ launch_files = glob("launch/*.launch.py")
 
 setup(
     name=package_name,
-    version="0.16.2",
+    version="0.18.0",
     packages=find_packages(exclude=["test"]),
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),

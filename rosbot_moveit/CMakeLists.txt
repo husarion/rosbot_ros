@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.11)
 project(rosbot_moveit)
 
 set(PACKAGE_INCLUDE_DEPENDS
