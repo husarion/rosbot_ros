@@ -64,6 +64,7 @@ Running test with
             "mecanum": mecanum,
             "namespace": namespace,
             "robot_model": robot_model,
+            "rviz": "False",
         }.items(),
     )
 
@@ -94,9 +95,9 @@ def test_simulation(generate_test_description):
 
     sensor_to_test = {
         "rosbot": [
-            # "camera_color",
-            # "camera_points",
-            # "scan_filtered", # FIXME: Remove add param for tf_prefix in husarion_components_description
+            "camera_color",
+            "camera_points",
+            "scan_filtered",
         ],  # Not simulated "range_fl","range_fr", "range_rl", "range_rr"
         "rosbot_xl": [],
     }
