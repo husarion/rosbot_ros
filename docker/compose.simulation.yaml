@@ -38,6 +38,7 @@ services:
     <<: [ *common-config, *gpu-config]
     devices:
       - /dev/dri:/dev/dri
+      - /dev/input:/dev/input:ro 
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ./dds-config-udp.xml:/udp_profiles.xml:ro
