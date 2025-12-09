@@ -1,0 +1,20 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: rosbot_description
+    relative_path: urdf/rosbot_xl.urdf.xacro
+  srdf:
+    package: rosbot_moveit
+    relative_path: config/rosbot_xl.srdf
+  package_settings:
+    author_name: Rafal Gorecki
+    author_email: support@husarion.com
+    generated_timestamp: 1670263952
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro

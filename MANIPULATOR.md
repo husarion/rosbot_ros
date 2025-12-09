@@ -5,7 +5,7 @@
 >
 > 1. **Before starting driver!** Make sure the manipulator is **undock**, manipulator is **away from a collision** (does not rest on robot objects) and **joints are away from its position limits** (e.g. one of the joints is started from extreme position).
 > 2. Controlling MoveIt and via the joystick are two independent processes. You should not send commands to both of these services at the same time.
-> 3. When the power supply is lost, the robot loses momentum and falls by inertia. Therefore, you should hold the manipulator when the power is cut off, or call the docking node `ros2 run open_manipulator_x_moveit dock` or press `RT` + `Back` buttons on gamepad.
+> 3. When the power supply is lost, the robot loses momentum and falls by inertia. Therefore, you should hold the manipulator when the power is cut off, or call the docking node `ros2 run rosbot_moveit dock` or press `RT` + `Back` buttons on gamepad.
 > 4. The manipulator does not analyze collisions with the antenna, to improve the range of the manipulator's movements. It's good practice to position the antenna horizontally on the physical robot.
 > 5. In the event of overload, loss of communication or sudden stopping of the manipulator process (e.g. during reboot), some joints may not receive the command to stop operation. This may prevent re-establishing communication. In such a case, it will be necessary to **reset the power supply**.
 
@@ -35,7 +35,7 @@ After running the ROSbot XL Manipulation Package, you should be able to control 
 
 ![gamepad_manipulation](.docs/gamepad_manipulation.drawio.png)
 
-Gamepad controls are defined in the `config` directory in the [`joy_servo.yaml`](https://github.com/husarion/open_manipulator_x/blob/jazzy/open_manipulator_x_joy/config/joy_servo.yaml) (manipulator) and [`joy2twist.yaml`](rosbot_joy/config/joy.yaml) (ROSbot XL). Feel free to adjust them to your preference.
+Gamepad controls are defined in the `config` directory in the [`joy_servo.yaml`](https://github.com/husarion/open_manipulator_x/blob/jazzy/rosbot_joy/config/joy_servo.yaml) (manipulator) and [`joy2twist.yaml`](rosbot_joy/config/joy.yaml) (ROSbot XL). Feel free to adjust them to your preference.
 
 You may have noticed that the movement of the manipulator is slow, and the full capabilities of the manipulator are not fully utilized. This is a safety precaution to ensure that the collision checker effectively prevents the manipulator from bumping into the robot.
 The dynamic limits of the manipulator have been tuned in order to provide a reliable collision prevention mechanism. While this setup should cover most situations, there is still a possibility of accidental contact with the robot or its sensors. Therefore, we advise you to remain aware of this potential risk when operating the manipulator.
@@ -45,7 +45,7 @@ The dynamic limits of the manipulator have been tuned in order to provide a reli
 To move the manipulator using RViz, you need to build the code first. Then run:
 
 ```bash
-ros2 launch open_manipulator_x_moveit rviz.launch.py
+ros2 launch rosbot_moveit rviz.launch.py
 ```
 
 After that, RViz with the Moveit configuration will appear.

@@ -3,9 +3,6 @@ name: CI
 on:
   workflow_dispatch:
   push:
-  pull_request:
-    types:
-      - closed
 
 jobs:
 
@@ -22,6 +19,6 @@ jobs:
   bump:
     name: Bump
     needs: ros_test
-    if: github.event.pull_request.merged == true
+    if: github.ref == 'refs/heads/jazzy'
     uses: ./.github/workflows/bump.yaml
     secrets: inherit

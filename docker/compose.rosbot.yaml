@@ -20,6 +20,7 @@ services:
     <<: *common-config
     devices:
       - /dev/ttySERIAL # ROSbot driver communication port
+      - /dev/input:/dev/input:ro # Joystick
     environment:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
       - FASTRTPS_DEFAULT_PROFILES_FILE=/udp_profiles.xml

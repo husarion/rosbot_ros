@@ -60,8 +60,10 @@ def main(args=None):
         "rosbot_controller",
         "rosbot_description",
         "rosbot_gazebo",
+        "rosbot_hardware_interfaces",
         "rosbot_joy",
         "rosbot_localization",
+        "rosbot_moveit",
         "rosbot_utils",
     ]
 

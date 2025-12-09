@@ -64,6 +64,7 @@ Running test with
             "mecanum": mecanum,
             "namespace": namespace,
             "robot_model": robot_model,
+            "rviz": "False",
         }.items(),
     )
 

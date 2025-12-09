@@ -19,6 +19,8 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.hardware
     <<: *common-config
+    devices:
+      - /dev/input:/dev/input:ro # Joystick
     volumes:
       - ./dds-config-udp.xml:/udp_profiles.xml:ro
     command: >
