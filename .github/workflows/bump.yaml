@@ -25,6 +25,8 @@ jobs:
         run: echo "BUMP=${{ steps.get-version-bump.outputs.bump }}" >> $GITHUB_ENV
       - if: github.event_name == 'workflow_dispatch'
         run: echo "BUMP=${{ github.event.inputs.name }}" >> $GITHUB_ENV
+      - if: github.ref == 'refs/heads/jazzy'
+        run: echo "BUMP=patch" >> $GITHUB_ENV
 
   catkin-release:
     name: Bump version
