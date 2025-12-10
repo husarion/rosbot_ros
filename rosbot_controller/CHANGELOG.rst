@@ -2,6 +2,9 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.18.0 (2025-12-08)
 -------------------
 
