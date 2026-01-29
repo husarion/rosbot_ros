@@ -22,9 +22,8 @@ import sys
 import requests
 from ament_index_python.packages import get_package_share_directory
 
-from rosbot_utils.flash_firmware_uart import FirmwareFlasherUART
-from rosbot_utils.flash_firmware_usb import FirmwareFlasherUSB
-from rosbot_utils.utils import find_device_port
+from rosbot_ros.rosbot_utils.rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
+from rosbot_ros.rosbot_utils.rosbot_utils.mcu_manager_uart import McuManagerUART
 
 # Global variable to hold the subprocess reference
 subproc = None
@@ -83,17 +82,16 @@ def main(args=None):
         action="store_true",
         help="Flash via USB. Automatically set for ROSbot XL; other ROSbots use UART by default. (You can flash firmware to ROSbot via USB-A from your PC)",
     )
-    default_manipulator_serial_port = find_device_port("0403", "6015", "/dev/ttyUSB0")
-    parser.add_argument(
-        "-p",
-        "--port",
-        default=default_manipulator_serial_port,
-        help="Specify the communication port",
-    )
     parser.add_argument("-f", "--file", help="Specify the firmware file")
+    parser.add_argument(
+        "-b",
+        "--baudrate",
+        type=int,
+        default=921600,
+        help="Specify the serial communication baudrate",
+    )
     args = parser.parse_args(args)
 
-    port = args.port
     robot_model = args.robot_model
     if robot_model == "rosbot_xl":
         args.usb = True
@@ -106,9 +104,11 @@ def main(args=None):
 
     try:
         if args.usb:
-            FirmwareFlasherUSB(firmware, port)
+            mcu_manager = McuManagerFTDI()
+            mcu_manager.flash_firmware(firmware, args.baudrate)
         else:
-            FirmwareFlasherUART(firmware)
+            mcu_manager = McuManagerUART()
+            mcu_manager.flash_firmware(firmware, args.baudrate)
         print("Firmware flashing completed successfully!")
     except Exception as e:
         print(f"ERROR: {e}")

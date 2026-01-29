@@ -20,29 +20,21 @@ import time
 import sh
 from pyftdi.ftdi import Ftdi
 
+from rosbot_utils.utils import find_device_port
+
+
 # CBUS0 - BOOT0
 # CBUS1 - RST
 
 
-class FirmwareFlasherUSB:
-    def __init__(self, binary_file, port):
+class McuManagerFTDI:
+    def __init__(self):
+        self.port = find_device_port("0403", "6015")
+        if not self.port:
+            raise RuntimeError("FTDI device with VID:PID 0403:6015 not found")
         self.device = "ftdi://ftdi:ft-x:/1"
         self.ftdi = Ftdi()
 
-        self.binary_file = binary_file
-        self.port = port
-
-        print(
-            f"""
-USB Flashing:
-    File: {binary_file}
-    Port: {port}"""
-        )
-        try:
-            self.flash_firmware()
-        except Exception as e:
-            error_msg = e.stderr.decode("utf-8").strip()
-            raise RuntimeError(f"{error_msg}") from e
 
     def enter_bootloader_mode(self):
         self.ftdi.open_from_url(url=self.device)
@@ -55,7 +47,7 @@ USB Flashing:
         self.ftdi.close()
         time.sleep(0.1)
         sh.usbreset("0403:6015")
-        time.sleep(1.0)
+        time.sleep(0.5)
 
     def exit_bootloader_mode(self):
         self.ftdi.open_from_url(url=self.device)
@@ -69,29 +61,54 @@ USB Flashing:
         time.sleep(0.1)
         self.ftdi.close()
         sh.usbreset("0403:6015")
-        time.sleep(1.0)
+        time.sleep(0.5)
 
-    def flashing_operation(self, operation_name):
+    def flashing_operation(self, operation_name, baudrate, binary_file=None):
         print(f"\n{operation_name} operation started")
-        time.sleep(1.0)
+        time.sleep(0.5)
 
         if operation_name == "Read-Protection":
-            sh.stm32flash("-b", "115200", "-k", self.port)
+            sh.stm32flash("-b", str(baudrate), "-k", self.port)
         elif operation_name == "Write-Protection":
-            sh.stm32flash("-b", "115200", "-u", self.port)
+            sh.stm32flash("-b", str(baudrate), "-u", self.port)
         elif operation_name == "Flashing":
-            sh.stm32flash("-b", "115200", "-v", "-w", self.binary_file, self.port, _out=sys.stdout)
+            sh.stm32flash("-b", str(baudrate), "-v", "-w", binary_file, self.port, _out=sys.stdout)
         else:
             raise ("Unknown operation")
 
         print("Success")
-        time.sleep(1.0)
+        time.sleep(0.5)
 
-    def flash_firmware(self):
-        self.enter_bootloader_mode()
+    def flash_firmware(self, binary_file, baudrate):
 
-        # self.flashing_operation("Read-Protection")
-        # self.flashing_operation("Write-Protection")
-        self.flashing_operation("Flashing")
+        print(
+            f"""
+USB Flashing:
+    File: {binary_file}
+    Port: {self.port}"""
+        )
+        try:
+            self.enter_bootloader_mode()
 
-        self.exit_bootloader_mode()
+            # self.flashing_operation("Read-Protection", baudrate)
+            # self.flashing_operation("Write-Protection", baudrate)
+            self.flashing_operation("Flashing", baudrate, binary_file)
+
+            self.exit_bootloader_mode()
+        except Exception as e:
+            error_msg = e.stderr.decode("utf-8").strip()
+            raise RuntimeError(f"{e}") from e
+
+    def reset_mcu(self):
+        self.ftdi.open_from_url(url=self.device)
+        self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
+        time.sleep(0.1)
+        self.ftdi.set_cbus_gpio(0b10)  # set BOOT0 to 1 and RST to 1
+        time.sleep(0.3)
+        self.ftdi.set_cbus_gpio(0b00)  # set BOOT0 to 1 and RST to 0
+        time.sleep(0.1)
+        self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
+        time.sleep(0.1)
+        self.ftdi.close()
+        sh.usbreset("0403:6015")
+        time.sleep(0.5)
