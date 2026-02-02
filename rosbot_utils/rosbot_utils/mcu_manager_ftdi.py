@@ -22,7 +22,6 @@ from pyftdi.ftdi import Ftdi
 
 from rosbot_utils.utils import find_device_port
 
-
 # CBUS0 - BOOT0
 # CBUS1 - RST
 
@@ -34,7 +33,6 @@ class McuManagerFTDI:
             raise RuntimeError("FTDI device with VID:PID 0403:6015 not found")
         self.device = "ftdi://ftdi:ft-x:/1"
         self.ftdi = Ftdi()
-
 
     def enter_bootloader_mode(self):
         self.ftdi.open_from_url(url=self.device)
@@ -97,7 +95,7 @@ USB Flashing:
             self.exit_bootloader_mode()
         except Exception as e:
             error_msg = e.stderr.decode("utf-8").strip()
-            raise RuntimeError(f"{e}") from e
+            raise RuntimeError(f"{error_msg}") from e
 
     def reset_mcu(self):
         self.ftdi.open_from_url(url=self.device)

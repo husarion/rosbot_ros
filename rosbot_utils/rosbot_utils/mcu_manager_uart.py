@@ -135,7 +135,6 @@ UART Flashing:
             error_msg = e.stderr.decode("utf-8").strip()
             raise RuntimeError(f"{error_msg}") from e
 
-
     def reset_mcu(self):
         self.reset_pin.set_value(1)
         time.sleep(0.3)

@@ -1,9 +1,25 @@
 #!/usr/bin/env python3
+
+# Copyright 2024 Husarion sp. z o.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import argparse
 import os
-import serial
 import sys
 import time
+
+import serial
 
 from rosbot_ros.rosbot_utils.rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
 from rosbot_ros.rosbot_utils.rosbot_utils.mcu_manager_uart import McuManagerUART
@@ -13,35 +29,35 @@ from rosbot_utils.utils import find_device_port
 def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5.0) -> bool:
     try:
         print(f"Connecting to {port}...")
-        ser = serial.Serial(port, baudrate, timeout=timeout)
+        serial_port = serial.Serial(port, baudrate, timeout=timeout)
         time.sleep(0.1)
-        
+
         # Clear any pending data
-        ser.reset_input_buffer()
-        
+        serial_port.reset_input_buffer()
+
         print("Waiting for communication...")
-        line = ser.readline().decode('utf-8', errors='ignore').strip()
-        
+        line = serial_port.readline().decode("utf-8", errors="ignore").strip()
+
         if line != "READY":
             print(f"✗ Unexpected response: '{line}'")
-            ser.close()
+            serial_port.close()
             return False
-        
+
         print(f"Sending namespace: {namespace}")
-        ser.write(f"NS:{namespace}\n".encode('utf-8'))
-        ser.flush()
-        
+        serial_port.write(f"NS:{namespace}\n".encode("utf-8"))
+        serial_port.flush()
+
         # Wait for ACK
-        ack = ser.readline().decode('utf-8', errors='ignore').strip()
-        ser.close()
-        
+        ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
+        serial_port.close()
+
         if ack == "ACK":
             print(f"✓ Robot configured with namespace: /{namespace}")
             return True
         else:
             print(f"✗ No ACK received: '{ack}'")
             return False
-        
+
     except serial.SerialException as e:
         print(f"✗ Serial error: {e}")
         return False
@@ -51,7 +67,9 @@ def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5
 
 
 def main(args=None):
-    parser = argparse.ArgumentParser(description="Configure robot namespace via serial pre-communication.")
+    parser = argparse.ArgumentParser(
+        description="Configure robot namespace via serial pre-communication."
+    )
     parser.add_argument(
         "--robot-model",
         required=True,
@@ -77,8 +95,7 @@ def main(args=None):
         help="Specify the robot namespace",
     )
     parser.add_argument(
-        "-b"
-        "--baudrate",
+        "-b" "--baudrate",
         type=int,
         default=921600,
         help="Specify the serial communication baudrate",
@@ -88,7 +105,6 @@ def main(args=None):
     robot_model = args.robot_model
     if robot_model == "rosbot_xl":
         args.usb = True
-
 
     try:
         if args.usb:
@@ -102,6 +118,7 @@ def main(args=None):
 
     success = configure_robot(args.port, args.namespace, args.baudrate)
     sys.exit(0 if success else 1)
+
 
 if __name__ == "__main__":
     main()
