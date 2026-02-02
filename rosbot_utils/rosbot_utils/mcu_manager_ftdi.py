@@ -100,13 +100,9 @@ USB Flashing:
     def reset_mcu(self):
         self.ftdi.open_from_url(url=self.device)
         self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
-        time.sleep(0.1)
         self.ftdi.set_cbus_gpio(0b10)  # set BOOT0 to 1 and RST to 1
-        time.sleep(0.3)
+        time.sleep(0.1)
         self.ftdi.set_cbus_gpio(0b00)  # set BOOT0 to 1 and RST to 0
         time.sleep(0.1)
         self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
-        time.sleep(0.1)
         self.ftdi.close()
-        sh.usbreset("0403:6015")
-        time.sleep(0.5)

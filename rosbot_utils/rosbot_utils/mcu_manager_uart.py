@@ -137,6 +137,6 @@ UART Flashing:
 
     def reset_mcu(self):
         self.reset_pin.set_value(1)
-        time.sleep(0.3)
+        time.sleep(0.1)
         self.reset_pin.set_value(0)
         time.sleep(0.1)

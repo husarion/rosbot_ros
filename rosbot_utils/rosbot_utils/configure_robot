@@ -17,12 +17,11 @@
 import argparse
 import os
 import sys
-import time
 
 import serial
 
-from rosbot_ros.rosbot_utils.rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
-from rosbot_ros.rosbot_utils.rosbot_utils.mcu_manager_uart import McuManagerUART
+from rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
+from rosbot_utils.mcu_manager_uart import McuManagerUART
 from rosbot_utils.utils import find_device_port
 
 
@@ -30,13 +29,15 @@ def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5
     try:
         print(f"Connecting to {port}...")
         serial_port = serial.Serial(port, baudrate, timeout=timeout)
-        time.sleep(0.1)
-
-        # Clear any pending data
         serial_port.reset_input_buffer()
 
         print("Waiting for communication...")
         line = serial_port.readline().decode("utf-8", errors="ignore").strip()
+
+        if line == "":
+            print("✗ No response from MCU.")
+            serial_port.close()
+            return False
 
         if line != "READY":
             print(f"✗ Unexpected response: '{line}'")
@@ -90,12 +91,15 @@ def main(args=None):
         help="Specify the communication port",
     )
     parser.add_argument(
+        "-n",
         "--namespace",
+        required=True,
         default="",
         help="Specify the robot namespace",
     )
     parser.add_argument(
-        "-b" "--baudrate",
+        "-b",
+        "--baudrate",
         type=int,
         default=921600,
         help="Specify the serial communication baudrate",
@@ -110,14 +114,13 @@ def main(args=None):
         if args.usb:
             mcu_manager = McuManagerFTDI()
             mcu_manager.reset_mcu()
+            success = configure_robot(args.port, args.namespace, args.baudrate)
+            sys.exit(0 if success else 1)
         else:
             mcu_manager = McuManagerUART()
             mcu_manager.reset_mcu()
     except Exception as e:
         print(f"ERROR: {e}")
-
-    success = configure_robot(args.port, args.namespace, args.baudrate)
-    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
