@@ -20,17 +20,13 @@ import time
 import sh
 from pyftdi.ftdi import Ftdi
 
-from rosbot_utils.utils import find_device_port
-
 # CBUS0 - BOOT0
 # CBUS1 - RST
 
 
 class McuManagerFTDI:
-    def __init__(self):
-        self.port = find_device_port("0403", "6015")
-        if not self.port:
-            raise RuntimeError("FTDI device with VID:PID 0403:6015 not found")
+    def __init__(self, port: str):
+        self.port = port
         self.device = "ftdi://ftdi:ft-x:/1"
         self.ftdi = Ftdi()
 
@@ -61,7 +57,7 @@ class McuManagerFTDI:
         sh.usbreset("0403:6015")
         time.sleep(0.5)
 
-    def flashing_operation(self, operation_name, baudrate, binary_file=None):
+    def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
         print(f"\n{operation_name} operation started")
         time.sleep(0.5)
 
@@ -77,7 +73,7 @@ class McuManagerFTDI:
         print("Success")
         time.sleep(0.5)
 
-    def flash_firmware(self, binary_file, baudrate):
+    def flash_firmware(self, binary_file):
 
         print(
             f"""
@@ -88,17 +84,20 @@ USB Flashing:
         try:
             self.enter_bootloader_mode()
 
-            # self.flashing_operation("Read-Protection", baudrate)
-            # self.flashing_operation("Write-Protection", baudrate)
-            self.flashing_operation("Flashing", baudrate, binary_file)
+            # self.flashing_operation("Read-Protection")
+            # self.flashing_operation("Write-Protection")
+            self.flashing_operation("Flashing", binary_file)
 
             self.exit_bootloader_mode()
         except Exception as e:
-            error_msg = e.stderr.decode("utf-8").strip()
-            raise RuntimeError(f"{error_msg}") from e
+            if hasattr(e, 'stderr'):
+                error_msg = e.stderr.decode("utf-8").strip()
+                raise RuntimeError(f"{error_msg}") from e
+            raise e
 
     def reset_mcu(self):
         self.ftdi.open_from_url(url=self.device)
+        time.sleep(0.1)
         self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
         self.ftdi.set_cbus_gpio(0b10)  # set BOOT0 to 1 and RST to 1
         time.sleep(0.1)
@@ -106,3 +105,4 @@ USB Flashing:
         time.sleep(0.1)
         self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
         self.ftdi.close()
+        time.sleep(0.3)

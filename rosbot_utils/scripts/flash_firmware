@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+from rosbot_utils.flash_firmware import main
+main()
