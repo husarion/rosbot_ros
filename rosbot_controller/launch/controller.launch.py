@@ -122,7 +122,7 @@ def generate_launch_description():
 
     load_urdf = IncludeLaunchDescription(
         PathJoinSubstitution(
-            [FindPackageShare("rosbot_description"), "launch", "load_urdf.launch.py"]
+            [FindPackageShare("rosbot_description"), "launch", "load_urdf.yaml"]
         ),
         launch_arguments={
             "configuration": configuration,
@@ -191,9 +191,6 @@ def generate_launch_description():
         condition=IfCondition(manipulator),
     )
 
-    # Spawners expect controller_manager to be running
-    delayed_controllers_spawner = TimerAction(period=2.0, actions=[controllers_spawner])
-
     # Delay start of manipulator
     delayed_manipulator_launch = TimerAction(period=5.0, actions=[manipulator_launch])
 
@@ -224,7 +221,7 @@ def generate_launch_description():
             declare_mecanum_arg,  # mecanum base on robot_model arg
             load_urdf,
             controller_manager_node,
-            delayed_controllers_spawner,
+            controllers_spawner,
             delayed_manipulator_launch,
             controllers_monitor,
         ]

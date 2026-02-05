@@ -104,7 +104,7 @@ URDF model used for both simulation and as a source of transforms on physical ro
 
 **Available Launch Files:**
 
-- `load_urdf.launch.py` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
+- `load_urdf.yaml` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
 - `rviz.yaml` - Launches the ready-made RViz configuration
 
 **Main Description Files:**
