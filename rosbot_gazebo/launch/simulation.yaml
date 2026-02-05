@@ -24,12 +24,6 @@ launch:
       name: "use_sim_time"
       value: "true"
 
-  - include:
-      file: "$(find-pkg-share husarion_gz_worlds)/launch/gz_sim.launch.py"
-      let:
-        - name: gz_log_level
-          value: "1"
-
   - let:
       name: gz_bridge_config
       value: $(eval "('$(var config_dir)/rosbot_gazebo' if '$(var config_dir)' else '$(find-pkg-share rosbot_gazebo)') + '/config/gz_bridge.yaml'")
@@ -41,6 +35,12 @@ launch:
       param:
         - name: "config_file"
           value: "$(var gz_bridge_config)"
+
+  - include:
+      file: "$(find-pkg-share husarion_gz_worlds)/launch/gz_sim.launch.py"
+      let:
+        - name: gz_log_level
+          value: "1"
 
   - include:
       file: "$(find-pkg-share rosbot_gazebo)/launch/spawn_robot.yaml"

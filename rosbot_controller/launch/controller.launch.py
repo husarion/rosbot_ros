@@ -128,7 +128,7 @@ def generate_launch_description():
             "configuration": configuration,
             "controller_config": ns_controller_config,
             "manipulator_serial_port": manipulator_serial_port,
-            "mock_joints": "False",
+            "mock_joints": "false",
             "robot_model": robot_model,
             "use_sim": use_sim,
         }.items(),
@@ -165,7 +165,7 @@ def generate_launch_description():
     )
 
     drive_controller_name = PythonExpression(
-        ["'mecanum_drive_controller' if ", mecanum, " else 'differential_drive_controller'"]
+        ["'mecanum_drive_controller' if '", mecanum, "' == 'true' else 'differential_drive_controller'"]
     )
     controllers_spawner = Node(
         package="controller_manager",
