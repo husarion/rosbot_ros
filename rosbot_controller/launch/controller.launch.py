@@ -99,12 +99,12 @@ def generate_launch_description():
         description="Port to connect to the manipulator.",
     )
 
-    default_mecanum_value = PythonExpression(["'", robot_model, "' == 'rosbot_xl'"])
+    default_mecanum_value = PythonExpression(["'true' if '", robot_model, "' == 'rosbot_xl' else 'false'"])
     declare_mecanum_arg = DeclareLaunchArgument(
         "mecanum",
         default_value=default_mecanum_value,
         description="Whether to use mecanum drive controller, otherwise use diff drive",
-        choices=["true", "false", "True", "False"],
+        choices=["true", "false"],
     )
 
     declare_robot_model_arg = DeclareLaunchArgument(

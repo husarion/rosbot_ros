@@ -154,7 +154,7 @@ def generate_launch_description():
         "mecanum",
         default_value=default_mecanum_value,
         description="Whether to use mecanum drive controller, otherwise use diff drive",
-        choices=["True", "False"],
+        choices=["true", "false"],
     )
 
     declare_robot_model_arg = DeclareLaunchArgument(
