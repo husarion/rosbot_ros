@@ -24,7 +24,6 @@ from launch.actions import (
 from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessIO
 from launch.events import Shutdown
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
@@ -66,9 +65,9 @@ def generate_launch_description():
 
     declare_arm_activate_arg = DeclareLaunchArgument(
         "arm_activate",
-        default_value="False",
+        default_value="false",
         description="Whether to activate the manipulator arm on startup.",
-        choices=["True", "False"],
+        choices=["true", "false"],
     )
 
     declare_config_dir_arg = DeclareLaunchArgument(
@@ -105,27 +104,25 @@ def generate_launch_description():
         "mecanum",
         default_value=default_mecanum_value,
         description="Whether to use mecanum drive controller, otherwise use diff drive",
-        choices=["True", "False"],
+        choices=["true", "false", "True", "False"],
     )
 
     declare_robot_model_arg = DeclareLaunchArgument(
         "robot_model",
-        default_value=EnvironmentVariable("ROBOT_MODEL_NAME", default_value=""),
+        default_value=EnvironmentVariable("ROBOT_MODEL", default_value=""),
         description="Specify robot model",
         choices=["rosbot", "rosbot_xl"],
     )
 
     ns = PythonExpression(["'", namespace, "' + '/' if '", namespace, "' else ''"])
-    manipulator_state = PythonExpression(["'active' if '", arm_activate, "' else 'inactive'"])
+    manipulator_state = PythonExpression(["'active' if '", arm_activate, "' == 'true' else 'inactive'"])
     ns_controller_config = ReplaceString(
         controller_config, {"<namespace>/": ns, "<manipulator_state>": manipulator_state}
     )
 
     load_urdf = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [FindPackageShare("rosbot_description"), "launch", "load_urdf.launch.py"]
-            )
+        PathJoinSubstitution(
+            [FindPackageShare("rosbot_description"), "launch", "load_urdf.launch.py"]
         ),
         launch_arguments={
             "configuration": configuration,
@@ -185,10 +182,8 @@ def generate_launch_description():
     )
 
     manipulator_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [FindPackageShare("rosbot_controller"), "launch", "manipulator.launch.py"]
-            )
+        PathJoinSubstitution(
+            [FindPackageShare("rosbot_controller"), "launch", "manipulator.yaml"]
         ),
         launch_arguments={
             "arm_activate": arm_activate,

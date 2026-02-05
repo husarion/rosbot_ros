@@ -24,5 +24,5 @@ services:
     volumes:
       - ./dds-config-udp.xml:/udp_profiles.xml:ro
     command: >
-      ros2 launch rosbot_bringup bringup.launch.py
+      ros2 launch rosbot_bringup bringup.yaml
         robot_model:=rosbot_xl

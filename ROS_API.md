@@ -87,7 +87,7 @@ The main package responsible for running the physical robot.
 
 **Available Launch Files:**
 
-- `bringup.launch.py` - is responsible for communicating with firmware and activating all logic related to the robot's movement and processing of sensory data.
+- `bringup.yaml` - is responsible for communicating with firmware and activating all logic related to the robot's movement and processing of sensory data.
 - `microros.launch.py` - establishes connection with the hardware using microROS agent.
 
 ### `rosbot_controller`
@@ -105,7 +105,7 @@ URDF model used for both simulation and as a source of transforms on physical ro
 **Available Launch Files:**
 
 - `load_urdf.launch.py` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
-- `rviz.launch.py` - Launches the ready-made RViz configuration
+- `rviz.yaml` - Launches the ready-made RViz configuration
 
 **Main Description Files:**
 
@@ -127,7 +127,7 @@ A package related to the logic responsible for performing sensor fusion.
 
 **Available Launch Files:**
 
-- `ekf.launch.py` - Runs ekf filter which fuse wheel odometry with imu data.
+- `ekf.yaml` - Runs ekf filter which fuse wheel odometry with imu data.
 
 ### `rosbot_utils`
 
@@ -135,4 +135,4 @@ A package containing auxiliary filters that integrate simple external packages.
 
 **Available Launch Files:**
 
-- `laser_filter.launch.py` - launch laser filter responsible for filtering out the laser scan points located inside the robot base.
+- `laser_filter.yaml` - launch laser filter responsible for filtering out the laser scan points located inside the robot base.

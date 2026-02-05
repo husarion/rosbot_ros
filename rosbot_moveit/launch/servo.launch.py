@@ -37,11 +37,11 @@ def load_yaml(package_name, file_path):
 
 
 def generate_launch_description():
-    joy_servo_config = LaunchConfiguration("joy_servo_params_file")
+    joy_config = LaunchConfiguration("joy_config")
     declare_servo_joy_arg = DeclareLaunchArgument(
-        "joy_servo_params_file",
+        "joy_config",
         default_value=PathJoinSubstitution(
-            [FindPackageShare("rosbot_joy"), "config", "joy_servo.yaml"]
+            [FindPackageShare("rosbot_joy"), "config", "config.yaml"]
         ),
         description="ROS2 parameters file to use with joy_servo node",
     )
@@ -83,7 +83,7 @@ def generate_launch_description():
     joy2servo = Node(
         package="rosbot_joy",
         executable="joy2servo",
-        parameters=[joy_servo_config],
+        parameters=[joy_config],
     )
 
     actions = [

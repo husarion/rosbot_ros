@@ -19,7 +19,6 @@ import pytest
 import rclpy
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_testing.actions import ReadyToTest
@@ -40,14 +39,8 @@ Running test with
     )
     rosbot_bringup = FindPackageShare("rosbot_bringup")
     bringup_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
             PathJoinSubstitution(
-                [
-                    rosbot_bringup,
-                    "launch",
-                    "bringup.launch.py",
-                ]
-            )
+                [rosbot_bringup, "launch", "bringup.yaml"]
         ),
         launch_arguments={
             "gz_headless_mode": "True",
@@ -75,7 +68,7 @@ Running test with
     )
 
 
-mecanum_options = ["True", "False"]
+mecanum_options = ["true", "false"]
 namespace_options = ["", "test_ns"]
 robot_model_options = ["rosbot", "rosbot_xl"]
 test_params = list(product(mecanum_options, namespace_options, robot_model_options))
