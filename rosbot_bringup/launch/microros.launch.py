@@ -46,10 +46,12 @@ def generate_microros_agent_node(context, *args, **kwargs):
         )
 
     config_dir = LaunchConfiguration("config_dir").perform(context)
+    namespace = LaunchConfiguration("namespace").perform(context)
     port = LaunchConfiguration("port").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
     serial_port = LaunchConfiguration("serial_port").perform(context)
+    usb = LaunchConfiguration("usb").perform(context)
 
     config_rosbot_bringup_dir = PythonExpression(
         [
@@ -88,18 +90,39 @@ def generate_microros_agent_node(context, *args, **kwargs):
             ]
         )
 
+    pre_communication_cmd = ['ros2', 'run', 'rosbot_utils', 'configure_robot',  '--robot-model', robot_model]
+    if namespace :
+        pre_communication_cmd.extend(['--namespace', namespace])
+    if usb == "true":
+        pre_communication_cmd.extend(['--usb'])
+
+    pre_communication = ExecuteProcess(
+        cmd=pre_communication_cmd,
+        output="screen",
+        name="pre_communication",
+    )
+        
     microros_agent_node = Node(
         package="micro_ros_agent",
         executable="micro_ros_agent",
         arguments=micoros_communication_args[robot_model],
         output="screen",
     )
+ 
+    def on_pre_comm_exit(event, context):
+        if event.returncode == 0:
+            return [microros_agent_node]
+        else:
+            return [EmitEvent(event=Shutdown(reason="Pre-communication failed"))]
 
-    return env_setup_actions + [microros_agent_node]
+    handle_exit = RegisterEventHandler(
+        OnProcessExit(target_action=pre_communication, on_exit=on_pre_comm_exit)
+    )
+
+    return env_setup_actions + [pre_communication, handle_exit]
 
 
 def generate_launch_description():
-    namespace = LaunchConfiguration("namespace")
 
     declare_config_dir_arg = DeclareLaunchArgument(
         "config_dir",
@@ -138,33 +161,14 @@ def generate_launch_description():
         description="ROSbot only. Serial port for micro-ROS agent",
     )
 
-    pre_communication = ExecuteProcess(
-        cmd=[
-            "ros2",
-            "run",
-            "rosbot_utils",
-            "configure_robot",
-            "--robot-model",
-            "rosbot",
-            "--namespace",
-            namespace,
-            "--usb",
-        ],
-        output="screen",
-        name="pre_communication",
+    declare_usb_arg = DeclareLaunchArgument(
+        "usb",
+        default_value="false",
+        description="ROSbot only. Use rear USB for micro-ROS agent",
+        choices=["true", "false"],
     )
 
-    microros = OpaqueFunction(function=generate_microros_agent_node)
 
-    def on_pre_comm_exit(event, context):
-        if event.returncode == 0:
-            return [microros]
-        else:
-            return [EmitEvent(event=Shutdown(reason="Pre-communication failed"))]
-
-    handle_exit = RegisterEventHandler(
-        OnProcessExit(target_action=pre_communication, on_exit=on_pre_comm_exit)
-    )
 
     return LaunchDescription(
         [
@@ -174,7 +178,7 @@ def generate_launch_description():
             declare_robot_model_arg,
             declare_serial_baudrate_arg,
             declare_serial_port_arg,
-            pre_communication,
-            handle_exit,
+            declare_usb_arg,
+            OpaqueFunction(function=generate_microros_agent_node),
         ]
     )
