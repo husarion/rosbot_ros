@@ -17,6 +17,7 @@
 import argparse
 import os
 import sys
+import time
 
 import serial
 
@@ -31,10 +32,17 @@ def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5
         serial_port.reset_input_buffer()
 
         print("Waiting for communication...")
-        line = serial_port.readline().decode("utf-8", errors="ignore").strip()
+        raw = serial_port.readline()
+        line = raw.decode("utf-8", errors="ignore")
+        line = line.replace("\x00", "").strip()
+
+        if line == "":
+            print("✗ No response.")
+            serial_port.close()
+            return False
 
         if line != "READY":
-            print(f"✗ Unexpected or no response: '{line}'")
+            print(f"✗ Unexpected response: {repr(line)}")
             serial_port.close()
             return False
 
@@ -80,7 +88,6 @@ def main(args=None):
     parser.add_argument(
         "-n",
         "--namespace",
-        required=True,
         default="",
         help="Specify the robot namespace",
     )
@@ -100,19 +107,17 @@ def main(args=None):
     try:
         if args.usb:
             port = "/dev/ttyUSB0"
-            port = "/dev/ttyUSB0"
             udev_rules = "/etc/udev/rules.d/99-rosbot.rules"
 
             if not os.path.exists(port):
                 print(f"ERROR: Device {port} not found. Is it connected?")
                 sys.exit(1)
-
-            if not os.access(port, os.R_OK | os.W_OK):
-                msg = f"ERROR: No access to device {port}."
-                if not os.path.exists(udev_rules):
-                    msg += "\nInstall udev rules first:\n  ros2 run rosbot_utils install_udev_rules"
-                print(msg)
+            if not os.path.exists(udev_rules):
+                print(
+                    f"ERROR: No access to device {port}.\nInstall udev rules first:\n  ros2 run rosbot_utils install_udev_rules"
+                )
                 sys.exit(1)
+
             mcu_manager = McuManagerFTDI(port)
             mcu_manager.reset_mcu()
             success = configure_robot(port, args.namespace, args.baudrate)

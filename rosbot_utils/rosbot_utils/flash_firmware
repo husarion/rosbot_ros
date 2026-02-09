@@ -27,12 +27,14 @@ from rosbot_utils.mcu_manager_uart import McuManagerUART
 # Global variable to hold the subprocess reference
 subproc = None
 
+
 def signal_handler(sig, frame):
     global subproc
     if subproc:
         print("Terminating the flashing process...")
         subproc.terminate()
     sys.exit(0)
+
 
 def main(args=None):
     global subproc
@@ -85,18 +87,17 @@ def main(args=None):
             if not os.path.exists(port):
                 print(f"ERROR: Device {port} not found. Is it connected?")
                 sys.exit(1)
-
-            if not os.access(port, os.R_OK | os.W_OK):
-                msg = f"ERROR: No access to device {port}."
-                if not os.path.exists(udev_rules):
-                    msg += "\nInstall udev rules first:\n  ros2 run rosbot_utils install_udev_rules"
-                print(msg)
+            if not os.path.exists(udev_rules):
+                print(
+                    f"ERROR: No access to device {port}.\nInstall udev rules first:\n  ros2 run rosbot_utils install_udev_rules"
+                )
                 sys.exit(1)
+
             mcu_manager = McuManagerFTDI(port)
-            mcu_manager.flash_firmware(firmware, args.baudrate)
+            mcu_manager.flash_firmware(firmware)
         else:
             mcu_manager = McuManagerUART()
-            mcu_manager.flash_firmware(firmware, args.baudrate)
+            mcu_manager.flash_firmware(firmware)
         print("Firmware flashing completed successfully!")
     except Exception as e:
         print(f"ERROR: {e}")

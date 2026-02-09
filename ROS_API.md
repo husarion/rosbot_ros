@@ -71,9 +71,9 @@ Detailed information about content of rosbot package for ROS2.
 
 | TOPIC                    | DESCRIPTION                                                         |
 | ------------------------ | ------------------------------------------------------------------- |
-| **`/_imu/data_raw`**     | raw data image from imu sensor <br /> _[sensor_msgs/Imu]_           |
-| **`/_motors_cmd`**       | desired speed on each wheel <br /> _[std_msgs/Float32MultiArray]_   |
-| **`/_motors_responses`** | raw data readings from each wheel <br /> _[sensor_msgs/JointState]_ |
+| **`_imu/data_raw`**     | raw data image from imu sensor <br /> _[sensor_msgs/Imu]_           |
+| **`_motors_cmd`**       | desired speed on each wheel <br /> _[std_msgs/Float32MultiArray]_   |
+| **`_motors_responses`** | raw data readings from each wheel <br /> _[sensor_msgs/JointState]_ |
 
 ## Package Description
 

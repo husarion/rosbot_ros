@@ -1,3 +1,4 @@
 #!/usr/bin/env python3
 from rosbot_utils.configure_robot import main
+
 main()

@@ -36,11 +36,8 @@ def test_rosbot_description_parsing():
         robot_model, mecanum, use_sim = combination
 
         rosbot_controller = get_package_share_directory("rosbot_controller")
-        controller_config_filename = (
-            "mecanum_drive_controller.yaml" if mecanum else "diff_drive_controller.yaml"
-        )
         controller_config = os.path.join(
-            rosbot_controller, "config", robot_model, controller_config_filename
+            rosbot_controller, "config", robot_model, "controllers.yaml"
         )
 
         mappings = {

@@ -17,10 +17,15 @@ import os
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
+    EmitEvent,
+    ExecuteProcess,
     LogInfo,
     OpaqueFunction,
+    RegisterEventHandler,
     SetEnvironmentVariable,
 )
+from launch.event_handlers import OnProcessExit
+from launch.events import Shutdown
 from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
@@ -94,10 +99,18 @@ def generate_microros_agent_node(context, *args, **kwargs):
 
 
 def generate_launch_description():
+    namespace = LaunchConfiguration("namespace")
+
     declare_config_dir_arg = DeclareLaunchArgument(
         "config_dir",
         default_value="",
         description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    )
+
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
+        description="Add namespace to all launched nodes.",
     )
 
     declare_port_arg = DeclareLaunchArgument(
@@ -115,7 +128,7 @@ def generate_launch_description():
 
     declare_serial_baudrate_arg = DeclareLaunchArgument(
         "serial_baudrate",
-        default_value="576000",
+        default_value="921600",
         description="ROSbot only. Baud rate for serial communication",
     )
 
@@ -125,13 +138,43 @@ def generate_launch_description():
         description="ROSbot only. Serial port for micro-ROS agent",
     )
 
+    pre_communication = ExecuteProcess(
+        cmd=[
+            "ros2",
+            "run",
+            "rosbot_utils",
+            "configure_robot",
+            "--robot-model",
+            "rosbot",
+            "--namespace",
+            namespace,
+            "--usb",
+        ],
+        output="screen",
+        name="pre_communication",
+    )
+
+    microros = OpaqueFunction(function=generate_microros_agent_node)
+
+    def on_pre_comm_exit(event, context):
+        if event.returncode == 0:
+            return [microros]
+        else:
+            return [EmitEvent(event=Shutdown(reason="Pre-communication failed"))]
+
+    handle_exit = RegisterEventHandler(
+        OnProcessExit(target_action=pre_communication, on_exit=on_pre_comm_exit)
+    )
+
     return LaunchDescription(
         [
             declare_config_dir_arg,
+            declare_namespace_arg,
             declare_port_arg,
             declare_robot_model_arg,
             declare_serial_baudrate_arg,
             declare_serial_port_arg,
-            OpaqueFunction(function=generate_microros_agent_node),
+            pre_communication,
+            handle_exit,
         ]
     )

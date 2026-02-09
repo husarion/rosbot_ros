@@ -76,12 +76,15 @@ class McuManagerUART:
         else:
             raise ("Unknown device. Currently supported: Raspberry Pi 4/5, ThinkerBoard, UpBoard")
 
-        chip = gpiod.Chip(gpio_chip)
-        self.boot0_pin = chip.get_line(boot0_pin_no)
-        self.reset_pin = chip.get_line(reset_pin_no)
+        try:
+            chip = gpiod.Chip(gpio_chip)
+            self.boot0_pin = chip.get_line(boot0_pin_no)
+            self.reset_pin = chip.get_line(reset_pin_no)
 
-        self.boot0_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
-        self.reset_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
+            self.boot0_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
+            self.reset_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
+        except Exception as e:
+            raise RuntimeError(f"Failed to access GPIO lines: {e}.")
 
     def enter_bootloader_mode(self):
         self.boot0_pin.set_value(1)
@@ -97,7 +100,7 @@ class McuManagerUART:
         self.reset_pin.set_value(0)
         time.sleep(0.1)
 
-    def flashing_operation(self, operation_name, baudrate, binary_file=None):
+    def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
         print(f"\n{operation_name} operation started")
         time.sleep(0.5)
 
@@ -113,7 +116,7 @@ class McuManagerUART:
         print("Success")
         time.sleep(0.5)
 
-    def flash_firmware(self, binary_file, baudrate):
+    def flash_firmware(self, binary_file):
         print(
             f"""
 UART Flashing:
@@ -126,9 +129,9 @@ UART Flashing:
         try:
             self.enter_bootloader_mode()
 
-            # self.flashing_operation("Read-Protection", baudrate)
-            # self.flashing_operation("Write-Protection", baudrate)
-            self.flashing_operation("Flashing", baudrate, binary_file)
+            # self.flashing_operation("Read-Protection")
+            # self.flashing_operation("Write-Protection")
+            self.flashing_operation("Flashing", binary_file)
 
             self.exit_bootloader_mode()
         except Exception as e:

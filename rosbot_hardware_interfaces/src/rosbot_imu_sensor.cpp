@@ -38,7 +38,22 @@ CallbackReturn RosbotImuSensor::on_init(
   connection_check_period_ms_ =
       std::stoul(info_.hardware_parameters["connection_check_period_ms"]);
 
-  node_ = std::make_shared<rclcpp::Node>("imu_sensor_node");
+  rclcpp::NodeOptions node_options;
+  std::string ns = "";
+  if (info_.hardware_parameters.find("namespace") !=
+      info_.hardware_parameters.end()) {
+    ns = info_.hardware_parameters.at("namespace");
+    if (!ns.empty() && ns.front() == '/') {
+      ns.erase(0, 1);
+    }
+  }
+  if (!ns.empty()) {
+    node_options.arguments({"--ros-args", "-r", "__ns:=/" + ns});
+    RCLCPP_INFO(rclcpp::get_logger("RosbotImuSensor"),
+                "Creating node with namespace: %s", ns.c_str());
+  }
+
+  node_ = std::make_shared<rclcpp::Node>("imu_sensor", node_options);
   executor_.add_node(node_);
   executor_thread_ = std::make_unique<std::thread>(
       std::bind(&rclcpp::executors::MultiThreadedExecutor::spin, &executor_));
@@ -64,7 +79,7 @@ CallbackReturn RosbotImuSensor::on_activate(const rclcpp_lifecycle::State &) {
   }
 
   imu_subscriber_ = node_->create_subscription<Imu>(
-      "~/imu", rclcpp::SensorDataQoS(),
+      "_imu/data_raw", rclcpp::SensorDataQoS(),
       std::bind(&RosbotImuSensor::imu_cb, this, std::placeholders::_1));
 
   std::shared_ptr<Imu> imu_msg;

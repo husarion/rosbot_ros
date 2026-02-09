@@ -8,8 +8,9 @@
     <ros2_control name="${ns}${name}" type="sensor">
       <hardware>
         <plugin>rosbot_hardware_interfaces/RosbotImuSensor</plugin>
-        <param name="connection_timeout_ms">30000</param>
+        <param name="connection_timeout_ms">25000</param>
         <param name="connection_check_period_ms">1000</param>
+        <param name="namespace">${namespace}</param>
       </hardware>
 
       <sensor name="${ns}imu">
@@ -33,8 +34,9 @@
     <ros2_control name="${ns}${name}" type="system">
       <hardware>
         <plugin>rosbot_hardware_interfaces/RosbotSystem</plugin>
-        <param name="connection_timeout_ms">30000</param>
+        <param name="connection_timeout_ms">25000</param>
         <param name="connection_check_period_ms">1000</param>
+        <param name="namespace">${namespace}</param>
         <!-- order of velocity commands to be published in motors_cmd Float32MultiArray msg -->
         <param name="velocity_command_joint_order">
           rr_wheel_joint, rl_wheel_joint, fr_wheel_joint, fl_wheel_joint

@@ -33,29 +33,25 @@ class McuManagerFTDI:
     def enter_bootloader_mode(self):
         self.ftdi.open_from_url(url=self.device)
         self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
-        time.sleep(0.1)
         self.ftdi.set_cbus_gpio(0b11)  # set BOOT0 to 1 and RST to 1
         time.sleep(0.1)
         self.ftdi.set_cbus_gpio(0b01)  # set BOOT0 to 1 and RST to 0
-        time.sleep(0.5)
-        self.ftdi.close()
         time.sleep(0.1)
+        self.ftdi.close()
         sh.usbreset("0403:6015")
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     def exit_bootloader_mode(self):
         self.ftdi.open_from_url(url=self.device)
         self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
-        time.sleep(0.1)
         self.ftdi.set_cbus_gpio(0b10)  # set BOOT0 to 1 and RST to 1
         time.sleep(0.3)
         self.ftdi.set_cbus_gpio(0b00)  # set BOOT0 to 1 and RST to 0
         time.sleep(0.1)
         self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
-        time.sleep(0.1)
         self.ftdi.close()
         sh.usbreset("0403:6015")
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
         print(f"\n{operation_name} operation started")
@@ -90,7 +86,7 @@ USB Flashing:
 
             self.exit_bootloader_mode()
         except Exception as e:
-            if hasattr(e, 'stderr'):
+            if hasattr(e, "stderr"):
                 error_msg = e.stderr.decode("utf-8").strip()
                 raise RuntimeError(f"{error_msg}") from e
             raise e
@@ -105,4 +101,5 @@ USB Flashing:
         time.sleep(0.1)
         self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
         self.ftdi.close()
+        sh.usbreset("0403:6015")
         time.sleep(0.3)
