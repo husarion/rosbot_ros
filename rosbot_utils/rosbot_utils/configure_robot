@@ -16,13 +16,14 @@
 
 import argparse
 import os
+import re
 import sys
-import time
 
 import serial
 
 from rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
 from rosbot_utils.mcu_manager_uart import McuManagerUART
+from rosbot_utils.utils import find_device_port
 
 
 def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5.0) -> bool:
@@ -36,15 +37,21 @@ def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5
         line = raw.decode("utf-8", errors="ignore")
         line = line.replace("\x00", "").strip()
 
+        match = re.match(r"^FW:\s*(\d+)\.(\d+)\.(\d+)$", line)
+
         if line == "":
             print("✗ No response.")
             serial_port.close()
             return False
 
-        if line != "READY":
+        if not match:
             print(f"✗ Unexpected response: {repr(line)}")
             serial_port.close()
             return False
+        
+        major, minor, patch = map(int, match.groups())
+        fw_version = f"{major}.{minor}.{patch}"
+        print(f"✓ Firmware version detected: {fw_version}")
 
         print(f"Sending namespace: {namespace}")
         serial_port.write(f"NS:{namespace}\n".encode("utf-8"))
@@ -106,7 +113,7 @@ def main(args=None):
 
     try:
         if args.usb:
-            port = "/dev/ttyUSB0"
+            port = find_device_port("0403", "6015", "/dev/ttyUSB0")
             udev_rules = "/etc/udev/rules.d/99-rosbot.rules"
 
             if not os.path.exists(port):
