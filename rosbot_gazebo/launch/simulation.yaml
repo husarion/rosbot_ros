@@ -22,7 +22,7 @@ launch:
 
   - set_parameter:
       name: "use_sim_time"
-      value: "true"
+      value: "True"
 
   - let:
       name: gz_bridge_config

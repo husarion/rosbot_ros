@@ -30,14 +30,14 @@ launch:
 
   - arg:
       name: mock_joints
-      default: "true"
+      default: "True"
       description: "Run joint_state_publisher for simulating joint states of the robot (visualization only)."
       choice:
-        - value: "true"
-        - value: "false"
+        - value: "True"
+        - value: "False"
   - arg:
       name: namespace
-      default: ""
+      default: "$(env ROBOT_NAMESPACE '')"
       description: "Add namespace to all launched nodes."
 
   - arg:
@@ -50,19 +50,19 @@ launch:
 
   - arg:
       name: mecanum
-      default: $(eval "'true' if '$(var robot_model)' == 'rosbot_xl' else 'false'")
+      default: $(eval "'True' if '$(var robot_model)' == 'rosbot_xl' else 'False'")
       description: "Whether to use mecanum drive controller, otherwise use diff drive"
       choice:
-          - value: "true"
-          - value: "false"
+          - value: "True"
+          - value: "False"
 
   - arg:
       name: use_sim
-      default: "false"
+      default: "False"
       description: "Whether to use simulation time."
       choice:
-        - value: "true"
-        - value: "false"  
+        - value: "True"
+        - value: "False"  
 
   - set_parameter:
       name: use_sim_time
@@ -83,30 +83,29 @@ launch:
       value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share rosbot_description)') + '/config/$(var robot_model)/$(var configuration).yaml'")
   - let:
       name: include_camera_mount
-      value: $(eval "'true' if '$(var configuration)' in ['manipulation', 'manipulation_pro'] else 'false'")
+      value: $(eval "'True' if '$(var configuration)' in ['autonomy', 'telepresence'] else 'False'")
   - let:
       name: urdf_file
-      value: /tmp/robot_description_$(var namespace).urdf
-
-  - executable:
-      cmd: bash -c "
-        xacro "$(var xacro_file)"
-        components_config:="$(var components_config)"
-        configuration:="$(var configuration)"
-        controller_config:="$(var controller_config)"
-        include_camera_mount:=true
-        manipulator_serial_port:="$(var manipulator_serial_port)"
-        mecanum:="$(var mecanum)"
-        namespace:="$(var namespace)"
-        use_sim:="$(var use_sim)"
-        > "$(var urdf_file)""
+      value: /tmp/rosbot_description_$(var namespace).urdf
 
   - node:
       pkg: "robot_state_publisher"
       exec: "robot_state_publisher"
       param:
         - name: robot_description
-          value: $(command "cat $(var urdf_file)")
+          value: |
+            $(command "bash -c '
+              xacro $(var xacro_file) \
+                components_config:=$(var components_config) \
+                configuration:=$(var configuration) \
+                controller_config:=$(var controller_config) \
+                include_camera_mount:=$(var include_camera_mount) \
+                manipulator_serial_port:=$(var manipulator_serial_port) \
+                mecanum:=$(var mecanum) \
+                namespace:=$(var namespace) \
+                use_sim:=$(var use_sim) \
+              | tee $(var urdf_file)
+            '")
 
   - node:
       pkg: "joint_state_publisher"

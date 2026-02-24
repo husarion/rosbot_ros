@@ -92,11 +92,11 @@ The main package responsible for running the physical robot.
 
 ### `rosbot_controller`
 
-ROS2 hardware controller for ROSbot. It manages inputs and outputs data from ROS2 control, forwarding it via ROS topics to be read by microROS. The controller.launch.py file loads the robot model defined in rosbot_description along with ROS2 control dependencies from [rosbot_hardware_interfaces](https://github.com/husarion/rosbot_hardware_interfaces).
+ROS2 hardware controller for ROSbot. It manages inputs and outputs data from ROS2 control, forwarding it via ROS topics to be read by microROS. The controller.yaml file loads the robot model defined in rosbot_description along with ROS2 control dependencies from [rosbot_hardware_interfaces](https://github.com/husarion/rosbot_hardware_interfaces).
 
 **Available Launch Files:**
 
-- `controller.launch.py` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
+- `controller.yaml` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
 
 ### `rosbot_description`
 

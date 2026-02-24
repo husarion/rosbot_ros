@@ -13,11 +13,11 @@ launch:
 
   - arg:
       name: use_sim
-      default: "false"
+      default: "False"
       description: "Whether simulation is used."
       choice:
-        - value: "true"
-        - value: "false"
+        - value: "True"
+        - value: "False"
 
   - set_parameter:
       name: use_sim_time

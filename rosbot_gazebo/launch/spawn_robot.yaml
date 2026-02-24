@@ -3,11 +3,11 @@ launch:
 
   - arg:
       name: arm_activate
-      default: "true"
+      default: "True"
       description: "Whether to activate the manipulator arm on startup."
       choice:
-        - value: "true"
-        - value: "false"
+        - value: "True"
+        - value: "False"
   - arg:
       name: config_dir
       default: ""
@@ -36,11 +36,11 @@ launch:
         - value: "rosbot_xl"
   - arg:
       name: rviz
-      default: "true"
+      default: "True"
       description: "Launch RViz2"
       choice:
-        - value: "true"
-        - value: "false"
+        - value: "True"
+        - value: "False"
 
   - arg:
       name: x
@@ -109,7 +109,7 @@ launch:
 
     - set_parameter:
         name: use_sim_time
-        value: "true"
+        value: "True"
 
     - node:
         pkg: "ros_gz_bridge"
@@ -124,7 +124,7 @@ launch:
         exec: "create"
         args: >
           -name $(var robot_name)
-          -allow_renaming true
+          -allow_renaming True
           -topic robot_description
           -x $(var x)
           -y $(var y)
@@ -140,7 +140,7 @@ launch:
             value: "$(var rosbot_description_config)/$(var robot_model)/$(var configuration).yaml"
 
     - include:
-        file: "$(find-pkg-share rosbot_controller)/launch/controller.launch.py"
+        file: "$(find-pkg-share rosbot_controller)/launch/controller.yaml"
         let:
           - name: arm_activate
             value: "$(var arm_activate)"
@@ -149,7 +149,7 @@ launch:
           - name: robot_model
             value: "$(var robot_model)"
           - name: use_sim
-            value: "true"
+            value: "True"
 
     - include:
         file: "$(find-pkg-share rosbot_joy)/launch/joy.yaml"

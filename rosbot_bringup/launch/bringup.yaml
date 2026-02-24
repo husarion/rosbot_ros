@@ -3,11 +3,11 @@ launch:
 
   - arg:
       name: microros
-      default: "true"
+      default: "True"
       description: "Automatically communicate with hardware using microros."
       choice:
-        - value: "true"
-        - value: "false"
+        - value: "True"
+        - value: "False"
 
   - arg:
       name: namespace
@@ -47,7 +47,7 @@ launch:
           value: "$(var robot_model)"
 
   - include:
-      file: "$(find-pkg-share rosbot_controller)/launch/controller.launch.py"
+      file: "$(find-pkg-share rosbot_controller)/launch/controller.yaml"
 
   - include:
       file: "$(find-pkg-share rosbot_joy)/launch/joy.yaml"

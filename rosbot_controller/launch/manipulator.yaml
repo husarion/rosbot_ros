@@ -3,11 +3,11 @@ launch:
 
   - arg:
       name: arm_activate
-      default: "true"
+      default: "True"
       description: "Whether to activate the manipulator controllers"
       choice:
-        - value: "true"
-        - value: "false"
+        - value: "True"
+        - value: "False"
 
   - node:
       pkg: "controller_manager"
