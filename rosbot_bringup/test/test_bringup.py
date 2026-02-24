@@ -39,9 +39,7 @@ Running test with
     )
     rosbot_bringup = FindPackageShare("rosbot_bringup")
     bringup_launch = IncludeLaunchDescription(
-            PathJoinSubstitution(
-                [rosbot_bringup, "launch", "bringup.yaml"]
-        ),
+        PathJoinSubstitution([rosbot_bringup, "launch", "bringup.yaml"]),
         launch_arguments={
             "gz_headless_mode": "True",
             "gz_world": PathJoinSubstitution(

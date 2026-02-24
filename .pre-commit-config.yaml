@@ -52,7 +52,13 @@ repos:
     rev: 0.2.3
     hooks:
       - id: yamlfmt
-        files: ^(?!.*compose)(?!.*ekf\.yaml$).*$
+        exclude: |
+          (?x)^(
+            .*compose\..*|
+            rosbot_controller/launch/controller\.yaml|
+            rosbot_gazebo/launch/spawn_robot\.yaml|
+            rosbot_localization/config/config\.yaml
+          )$
         args: [--mapping, '2', --sequence, '4', --offset, '2', --width, '100']
 
   - repo: https://github.com/psf/black

@@ -46,9 +46,7 @@ Running test with
     )
     rosbot_gazebo = FindPackageShare("rosbot_gazebo")
     simulation_launch = IncludeLaunchDescription(
-        PathJoinSubstitution(
-            [rosbot_gazebo, "launch", "simulation.yaml"]
-        ),
+        PathJoinSubstitution([rosbot_gazebo, "launch", "simulation.yaml"]),
         launch_arguments={
             "gz_headless_mode": "True",
             "gz_world": PathJoinSubstitution(
