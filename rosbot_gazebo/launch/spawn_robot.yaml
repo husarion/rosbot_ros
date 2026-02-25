@@ -77,11 +77,11 @@ launch:
   - let:
       name: rosbot_description_config
       value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
-        rosbot_description)' + '/config')")
+        rosbot_description)') + '/config'")
   - let:
       name: rosbot_gazebo_config
       value: $(eval "('$(var config_dir)/rosbot_gazebo' if '$(var config_dir)' else '$(find-pkg-share
-        rosbot_gazebo)' + '/config')")
+        rosbot_gazebo)') + '/config'")
   - let:
       name: rosbot_bridge_config
       value: /tmp/rosbot_bridge_$(var namespace).yaml

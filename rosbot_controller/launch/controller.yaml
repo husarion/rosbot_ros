@@ -122,7 +122,7 @@ launch:
   # =======================
 
   - include:
-      file: $(find-pkg-share rosbot_description)/launch/load_urdf.yaml
+      file: $(find-pkg-share rosbot_description)/launch/$(var robot_model).yaml
       let:
         - name: configuration
           value: $(var configuration)

@@ -1,0 +1,107 @@
+---
+launch:
+
+  - arg:
+      name: config_dir
+      default: ''
+      description: Path to the common configuration directory. You can create such common configuration
+        directory with `ros2 run rosbot_utils create_config_dir {directory}`.
+
+  - arg:
+      name: configuration
+      default: basic
+      description: Specify configuration packages. Currently only ROSbot XL has available packages
+      choice:
+        - value: basic
+        - value: telepresence
+        - value: autonomy
+        - value: manipulation
+        - value: manipulation_pro
+        - value: custom
+
+  - arg:
+      name: controller_config
+      default: ''
+      description: Run joint_state_publisher for simulating joint states of the robot (visualization only).
+
+  - arg:
+      name: manipulator_serial_port
+      default: /dev/ttyUSB0
+      description: Serial port for manipulator arm communication.
+
+  - arg:
+      name: mock_joints
+      default: 'True'
+      description: Run joint_state_publisher for simulating joint states of the robot (visualization only).
+      choice:
+        - value: 'True'
+        - value: 'False'
+  - arg:
+      name: namespace
+      default: $(env ROBOT_NAMESPACE '')
+      description: Add namespace to all launched nodes.
+
+  - arg:
+      name: mecanum
+      default: 'True'
+      description: Whether to use mecanum drive controller, otherwise use diff drive
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
+      name: use_sim
+      default: 'False'
+      description: Whether to use simulation time.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - set_parameter:
+      name: use_sim_time
+      value: $(var use_sim)
+
+  - set_remap:
+      from: /tf
+      to: tf
+  - set_remap:
+      from: /tf_static
+      to: tf_static
+
+  - let:
+      name: xacro_file
+      value: $(find-pkg-share rosbot_description)/urdf/rosbot_xl.urdf.xacro
+  - let:
+      name: components_config
+      value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_description)') + '/config/rosbot_xl/$(var configuration).yaml'")
+  - let:
+      name: include_camera_mount
+      value: $(eval "'True' if '$(var configuration)' in ['autonomy', 'telepresence'] else 'False'")
+  - let:
+      name: urdf_file
+      value: /tmp/rosbot_xl_description_$(var namespace).urdf
+
+  - node:
+      pkg: robot_state_publisher
+      exec: robot_state_publisher
+      param:
+        - name: robot_description
+          value: |
+            $(command "bash -c '
+              xacro $(var xacro_file) \
+                components_config:=$(var components_config) \
+                configuration:=$(var configuration) \
+                controller_config:=$(var controller_config) \
+                include_camera_mount:=$(var include_camera_mount) \
+                manipulator_serial_port:=$(var manipulator_serial_port) \
+                mecanum:=$(var mecanum) \
+                namespace:=$(var namespace) \
+                use_sim:=$(var use_sim) \
+              | tee $(var urdf_file)
+            '")
+
+  - node:
+      pkg: joint_state_publisher
+      exec: joint_state_publisher
+      if: $(var mock_joints)

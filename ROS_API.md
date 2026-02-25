@@ -104,8 +104,9 @@ URDF model used for both simulation and as a source of transforms on physical ro
 
 **Available Launch Files:**
 
-- `load_urdf.yaml` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
-- `rviz.yaml` - Launches the ready-made RViz configuration
+- `rosbot.yaml` - Load URDF and starts ros2_control hardware interfaces
+- `rosbot_xl.yaml` - Load URDF and starts ros2_control hardware interfaces
+- `rviz.yaml` - Launches the RViz configuration for specified robot model.
 
 **Main Description Files:**
 

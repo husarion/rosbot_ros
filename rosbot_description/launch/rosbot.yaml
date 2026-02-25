@@ -13,21 +13,12 @@ launch:
       description: Specify configuration packages. Currently only ROSbot XL has available packages
       choice:
         - value: basic
-        - value: telepresence
-        - value: autonomy
-        - value: manipulation
-        - value: manipulation_pro
         - value: custom
 
   - arg:
       name: controller_config
       default: ''
       description: Run joint_state_publisher for simulating joint states of the robot (visualization only).
-
-  - arg:
-      name: manipulator_serial_port
-      default: /dev/ttyUSB0
-      description: Serial port for manipulator arm communication.
 
   - arg:
       name: mock_joints
@@ -42,16 +33,8 @@ launch:
       description: Add namespace to all launched nodes.
 
   - arg:
-      name: robot_model
-      default: $(env ROBOT_MODEL '')
-      description: Specify robot model
-      choice:
-        - value: rosbot
-        - value: rosbot_xl
-
-  - arg:
       name: mecanum
-      default: $(eval "'True' if '$(var robot_model)' == 'rosbot_xl' else 'False'")
+      default: 'False'
       description: Whether to use mecanum drive controller, otherwise use diff drive
       choice:
         - value: 'True'
@@ -78,14 +61,11 @@ launch:
 
   - let:
       name: xacro_file
-      value: $(find-pkg-share rosbot_description)/urdf/$(var robot_model).urdf.xacro
+      value: $(find-pkg-share rosbot_description)/urdf/rosbot.urdf.xacro
   - let:
       name: components_config
       value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
-        rosbot_description)') + '/config/$(var robot_model)/$(var configuration).yaml'")
-  - let:
-      name: include_camera_mount
-      value: $(eval "'True' if '$(var configuration)' in ['autonomy', 'telepresence'] else 'False'")
+        rosbot_description)') + '/config/rosbot/$(var configuration).yaml'")
   - let:
       name: urdf_file
       value: /tmp/rosbot_description_$(var namespace).urdf
@@ -101,8 +81,6 @@ launch:
                 components_config:=$(var components_config) \
                 configuration:=$(var configuration) \
                 controller_config:=$(var controller_config) \
-                include_camera_mount:=$(var include_camera_mount) \
-                manipulator_serial_port:=$(var manipulator_serial_port) \
                 mecanum:=$(var mecanum) \
                 namespace:=$(var namespace) \
                 use_sim:=$(var use_sim) \

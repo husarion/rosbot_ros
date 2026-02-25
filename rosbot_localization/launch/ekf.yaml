@@ -12,9 +12,6 @@ launch:
       value: $(eval "('$(var config_dir)/rosbot_localization' if '$(var config_dir)' else '$(find-pkg-share
         rosbot_localization)') + '/config/config.yaml'")
 
-  - log:
-      message: 'Using EKF config file: $(var ekf_config)'
-
   - node:
       pkg: robot_localization
       exec: ekf_node
