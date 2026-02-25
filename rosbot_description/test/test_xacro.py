@@ -21,7 +21,7 @@ from ament_index_python.packages import get_package_share_directory
 
 def test_rosbot_description_parsing():
     robot_model_values = ["rosbot", "rosbot_xl"]
-    mecanum_values = ["true", "false"]
+    mecanum_values = ["True", "False"]
 
     all_combinations = list(
         itertools.product(

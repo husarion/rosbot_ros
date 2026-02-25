@@ -55,7 +55,7 @@ Running test with
             "mecanum": mecanum,
             "namespace": namespace,
             "robot_model": robot_model,
-            "rviz": "false",
+            "rviz": "False",
         }.items(),
     )
 
@@ -73,7 +73,7 @@ Running test with
     )
 
 
-mecanum_options = ["true", "false"]
+mecanum_options = ["True", "False"]
 namespace_options = ["", "test_ns"]
 robot_model_options = ["rosbot", "rosbot_xl"]
 test_params = list(product(mecanum_options, namespace_options, robot_model_options))

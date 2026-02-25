@@ -46,7 +46,7 @@ def generate_test_description():
             f"gz_world:={gz_world_path}",
             "namespace:=robot1",
             "robot_model:=rosbot",
-            "rviz:=false",
+            "rviz:=False",
         ],
         output="screen",
     )
