@@ -68,9 +68,6 @@ launch:
         - value: 'True'
         - value: 'False'
 
-  - log:
-      message: 'Using mecanum drive: $(var mecanum)'
-
   - arg:
       name: namespace
       default: $(env ROBOT_NAMESPACE '')
@@ -100,7 +97,7 @@ launch:
 
   - let:
       name: manipulator_state
-      value: $(eval "('active' if '$(var arm_activate)' else 'inactive')")
+      value: $(eval "('active' if $(var arm_activate) else 'inactive')")
 
   - let:
       name: resolved_controller_config
@@ -138,14 +135,14 @@ launch:
         - name: robot_model
           value: $(var robot_model)
         - name: use_sim
-          value: 'True'
+          value: $(var use_sim)
 
   # =======================
   # Controller manager
   # =======================
 
   - node:
-      if: $(eval "'$(var use_sim)' == 'False'")
+      unless: $(var use_sim)
       pkg: controller_manager
       exec: ros2_control_node
       param:
@@ -184,7 +181,7 @@ launch:
       pkg: controller_manager
       exec: spawner
       args: >
-        $(eval "'mecanum_drive_controller' if '$(var mecanum)' else 'differential_drive_controller'")
+        $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
         imu_broadcaster
         joint_state_broadcaster
         -c controller_manager
