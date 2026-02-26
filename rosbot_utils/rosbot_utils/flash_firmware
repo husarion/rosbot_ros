@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+
+# Copyright 2024 Husarion sp. z o.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+from typing import Optional
+
+import pyudev
+from ament_index_python.packages import get_package_share_directory
+from rosbot_utils.flash_firmware_uart import FirmwareFlasherUART
+
+PROGRESS_PATTERN = re.compile(r".*\d+%.*|.*\[.*\]")
+
+
+def find_device_port(
+    vendor_id: str,
+    product_id: str,
+    default: Optional[str] = None,
+    context: Optional[pyudev.Context] = None,
+) -> Optional[str]:
+    """
+    Find device port by USB vendor and product ID.
+    """
+    context = context or pyudev.Context()
+
+    for device in context.list_devices(subsystem="tty"):
+        if (
+            device.get("ID_VENDOR_ID") == vendor_id
+            and device.get("ID_MODEL_ID") == product_id
+            and device.device_node
+        ):
+            return device.device_node
+
+    return default
+
+
+def parse_args(args=None):
+    """
+    Parse CLI arguments.
+    """
+    default_model = os.getenv("ROBOT_MODEL")
+
+    parser = argparse.ArgumentParser(description="Flash ROSbot Firmware")
+
+    parser.add_argument(
+        "--robot-model",
+        default=default_model,
+        choices=["rosbot", "rosbot_xl"],
+        required=default_model is None,
+        help="Specify the robot model",
+    )
+
+    parser.add_argument(
+        "--usb",
+        action="store_true",
+        help=(
+            "Flash via USB. Automatically enabled for ROSbot XL; "
+            "other ROSbots use UART by default."
+        ),
+    )
+
+    default_port = find_device_port("0403", "6015", "/dev/ttyUSB0")
+
+    parser.add_argument(
+        "-p",
+        "--port",
+        default=default_port,
+        help="Specify the communication port",
+    )
+
+    parser.add_argument(
+        "-f",
+        "--file",
+        help="Specify custom firmware file",
+    )
+
+    return parser.parse_args(args)
+
+
+def resolve_firmware(robot_model: str, override: Optional[str]) -> str:
+    """
+    Resolve firmware path based on robot model or user override.
+    """
+    rosbot_utils = get_package_share_directory("rosbot_utils")
+
+    firmware_paths = {
+        "rosbot": os.path.join(rosbot_utils, "firmware", "rosbot", "range_laserscan_fix.bin"),
+        "rosbot_xl": os.path.join(rosbot_utils, "firmware", "rosbot_xl", "v1.4.0.bin"),
+    }
+
+    firmware = override or firmware_paths[robot_model]
+
+    if not os.path.exists(firmware):
+        raise FileNotFoundError(f"Firmware file not found: {firmware}")
+
+    return firmware
+
+
+def stream_progress(proc: subprocess.Popen) -> None:
+    """
+    Stream subprocess output and render progress lines dynamically.
+    """
+    last_progress_line = ""
+
+    assert proc.stdout is not None  # for type checkers
+
+    for line in proc.stdout:
+        line = line.rstrip("\n")
+
+        if PROGRESS_PATTERN.search(line):
+            sys.stdout.write(f"\r{line}")
+            sys.stdout.flush()
+            last_progress_line = line
+        else:
+            if last_progress_line:
+                print()
+                last_progress_line = ""
+            print(line)
+
+    proc.wait()
+
+    if proc.returncode != 0:
+        raise RuntimeError(f"Flashing process failed with exit code {proc.returncode}")
+
+
+def run_usb_flash(firmware: str, port: str) -> None:
+    """
+    Run firmware flashing via USB (FTDI).
+    """
+    proc = subprocess.Popen(
+        ["ros2", "run", "rosbot_utils", "firmware_flasher_ftdi", firmware, port],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+
+    try:
+        stream_progress(proc)
+    except KeyboardInterrupt:
+        print("\nTerminating the flashing process...")
+        proc.terminate()
+        proc.wait()
+        raise
+
+
+def run_uart_flash(firmware: str) -> None:
+    """
+    Run firmware flashing via UART.
+    """
+    # Assuming FirmwareFlasherUART handles its own errors
+    FirmwareFlasherUART(firmware)
+
+
+def main(args=None):
+    try:
+        args = parse_args(args)
+
+        use_usb = args.usb or args.robot_model == "rosbot_xl"
+
+        firmware = resolve_firmware(args.robot_model, args.file)
+
+        if use_usb:
+            run_usb_flash(firmware, args.port)
+        else:
+            run_uart_flash(firmware)
+
+        print("Firmware flashing completed successfully!")
+
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user.")
+        sys.exit(1)
+
+    except Exception:
+        print("Firmware flashing failed")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

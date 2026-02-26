@@ -15,22 +15,23 @@
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <depend>libftdi1-dev</depend>
+  <depend>libusb-1.0-dev</depend>
+
   <exec_depend>laser_filters</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>python3-argcomplete</exec_depend>
   <exec_depend>python3-libgpiod</exec_depend>
-  <exec_depend>python3-pyftdi-pip</exec_depend>
+  <!-- <exec_depend>python3-pyftdi-pip</exec_depend> not available in Ubuntu 22.04 -->
   <exec_depend>python3-pyudev</exec_depend>
-  <exec_depend>python3-requests</exec_depend>
-  <exec_depend>python3-serial</exec_depend>
   <exec_depend>python3-sh</exec_depend>
   <exec_depend>stm32flash</exec_depend>
   <exec_depend>usbutils</exec_depend>
 
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
-
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
