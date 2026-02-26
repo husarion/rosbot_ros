@@ -25,11 +25,11 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>python3-argcomplete</exec_depend>
   <exec_depend>python3-libgpiod</exec_depend>
-  <!-- <exec_depend>python3-pyftdi-pip</exec_depend> not available in Ubuntu 22.04 -->
   <exec_depend>python3-pyudev</exec_depend>
   <exec_depend>python3-sh</exec_depend>
   <exec_depend>stm32flash</exec_depend>
   <exec_depend>usbutils</exec_depend>
+  <!-- <exec_depend>python3-pyftdi-pip</exec_depend> not available in Ubuntu 22.04 -->
 
   <export>
     <build_type>ament_cmake</build_type>
