@@ -18,8 +18,8 @@
   <exec_depend>laser_filters</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>python3-argcomplete</exec_depend>
+  <exec_depend>python3-ftdi</exec_depend>
   <exec_depend>python3-libgpiod</exec_depend>
-  <exec_depend>python3-pyftdi</exec_depend>
   <exec_depend>python3-pyudev</exec_depend>
   <exec_depend>python3-requests</exec_depend>
   <exec_depend>python3-serial</exec_depend>
