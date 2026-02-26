@@ -24,7 +24,7 @@ from launch.substitutions import (
     PythonExpression,
 )
 from launch_param_builder import ParameterBuilder
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from moveit_configs_utils import MoveItConfigsBuilder
 
