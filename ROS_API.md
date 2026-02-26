@@ -87,16 +87,16 @@ The main package responsible for running the physical robot.
 
 **Available Launch Files:**
 
-- `bringup.launch.py` - is responsible for communicating with firmware and activating all logic related to the robot's movement and processing of sensory data.
+- `bringup.yaml` - is responsible for communicating with firmware and activating all logic related to the robot's movement and processing of sensory data.
 - `microros.launch.py` - establishes connection with the hardware using microROS agent.
 
 ### `rosbot_controller`
 
-ROS2 hardware controller for ROSbot. It manages inputs and outputs data from ROS2 control, forwarding it via ROS topics to be read by microROS. The controller.launch.py file loads the robot model defined in rosbot_description along with ROS2 control dependencies from [rosbot_hardware_interfaces](https://github.com/husarion/rosbot_hardware_interfaces).
+ROS2 hardware controller for ROSbot. It manages inputs and outputs data from ROS2 control, forwarding it via ROS topics to be read by microROS. The controller.yaml file loads the robot model defined in rosbot_description along with ROS2 control dependencies from [rosbot_hardware_interfaces](https://github.com/husarion/rosbot_hardware_interfaces).
 
 **Available Launch Files:**
 
-- `controller.launch.py` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
+- `controller.yaml` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
 
 ### `rosbot_description`
 
@@ -104,8 +104,9 @@ URDF model used for both simulation and as a source of transforms on physical ro
 
 **Available Launch Files:**
 
-- `load_urdf.launch.py` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
-- `rviz.launch.py` - Launches the ready-made RViz configuration
+- `rosbot.yaml` - Load URDF and starts ros2_control hardware interfaces
+- `rosbot_xl.yaml` - Load URDF and starts ros2_control hardware interfaces
+- `rviz.yaml` - Launches the RViz configuration for specified robot model.
 
 **Main Description Files:**
 
@@ -127,7 +128,7 @@ A package related to the logic responsible for performing sensor fusion.
 
 **Available Launch Files:**
 
-- `ekf.launch.py` - Runs ekf filter which fuse wheel odometry with imu data.
+- `ekf.yaml` - Runs ekf filter which fuse wheel odometry with imu data.
 
 ### `rosbot_utils`
 
@@ -135,4 +136,4 @@ A package containing auxiliary filters that integrate simple external packages.
 
 **Available Launch Files:**
 
-- `laser_filter.launch.py` - launch laser filter responsible for filtering out the laser scan points located inside the robot base.
+- `laser_filter.yaml` - launch laser filter responsible for filtering out the laser scan points located inside the robot base.

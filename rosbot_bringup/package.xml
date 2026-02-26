@@ -4,9 +4,7 @@
   <name>rosbot_bringup</name>
   <version>0.18.1</version>
   <description>ROSbot Series bringup package</description>
-
   <maintainer email="support@husarion.com">Husarion</maintainer>
-
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>

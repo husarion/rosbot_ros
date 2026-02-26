@@ -74,7 +74,7 @@ def main(args=None):
     parser.add_argument(
         "--robot-model",
         required=True,
-        default=os.getenv("ROBOT_MODEL_NAME"),
+        default=os.getenv("ROBOT_MODEL"),
         choices=["rosbot", "rosbot_xl"],
         help="Specify the robot model",
     )

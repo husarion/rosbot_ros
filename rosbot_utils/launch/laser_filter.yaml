@@ -1,0 +1,28 @@
+---
+launch:
+
+  - arg:
+      name: config_dir
+      default: ''
+      description: Path to the common configuration directory. You can create such common configuration
+        directory with `ros2 run rosbot_utils create_config_dir {directory}`.
+
+  - arg:
+      name: robot_model
+      default: $(env ROBOT_MODEL '')
+      description: Specify robot model
+      choice:
+        - value: rosbot
+        - value: rosbot_xl
+
+  - let:
+      name: laser_filter_config
+      value: $(eval "('$(var config_dir)/rosbot_utils' if '$(var config_dir)' else '$(find-pkg-share rosbot_utils)')
+        + '/config/' + '$(var robot_model)' + '/config.yaml'")
+
+  - node:
+      pkg: laser_filters
+      exec: scan_to_scan_filter_chain
+      name: laser_filters
+      param:
+        - from: $(var laser_filter_config)

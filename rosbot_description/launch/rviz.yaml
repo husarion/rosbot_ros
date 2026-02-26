@@ -1,0 +1,38 @@
+---
+launch:
+
+  - arg:
+      name: namespace
+      default: $(env ROBOT_NAMESPACE '')
+      description: Add namespace to all launched nodes.
+
+  - arg:
+      name: rviz_config
+      default: $(find-pkg-share rosbot_description)/rviz/rosbot.rviz
+      description: RViz configuration file.
+
+  - arg:
+      name: use_sim
+      default: 'False'
+      description: Whether simulation is used.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - set_parameter:
+      name: use_sim_time
+      value: $(var use_sim)
+
+  - set_remap:
+      from: /tf
+      to: tf
+
+  - set_remap:
+      from: /tf_static
+      to: tf_static
+
+  - node:
+      pkg: rviz2
+      exec: rviz2
+      namespace: $(var namespace)
+      args: -d $(var rviz_config)

@@ -4,9 +4,7 @@
   <name>rosbot_gazebo</name>
   <version>0.18.1</version>
   <description>Gazebo simulation for ROSbot Series</description>
-
   <maintainer email="support@husarion.com">Husarion</maintainer>
-
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
@@ -22,7 +20,6 @@
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">laser_filters</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch_ros</exec_depend>
-  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">nav2_common</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">ros_gz_bridge</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">ros_gz_sim</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">rosbot_controller</exec_depend>

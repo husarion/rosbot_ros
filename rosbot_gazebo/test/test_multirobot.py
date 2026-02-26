@@ -41,7 +41,7 @@ def generate_test_description():
             "ros2",
             "launch",
             "rosbot_gazebo",
-            "simulation.launch.py",
+            "simulation.yaml",
             "gz_headless_mode:=True",
             f"gz_world:={gz_world_path}",
             "namespace:=robot1",

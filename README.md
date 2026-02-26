@@ -70,7 +70,7 @@ For ROSbot XL, you can specify a particular configuration using the launch `conf
 
 ```bash
 source install/setup.bash
-ros2 launch rosbot_bringup bringup.launch.py robot_model:=<rosbot/rosbot_xl>
+ros2 launch rosbot_bringup bringup.yaml robot_model:=<rosbot/rosbot_xl>
 ```
 
 > [!NOTE]
@@ -87,7 +87,7 @@ ros2 launch rosbot_bringup bringup.launch.py robot_model:=<rosbot/rosbot_xl>
 
 ```bash
 source install/setup.bash
-ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
+ros2 launch rosbot_gazebo simulation.yaml robot_model:=<rosbot/rosbot_xl>
 ```
 
 ### Launch Arguments
@@ -105,7 +105,7 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 | ✅  | ✅  | `joy_vel`       | The topic name to which velocity commands will be published. <br/> **_string:_** `cmd_vel` |
 | ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `False`                                                                                       |
 | ✅  | ✅  | `namespace`         | Add namespace to all launched nodes. <br/> **_string:_** `env(ROBOT_NAMESPACE)`                                                                                                                       |
-| ✅  | ✅  | `robot_model`       | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL_NAME)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |
+| ✅  | ✅  | `robot_model`       | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |
 | ✅  | ❌  | `manipulator_serial_port`  | Port to connect to the manipulator. <br/> **_string:_** `/dev/ttyUSB0`                                                                                                                                  |
 | ✅  | ❌  | `microros`          | Automatically connect with hardware using microros. <br/> **_bool:_** `True`                                                                                                                       |
 | ✅  | ❌  | `port`              | **ROSbot XL only.** UDP4 port for micro-ROS agent. <br/> **_string:_** `8888`                                                                                                                         |
@@ -124,7 +124,7 @@ ros2 launch rosbot_gazebo simulation.launch.py robot_model:=<rosbot/rosbot_xl>
 | ❌  | ✅  | `yaw`               | Initial robot 'yaw' orientation. <br/> **_float:_** `0.0`                                                                                                                                          |
 
 > [!TIP]
-> To read the arguments for individual launch files, add the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch rosbot_bringup bringup.launch.py ​​-s`)
+> To read the arguments for individual launch files, add the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch rosbot_bringup bringup.yaml ​​-s`)
 
 ## 🕹️ Demo
 

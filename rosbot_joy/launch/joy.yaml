@@ -1,0 +1,35 @@
+---
+launch:
+
+  - arg:
+      name: config_dir
+      default: ''
+      description: Path to the common configuration directory. You can create such common configuration
+        directory with `ros2 run rosbot_utils create_config_dir {directory}`.
+
+  - arg:
+      name: joy_vel
+      default: cmd_vel
+      description: The topic name to which velocity commands will be published.
+
+  - let:
+      name: joy_config
+      value: $(eval "('$(var config_dir)/rosbot_joy' if '$(var config_dir)' else '$(find-pkg-share rosbot_joy)')
+        + '/config/config.yaml'")
+
+  - node:
+      pkg: joy
+      exec: joy_node
+      name: joy
+      param:
+        - from: $(var joy_config)
+
+  - node:
+      pkg: teleop_twist_joy
+      exec: teleop_node
+      name: joy2twist
+      param:
+        - from: $(var joy_config)
+      remap:
+        - from: /cmd_vel
+          to: $(var joy_vel)

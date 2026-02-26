@@ -1,0 +1,48 @@
+---
+launch:
+
+  - arg:
+      name: config_dir
+      default: ''
+      description: Path to the common configuration directory. You can create such common configuration
+        directory with `ros2 run rosbot_utils create_config_dir {directory}`.
+
+  - set_env:
+      name: RCUTILS_COLORIZED_OUTPUT
+      value: '1'
+
+  - set_remap:
+      from: /diagnostics
+      to: diagnostics
+  - set_remap:
+      from: /tf
+      to: tf
+  - set_remap:
+      from: /tf_static
+      to: tf_static
+
+  - set_parameter:
+      name: use_sim_time
+      value: 'True'
+
+  - let:
+      name: gz_bridge_config
+      value: $(eval "('$(var config_dir)/rosbot_gazebo' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_gazebo)') + '/config/gz_bridge.yaml'")
+
+  - node:
+      pkg: ros_gz_bridge
+      exec: parameter_bridge
+      name: gz_bridge
+      param:
+        - name: config_file
+          value: $(var gz_bridge_config)
+
+  - include:
+      file: $(find-pkg-share husarion_gz_worlds)/launch/gz_sim.launch.py
+      let:
+        - name: gz_log_level
+          value: '1'
+
+  - include:
+      file: $(find-pkg-share rosbot_gazebo)/launch/spawn_robot.yaml

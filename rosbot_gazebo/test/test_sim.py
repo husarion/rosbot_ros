@@ -21,7 +21,6 @@ import rclpy
 from gz_kill_process import kill_ign_linux_processes
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_testing.actions import ReadyToTest
@@ -47,15 +46,7 @@ Running test with
     )
     rosbot_gazebo = FindPackageShare("rosbot_gazebo")
     simulation_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    rosbot_gazebo,
-                    "launch",
-                    "simulation.launch.py",
-                ]
-            )
-        ),
+        PathJoinSubstitution([rosbot_gazebo, "launch", "simulation.yaml"]),
         launch_arguments={
             "gz_headless_mode": "True",
             "gz_world": PathJoinSubstitution(

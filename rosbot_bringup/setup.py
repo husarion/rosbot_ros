@@ -19,7 +19,7 @@ from setuptools import find_packages, setup
 
 package_name = "rosbot_bringup"
 common_config = [f for f in glob("config/*") if os.path.isfile(f)]
-launch_files = glob("launch/*.launch.py")
+launch_files = glob("launch/*")
 
 setup(
     name=package_name,

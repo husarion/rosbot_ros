@@ -18,9 +18,13 @@ import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import (
+    LaunchConfiguration,
+    PathJoinSubstitution,
+    PythonExpression,
+)
 from launch_param_builder import ParameterBuilder
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from moveit_configs_utils import MoveItConfigsBuilder
 
@@ -37,21 +41,26 @@ def load_yaml(package_name, file_path):
 
 
 def generate_launch_description():
-    joy_servo_config = LaunchConfiguration("joy_servo_params_file")
-    declare_servo_joy_arg = DeclareLaunchArgument(
-        "joy_servo_params_file",
-        default_value=PathJoinSubstitution(
-            [FindPackageShare("rosbot_joy"), "config", "joy_servo.yaml"]
-        ),
-        description="ROS2 parameters file to use with joy_servo node",
+    config_dir = LaunchConfiguration("config_dir")
+
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
     )
 
-    use_sim = LaunchConfiguration("use_sim")
-    declare_use_sim_arg = DeclareLaunchArgument(
-        "use_sim",
-        default_value="False",
-        description="Whether simulation is used",
+    pkg_config_dir = PythonExpression(
+        [
+            "'",
+            config_dir,
+            "/rosbot_joy' if '",
+            config_dir,
+            "' else '",
+            FindPackageShare("rosbot_joy"),
+            "'",
+        ]
     )
+    joy_config = PathJoinSubstitution([pkg_config_dir, "config", "config.yaml"])
 
     moveit_config = (
         MoveItConfigsBuilder("robot_xl", package_name="rosbot_moveit").joint_limits(
@@ -83,13 +92,11 @@ def generate_launch_description():
     joy2servo = Node(
         package="rosbot_joy",
         executable="joy2servo",
-        parameters=[joy_servo_config],
+        parameters=[joy_config],
     )
 
     actions = [
-        declare_servo_joy_arg,
-        declare_use_sim_arg,
-        SetParameter(name="use_sim_time", value=use_sim),
+        declare_config_dir_arg,
         servo_node,
         joy2servo,
     ]

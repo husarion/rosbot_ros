@@ -8,9 +8,9 @@
                     rpy:='0.0 0.0 0.0'
                     namespace:=''
                     device_namespace:=''
-                    use_fake_hardware:=False
-                    fake_sensor_commands:=False
-                    use_sim:=False
+                    use_mock_hardware:=false
+                    mock_sensor_commands:=false
+                    use_sim:=false
                     port_name:='/dev/ttyUSB0'">
 
     <!-- PROPERTIES -->
@@ -33,8 +33,8 @@
       name="OpenManipulatorXSystem"
       prefix="${prefix}"
       use_sim="${use_sim}"
-      use_fake_hardware="${use_fake_hardware}"
-      fake_sensor_commands="${fake_sensor_commands}"
+      use_mock_hardware="${use_mock_hardware}"
+      mock_sensor_commands="${mock_sensor_commands}"
       port_name="${port_name}" />
 
     <!-- GAZEBO PLUGINS -->

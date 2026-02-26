@@ -1,0 +1,176 @@
+---
+launch:
+
+  - arg:
+      name: arm_activate
+      default: 'True'
+      description: Whether to activate the manipulator arm on startup.
+      choice:
+        - value: 'True'
+        - value: 'False'
+  - arg:
+      name: config_dir
+      default: ''
+      description: Path to the common configuration directory. You can create such common configuration
+        directory with `ros2 run rosbot_utils create_config_dir {directory}`.
+  - arg:
+      name: configuration
+      default: basic
+      description: Specify configuration packages. Currently only ROSbot XL has available packages
+      choice:
+        - value: basic
+        - value: telepresence
+        - value: autonomy
+        - value: manipulation
+        - value: manipulation_pro
+        - value: custom
+  - arg:
+      name: namespace
+      default: $(env ROBOT_NAMESPACE '')
+      description: Add namespace to all launched nodes.
+  - arg:
+      name: robot_model
+      default: $(env ROBOT_MODEL '')
+      description: Specify robot model
+      choice:
+        - value: rosbot
+        - value: rosbot_xl
+  - arg:
+      name: rviz
+      default: 'True'
+      description: Launch RViz2
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
+      name: x
+      default: '0.0'
+      description: Initial robot x position.
+  - arg:
+      name: y
+      default: '0.0'
+      description: Initial robot y position.
+  - arg:
+      name: z
+      default: '0.0'
+      description: Initial robot z position.
+  - arg:
+      name: roll
+      default: '0.0'
+      description: Initial robot roll orientation.
+  - arg:
+      name: pitch
+      default: '0.0'
+      description: Initial robot pitch orientation.
+  - arg:
+      name: yaw
+      default: '0.0'
+      description: Initial robot yaw orientation.
+
+  - let:
+      name: ns
+      value: $(eval "('$(var namespace)/' if '$(var namespace)' else '')")
+  - let:
+      name: robot_name
+      value: $(eval "('rosbot' if '$(var namespace)' == '' else '$(var namespace)')")
+  - let:
+      name: rosbot_description_config
+      value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_description)') + '/config'")
+  - let:
+      name: rosbot_gazebo_config
+      value: $(eval "('$(var config_dir)/rosbot_gazebo' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_gazebo)') + '/config'")
+  - let:
+      name: rosbot_bridge_config
+      value: /tmp/rosbot_bridge_$(var namespace).yaml
+
+  - executable:
+      cmd: bash -c "sed 's:<namespace>/:"$(var ns)":g' "$(var rosbot_gazebo_config)/rosbot_bridge.yaml"
+        > "$(var rosbot_bridge_config)""
+
+  - log:
+      message:
+        "Spawning ROSbot\n
+        \tNamespace: '$(var namespace)'\n
+        \tInitial pose: ($(var x), $(var y), $(var z), $(var roll), $(var pitch), $(var yaw))"
+
+  # Group all robot nodes to not leak namespace to other nodes
+  - group:
+
+      - push_ros_namespace:
+          namespace: $(var namespace)
+
+      - set_remap:
+          from: /diagnostics
+          to: diagnostics
+      - set_remap:
+          from: /tf
+          to: tf
+      - set_remap:
+          from: /tf_static
+          to: tf_static
+
+      - set_parameter:
+          name: use_sim_time
+          value: 'True'
+
+      - node:
+          pkg: ros_gz_bridge
+          exec: parameter_bridge
+          name: rosbot_gz_bridge
+          param:
+            - name: config_file
+              value: $(var rosbot_bridge_config)
+
+      - node:
+          pkg: ros_gz_sim
+          exec: create
+          args: >
+            -name $(var robot_name)
+            -allow_renaming True
+            -topic robot_description
+            -x $(var x)
+            -y $(var y)
+            -z $(var z)
+            -R $(var roll)
+            -P $(var pitch)
+            -Y $(var yaw)
+
+      - include:
+          file: $(find-pkg-share husarion_components_description)/launch/gz_components.launch.py
+          let:
+            - name: components_config_path
+              value: $(var rosbot_description_config)/$(var robot_model)/$(var configuration).yaml
+
+      - include:
+          file: $(find-pkg-share rosbot_controller)/launch/controller.yaml
+          let:
+            - name: arm_activate
+              value: $(var arm_activate)
+            - name: configuration
+              value: $(var configuration)
+            - name: robot_model
+              value: $(var robot_model)
+            - name: use_sim
+              value: 'True'
+
+      - include:
+          file: $(find-pkg-share rosbot_joy)/launch/joy.yaml
+
+      - include:
+          file: $(find-pkg-share rosbot_localization)/launch/ekf.yaml
+
+      - include:
+          file: $(find-pkg-share rosbot_utils)/launch/laser_filter.yaml
+          let:
+            - name: robot_model
+              value: $(var robot_model)
+
+      - include:
+          file: $(find-pkg-share rosbot_description)/launch/rviz.yaml
+          if: $(var rviz)
+          let:
+            - name: namespace
+              value: '' # Not needed due to push_ros_namespace

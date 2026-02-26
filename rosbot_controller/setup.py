@@ -21,7 +21,7 @@ package_name = "rosbot_controller"
 common_config = [f for f in glob("config/*") if os.path.isfile(f)]
 rosbot_config = [f for f in glob("config/rosbot/*.yaml") if os.path.isfile(f)]
 rosbot_xl_config = [f for f in glob("config/rosbot_xl/*.yaml") if os.path.isfile(f)]
-launch_files = glob("launch/*.launch.py")
+launch_files = glob("launch/*")
 
 setup(
     name=package_name,

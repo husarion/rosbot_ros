@@ -1,0 +1,45 @@
+---
+launch:
+
+  - arg:
+      name: arm_activate
+      default: 'True'
+      description: Whether to activate the manipulator controllers
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - node:
+      pkg: controller_manager
+      exec: spawner
+      args: >
+        manipulator_controller
+        gripper_controller
+        -c controller_manager
+        --controller-manager-timeout 20
+      if: $(var arm_activate)
+
+  - node:
+      pkg: controller_manager
+      exec: spawner
+      args: >
+        manipulator_controller
+        gripper_controller
+        -c controller_manager
+        --controller-manager-timeout 20
+        --inactive
+      unless: $(var arm_activate)
+
+  - include:
+      file: $(find-pkg-share rosbot_moveit)/launch/move_group.launch.py
+
+  - include:
+      file: $(find-pkg-share rosbot_moveit)/launch/servo.launch.py
+
+  - timer:
+      period: 10.0
+      if: $(var arm_activate)
+      children:
+        - node:
+            pkg: rosbot_moveit
+            exec: home

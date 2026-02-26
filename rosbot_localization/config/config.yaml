@@ -2,7 +2,7 @@
 /**:
 
   # Ref: http://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html
-  ekf_node:
+  ekf:
     ros__parameters:
       frequency: 20.0
       sensor_timeout: 0.05

@@ -1,0 +1,204 @@
+---
+launch:
+
+  # =======================
+  # Launch arguments
+  # =======================
+
+  - arg:
+      name: arm_activate
+      default: 'False'
+      description: Whether to activate the manipulator arm on startup.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
+      name: config_dir
+      default: ''
+      description: Path to the common configuration directory.
+
+  - arg:
+      name: configuration
+      default: basic
+      description: Specify configuration packages.
+      choice:
+        - value: basic
+        - value: telepresence
+        - value: autonomy
+        - value: manipulation
+        - value: manipulation_pro
+        - value: custom
+
+  - let:
+      name: manipulator_dev
+      value: $(command "bash -c '\
+        VENDOR=0403; \
+        PRODUCT=6014; \
+        DEFAULT=/dev/ttyUSB0; \
+        if ls /dev/ttyUSB* 1> /dev/null 2>&1; then \
+          for dev in /dev/ttyUSB*; do \
+            ATTRS=\$(udevadm info -q property -n \$dev); \
+            VID=\$(echo \$ATTRS | grep ^ID_VENDOR_ID= | cut -d= -f2); \
+            PID=\$(echo \$ATTRS | grep ^ID_MODEL_ID= | cut -d= -f2); \
+            if [[ \$VID == \$VENDOR && \$PID == \$PRODUCT ]]; then \
+              echo -n \$dev; \
+              exit 0; \
+            fi; \
+          done; \
+        fi; \
+        echo -n \$DEFAULT;'")
+
+  - arg:
+      name: manipulator_serial_port
+      default: $(var manipulator_dev)
+      description: Port to connect to the manipulator.
+
+  - arg:
+      name: robot_model
+      default: $(env ROBOT_MODEL '')
+      description: Specify robot model
+      choice:
+        - value: rosbot
+        - value: rosbot_xl
+
+  - arg:
+      name: mecanum
+      default: $(eval "'True' if '$(var robot_model)' == 'rosbot_xl' else 'False'")
+      description: Whether to use mecanum drive controller
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
+      name: namespace
+      default: $(env ROBOT_NAMESPACE '')
+      description: Add namespace to all launched nodes.
+
+  - arg:
+      name: use_sim
+      default: 'False'
+      description: Use simulation
+
+  # =======================
+  # Derived values
+  # =======================
+
+  - let:
+      name: ns
+      value: $(eval "('$(var namespace)/' if '$(var namespace)' else '')")
+
+  - let:
+      name: pkg_config_path
+      value: $(eval "('$(var config_dir)/rosbot_controller' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_controller)') + '/config'")
+
+  - let:
+      name: controller_config
+      value: $(var pkg_config_path)/$(var robot_model)/controllers.yaml
+
+  - let:
+      name: manipulator_state
+      value: $(eval "('active' if $(var arm_activate) else 'inactive')")
+
+  - let:
+      name: resolved_controller_config
+      value: /tmp/rosbot_controller_$(var namespace).yaml
+
+  # =======================
+  # Resolve controller config (ReplaceString)
+  # =======================
+
+  - executable:
+      cmd: |
+        bash -c "
+          sed \
+            -e 's|<namespace>/|"$(var ns)"|g' \
+            -e 's|<manipulator_state>|"$(var manipulator_state)"|g' \
+            "$(var controller_config)" \
+            > "$(var resolved_controller_config)"
+        "
+
+  # =======================
+  # Load URDF
+  # =======================
+
+  - include:
+      file: $(find-pkg-share rosbot_description)/launch/$(var robot_model).yaml
+      let:
+        - name: configuration
+          value: $(var configuration)
+        - name: controller_config
+          value: $(var resolved_controller_config)
+        - name: manipulator_serial_port
+          value: $(var manipulator_serial_port)
+        - name: mock_joints
+          value: 'False'
+        - name: robot_model
+          value: $(var robot_model)
+        - name: use_sim
+          value: $(var use_sim)
+
+  # =======================
+  # Controller manager
+  # =======================
+
+  - node:
+      unless: $(var use_sim)
+      pkg: controller_manager
+      exec: ros2_control_node
+      param:
+        - from: $(var resolved_controller_config)
+      remap:
+        - from: differential_drive_controller/cmd_vel
+          to: cmd_vel
+        - from: differential_drive_controller/odom
+          to: odometry/wheels
+        - from: differential_drive_controller/transition_event
+          to: _differential_drive_controller/transition_event
+        - from: imu_sensor_node/imu
+          to: /_imu/data_raw
+        - from: imu_broadcaster/imu
+          to: imu/data
+        - from: imu_broadcaster/transition_event
+          to: _imu_broadcaster/transition_event
+        - from: joint_state_broadcaster/transition_event
+          to: _joint_state_broadcaster/transition_event
+        - from: mecanum_drive_controller/cmd_vel
+          to: cmd_vel
+        - from: mecanum_drive_controller/odom
+          to: odometry/wheels
+        - from: mecanum_drive_controller/transition_event
+          to: _mecanum_drive_controller/transition_event
+        - from: ~/motors_cmd
+          to: /_motors_cmd
+        - from: ~/motors_response
+          to: /_motors_response
+
+  # =======================
+  # Controllers spawner
+  # =======================
+
+  - node:
+      pkg: controller_manager
+      exec: spawner
+      args: >
+        $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
+        imu_broadcaster
+        joint_state_broadcaster
+        -c controller_manager
+        --controller-manager-timeout 20
+
+  # =======================
+  # Manipulator (delayed)
+  # =======================
+
+  - timer:
+      period: 5.0
+      if: $(eval "'$(var configuration)'.startswith('manipulation')")
+      children:
+        - include:
+            file: $(find-pkg-share rosbot_controller)/launch/manipulator.yaml
+            let:
+              - name: arm_activate
+                value: $(var arm_activate)

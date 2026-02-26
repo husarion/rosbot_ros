@@ -4,9 +4,7 @@
   <name>rosbot_controller</name>
   <version>0.18.1</version>
   <description>Hardware configuration for ROSbot Series</description>
-
   <maintainer email="support@husarion.com">Husarion</maintainer>
-
   <license>Apache License 2.0</license>
 
   <url type="website">https://husarion.com/</url>
@@ -14,6 +12,7 @@
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
+  <author email="rafal.gorecki@husarion.com">Rafał Gorecki</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -30,6 +29,7 @@
   <exec_depend>rosbot_description</exec_depend>
   <exec_depend>rosbot_moveit</exec_depend>
   <exec_depend>rosbot_utils</exec_depend>
+  <exec_depend>udev</exec_depend>
   <exec_depend>xacro</exec_depend>
   <!-- <exec_depend>parallel_gripper_controller</exec_depend> TODO: Should be used but right now no all function available (move_group)-->
 
