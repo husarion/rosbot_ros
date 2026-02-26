@@ -36,16 +36,18 @@ launch:
         VENDOR=0403; \
         PRODUCT=6014; \
         DEFAULT=/dev/ttyUSB0; \
-        for dev in /dev/ttyUSB*; do \
-          ATTRS=\$(udevadm info -q property -n \$dev); \
-          VID=\$(echo \$ATTRS | grep ^ID_VENDOR_ID= | cut -d= -f2); \
-          PID=\$(echo \$ATTRS | grep ^ID_MODEL_ID= | cut -d= -f2); \
-          if [[ \$VID == \$VENDOR && \$PID == \$PRODUCT ]]; then \
-            echo -n \$dev; \
-            exit 0; \
-          fi; \
-        done; \
-        echo -n \$DEFAULT'")
+        if ls /dev/ttyUSB* 1> /dev/null 2>&1; then \
+          for dev in /dev/ttyUSB*; do \
+            ATTRS=\$(udevadm info -q property -n \$dev); \
+            VID=\$(echo \$ATTRS | grep ^ID_VENDOR_ID= | cut -d= -f2); \
+            PID=\$(echo \$ATTRS | grep ^ID_MODEL_ID= | cut -d= -f2); \
+            if [[ \$VID == \$VENDOR && \$PID == \$PRODUCT ]]; then \
+              echo -n \$dev; \
+              exit 0; \
+            fi; \
+          done; \
+        fi; \
+        echo -n \$DEFAULT;'")
 
   - arg:
       name: manipulator_serial_port
