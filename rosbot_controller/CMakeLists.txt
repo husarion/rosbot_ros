@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.11)
-project(rosbot_description)
+project(rosbot_controller)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY config launch meshes rviz urdf
-        DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
+
+install(PROGRAMS scripts/arm_control DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
@@ -23,5 +24,4 @@ if(BUILD_TESTING)
   endforeach()
 endif()
 
-ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/hooks/setup_envs.sh.in")
 ament_package()

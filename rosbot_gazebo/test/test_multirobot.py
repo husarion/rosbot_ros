@@ -56,7 +56,7 @@ def generate_test_description():
             "ros2",
             "launch",
             "rosbot_gazebo",
-            "spawn_robot.launch.py",
+            "spawn_robot.yaml",
             "namespace:=robot2",
             "robot_model:=rosbot_xl",
             "y:=-4.0",

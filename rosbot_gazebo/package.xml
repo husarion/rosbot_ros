@@ -28,13 +28,15 @@
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">rosbot_utils</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">rviz2</exec_depend>
 
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">ament_cmake_pytest</test_depend>
   <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">geometry_msgs</test_depend>
   <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch</test_depend>
   <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch_pytest</test_depend>
   <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch_ros</test_depend>
   <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">nav_msgs</test_depend>
   <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">python3-pytest</test_depend>
-  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">tf_transformations</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">rclpy</test_depend>
+  <test_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">sensor_msgs</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
