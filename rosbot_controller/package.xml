@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_controller</name>
-  <version>0.18.1</version>
+  <version>0.18.6</version>
   <description>Hardware configuration for ROSbot Series</description>
   <maintainer email="support@husarion.com">Husarion</maintainer>
   <license>Apache License 2.0</license>
@@ -33,11 +33,12 @@
   <exec_depend>xacro</exec_depend>
   <!-- <exec_depend>parallel_gripper_controller</exec_depend> TODO: Should be used but right now no all function available (move_group)-->
 
+  <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>python3-pytest</test_depend>
   <test_depend>rosbot_description</test_depend>
   <test_depend>xacro</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

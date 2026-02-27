@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_utils</name>
-  <version>0.18.1</version>
+  <version>0.18.6</version>
   <description>Utilities for ROSbot Series</description>
   <maintainer email="support@husarion.com">Husarion</maintainer>
   <license>Apache License 2.0</license>
@@ -24,6 +24,7 @@
   <exec_depend>laser_filters</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>python3-argcomplete</exec_depend>
+  <exec_depend>python3-ftdi</exec_depend>
   <exec_depend>python3-libgpiod</exec_depend>
   <exec_depend>python3-pyudev</exec_depend>
   <exec_depend>python3-sh</exec_depend>

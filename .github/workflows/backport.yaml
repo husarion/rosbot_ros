@@ -22,8 +22,8 @@ jobs:
         github.event.pull_request.merged
       )
     steps:
-      - uses: actions/checkout@v4
-      - uses: korthout/backport-action@v3
+      - uses: actions/checkout@v6
+      - uses: korthout/backport-action@v4
         with:
           github_token: ${{ secrets.GH_PAT }}
           source_pr_number: ${{ inputs.pr_number || github.event.pull_request.number }}
