@@ -41,10 +41,6 @@ Running test with
     bringup_launch = IncludeLaunchDescription(
         PathJoinSubstitution([rosbot_bringup, "launch", "bringup.yaml"]),
         launch_arguments={
-            "gz_headless_mode": "True",
-            "gz_world": PathJoinSubstitution(
-                [FindPackageShare("husarion_gz_worlds"), "worlds", "empty_with_plugins.sdf"]
-            ),
             "mecanum": mecanum,
             "microros": "False",
             "namespace": namespace,

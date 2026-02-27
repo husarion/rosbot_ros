@@ -33,11 +33,12 @@
   <exec_depend>xacro</exec_depend>
   <!-- <exec_depend>parallel_gripper_controller</exec_depend> TODO: Should be used but right now no all function available (move_group)-->
 
+  <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>python3-pytest</test_depend>
   <test_depend>rosbot_description</test_depend>
   <test_depend>xacro</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
