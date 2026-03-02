@@ -2,12 +2,12 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot</name>
-  <version>0.18.6</version>
+  <version>0.18.8</version>
   <description>Meta package that contains all packages of ROSbot Series</description>
   <maintainer email="support@husarion.com">Husarion</maintainer>
   <license>Apache License 2.0</license>
 
-  <url type="website">https://husarion.com/</url>
+  <url type="website">https://husarion.com</url>
   <url type="repository">https://github.com/husarion/rosbot_ros</url>
   <url type="bugtracker">https://github.com/husarion/rosbot_ros/issues</url>
 
@@ -19,8 +19,13 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend condition="$HUSARION_ROS_BUILD_TYPE == hardware">rosbot_bringup</depend>
-  <depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">rosbot_gazebo</depend>
+  <depend>rosbot_controller</depend>
+  <depend>rosbot_description</depend>
+  <depend>rosbot_hardware_interfaces</depend>
+  <depend>rosbot_joy</depend>
+  <depend>rosbot_localization</depend>
+  <depend>rosbot_moveit</depend>
+  <depend>rosbot_utils</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

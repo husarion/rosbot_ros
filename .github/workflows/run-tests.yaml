@@ -11,11 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: rostooling/setup-ros-docker:ubuntu-noble-latest
-    strategy:
-      matrix:
-        build_type: [simulation, hardware]
     env:
-      HUSARION_ROS_BUILD_TYPE: ${{ matrix.build_type }}
       PIP_BREAK_SYSTEM_PACKAGES: true
 
     steps:
@@ -26,17 +22,14 @@ jobs:
         uses: ros-tooling/action-ros-ci@v0.4
         with:
           vcs-repo-file-url: |
-            rosbot/rosbot_${{ env.HUSARION_ROS_BUILD_TYPE }}.repos
+            rosbot/rosbot_hardware.repos
+            rosbot/rosbot_simulation.repos
             rosbot/manipulator.repos
           target-ros2-distro: jazzy
           # rosbot_bringup and rosbot_gazebo works only locally
           colcon-defaults: |
             {
-              "build": {
-                "packages-up-to": ["rosbot"]
-              },
               "test": {
-                "packages-up-to": ["rosbot"],
                 "packages-select-regex": ["rosbot*"],
                 "packages-skip": ["rosbot_bringup", "rosbot_gazebo"]
               }

@@ -5,8 +5,6 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(PkgConfig REQUIRED)
 
-ament_python_install_package(${PROJECT_NAME})
-
 pkg_check_modules(LIBFTDI REQUIRED libftdi1)
 pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 
@@ -24,5 +22,7 @@ install(PROGRAMS rosbot_utils/flash_firmware rosbot_utils/create_config_dir
         DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY config firmware launch DESTINATION share/${PROJECT_NAME})
+
+ament_python_install_package(${PROJECT_NAME})
 
 ament_package()

@@ -16,9 +16,12 @@ jobs:
     name: ROS Test
     uses: ./.github/workflows/run-tests.yaml
 
-  bump:
-    name: Bump
+  build_docker:
+    name: Build Docker
     needs: ros_test
     if: github.ref == 'refs/heads/jazzy'
-    uses: ./.github/workflows/bump.yaml
+    uses: ./.github/workflows/build-docker.yaml
     secrets: inherit
+    with:
+      branch_name: ${{ github.event.pull_request.base.ref }}
+      build_type: development

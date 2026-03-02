@@ -30,36 +30,27 @@ Documentation is available in ROS_API.md.
    git clone -b jazzy https://github.com/husarion/rosbot_ros.git src/rosbot_ros
    ```
 
-### Configure environment
-
-The repository is used to run the code both on the real robot and in the simulation. Specify `HUSARION_ROS_BUILD_TYPE` the variable according to your needs.
-
-Real robot:
-
-```bash
-export HUSARION_ROS_BUILD_TYPE=hardware
-```
-
-Simulation:
-
-```bash
-export HUSARION_ROS_BUILD_TYPE=simulation
-```
-
 ### Build
 
 ```bash
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos
-vcs import src < src/rosbot_ros/rosbot/manipulator.repos # For ROSbot XL manipulation package
+vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
+vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos
+vcs import src < src/rosbot_ros/rosbot/manipulator.repos
+
+# Optional: speed up build by removing unnecessary packages
+# For hardware build only, remove simulation package:
+# rm -rf src/rosbot_ros/rosbot_gazebo
+# For simulation build only, remove hardware package:
+# rm -rf src/rosbot_ros/rosbot_bringup
 
 export PIP_BREAK_SYSTEM_PACKAGES=1
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
 rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y
 
-colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 #### Run the Robot
