@@ -18,6 +18,7 @@ RUN apt update && apt upgrade -y && \
     # Setup workspace
     vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos && \
     vcs import src < src/rosbot_ros/rosbot/manipulator.repos && \
+    rm -rf src/rosbot_ros/rosbot_bringup && \
     # Install dependencies
     rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \

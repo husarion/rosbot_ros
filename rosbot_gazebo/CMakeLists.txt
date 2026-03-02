@@ -3,8 +3,7 @@ project(rosbot_gazebo)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY config launch meshes rviz urdf
-        DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
@@ -23,5 +22,4 @@ if(BUILD_TESTING)
   endforeach()
 endif()
 
-ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/hooks/setup_envs.sh.in")
 ament_package()
