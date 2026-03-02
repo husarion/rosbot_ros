@@ -19,7 +19,6 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rosbot</depend>
   <depend>rosbot_controller</depend>
   <depend>rosbot_description</depend>
   <depend>rosbot_hardware_interfaces</depend>
