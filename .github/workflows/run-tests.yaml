@@ -31,6 +31,5 @@ jobs:
             {
               "test": {
                 "packages-select-regex": ["rosbot*"],
-                "packages-skip": ["rosbot_bringup", "rosbot_gazebo"]
               }
             }
