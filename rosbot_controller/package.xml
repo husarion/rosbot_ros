@@ -27,6 +27,7 @@
   <exec_depend>position_controllers</exec_depend>
   <exec_depend>ros2controlcli</exec_depend>
   <exec_depend>rosbot_description</exec_depend>
+  <exec_depend>rosbot_hardware_interfaces</exec_depend>
   <exec_depend>rosbot_moveit</exec_depend>
   <exec_depend>rosbot_utils</exec_depend>
   <exec_depend>udev</exec_depend>
