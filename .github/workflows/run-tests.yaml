@@ -30,6 +30,6 @@ jobs:
           colcon-defaults: |
             {
               "test": {
-                "packages-select-regex": ["rosbot*"],
+                "packages-select-regex": ["rosbot*"]
               }
             }
