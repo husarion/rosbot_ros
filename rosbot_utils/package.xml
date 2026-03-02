@@ -15,6 +15,9 @@
   <author email="jakub.delicat@husarion.com">Jakub Delicat</author>
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
   <exec_depend>laser_filters</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>python3-argcomplete</exec_depend>
@@ -31,6 +34,6 @@
   <test_depend>python3-pytest</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
