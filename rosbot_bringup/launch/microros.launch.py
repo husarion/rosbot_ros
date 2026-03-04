@@ -90,25 +90,32 @@ def generate_microros_agent_node(context, *args, **kwargs):
             ]
         )
 
-    pre_communication_cmd = ['ros2', 'run', 'rosbot_utils', 'configure_robot',  '--robot-model', robot_model]
-    if namespace :
-        pre_communication_cmd.extend(['--namespace', namespace])
+    pre_communication_cmd = [
+        "ros2",
+        "run",
+        "rosbot_utils",
+        "configure_robot",
+        "--robot-model",
+        robot_model,
+    ]
+    if namespace:
+        pre_communication_cmd.extend(["--namespace", namespace])
     if usb == "true":
-        pre_communication_cmd.extend(['--usb'])
+        pre_communication_cmd.extend(["--usb"])
 
     pre_communication = ExecuteProcess(
         cmd=pre_communication_cmd,
         output="screen",
         name="pre_communication",
     )
-        
+
     microros_agent_node = Node(
         package="micro_ros_agent",
         executable="micro_ros_agent",
         arguments=micoros_communication_args[robot_model],
         output="screen",
     )
- 
+
     def on_pre_comm_exit(event, context):
         if event.returncode == 0:
             return [microros_agent_node]
@@ -167,8 +174,6 @@ def generate_launch_description():
         description="ROSbot only. Use rear USB for micro-ROS agent",
         choices=["true", "false"],
     )
-
-
 
     return LaunchDescription(
         [

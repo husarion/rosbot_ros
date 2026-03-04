@@ -48,7 +48,7 @@ def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5
             print(f"✗ Unexpected response: {repr(line)}")
             serial_port.close()
             return False
-        
+
         major, minor, patch = map(int, match.groups())
         fw_version = f"{major}.{minor}.{patch}"
         print(f"✓ Firmware version detected: {fw_version}")
