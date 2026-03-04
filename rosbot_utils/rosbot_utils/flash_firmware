@@ -19,7 +19,6 @@ import os
 import signal
 import sys
 
-import requests
 from ament_index_python.packages import get_package_share_directory
 
 from rosbot_utils.flash_firmware_uart import FirmwareFlasherUART
@@ -36,32 +35,6 @@ def signal_handler(sig, frame):
         print("Terminating the flashing process...")
         subproc.terminate()
     sys.exit(0)
-
-
-def download_firmware(firmware_url, firmware_path):
-    response = requests.get(firmware_url, allow_redirects=True)
-    if response.status_code == 200:
-        with open(firmware_path, "wb") as f:
-            f.write(response.content)
-        print("Firmware downloaded successfully.")
-    else:
-        raise Exception(f"Failed to download firmware: HTTP {response.status_code}")
-
-
-def find_firmware_file(path, robot_model):
-    rosbot_link = (
-        "https://github.com/husarion/rosbot_ros2_firmware/releases/download/0.11.0/firmware.bin"
-    )
-    rosbot_xl_link = (
-        "https://github.com/husarion/rosbot_firmware/releases/download/v1.4.0/firmware.bin"
-    )
-    robot_download_link = {"rosbot": rosbot_link, "rosbot_xl": rosbot_xl_link}
-
-    if not path:
-        print("Downloading firmware...")
-        download_firmware(robot_download_link[robot_model], path)
-
-    return path
 
 
 def main(args=None):
