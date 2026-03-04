@@ -4,9 +4,9 @@
     ros__parameters:
       update_rate: 100 # Hz
 
-      differential_controller:
+      differential_drive_controller:
         type: diff_drive_controller/DiffDriveController
-      mecanum_controller:
+      mecanum_drive_controller:
         type: mecanum_drive_controller/MecanumDriveController
       imu_broadcaster:
         type: imu_sensor_broadcaster/IMUSensorBroadcaster
@@ -30,7 +30,7 @@
       static_covariance_angular_velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e-3] # Values measured experimentally
       static_covariance_linear_acceleration: [6.4e-2, 0.0, 0.0, 0.0, 2.2e-2, 0.0, 0.0, 0.0, 0.0] # Values measured experimentally
 
-  differential_controller:
+  differential_drive_controller:
     ros__parameters:
       # Robot Specific
       tf_frame_prefix_enable: false
@@ -82,7 +82,7 @@
           min_jerk: .nan # rad/s^3
 
 
-  mecanum_controller:
+  mecanum_drive_controller:
     ros__parameters:
       # Robot Specific
       tf_frame_prefix_enable: false

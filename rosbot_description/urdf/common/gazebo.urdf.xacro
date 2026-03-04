@@ -8,15 +8,15 @@
         <parameters>${config_file}</parameters>
         <ros>
           <namespace>${namespace}</namespace>
-          <remapping>differential_controller/cmd_vel:=cmd_vel</remapping>
-          <remapping>differential_controller/odom:=odometry/wheels</remapping>
-          <remapping>differential_controller/transition_event:=_differential_controller/transition_event</remapping>
+          <remapping>differential_drive_controller/cmd_vel:=cmd_vel</remapping>
+          <remapping>differential_drive_controller/odom:=odometry/wheels</remapping>
+          <remapping>differential_drive_controller/transition_event:=_differential_drive_controller/transition_event</remapping>
           <remapping>imu_broadcaster/imu:=imu/data</remapping>
           <remapping>imu_broadcaster/transition_event:=_imu_broadcaster/transition_event</remapping>
           <remapping>joint_state_broadcaster/transition_event:=_joint_state_broadcaster/transition_event</remapping>
-          <remapping>mecanum_controller/cmd_vel:=cmd_vel</remapping>
-          <remapping>mecanum_controller/odom:=odometry/wheels</remapping>
-          <remapping>mecanum_controller/transition_event:=_mecanum_controller/transition_event</remapping>
+          <remapping>mecanum_drive_controller/cmd_vel:=cmd_vel</remapping>
+          <remapping>mecanum_drive_controller/odom:=odometry/wheels</remapping>
+          <remapping>mecanum_drive_controller/transition_event:=_mecanum_drive_controller/transition_event</remapping>
           <remapping>/diagnostics:=diagnostics</remapping>
           <remapping>/tf:=tf</remapping>
           <remapping>/tf_static:=tf_static</remapping>
