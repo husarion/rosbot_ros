@@ -11,3 +11,12 @@ repositories:
     type: git
     url: https://github.com/micro-ROS/micro-ROS-Agent
     version: af007872b034d1ed31de4815377031350ab0034b
+  # Downloaded from apt packages, keep last known working versions here for reference
+  # dynamixel_hardware_interface:
+  #   type: git
+  #   url: https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git
+  #   version: d3fdcd0bcb425969b375cb552650622fbbd211bf
+  # open_manipulator:
+  #   type: git
+  #   url: https://github.com/ROBOTIS-GIT/open_manipulator.git
+  #   version: 93c0140cb81327cc235ddc5df91fde2d1f27bc7b

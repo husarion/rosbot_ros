@@ -41,7 +41,10 @@ USB Flashing:
         try:
             self.flash_firmware()
         except Exception as e:
-            error_msg = e.stderr.decode("utf-8").strip()
+            if hasattr(e, "stderr") and e.stderr is not None:
+                error_msg = e.stderr.decode("utf-8").strip()
+            else:
+                error_msg = str(e)
             raise RuntimeError(f"{error_msg}") from e
 
     def enter_bootloader_mode(self):

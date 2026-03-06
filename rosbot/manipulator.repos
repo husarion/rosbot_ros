@@ -1,5 +1,0 @@
-repositories:
-  dynamixel_hardware_interface: # This package often is changed which causes issues with the manipulation.
-    type: git
-    url: https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git
-    version: 13effbb87a2be75e7bbd92ef8d5ecf6fa4cbd798
