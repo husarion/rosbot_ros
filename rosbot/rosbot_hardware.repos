@@ -6,7 +6,7 @@ repositories:
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
-    version: 5f42f604dd1d3d5187e36cce125ec8fdb0b41f2c
+    version: 2b2b37a1579ae3968693a368ca7a7aaa351a41f4
   micro-ROS-Agent:
     type: git
     url: https://github.com/micro-ROS/micro-ROS-Agent

@@ -7,7 +7,7 @@
       differential_drive_controller:
         type: diff_drive_controller/DiffDriveController
       mecanum_drive_controller:
-        type: mecanum_drive_controller/MecanumDriveController
+        type: husarion_mecanum_drive_controller/MecanumDriveController
       imu_broadcaster:
         type: imu_sensor_broadcaster/IMUSensorBroadcaster
       joint_state_broadcaster:

@@ -18,11 +18,11 @@
 
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
+  <exec_depend>husarion_mecanum_drive_controller</exec_depend>
   <exec_depend>imu_sensor_broadcaster</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-  <exec_depend>mecanum_drive_controller</exec_depend>
   <exec_depend>nav2_common</exec_depend>
   <exec_depend>position_controllers</exec_depend>
   <exec_depend>ros2controlcli</exec_depend>
