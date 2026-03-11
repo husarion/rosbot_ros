@@ -17,7 +17,6 @@ RUN apt update && apt upgrade -y && \
         ros-${ROS_DISTRO}-teleop-twist-keyboard && \
     # Setup workspace
     vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos && \
-    vcs import src < src/rosbot_ros/rosbot/manipulator.repos && \
     rm -rf src/rosbot_ros/rosbot_gazebo && \
     # Install dependencies
     rosdep init && \
