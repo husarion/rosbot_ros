@@ -9,12 +9,14 @@ set(PACKAGE_INCLUDE_DEPENDS
     ament_cmake
     control_msgs
     geometry_msgs
-    rclcpp
-    sensor_msgs
     moveit_msgs
     moveit_ros_planning
     moveit_ros_planning_interface
-    moveit_servo)
+    moveit_servo
+    rclcpp
+    rclcpp_action
+    sensor_msgs
+    std_srvs)
 
 foreach(Dependency IN ITEMS ${PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)

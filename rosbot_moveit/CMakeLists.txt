@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.11)
 project(rosbot_moveit)
 
-set(PACKAGE_INCLUDE_DEPENDS
-    ament_cmake moveit_core moveit_msgs moveit_ros_planning
-    moveit_ros_planning_interface rclcpp)
+set(PACKAGE_INCLUDE_DEPENDS ament_cmake moveit_msgs moveit_ros_planning
+                            moveit_ros_planning_interface rclcpp)
 
 foreach(Dependency IN ITEMS ${PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
