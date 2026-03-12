@@ -37,7 +37,6 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 
 vcs import src < src/rosbot_ros/rosbot/rosbot_hardware.repos
 vcs import src < src/rosbot_ros/rosbot/rosbot_simulation.repos
-vcs import src < src/rosbot_ros/rosbot/manipulator.repos
 
 # Optional: speed up build by removing unnecessary packages
 # For hardware build only, remove simulation package:

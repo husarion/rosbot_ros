@@ -24,7 +24,6 @@ jobs:
           vcs-repo-file-url: |
             rosbot/rosbot_hardware.repos
             rosbot/rosbot_simulation.repos
-            rosbot/manipulator.repos
           target-ros2-distro: jazzy
           # rosbot_bringup and rosbot_gazebo works only locally
           colcon-defaults: |

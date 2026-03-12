@@ -20,7 +20,6 @@ import re
 import sys
 
 import serial
-
 from rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
 from rosbot_utils.mcu_manager_uart import McuManagerUART
 from rosbot_utils.utils import find_device_port

@@ -20,12 +20,12 @@ import signal
 import sys
 
 from ament_index_python.packages import get_package_share_directory
-
 from rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
 from rosbot_utils.mcu_manager_uart import McuManagerUART
 
 # Global variable to hold the subprocess reference
 subproc = None
+
 
 def signal_handler(sig, frame):
     global subproc

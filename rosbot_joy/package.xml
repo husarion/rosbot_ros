@@ -23,7 +23,9 @@
   <depend>moveit_ros_planning_interface</depend>
   <depend>moveit_servo</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
   <depend>sensor_msgs</depend>
+  <depend>std_srvs</depend>
 
   <exec_depend>joy</exec_depend>
   <exec_depend>launch</exec_depend>

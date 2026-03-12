@@ -1,47 +1,27 @@
-# Quick Start
-#
-# 1. Run `xhost +local:docker && docker compose -f compose.simulation.yaml up` on the laptop
-#    (optionally you can chang `gpu-config` -> `cpu config`).
-# 2. Open a shell inside a docker container `docker compose -f compose.simulation.yaml exec -it rosbot bash`
-# 3. Run `ros2 run teleop_twist_keyboard teleop_twist_keyboard` inside the container
+# Run `xhost +local:docker` before starting the container to allow GUI applications to connect to the X server.
 
 x-common-config:
   &common-config
   network_mode: host
   ipc: host
-  env_file:
-    - .env
-
-x-gpu-config:
-  &gpu-config
-  runtime: nvidia
-  environment:
-    - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-    - FASTRTPS_DEFAULT_PROFILES_FILE=/udp_profiles.xml
-    - DISPLAY=${DISPLAY:?err}
-    - NVIDIA_VISIBLE_DEVICES=all
-    - NVIDIA_DRIVER_CAPABILITIES=all
-
-x-cpu-config:
-  &cpu-config
-  environment:
-    - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-    - FASTRTPS_DEFAULT_PROFILES_FILE=/udp_profiles.xml
-    - DISPLAY=${DISPLAY:?err}
 
 services:
   rosbot:
-    # image: husarion/rosbot-gazebo:jazzy
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.simulation
-    <<: [ *common-config, *gpu-config]
+    image: husarion/rosbot-gazebo:jazzy
+    <<: [ *common-config]
+    runtime: nvidia # Remove if do not have NVIDIA GPU
     devices:
       - /dev/dri:/dev/dri
       - /dev/input:/dev/input:ro # Joystick
+    environment:
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - FASTRTPS_DEFAULT_PROFILES_FILE=/ros2_ws/src/rosbot_ros/docker/dds-config-udp.xml
+      - DISPLAY=${DISPLAY:?[Error] No display found.}
+      - QT_X11_NO_MITSHM=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ./dds-config-udp.xml:/udp_profiles.xml:ro
     command: >
       ros2 launch rosbot_gazebo simulation.yaml
-        robot_model:=${ROBOT_MODEL:?Error: Specify robot model}
+        robot_model:=${ROBOT_MODEL:?[Error] Specify robot model}
