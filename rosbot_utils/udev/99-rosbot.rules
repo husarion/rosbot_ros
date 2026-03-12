@@ -1,2 +1,5 @@
-SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", TAG+="uaccess", MODE="0666", GROUP="dialout"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", TAG+="uaccess", MODE="0666", GROUP="dialout", SYMLINK+="rosbot_serial"
+# USB access (pyftdi / libusb)
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6015", MODE="0666"
+
+# Serial port + stable name
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", SYMLINK+="rosbot", MODE="0666", GROUP="dialout"
