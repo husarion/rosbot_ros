@@ -23,5 +23,5 @@ jobs:
     uses: ./.github/workflows/build-docker.yaml
     secrets: inherit
     with:
-      branch_name: ${{ github.event.pull_request.base.ref }}
+      branch_name: ${{ github.ref_name }}
       build_type: development
