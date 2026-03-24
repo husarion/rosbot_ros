@@ -80,7 +80,7 @@ def main(args=None):
 
     try:
         if args.usb:
-            port = "/dev/ttyUSB0"
+            port = args.port
             udev_rules = "/etc/udev/rules.d/99-rosbot.rules"
 
             if not os.path.exists(port):
