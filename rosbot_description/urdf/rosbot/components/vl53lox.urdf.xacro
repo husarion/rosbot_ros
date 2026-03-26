@@ -13,12 +13,10 @@
 
     <link name="${prefix}_range" />
 
-    <!-- an IR sensor or a sonar are not implemented yet
-    https://github.com/gazebosim/gz-sensors/issues/19 -->
     <gazebo reference="${prefix}_range">
       <sensor name="${ns}${prefix}_range" type='gpu_lidar'>
 
-        <topic>${ns}range/${prefix}</topic>
+        <topic>${ns}ranges</topic>
         <gz_frame_id>${prefix}_range</gz_frame_id>
 
         <update_rate>5.0</update_rate>

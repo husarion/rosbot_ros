@@ -60,17 +60,15 @@ For ROSbot XL, you can specify a particular configuration using the launch `conf
 
 ```bash
 source install/setup.bash
-ros2 launch rosbot_bringup bringup.yaml robot_model:=<rosbot/rosbot_xl>
+ros2 launch rosbot_bringup <rosbot/rosbot_xl>.yaml
 ```
 
 > [!NOTE]
-> To run the software on real ROSbots, communication with the CORE2 is required. Ensure the firmware is updated before running the micro-ROS agent. For detailed instructions, refer to the rosbot_ros2_firmware repository.
+> The ROSbot ROS Driver is strongly dependent on the firmware version. If you change driver version or ROS distro, ensure the firmware is compatible. Firmware can be updated with the `flash_firmware` script.
 >
 > ```bash
-> sudo su
 > source install/setup.bash
 > ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
-> exit
 > ```
 
 **Simulation:**
@@ -79,6 +77,14 @@ ros2 launch rosbot_bringup bringup.yaml robot_model:=<rosbot/rosbot_xl>
 source install/setup.bash
 ros2 launch rosbot_gazebo simulation.yaml robot_model:=<rosbot/rosbot_xl>
 ```
+
+> [!TIP]
+> You can spawn multiple robots in the simulation. To do that, run the launch file multiple times with different namespaces and initial positions (x, y, z). For example:
+>
+> ```bash
+> source install/setup.bash
+> ros2 launch rosbot_gazebo spawn_robot.yaml robot_model:=<rosbot/rosbot_xl> namespace:=robot1 x:=0 y:=0
+> ```
 
 ### Launch Arguments
 

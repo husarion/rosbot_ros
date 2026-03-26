@@ -167,13 +167,13 @@ CallbackReturn RosbotSystem::on_activate(const rclcpp_lifecycle::State &) {
   }
 
   motor_command_publisher_ = node_->create_publisher<Float32MultiArray>(
-      "_motors_cmd", rclcpp::SensorDataQoS());
+      "_motors/cmd", rclcpp::SensorDataQoS());
   realtime_motor_command_publisher_ =
       std::make_shared<realtime_tools::RealtimePublisher<Float32MultiArray>>(
           motor_command_publisher_);
 
   motor_state_subscriber_ = node_->create_subscription<JointState>(
-      "_motors_response", rclcpp::SensorDataQoS(),
+      "_motors/feedback", rclcpp::SensorDataQoS(),
       std::bind(&RosbotSystem::motor_state_cb, this, std::placeholders::_1));
 
   std::shared_ptr<JointState> motor_state;

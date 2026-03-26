@@ -24,39 +24,48 @@ from rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
 from rosbot_utils.mcu_manager_uart import McuManagerUART
 from rosbot_utils.utils import find_device_port
 
+RED = "\033[91m"
+RESET = "\033[0m"
+
+
+def print_error(msg: str):
+    print(f"{RED}[ERROR] {msg}{RESET}")
+
 
 def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5.0) -> bool:
     try:
-        print(f"Connecting to {port}...")
+        print(f"Pre-communication with MCU on {port}...")
         serial_port = serial.Serial(port, baudrate, timeout=timeout)
         serial_port.reset_input_buffer()
 
-        print("Waiting for communication...")
         raw = serial_port.readline()
-        line = raw.decode("utf-8", errors="ignore")
-        line = line.replace("\x00", "").strip()
-
-        match = re.match(r"^FW:\s*(\d+)\.(\d+)\.(\d+)$", line)
+        line = raw.decode("utf-8", errors="ignore").replace("\x00", "").strip()
 
         if line == "":
-            print("✗ No response.")
+            print_error("No response.")
             serial_port.close()
             return False
 
+        match = re.match(r"^FW:\s*v?(\d+)\.(\d+)\.(\d+)(?:-([\w\-]+))?$", line)
         if not match:
-            print(f"✗ Unexpected response: {repr(line)}")
+            print_error(f"Unexpected response: {repr(line)}")
             serial_port.close()
             return False
 
-        major, minor, patch = map(int, match.groups())
-        fw_version = f"{major}.{minor}.{patch}"
-        print(f"✓ Firmware version detected: {fw_version}")
+        expected_fw = "v1.0.0-jazzy"
+        suffix = f"-{match.group(4)}" if match.group(4) else ""
+        current_fw = f"v{'.'.join(match.groups()[:3])}{suffix}"
+        if current_fw != expected_fw:
+            print_error(
+                f"Unsupported firmware: {current_fw} Expected: {expected_fw}. Run: ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>"
+            )
+            serial_port.close()
+            return False
 
-        print(f"Sending namespace: {namespace}")
+        print(f"✓ Firmware version detected: {current_fw}")
         serial_port.write(f"NS:{namespace}\n".encode("utf-8"))
         serial_port.flush()
 
-        # Wait for ACK
         ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
         serial_port.close()
 
@@ -64,14 +73,14 @@ def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5
             print(f"✓ Robot configured with namespace: /{namespace}")
             return True
         else:
-            print(f"✗ No ACK received: '{ack}'")
+            print_error(f"Namespace configuration failed. No ACK received: '{ack}'")
             return False
 
     except serial.SerialException as e:
-        print(f"✗ Serial error: {e}")
+        print_error(f"Serial error: {e}")
         return False
     except KeyboardInterrupt:
-        print("\nAborted.")
+        print("\nAborted by user.")
         return False
 
 
@@ -87,23 +96,10 @@ def main(args=None):
         help="Specify the robot model",
     )
     parser.add_argument(
-        "--usb",
-        action="store_true",
-        help="Flash via USB. Automatically set for ROSbot XL; other ROSbots use UART by default. (You can flash firmware to ROSbot via USB-A from your PC)",
+        "--usb", action="store_true", help="Flash via USB. ROSbot XL uses USB by default."
     )
-    parser.add_argument(
-        "-n",
-        "--namespace",
-        default="",
-        help="Specify the robot namespace",
-    )
-    parser.add_argument(
-        "-b",
-        "--baudrate",
-        type=int,
-        default=921600,
-        help="Specify the serial communication baudrate",
-    )
+    parser.add_argument("-n", "--namespace", default="", help="Specify the robot namespace")
+    parser.add_argument("-b", "--baudrate", type=int, default=921600, help="Serial baudrate")
     args = parser.parse_args(args)
 
     robot_model = args.robot_model
@@ -116,11 +112,11 @@ def main(args=None):
             udev_rules = "/etc/udev/rules.d/99-rosbot.rules"
 
             if not os.path.exists(port):
-                print(f"ERROR: Device {port} not found. Is it connected?")
+                print_error(f"Device {port} not found. Is it connected?")
                 sys.exit(1)
             if not os.path.exists(udev_rules):
-                print(
-                    f"ERROR: No access to device {port}.\nInstall udev rules first:\n  ros2 run rosbot_utils install_udev_rules"
+                print_error(
+                    f"No access to device {port}. Install udev rules first:\n  ros2 run rosbot_utils install_udev_rules"
                 )
                 sys.exit(1)
 
@@ -133,7 +129,7 @@ def main(args=None):
             mcu_manager.reset_mcu()
 
     except Exception as e:
-        print(f"ERROR: {e}")
+        print_error(str(e))
         sys.exit(1)
 
 

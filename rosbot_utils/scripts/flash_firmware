@@ -75,7 +75,7 @@ def main(args=None):
         args.usb = True
 
     rosbot_utils = get_package_share_directory("rosbot_utils")
-    robot_firmware = os.path.join(rosbot_utils, "firmware", robot_model, "v1.0.0.bin")
+    robot_firmware = os.path.join(rosbot_utils, "firmware", robot_model, "v1.0.0-jazzy.bin")
     firmware = args.file if args.file else robot_firmware
 
     try:

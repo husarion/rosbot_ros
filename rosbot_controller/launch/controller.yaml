@@ -156,8 +156,6 @@ launch:
           to: odometry/wheels
         - from: differential_drive_controller/transition_event
           to: _differential_drive_controller/transition_event
-        - from: imu_sensor_node/imu
-          to: /_imu/data_raw
         - from: imu_broadcaster/imu
           to: imu/data
         - from: imu_broadcaster/transition_event
@@ -170,10 +168,6 @@ launch:
           to: odometry/wheels
         - from: mecanum_drive_controller/transition_event
           to: _mecanum_drive_controller/transition_event
-        - from: ~/motors_cmd
-          to: /_motors_cmd
-        - from: ~/motors_response
-          to: /_motors_response
 
   # =======================
   # Controllers spawner

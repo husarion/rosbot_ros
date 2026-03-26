@@ -22,7 +22,7 @@ from sensor_msgs.msg import Image
 
 class LEDStripWavePublisher(Node):
     def __init__(self):
-        super().__init__("led_strip_wave")
+        super().__init__("led_strip_animation")
         self.pub = self.create_publisher(Image, "led_strip", 10)
         self.create_timer(0.04, self.tick)
 

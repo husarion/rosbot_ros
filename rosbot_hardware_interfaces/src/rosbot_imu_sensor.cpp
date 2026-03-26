@@ -79,7 +79,7 @@ CallbackReturn RosbotImuSensor::on_activate(const rclcpp_lifecycle::State &) {
   }
 
   imu_subscriber_ = node_->create_subscription<Imu>(
-      "_imu/data_raw", rclcpp::SensorDataQoS(),
+      "_imu/data", rclcpp::SensorDataQoS(),
       std::bind(&RosbotImuSensor::imu_cb, this, std::placeholders::_1));
 
   std::shared_ptr<Imu> imu_msg;
