@@ -16,7 +16,7 @@ launch:
 
   - arg:
       name: robot_model
-      default: $(env ROBOT_MODEL '')
+      default: rosbot
       description: Specify robot model
       choice:
         - value: rosbot

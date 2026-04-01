@@ -80,7 +80,8 @@ The main package responsible for running the physical robot.
 
 **Available Launch Files:**
 
-- `bringup.yaml` - is responsible for communicating with firmware and activating all logic related to the robot's movement and processing of sensory data.
+- `rosbot.yaml` - activates all logic related to the ROSbot's movement and processing of sensory data.
+- `rosbot_xl.yaml` - activates all logic related to the ROSbot XL's movement and processing of sensory data.
 - `microros.launch.py` - establishes connection with the hardware using microROS agent.
 
 ### `rosbot_controller`

@@ -30,28 +30,9 @@ launch:
         - value: manipulation_pro
         - value: custom
 
-  - let:
-      name: manipulator_dev
-      value: $(command "bash -c '\
-        VENDOR=0403; \
-        PRODUCT=6014; \
-        DEFAULT=/dev/ttyUSB0; \
-        if ls /dev/ttyUSB* 1> /dev/null 2>&1; then \
-          for dev in /dev/ttyUSB*; do \
-            ATTRS=\$(udevadm info -q property -n \$dev); \
-            VID=\$(echo \$ATTRS | grep ^ID_VENDOR_ID= | cut -d= -f2); \
-            PID=\$(echo \$ATTRS | grep ^ID_MODEL_ID= | cut -d= -f2); \
-            if [[ \$VID == \$VENDOR && \$PID == \$PRODUCT ]]; then \
-              echo -n \$dev; \
-              exit 0; \
-            fi; \
-          done; \
-        fi; \
-        echo -n \$DEFAULT;'")
-
   - arg:
       name: manipulator_serial_port
-      default: $(var manipulator_dev)
+      default: /dev/manipulator
       description: Port to connect to the manipulator.
 
   - arg:
@@ -134,8 +115,6 @@ launch:
           value: $(var manipulator_serial_port)
         - name: mock_joints
           value: 'False'
-        - name: robot_model
-          value: $(var robot_model)
         - name: use_sim
           value: $(var use_sim)
 
@@ -173,15 +152,18 @@ launch:
   # Controllers spawner
   # =======================
 
-  - node:
-      pkg: controller_manager
-      exec: spawner
-      args: >
-        $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
-        imu_broadcaster
-        joint_state_broadcaster
-        -c controller_manager
-        --controller-manager-timeout 20
+  - timer:
+      period: 3.0
+      children:
+        - node:
+            pkg: controller_manager
+            exec: spawner
+            args: >
+              $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
+              imu_broadcaster
+              joint_state_broadcaster
+              -c controller_manager
+              --controller-manager-timeout 20
 
   # =======================
   # Manipulator (delayed)

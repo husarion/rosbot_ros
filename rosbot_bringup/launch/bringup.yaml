@@ -1,0 +1,13 @@
+---
+launch:
+
+  - arg:
+      name: robot_model
+      default: $(env ROBOT_MODEL '')
+      description: Specify robot model
+      choice:
+        - value: rosbot
+        - value: rosbot_xl
+
+  - include:
+      file: $(find-pkg-share rosbot_bringup)/launch/$(var robot_model).yaml

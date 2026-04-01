@@ -91,20 +91,9 @@ RosbotSystem::on_init(const hardware_interface::HardwareInfo &hardware_info) {
   connection_check_period_ms_ =
       std::stoul(info_.hardware_parameters["connection_check_period_ms"]);
 
-  rclcpp::NodeOptions node_options;
-  std::string ns = "";
-  if (info_.hardware_parameters.find("namespace") !=
-      info_.hardware_parameters.end()) {
-    ns = info_.hardware_parameters.at("namespace");
-    if (!ns.empty() && ns.front() == '/') {
-      ns.erase(0, 1);
-    }
-  }
-  if (!ns.empty()) {
-    node_options.arguments({"--ros-args", "-r", "__ns:=/" + ns});
-    RCLCPP_INFO(rclcpp::get_logger("RosbotSystem"),
-                "Creating node with namespace: %s", ns.c_str());
-  }
+  node_ = get_node();
+  auto ns = node_->get_namespace();
+  RCLCPP_INFO(node_->get_logger(), "Creating node with namespace: %s", ns);
 
   std::string velocity_command_joint_order_raw =
       info_.hardware_parameters["velocity_command_joint_order"];
@@ -138,11 +127,6 @@ RosbotSystem::on_init(const hardware_interface::HardwareInfo &hardware_info) {
       return CallbackReturn::ERROR;
     }
   }
-
-  node_ = std::make_shared<rclcpp::Node>("rosbot_system", node_options);
-  executor_.add_node(node_);
-  executor_thread_ = std::make_unique<std::thread>(
-      std::bind(&rclcpp::executors::MultiThreadedExecutor::spin, &executor_));
 
   return CallbackReturn::SUCCESS;
 }

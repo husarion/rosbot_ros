@@ -10,9 +10,10 @@ services:
     <<: *common-config
     devices:
       - /dev/input:/dev/input:ro # Joystick
+      - /dev/rosbot:/dev/rosbot # MCU
+      - /dev/bus/usb:/dev/bus/usb # FTDI
     environment:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
       - FASTRTPS_DEFAULT_PROFILES_FILE=/ros2_ws/src/rosbot_ros/docker/dds-config-udp.xml
     command: >
-      ros2 launch rosbot_bringup bringup.yaml
-        robot_model:=rosbot_xl
+      ros2 launch rosbot_bringup rosbot_xl.yaml

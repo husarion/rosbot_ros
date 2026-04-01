@@ -24,7 +24,7 @@ from sensor_msgs.msg import Image
 class LEDStripPublisher(Node):
 
     def __init__(self):
-        super().__init__("led_strip_animation")
+        super().__init__("led_strip_manager")
 
         self.num_leds = 18
         self.gradient_resolution = 180

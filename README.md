@@ -120,7 +120,7 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=<rosbot/rosbot_xl>
 | ❌  | ✅  | `yaw`               | Initial robot 'yaw' orientation. <br/> **_float:_** `0.0`                                                                                                                                          |
 
 > [!TIP]
-> To read the arguments for individual launch files, add the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch rosbot_bringup bringup.yaml ​​-s`)
+> To read the arguments for individual launch files, add the `-s` flag to the `ros2 launch` command (e.g. `ros2 launch <pkg> <launch> ​​-s`)
 
 ## 🕹️ Demo
 
