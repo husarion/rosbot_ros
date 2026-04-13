@@ -30,7 +30,7 @@
       right_wheel_names: [fr_wheel_joint, rr_wheel_joint]
       wheel_separation: 0.186
       wheel_radius: 0.0425
-      wheel_separation_multiplier: 1.36 # ICR coefficient isn't totally accurate and this coefficient can differ for various ground types
+      wheel_separation_multiplier: 1.34 # ICR coefficient isn't totally accurate and this coefficient can differ for various ground types
       left_wheel_radius_multiplier: 0.95  # Based on real measurements
       right_wheel_radius_multiplier: 0.95 # Based on real measurements
       odom_frame_id: odom
@@ -55,10 +55,10 @@
         x:
           max_velocity: 1.0 # m/s
           min_velocity: -1.0 # m/s
-          max_acceleration: 1.0 # m/s^2
-          max_deceleration: -1.0 # m/s^2
-          max_acceleration_reverse: -1.0 # m/s^2
-          max_deceleration_reverse: 1.0 # m/s^2
+          max_acceleration: 1.2 # m/s^2
+          max_deceleration: -2.0 # m/s^2
+          max_acceleration_reverse: -1.2 # m/s^2
+          max_deceleration_reverse: 2.0 # m/s^2
           max_jerk: .nan # m/s^3
           min_jerk: .nan # m/s^3
 
@@ -66,10 +66,10 @@
         z:
           max_velocity: 3.14 # rad/s
           min_velocity: -3.14 # rad/s
-          max_acceleration: 4.0 # rad/s^2
-          max_deceleration: -4.0 # rad/s^2
-          max_acceleration_reverse: -4.0 # rad/s^2
-          max_deceleration_reverse: 4.0 # rad/s^2
+          max_acceleration: 5.0 # rad/s^2
+          max_deceleration: -7.0 # rad/s^2
+          max_acceleration_reverse: -5.0 # rad/s^2
+          max_deceleration_reverse: 7.0 # rad/s^2
           max_jerk: .nan # rad/s^3
           min_jerk: .nan # rad/s^3
 
