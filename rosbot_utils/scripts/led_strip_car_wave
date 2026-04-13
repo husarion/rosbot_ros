@@ -17,13 +17,15 @@
 import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 from sensor_msgs.msg import Image
 
 
 class LEDStripWavePublisher(Node):
     def __init__(self):
         super().__init__("led_strip_manager")
-        self.pub = self.create_publisher(Image, "led_strip", 10)
+        qos_profile = QoSProfile(depth=1, reliability=QoSReliabilityPolicy.BEST_EFFORT)
+        self.pub = self.create_publisher(Image, "led_strip", qos_profile)
         self.create_timer(0.04, self.tick)
 
         self.N_LEDS = 18

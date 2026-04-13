@@ -18,6 +18,7 @@ import cv2
 import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 from sensor_msgs.msg import Image
 
 
@@ -31,7 +32,8 @@ class LEDStripPublisher(Node):
         self.position = 0.0
         self.speed = 1.5
 
-        self.publisher_ = self.create_publisher(Image, "led_strip", 10)
+        qos_profile = QoSProfile(depth=1, reliability=QoSReliabilityPolicy.BEST_EFFORT)
+        self.publisher_ = self.create_publisher(Image, "led_strip", qos_profile)
 
         self.rainbow = self.create_rainbow_gradient()
 

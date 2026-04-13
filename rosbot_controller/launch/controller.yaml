@@ -119,42 +119,37 @@ launch:
           value: $(var use_sim)
 
   # =======================
-  # Controller manager
-  # =======================
-
-  - node:
-      unless: $(var use_sim)
-      pkg: controller_manager
-      exec: ros2_control_node
-      param:
-        - from: $(var resolved_controller_config)
-      remap:
-        - from: differential_drive_controller/cmd_vel
-          to: cmd_vel
-        - from: differential_drive_controller/odom
-          to: odometry/wheels
-        - from: differential_drive_controller/transition_event
-          to: _differential_drive_controller/transition_event
-        - from: imu_broadcaster/imu
-          to: imu/data
-        - from: imu_broadcaster/transition_event
-          to: _imu_broadcaster/transition_event
-        - from: joint_state_broadcaster/transition_event
-          to: _joint_state_broadcaster/transition_event
-        - from: mecanum_drive_controller/cmd_vel
-          to: cmd_vel
-        - from: mecanum_drive_controller/odom
-          to: odometry/wheels
-        - from: mecanum_drive_controller/transition_event
-          to: _mecanum_drive_controller/transition_event
-
-  # =======================
-  # Controllers spawner
+  # Controllers (wait few seconds to resolve parameters file)
   # =======================
 
   - timer:
       period: 3.0
       children:
+        - node:
+            unless: $(var use_sim)
+            pkg: controller_manager
+            exec: ros2_control_node
+            param:
+              - from: $(var resolved_controller_config)
+            remap:
+              - from: differential_drive_controller/cmd_vel
+                to: cmd_vel
+              - from: differential_drive_controller/odom
+                to: odometry/wheels
+              - from: differential_drive_controller/transition_event
+                to: _differential_drive_controller/transition_event
+              - from: imu_broadcaster/imu
+                to: imu/data
+              - from: imu_broadcaster/transition_event
+                to: _imu_broadcaster/transition_event
+              - from: joint_state_broadcaster/transition_event
+                to: _joint_state_broadcaster/transition_event
+              - from: mecanum_drive_controller/cmd_vel
+                to: cmd_vel
+              - from: mecanum_drive_controller/odom
+                to: odometry/wheels
+              - from: mecanum_drive_controller/transition_event
+                to: _mecanum_drive_controller/transition_event
         - node:
             pkg: controller_manager
             exec: spawner

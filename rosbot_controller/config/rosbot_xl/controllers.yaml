@@ -90,12 +90,12 @@
       front_right_wheel_name: fr_wheel_joint
       rear_left_wheel_name: rl_wheel_joint
       rear_right_wheel_name: rr_wheel_joint
-      wheel_separation_x: 0.170
-      wheel_separation_y: 0.270
-      wheel_radius: 0.047
-      wheel_separation_x_multiplier: 0.95  # Based on real measurements
-      wheel_separation_y_multiplier: 0.95  # Based on real measurements
-      wheel_radius_multiplier: 1.05  # Based on real measurements
+      wheel_separation_x: 0.17
+      wheel_separation_y: 0.28
+      wheel_radius: 0.05
+      wheel_separation_x_multiplier: 0.96  # Based on real measurements
+      wheel_separation_y_multiplier: 0.96  # Based on real measurements
+      wheel_radius_multiplier: 0.98  # Based on real measurements
       odom_frame_id: odom
       base_frame_id: base_link
       pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
@@ -118,19 +118,19 @@
         x:
           max_velocity: 1.0 # m/s
           min_velocity: -1.0 # m/s
-          max_acceleration: 0.75 # m/s^2
-          max_deceleration: -0.75 # m/s^2
-          max_acceleration_reverse: -0.75 # m/s^2
-          max_deceleration_reverse: 0.75 # m/s^2
+          max_acceleration: 0.6 # m/s^2
+          max_deceleration: -1.0 # m/s^2
+          max_acceleration_reverse: -0.6 # m/s^2
+          max_deceleration_reverse: 1.0 # m/s^2
           max_jerk: .nan # m/s^3
           min_jerk: .nan # m/s^3
         y:
           max_velocity: 1.0 # m/s
           min_velocity: -1.0 # m/s
-          max_acceleration: 0.75 # m/s^2
-          max_deceleration: -0.75 # m/s^2
-          max_acceleration_reverse: -0.75 # m/s^2
-          max_deceleration_reverse: 0.75 # m/s^2
+          max_acceleration: 0.4 # m/s^2
+          max_deceleration: -0.8 # m/s^2
+          max_acceleration_reverse: -0.4 # m/s^2
+          max_deceleration_reverse: 0.8 # m/s^2
           max_jerk: .nan # m/s^3
           min_jerk: .nan # m/s^3
 

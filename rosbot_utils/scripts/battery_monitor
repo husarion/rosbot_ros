@@ -41,7 +41,7 @@ class BatteryMonitor(Node):
         self.last_play_time = None
         self.percentage_threshold = 0.12
         self.interval_sec = 300  # 5 minutes
-        self.sounds_path = get_package_share_directory("rosbot_utils") + "/config/low_battery.mp3"
+        self.sounds_path = get_package_share_directory("rosbot_utils") + "/config/low_battery.wav"
 
     def battery_callback(self, msg: BatteryState):
         percentage = msg.percentage
@@ -55,7 +55,7 @@ class BatteryMonitor(Node):
 
                 self.get_logger().warn(f"Low battery: {100 * percentage:.1f}%")
 
-                subprocess.Popen(["mpg123", "-q", self.sounds_path])
+                subprocess.Popen(["aplay", "-D", "plughw:Device,0", "-q", self.sounds_path])
 
                 self.last_play_time = now
         else:

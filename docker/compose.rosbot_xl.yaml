@@ -9,11 +9,14 @@ services:
     image: husarion/rosbot:jazzy
     <<: *common-config
     devices:
-      - /dev/input:/dev/input:ro # Joystick
-      - /dev/rosbot:/dev/rosbot # MCU
-      - /dev/bus/usb:/dev/bus/usb # FTDI
+      - /dev/input # Joystick
+      - /dev/manipulator # Manipulator
+      - /dev/rosbot # MCU
+      - /dev/bus/usb # FTDI
+      - /dev/snd # Sound
     environment:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
       - FASTRTPS_DEFAULT_PROFILES_FILE=/ros2_ws/src/rosbot_ros/docker/dds-config-udp.xml
     command: >
       ros2 launch rosbot_bringup rosbot_xl.yaml
+        configuration:=basic

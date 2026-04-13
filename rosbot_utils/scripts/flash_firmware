@@ -56,16 +56,9 @@ def main(args=None):
     )
     parser.add_argument("-f", "--file", help="Specify the firmware file")
     parser.add_argument(
-        "-b",
-        "--baudrate",
-        type=int,
-        default=921600,
-        help="Specify the serial communication baudrate",
-    )
-    parser.add_argument(
         "-p",
         "--port",
-        default="/dev/ttyUSB0",
+        default="/dev/rosbot",
         help="Specify the communication port",
     )
     args = parser.parse_args(args)

@@ -10,8 +10,10 @@ services:
     <<: *common-config
     devices:
       - /dev/ttySERIAL # MCU communication port
-      - /dev/input:/dev/input:ro # Joystick
-      - /dev/bus/usb:/dev/bus/usb # FTDI
+      - /dev/gpiomem
+      - /dev/gpiochip4 # For RPi 4 or ThinkerBoard set to /dev/gpiochip0
+      - /dev/input # Joystick
+      - /dev/bus/usb # FTDI
     environment:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
       - FASTRTPS_DEFAULT_PROFILES_FILE=/ros2_ws/src/rosbot_ros/docker/dds-config-udp.xml
