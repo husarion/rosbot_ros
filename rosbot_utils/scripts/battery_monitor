@@ -35,7 +35,7 @@ class BatteryMonitor(Node):
         )
 
         self.subscription = self.create_subscription(
-            BatteryState, "/battery", self.battery_callback, qos_profile
+            BatteryState, "battery", self.battery_callback, qos_profile
         )
 
         self.last_play_time = None
