@@ -59,8 +59,8 @@ def main(args=None):
         "rosbot_bringup",
         "rosbot_controller",
         "rosbot_description",
-        "rosbot_gazebo",
-        "rosbot_hardware_interfaces",
+        # "rosbot_gazebo", # Pkg not used in snap
+        # "rosbot_hardware_interfaces", # No config folder
         "rosbot_joy",
         "rosbot_localization",
         "rosbot_moveit",
