@@ -7,7 +7,7 @@ find_package(ament_cmake_python REQUIRED)
 ament_python_install_package(${PROJECT_NAME})
 
 install(
-  PROGRAMS scripts/battery_monitor
+  PROGRAMS scripts/battery_alert
            scripts/configure_robot
            scripts/create_config_dir
            scripts/flash_firmware

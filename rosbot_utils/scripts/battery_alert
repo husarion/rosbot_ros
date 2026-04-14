@@ -26,7 +26,7 @@ from sensor_msgs.msg import BatteryState
 class BatteryMonitor(Node):
 
     def __init__(self):
-        super().__init__("battery_monitor")
+        super().__init__("battery_alert")
 
         qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,

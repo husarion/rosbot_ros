@@ -64,4 +64,4 @@ launch:
 
   - node:
       pkg: rosbot_utils
-      exec: battery_monitor
+      exec: battery_alert
