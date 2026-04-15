@@ -116,6 +116,9 @@ class McuManagerUART:
         print("Success")
         time.sleep(0.5)
 
+    def get_port(self):
+        return self.port
+
     def flash_firmware(self, binary_file):
         print(
             f"""

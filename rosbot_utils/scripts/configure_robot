@@ -127,6 +127,7 @@ def main(args=None):
         else:
             mcu_manager = McuManagerUART()
             mcu_manager.reset_mcu()
+            port = mcu_manager.get_port()
             success = configure_robot(port, args.namespace, args.baudrate)
             sys.exit(0 if success else 1)
 
