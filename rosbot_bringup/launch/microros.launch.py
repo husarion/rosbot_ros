@@ -46,12 +46,12 @@ def generate_microros_agent_node(context, *args, **kwargs):
         )
 
     config_dir = LaunchConfiguration("config_dir").perform(context)
+    microros_mode = LaunchConfiguration("microros_mode").perform(context)
     namespace = LaunchConfiguration("namespace").perform(context)
     port = LaunchConfiguration("port").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
     serial_port = LaunchConfiguration("serial_port").perform(context)
-    usb = LaunchConfiguration("usb").perform(context)
 
     config_rosbot_bringup_dir = PythonExpression(
         [
@@ -68,9 +68,14 @@ def generate_microros_agent_node(context, *args, **kwargs):
         [config_rosbot_bringup_dir, "config", "microros_localhost_only.xml"]
     )
 
-    micoros_communication_args = {
-        "rosbot": ["serial", "-b", serial_baudrate, "-D", serial_port],
-        "rosbot_xl": ["udp4", "--port", port],
+    default_mode = {
+        "rosbot": "serial",
+        "rosbot_xl": "udp",
+    }
+    microros_mode = microros_mode if microros_mode != "default" else default_mode[robot_model]
+    microros_args = {
+        "serial": ["serial", "-b", serial_baudrate, "-D", serial_port],
+        "udp": ["udp4", "--port", port],
     }
 
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
@@ -100,7 +105,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
     ]
     if namespace:
         pre_communication_cmd.extend(["--namespace", namespace])
-    if usb == "true":
+    if microros_mode == "serial":
         pre_communication_cmd.extend(["--usb"])
 
     pre_communication = ExecuteProcess(
@@ -112,7 +117,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
     microros_agent_node = Node(
         package="micro_ros_agent",
         executable="micro_ros_agent",
-        arguments=micoros_communication_args[robot_model],
+        arguments=microros_args[microros_mode],
         output="screen",
     )
 
@@ -135,6 +140,13 @@ def generate_launch_description():
         "config_dir",
         default_value="",
         description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    )
+
+    declare_microros_mode_arg = DeclareLaunchArgument(
+        "microros_mode",
+        default_value="default",
+        description="Use specified mode for micro-ROS communication (udp not supported on ROSbot 3).",
+        choices=["default", "udp", "serial"],
     )
 
     declare_namespace_arg = DeclareLaunchArgument(
@@ -168,13 +180,6 @@ def generate_launch_description():
         description="ROSbot only. Serial port for micro-ROS agent",
     )
 
-    declare_usb_arg = DeclareLaunchArgument(
-        "usb",
-        default_value="false",
-        description="ROSbot only. Use rear USB for micro-ROS agent",
-        choices=["true", "false"],
-    )
-
     return LaunchDescription(
         [
             declare_config_dir_arg,
@@ -183,7 +188,7 @@ def generate_launch_description():
             declare_robot_model_arg,
             declare_serial_baudrate_arg,
             declare_serial_port_arg,
-            declare_usb_arg,
+            declare_microros_mode_arg,
             OpaqueFunction(function=generate_microros_agent_node),
         ]
     )

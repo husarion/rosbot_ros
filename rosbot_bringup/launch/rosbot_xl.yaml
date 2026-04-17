@@ -15,6 +15,14 @@ launch:
       description: Add namespace to all launched nodes.
 
   - arg:
+      name: tf_namespace_bridge
+      default: 'True'
+      description: Bridge robot's namespaced TF to the global /tf and /tf_static.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
       name: robot_model
       default: rosbot_xl
       description: Specify robot model
@@ -25,6 +33,11 @@ launch:
 
   - push_ros_namespace:
       namespace: $(var namespace)
+
+  - node:
+      pkg: tf_namespace_bridge
+      exec: tf_namespace_bridge
+      if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
 
   - set_remap:
       from: /diagnostics

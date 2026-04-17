@@ -15,7 +15,7 @@ launch:
   - node:
       pkg: robot_localization
       exec: ekf_node
-      name: ekf
+      name: ekf_node
       param:
         - from: $(var ekf_config)
       remap:
