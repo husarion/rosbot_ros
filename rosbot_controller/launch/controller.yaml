@@ -131,25 +131,6 @@ launch:
             exec: ros2_control_node
             param:
               - from: $(var resolved_controller_config)
-            remap:
-              - from: differential_drive_controller/cmd_vel
-                to: cmd_vel
-              - from: differential_drive_controller/odom
-                to: odometry/wheels
-              - from: differential_drive_controller/transition_event
-                to: _differential_drive_controller/transition_event
-              - from: imu_broadcaster/imu
-                to: imu/data
-              - from: imu_broadcaster/transition_event
-                to: _imu_broadcaster/transition_event
-              - from: joint_state_broadcaster/transition_event
-                to: _joint_state_broadcaster/transition_event
-              - from: mecanum_drive_controller/cmd_vel
-                to: cmd_vel
-              - from: mecanum_drive_controller/odom
-                to: odometry/wheels
-              - from: mecanum_drive_controller/transition_event
-                to: _mecanum_drive_controller/transition_event
         - node:
             pkg: controller_manager
             exec: spawner
@@ -158,7 +139,12 @@ launch:
               imu_broadcaster
               joint_state_broadcaster
               -c controller_manager
+              --activate-as-group
               --controller-manager-timeout 20
+              --ros-args
+              -r ~/cmd_vel:=cmd_vel
+              -r ~/odom:=odometry/wheels
+              -r ~/imu:=imu/data
 
   # =======================
   # Manipulator (delayed)
