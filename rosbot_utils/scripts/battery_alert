@@ -20,6 +20,7 @@ import rclpy
 from ament_index_python.packages import get_package_share_directory
 from rclpy.node import Node
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
+from rosbot_utils.battery_alert_parameters import battery_alert
 from sensor_msgs.msg import BatteryState
 
 
@@ -28,7 +29,8 @@ class BatteryMonitor(Node):
     def __init__(self):
         super().__init__("battery_alert")
 
-        self.declare_parameter("audio_device", "")
+        param_listener = battery_alert.ParamListener(self)
+        self.params = param_listener.get_params()
 
         qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -41,26 +43,23 @@ class BatteryMonitor(Node):
         )
 
         self.last_play_time = None
-        self.percentage_threshold = 0.12
-        self.interval_sec = 300  # 5 minutes
         self.sounds_path = get_package_share_directory("rosbot_utils") + "/config/low_battery.wav"
 
     def battery_callback(self, msg: BatteryState):
         percentage = msg.percentage
         now = self.get_clock().now()
 
-        if percentage < self.percentage_threshold:
+        if percentage < self.params.percentage_threshold:
             if (
                 self.last_play_time is None
-                or (now - self.last_play_time).nanoseconds > self.interval_sec * 1e9
+                or (now - self.last_play_time).nanoseconds > self.params.interval_sec * 1e9
             ):
 
                 self.get_logger().warn(f"Low battery: {100 * percentage:.1f}%")
 
-                audio_device = self.get_parameter("audio_device").value
                 cmd = ["paplay"]
-                if audio_device:
-                    cmd += ["--device", audio_device]
+                if self.params.audio_device:
+                    cmd += ["--device", self.params.audio_device]
                 cmd.append(self.sounds_path)
                 subprocess.Popen(cmd)
 

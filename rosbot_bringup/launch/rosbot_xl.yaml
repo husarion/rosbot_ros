@@ -71,10 +71,12 @@ launch:
         - name: robot_model
           value: $(var robot_model)
 
-  - node:
-      pkg: rosbot_utils
-      exec: led_strip_car_wave
+  - include:
+      file: $(find-pkg-share rosbot_utils)/launch/battery_alert.yaml
+      let:
+        - name: robot_model
+          value: $(var robot_model)
 
   - node:
       pkg: rosbot_utils
-      exec: battery_alert
+      exec: led_strip_car_wave
