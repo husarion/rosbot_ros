@@ -3,7 +3,7 @@ battery_alert:
   audio_device:
     type: string
     default_value: ''
-    description: PulseAudio device name for alert sound, empty string means default device
+    description: ALSA device name for alert sound (e.g. plughw:0,0), empty string means default device
 
   interval_sec:
     type: int

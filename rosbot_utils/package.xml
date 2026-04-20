@@ -19,6 +19,7 @@
   <buildtool_depend>ament_cmake_python</buildtool_depend>
   <depend>generate_parameter_library</depend>
 
+  <exec_depend>alsa-utils</exec_depend>
   <exec_depend>laser_filters</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>python3-argcomplete</exec_depend>
@@ -29,7 +30,6 @@
   <exec_depend>python3-sh</exec_depend>
   <exec_depend>stm32flash</exec_depend>
   <exec_depend>usbutils</exec_depend>
-  <!-- <exec_depend>pulseaudio-utils</exec_depend> Wait for PR: https://github.com/ros/rosdistro/pull/50811 -->
 
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>

@@ -57,11 +57,22 @@ class BatteryMonitor(Node):
 
                 self.get_logger().warn(f"Low battery: {100 * percentage:.1f}%")
 
-                cmd = ["paplay"]
+                cmd = ["aplay", "-q"]
                 if self.params.audio_device:
-                    cmd += ["--device", self.params.audio_device]
+                    cmd += ["-D", self.params.audio_device]
                 cmd.append(self.sounds_path)
-                subprocess.Popen(cmd)
+                try:
+                    proc = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
+                    _, stderr = proc.communicate(timeout=5.0)
+                    if proc.returncode != 0:
+                        self.get_logger().warn(
+                            f"aplay failed (exit {proc.returncode}): "
+                            f"{stderr.decode(errors='replace').strip()}"
+                        )
+                except FileNotFoundError:
+                    self.get_logger().error("aplay not found, install alsa-utils")
+                except subprocess.TimeoutExpired:
+                    proc.kill()
 
                 self.last_play_time = now
         else:
