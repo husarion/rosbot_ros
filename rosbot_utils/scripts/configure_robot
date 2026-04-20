@@ -33,6 +33,11 @@ def print_error(msg: str):
 
 
 def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5.0) -> bool:
+    if namespace and not re.match(r"^[a-zA-Z0-9_/]+$", namespace):
+        print_error(
+            f"Invalid namespace: '{namespace}'. Use only alphanumeric characters, underscores and slashes."
+        )
+        return False
     try:
         print(f"Pre-communication with MCU on {port}...")
         serial_port = serial.Serial(port, baudrate, timeout=timeout)
@@ -88,10 +93,11 @@ def main(args=None):
     parser = argparse.ArgumentParser(
         description="Configure robot namespace via serial pre-communication."
     )
+    _robot_model_env = os.getenv("ROBOT_MODEL_NAME")
     parser.add_argument(
         "--robot-model",
-        required=True,
-        default=os.getenv("ROBOT_MODEL_NAME"),
+        required=_robot_model_env is None,
+        default=_robot_model_env,
         choices=["rosbot", "rosbot_xl"],
         help="Specify the robot model",
     )

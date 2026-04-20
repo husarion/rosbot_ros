@@ -138,8 +138,10 @@ UART Flashing:
 
             self.exit_bootloader_mode()
         except Exception as e:
-            error_msg = e.stderr.decode("utf-8").strip()
-            raise RuntimeError(f"{error_msg}") from e
+            if hasattr(e, "stderr"):
+                error_msg = e.stderr.decode("utf-8").strip()
+                raise RuntimeError(f"{error_msg}") from e
+            raise e
 
     def reset_mcu(self):
         self.reset_pin.set_value(1)

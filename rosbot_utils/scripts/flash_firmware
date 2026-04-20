@@ -42,10 +42,11 @@ def main(args=None):
     signal.signal(signal.SIGINT, signal_handler)
 
     parser = argparse.ArgumentParser(description="Flash ROSbot Firmware")
+    _robot_model_env = os.getenv("ROBOT_MODEL")
     parser.add_argument(
         "--robot-model",
-        required=True,
-        default=os.getenv("ROBOT_MODEL"),
+        required=_robot_model_env is None,
+        default=_robot_model_env,
         choices=["rosbot", "rosbot_xl"],
         help="Specify the robot model",
     )

@@ -28,6 +28,8 @@ class BatteryMonitor(Node):
     def __init__(self):
         super().__init__("battery_alert")
 
+        self.declare_parameter("audio_device", "")
+
         qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
             history=QoSHistoryPolicy.KEEP_LAST,
@@ -55,7 +57,12 @@ class BatteryMonitor(Node):
 
                 self.get_logger().warn(f"Low battery: {100 * percentage:.1f}%")
 
-                subprocess.Popen(["aplay", "-D", "plughw:Device,0", "-q", self.sounds_path])
+                audio_device = self.get_parameter("audio_device").value
+                cmd = ["paplay"]
+                if audio_device:
+                    cmd += ["--device", audio_device]
+                cmd.append(self.sounds_path)
+                subprocess.Popen(cmd)
 
                 self.last_play_time = now
         else:

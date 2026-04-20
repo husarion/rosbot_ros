@@ -11,6 +11,7 @@ COPY .. src/rosbot_ros
 
 RUN apt update && apt upgrade -y && \
     apt install -y  \
+        pulseaudio-utils \
         python3-pip \
         ros-dev-tools \
         stm32flash \
