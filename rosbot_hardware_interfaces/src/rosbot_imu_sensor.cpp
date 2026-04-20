@@ -23,10 +23,10 @@
 
 namespace rosbot_hardware_interfaces {
 CallbackReturn RosbotImuSensor::on_init(
-    const hardware_interface::HardwareInfo &hardware_info) {
+    const hardware_interface::HardwareComponentInterfaceParams &params) {
   RCLCPP_INFO(rclcpp::get_logger("RosbotImuSensor"), "Initializing");
 
-  if (hardware_interface::SensorInterface::on_init(hardware_info) !=
+  if (hardware_interface::SensorInterface::on_init(params) !=
       CallbackReturn::SUCCESS) {
     return CallbackReturn::ERROR;
   }

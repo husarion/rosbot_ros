@@ -136,21 +136,13 @@ launch:
             exec: spawner
             args: >
               $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
-              imu_broadcaster
-              joint_state_broadcaster
               -c controller_manager
-              --activate-as-group
               --controller-manager-timeout 20
-              --ros-args
-              -r differential_drive_controller/cmd_vel:=cmd_vel
-              -r differential_drive_controller/odom:=odometry/wheels
-              -r differential_drive_controller/transition_event:=_differential_drive_controller/transition_event
-              -r imu_broadcaster/imu:=imu/data
-              -r imu_broadcaster/transition_event:=_imu_broadcaster/transition_event
-              -r joint_state_broadcaster/transition_event:=_joint_state_broadcaster/transition_event
-              -r mecanum_drive_controller/cmd_vel:=cmd_vel
-              -r mecanum_drive_controller/odom:=odometry/wheels
-              -r mecanum_drive_controller/transition_event:=_mecanum_drive_controller/transition_event
+              --controller-ros-args
+              "--ros-args
+              -r ~/cmd_vel:=cmd_vel
+              -r ~/odom:=odometry/wheels
+              -r ~/imu:=imu/data"
 
   # =======================
   # Manipulator (delayed)

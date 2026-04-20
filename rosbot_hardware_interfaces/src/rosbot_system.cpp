@@ -24,11 +24,11 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
 namespace rosbot_hardware_interfaces {
-CallbackReturn
-RosbotSystem::on_init(const hardware_interface::HardwareInfo &hardware_info) {
+CallbackReturn RosbotSystem::on_init(
+    const hardware_interface::HardwareComponentInterfaceParams &params) {
   RCLCPP_INFO(rclcpp::get_logger("RosbotSystem"), "Initializing");
 
-  if (hardware_interface::SystemInterface::on_init(hardware_info) !=
+  if (hardware_interface::SystemInterface::on_init(params) !=
       CallbackReturn::SUCCESS) {
     return CallbackReturn::ERROR;
   }
