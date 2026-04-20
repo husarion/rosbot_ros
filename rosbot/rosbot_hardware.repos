@@ -14,7 +14,7 @@ repositories:
   tf_namespace_bridge:
     type: git
     url: https://github.com/husarion/tf_namespace_bridge
-    version: 307bccceac51373fbc334cbd4b56a0fc51a2abaf
+    version: 249249ad2f2467997be575840ac8c824be276371
   # Downloaded from apt packages, keep last known working versions here for reference
   # dynamixel_hardware_interface:
   #   type: git
