@@ -136,7 +136,10 @@ launch:
             exec: spawner
             args: >
               $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
+              imu_broadcaster
+              joint_state_broadcaster
               -c controller_manager
+              --activate-as-group
               --controller-manager-timeout 20
               --controller-ros-args
               "--ros-args
