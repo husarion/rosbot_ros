@@ -13,21 +13,6 @@ on:
         required: true
         type: string
         default: development
-      target_distro:
-        description: In case of "stable" release specify the ROS distro of the existing docker image (eg.
-          humble)
-        type: string
-        default: humble
-      target_release:
-        description: In case of "stable" release specify the version of the existing docker image (eg.
-          1.0.12)
-        type: string
-        default: 0.0.0
-      target_date:
-        description: In case of "stable" release specify the date of the existing docker image in format
-          YYYYMMDD (eg. 20220124)
-        type: string
-        default: '20131206'
   workflow_dispatch:
     inputs:
       build_type:
@@ -55,7 +40,7 @@ on:
         default: '20131206'
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
