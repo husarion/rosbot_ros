@@ -1,0 +1,20 @@
+---
+battery_alert:
+  audio_device:
+    type: string
+    default_value: ''
+    description: ALSA device name for alert sound (e.g. plughw:0,0), empty string means default device
+
+  interval_sec:
+    type: int
+    default_value: 300
+    description: Minimum interval between consecutive alerts in seconds
+    validation:
+      gt<>: [0]
+
+  percentage_threshold:
+    type: double
+    default_value: 0.12
+    description: 'Battery percentage threshold below which alert is triggered (range: 0.0 - 1.0)'
+    validation:
+      bounds<>: [0.0, 1.0]

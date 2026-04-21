@@ -5,10 +5,10 @@
   <xacro:macro name="imu" params="name:='imu' namespace:=''" >
     <xacro:property name="ns" value="${namespace + '/' if namespace != '' else ''}" />
 
-    <ros2_control name="${ns}${name}" type="sensor">
+    <ros2_control name="${name}" type="sensor">
       <hardware>
         <plugin>rosbot_hardware_interfaces/RosbotImuSensor</plugin>
-        <param name="connection_timeout_ms">30000</param>
+        <param name="connection_timeout_ms">25000</param>
         <param name="connection_check_period_ms">1000</param>
       </hardware>
 
@@ -30,14 +30,14 @@
   <xacro:macro name="rosbot_system" params="name:='rosbot_system' namespace:=''" >
     <xacro:property name="ns" value="${namespace + '/' if namespace != '' else ''}" />
 
-    <ros2_control name="${ns}${name}" type="system">
+    <ros2_control name="${name}" type="system">
       <hardware>
         <plugin>rosbot_hardware_interfaces/RosbotSystem</plugin>
-        <param name="connection_timeout_ms">30000</param>
+        <param name="connection_timeout_ms">25000</param>
         <param name="connection_check_period_ms">1000</param>
         <!-- order of velocity commands to be published in motors_cmd Float32MultiArray msg -->
         <param name="velocity_command_joint_order">
-          rr_wheel_joint, rl_wheel_joint, fr_wheel_joint, fl_wheel_joint
+          fl_wheel_joint, fr_wheel_joint, rl_wheel_joint, rr_wheel_joint
         </param>
       </hardware>
 

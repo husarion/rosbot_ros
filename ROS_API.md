@@ -2,6 +2,16 @@
 
 Detailed information about content of rosbot package for ROS2.
 
+## Control
+
+### Gamepad
+
+After running the ROSbot XL Manipulation Package, you should be able to control the manipulator. The easiest way to move the manipulator is to connect a gamepad and steer the robot. The graphic below shows how to steer the manipulator using a gamepad.
+
+![gamepad_rosbot](.docs/gamepad_rosbot.drawio.png)
+
+Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/config/config.yaml) inside rosbot_joy package. Feel free to adjust them to your preference.
+
 ## ROS API
 
 ### Available Nodes
@@ -33,7 +43,7 @@ Detailed information about content of rosbot package for ROS2.
 | ✅  | ✅  | **`robot_state_publisher`**   | Uses the URDF specified by the parameter robot\*description and the joint positions from the topic joint\*states to calculate the forward kinematics of the robot and publish the results using tf <br /> _[robot_state_publisher/robot_state_publisher]_                                                                                             |
 | ✅  | ❌  | **`rosbot_system_node`**      | The node communicating with the hardware responsible for receiving and sending data related to engine control <br /> _[rosbot_hardware_interfaces/rosbot_system]_                                                                                                                                                                                   |
 | ❌  | ✅  | **`rosbot_gz_bridge`**        | Transmits data about the robot between the Gazebo simulator and ROS. <br /> _[ros_gz_bridge/parameter_bridge]_ |
-| ✅  | ❌  | **`/stm32_node`**             | Node responsible for communication with hardware. <br /> _[micro_ros_agent/micro_ros_agent]_                                                                                                                                                                                                                      |
+| ✅  | ❌  | **`rosbot_mcu`**             | Microcontroller unit (MCU) communication node. <br /> _[micro_ros_agent/micro_ros_agent]_                                                                                                                                                                                                                      |
 
 ### Available Topics
 
@@ -42,44 +52,37 @@ Detailed information about content of rosbot package for ROS2.
 [geometry_msgs/PoseWithCovarianceStamped]: https://docs.ros2.org/foxy/api/geometry_msgs/msg/PoseWithCovarianceStamped.html
 [geometry_msgs/Twist]: https://docs.ros2.org/foxy/api/geometry_msgs/msg/Twist.html
 [nav_msgs/Odometry]: https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html
-[sensor_msgs/BatteryState]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/BatteryState.html
 [sensor_msgs/Imu]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/Imu.html
 [sensor_msgs/JointState]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/JointState.html
+[sensor_msgs/Joy]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/Joy.html
 [sensor_msgs/LaserScan]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/LaserScan.html
-[std_msgs/Float32MultiArray]: https://docs.ros2.org/foxy/api/std_msgs/msg/Float32MultiArray.html
 [std_msgs/String]: https://docs.ros2.org/foxy/api/std_msgs/msg/String.html
 [tf2_msgs/TFMessage]: https://docs.ros2.org/foxy/api/tf2_msgs/msg/TFMessage.html
 
 | 🤖  | 🖥️  | TOPIC                                          | DESCRIPTION                                                                                                                   |
 | --- | --- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| ✅  | ❌  | **`/battery_state`**                           | Provides information about the state of the battery. <br /> _[sensor_msgs/BatteryState]_                                      |
 | ✅  | ✅  | **`cmd_vel`**                                  | Sends velocity commands for controlling robot motion. <br /> _[geometry_msgs/Twist]_                                          |
 | ✅  | ✅  | **`diagnostics`**                              | Contains diagnostic information about the robot's systems. <br /> _[diagnostic_msgs/DiagnosticArray]_                         |
 | ✅  | ✅  | **`dynamic_joint_states`**                     | Publishes information about the dynamic state of joints. <br /> _[control_msgs/DynamicJointState]_                            |
 | ✅  | ✅  | **`imu/data`**                      | Broadcasts IMU (Inertial Measurement Unit) data. <br /> _[sensor_msgs/Imu]_                                                   |
 | ✅  | ✅  | **`joint_states`**                             | Publishes information about the state of robot joints. <br /> _[sensor_msgs/JointState]_                                      |
+| ✅  | ✅  | **`joy`**                             | Publishes joystick input data. <br /> _[sensor_msgs/Joy]_                                      |
 | ✅  | ✅  | **`odometry/filtered`**                        | Publishes filtered odometry data. <br /> _[nav_msgs/Odometry]_                                                                |
 | ✅  | ✅  | **`odometry/wheels`**              | Provides odometry data from the base controller of the ROSbot XL. <br /> _[nav_msgs/Odometry]_                                |
 | ✅  | ✅  | **`robot_description`**                        | Publishes the robot's description. <br /> _[std_msgs/String]_                                                                 |
 | ✅  | ✅  | **`scan`**                                     | Publishes raw laser scan data. <br /> _[sensor_msgs/LaserScan]_                                                               |
 | ✅  | ✅  | **`scan_filtered`**                            | Publishes filtered laser scan data. <br /> _[sensor_msgs/LaserScan]_                                                          |
-| ✅  | ✅  | **`set_pose`**                                 | Sets the robot's pose with covariance. <br /> _[geometry_msgs/PoseWithCovarianceStamped]_                                     |
+| ✅  | ✅  | **`set_pose`**                                 | Changes the robot's `odometry/filtered` pose. <br /> _[geometry_msgs/PoseWithCovarianceStamped]_                                     |
 | ✅  | ✅  | **`tf`**                                       | Publishes transformations between coordinate frames over time. <br /> _[tf2_msgs/TFMessage]_                                  |
 | ✅  | ✅  | **`tf_static`**                                | Publishes static transformations between coordinate frames. <br /> _[tf2_msgs/TFMessage]_                                     |
 
-**Hidden topic:**
-
-| TOPIC                    | DESCRIPTION                                                         |
-| ------------------------ | ------------------------------------------------------------------- |
-| **`/_imu/data_raw`**     | raw data image from imu sensor <br /> _[sensor_msgs/Imu]_           |
-| **`/_motors_cmd`**       | desired speed on each wheel <br /> _[std_msgs/Float32MultiArray]_   |
-| **`/_motors_responses`** | raw data readings from each wheel <br /> _[sensor_msgs/JointState]_ |
+There are also additional topics related with the ROSbot firmware. For more information about them, please refer to the [ROSbot Firmware documentation](https://github.com/husarion/rosbot-firmware/blob/jazzy/ROS_API.md).
 
 ## Package Description
 
 ### `rosbot`
 
-Metapackage that contains dependencies to other repositories. It is also used to define whether simulation dependencies should be used.
+Metapackage that contains dependencies to other repositories.
 
 ### `rosbot_bringup`
 
@@ -87,7 +90,8 @@ The main package responsible for running the physical robot.
 
 **Available Launch Files:**
 
-- `bringup.yaml` - is responsible for communicating with firmware and activating all logic related to the robot's movement and processing of sensory data.
+- `rosbot.yaml` - activates all logic related to the ROSbot's movement and processing of sensory data.
+- `rosbot_xl.yaml` - activates all logic related to the ROSbot XL's movement and processing of sensory data.
 - `microros.launch.py` - establishes connection with the hardware using microROS agent.
 
 ### `rosbot_controller`
@@ -119,8 +123,8 @@ Launch files for Gazebo working with ROS2 control.
 
 **Available Launch Files:**
 
-- `simulations.launch.py` - Runs simulations with a defined robot and all sensors on it.
-- `spawn_robot.launch.py` - Allow to spawn new robot in already running simulation.
+- `simulations.yaml` - Runs simulations with a defined robot and all sensors on it.
+- `spawn_robot.yaml` - Allow to spawn new robot in already running simulation.
 
 ### `rosbot_localization`
 

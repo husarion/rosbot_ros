@@ -23,6 +23,7 @@
 
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/system_interface.hpp"
+#include "hardware_interface/types/hardware_component_interface_params.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 
 #include "realtime_tools/realtime_buffer.hpp"
@@ -48,7 +49,8 @@ public:
 
   ROSBOT_HARDWARE_INTERFACES_PUBLIC
   CallbackReturn
-  on_init(const hardware_interface::HardwareInfo &hardware_info) override;
+  on_init(const hardware_interface::HardwareComponentInterfaceParams &params)
+      override;
 
   ROSBOT_HARDWARE_INTERFACES_PUBLIC
   CallbackReturn

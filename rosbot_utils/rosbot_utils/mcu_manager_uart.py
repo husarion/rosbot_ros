@@ -37,43 +37,36 @@ def get_raspberry_pi_model():
         return "Not a Raspberry Pi"
 
 
-class FirmwareFlasherUART:
-    def __init__(self, binary_file):
-        self.binary_file = binary_file
+class McuManagerUART:
+    def __init__(self):
         self.acquire_system_info()
 
-        try:
-            self.flash_firmware()
-        except Exception as e:
-            error_msg = e.stderr.decode("utf-8").strip()
-            raise RuntimeError(f"{error_msg}") from e
-
     def acquire_system_info(self):
-        sys_arch = str(sh.uname("-m")).strip()
-        device = ""
-        if sys_arch == "armv7l":
+        self.sys_arch = str(sh.uname("-m")).strip()
+        self.device = ""
+        if self.sys_arch == "armv7l":
             # Setups ThinkerBoard pins
-            device = "ThinkerBoard"
+            self.device = "ThinkerBoard"
             self.port = "/dev/ttyS1"
             gpio_chip = "/dev/gpiochip0"
             boot0_pin_no = 164
             reset_pin_no = 184
 
-        elif sys_arch == "x86_64":
+        elif self.sys_arch == "x86_64":
             # Setups UpBoard pins
-            device = "UpBoard"
+            self.device = "UpBoard"
             self.port = "/dev/ttyS4"
             gpio_chip = "/dev/gpiochip4"
             boot0_pin_no = 17
             reset_pin_no = 18
 
-        elif sys_arch == "aarch64":
+        elif self.sys_arch == "aarch64":
             # Setups RPi pins
-            device = get_raspberry_pi_model()
+            self.device = get_raspberry_pi_model()
             self.port = "/dev/ttyAMA0"
-            if device == "Raspberry Pi 4":
+            if self.device == "Raspberry Pi 4":
                 gpio_chip = "/dev/gpiochip0"
-            elif device == "Raspberry Pi 5":
+            elif self.device == "Raspberry Pi 5":
                 gpio_chip = "/dev/gpiochip4"
             else:
                 gpio_chip = "/dev/gpiochip0"  # Default or error handling
@@ -82,22 +75,16 @@ class FirmwareFlasherUART:
             reset_pin_no = 18
         else:
             raise ("Unknown device. Currently supported: Raspberry Pi 4/5, ThinkerBoard, UpBoard")
-        print(
-            f"""
-UART Flashing:
-    Arch   : {sys_arch}
-    Device : {device}
-    File   : {self.binary_file}
-    Port   : {self.port}
-"""
-        )
 
-        chip = gpiod.Chip(gpio_chip)
-        self.boot0_pin = chip.get_line(boot0_pin_no)
-        self.reset_pin = chip.get_line(reset_pin_no)
+        try:
+            chip = gpiod.Chip(gpio_chip)
+            self.boot0_pin = chip.get_line(boot0_pin_no)
+            self.reset_pin = chip.get_line(reset_pin_no)
 
-        self.boot0_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
-        self.reset_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
+            self.boot0_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
+            self.reset_pin.request("Flash", type=gpiod.LINE_REQ_DIR_OUT, default_val=False)
+        except Exception as e:
+            raise RuntimeError(f"Failed to access GPIO lines: {e}.")
 
     def enter_bootloader_mode(self):
         self.boot0_pin.set_value(1)
@@ -113,27 +100,51 @@ UART Flashing:
         self.reset_pin.set_value(0)
         time.sleep(0.1)
 
-    def flashing_operation(self, operation_name):
+    def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
         print(f"\n{operation_name} operation started")
         time.sleep(0.5)
 
         if operation_name == "Read-Protection":
-            sh.stm32flash("-b", "115200", "-k", self.port)
+            sh.stm32flash("-b", str(baudrate), "-k", self.port)
         elif operation_name == "Write-Protection":
-            sh.stm32flash("-b", "115200", "-u", self.port)
+            sh.stm32flash("-b", str(baudrate), "-u", self.port)
         elif operation_name == "Flashing":
-            sh.stm32flash("-b", "115200", "-v", "-w", self.binary_file, self.port, _out=sys.stdout)
+            sh.stm32flash("-b", str(baudrate), "-v", "-w", binary_file, self.port, _out=sys.stdout)
         else:
             raise ("Unknown operation")
 
         print("Success")
         time.sleep(0.5)
 
-    def flash_firmware(self):
-        self.enter_bootloader_mode()
+    def get_port(self):
+        return self.port
 
-        # self.flashing_operation("Read-Protection")
-        # self.flashing_operation("Write-Protection")
-        self.flashing_operation("Flashing")
+    def flash_firmware(self, binary_file):
+        print(
+            f"""
+UART Flashing:
+    Arch   : {self.sys_arch}
+    Device : {self.device}
+    File   : {binary_file}
+    Port   : {self.port}
+"""
+        )
+        try:
+            self.enter_bootloader_mode()
 
-        self.exit_bootloader_mode()
+            # self.flashing_operation("Read-Protection")
+            # self.flashing_operation("Write-Protection")
+            self.flashing_operation("Flashing", binary_file)
+
+            self.exit_bootloader_mode()
+        except Exception as e:
+            if hasattr(e, "stderr"):
+                error_msg = e.stderr.decode("utf-8").strip()
+                raise RuntimeError(f"{error_msg}") from e
+            raise e
+
+    def reset_mcu(self):
+        self.reset_pin.set_value(1)
+        time.sleep(0.1)
+        self.reset_pin.set_value(0)
+        time.sleep(0.1)

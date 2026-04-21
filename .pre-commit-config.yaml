@@ -79,7 +79,7 @@ repos:
         name: ament_copyright
         description: Check if copyright notice is available in all files.
         stages: [pre-commit]
-        entry: ament_copyright
+        entry: bash -c 'source /opt/ros/jazzy/setup.bash && ament_copyright "$@"' --
         language: system
         exclude: ^.*\.md$
 

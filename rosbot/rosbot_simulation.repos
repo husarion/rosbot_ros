@@ -11,3 +11,7 @@ repositories:
     type: git
     url: https://github.com/husarion/husarion_gz_worlds
     version: 4f1fdd1d09b4d524261d9c335816439c5f11fb44
+  tf_namespace_bridge:
+    type: git
+    url: https://github.com/husarion/tf_namespace_bridge
+    version: 249249ad2f2467997be575840ac8c824be276371

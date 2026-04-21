@@ -45,8 +45,8 @@
     <gazebo reference="${reference_frame}">
       <sensor name="${ns}imu" type="imu">
         <always_on>true</always_on>
-        <update_rate>25</update_rate>
-        <topic>${ns}imu/data_raw</topic>
+        <update_rate>50</update_rate>
+        <topic>${ns}_imu/data</topic>
         <visualize>false</visualize>
         <enable_metrics>false</enable_metrics>
         <gz_frame_id>imu_link</gz_frame_id>

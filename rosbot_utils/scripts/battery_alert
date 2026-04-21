@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+# Copyright 2024 Husarion sp. z o.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import subprocess
+
+import rclpy
+from ament_index_python.packages import get_package_share_directory
+from rclpy.node import Node
+from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
+from rosbot_utils.battery_alert_parameters import battery_alert
+from sensor_msgs.msg import BatteryState
+
+
+class BatteryMonitor(Node):
+
+    def __init__(self):
+        super().__init__("battery_alert")
+
+        param_listener = battery_alert.ParamListener(self)
+        self.params = param_listener.get_params()
+
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10,
+        )
+
+        self.subscription = self.create_subscription(
+            BatteryState, "battery", self.battery_callback, qos_profile
+        )
+
+        self.last_play_time = None
+        self.sounds_path = get_package_share_directory("rosbot_utils") + "/config/low_battery.wav"
+
+    def battery_callback(self, msg: BatteryState):
+        percentage = msg.percentage
+        now = self.get_clock().now()
+
+        if percentage < self.params.percentage_threshold:
+            if (
+                self.last_play_time is None
+                or (now - self.last_play_time).nanoseconds > self.params.interval_sec * 1e9
+            ):
+
+                self.get_logger().warn(f"Low battery: {100 * percentage:.1f}%")
+
+                cmd = ["aplay", "-q"]
+                if self.params.audio_device:
+                    cmd += ["-D", self.params.audio_device]
+                cmd.append(self.sounds_path)
+                try:
+                    proc = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
+                    _, stderr = proc.communicate(timeout=5.0)
+                    if proc.returncode != 0:
+                        self.get_logger().warn(
+                            f"aplay failed (exit {proc.returncode}): "
+                            f"{stderr.decode(errors='replace').strip()}"
+                        )
+                except FileNotFoundError:
+                    self.get_logger().error("aplay not found, install alsa-utils")
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+
+                self.last_play_time = now
+        else:
+            # reset when battery is OK again
+            self.last_play_time = None
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = BatteryMonitor()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()

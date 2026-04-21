@@ -11,16 +11,6 @@ launch:
       name: RCUTILS_COLORIZED_OUTPUT
       value: '1'
 
-  - set_remap:
-      from: /diagnostics
-      to: diagnostics
-  - set_remap:
-      from: /tf
-      to: tf
-  - set_remap:
-      from: /tf_static
-      to: tf_static
-
   - set_parameter:
       name: use_sim_time
       value: 'True'

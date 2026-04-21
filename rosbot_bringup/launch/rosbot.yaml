@@ -1,0 +1,75 @@
+---
+launch:
+
+  - arg:
+      name: microros
+      default: 'True'
+      description: Automatically communicate with hardware using microros.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
+      name: namespace
+      default: $(env ROBOT_NAMESPACE '')
+      description: Add namespace to all launched nodes.
+
+  - arg:
+      name: tf_namespace_bridge
+      default: 'True'
+      description: Bridge robot's namespaced TF to the global /tf and /tf_static.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
+      name: robot_model
+      default: rosbot
+      description: Specify robot model
+      choice:
+        - value: rosbot
+        - value: rosbot_xl
+
+  - set_env:
+      name: RCUTILS_COLORIZED_OUTPUT
+      value: '1'
+
+  - push_ros_namespace:
+      namespace: $(var namespace)
+
+  - node:
+      pkg: tf_namespace_bridge
+      exec: tf_namespace_bridge
+      if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
+
+  - set_remap:
+      from: /diagnostics
+      to: diagnostics
+  - set_remap:
+      from: /tf
+      to: tf
+  - set_remap:
+      from: /tf_static
+      to: tf_static
+
+  - include:
+      file: $(find-pkg-share rosbot_bringup)/launch/microros.launch.py
+      if: $(var microros)
+      let:
+        - name: robot_model
+          value: $(var robot_model)
+
+  - include:
+      file: $(find-pkg-share rosbot_controller)/launch/controller.yaml
+
+  - include:
+      file: $(find-pkg-share rosbot_joy)/launch/joy.yaml
+
+  - include:
+      file: $(find-pkg-share rosbot_localization)/launch/ekf.yaml
+
+  - include:
+      file: $(find-pkg-share rosbot_utils)/launch/laser_filter.yaml
+      let:
+        - name: robot_model
+          value: $(var robot_model)

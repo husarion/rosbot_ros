@@ -26,8 +26,8 @@ launch:
 
   - arg:
       name: manipulator_serial_port
-      default: /dev/ttyUSB0
-      description: Serial port for manipulator arm communication.
+      default: /dev/manipulator
+      description: Port to connect to the manipulator.
 
   - arg:
       name: mock_joints
@@ -36,6 +36,7 @@ launch:
       choice:
         - value: 'True'
         - value: 'False'
+
   - arg:
       name: namespace
       default: $(env ROBOT_NAMESPACE '')

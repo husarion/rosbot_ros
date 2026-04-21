@@ -17,10 +17,15 @@ import os
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
+    EmitEvent,
+    ExecuteProcess,
     LogInfo,
     OpaqueFunction,
+    RegisterEventHandler,
     SetEnvironmentVariable,
 )
+from launch.event_handlers import OnProcessExit
+from launch.events import Shutdown
 from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
@@ -41,6 +46,8 @@ def generate_microros_agent_node(context, *args, **kwargs):
         )
 
     config_dir = LaunchConfiguration("config_dir").perform(context)
+    microros_mode = LaunchConfiguration("microros_mode").perform(context)
+    namespace = LaunchConfiguration("namespace").perform(context)
     port = LaunchConfiguration("port").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
@@ -61,9 +68,14 @@ def generate_microros_agent_node(context, *args, **kwargs):
         [config_rosbot_bringup_dir, "config", "microros_localhost_only.xml"]
     )
 
-    micoros_communication_args = {
-        "rosbot": ["serial", "-b", serial_baudrate, "-D", serial_port],
-        "rosbot_xl": ["udp4", "--port", port],
+    default_mode = {
+        "rosbot": "serial",
+        "rosbot_xl": "udp",
+    }
+    microros_mode = microros_mode if microros_mode != "default" else default_mode[robot_model]
+    microros_args = {
+        "serial": ["serial", "-b", serial_baudrate, "-D", serial_port],
+        "udp": ["udp4", "--port", port],
     }
 
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
@@ -83,21 +95,64 @@ def generate_microros_agent_node(context, *args, **kwargs):
             ]
         )
 
+    pre_communication_cmd = [
+        "ros2",
+        "run",
+        "rosbot_utils",
+        "configure_robot",
+        "--robot-model",
+        robot_model,
+    ]
+    if namespace:
+        pre_communication_cmd.extend(["--namespace", namespace])
+    if microros_mode == "serial":
+        pre_communication_cmd.extend(["--usb"])
+
+    pre_communication = ExecuteProcess(
+        cmd=pre_communication_cmd,
+        output="screen",
+        name="pre_communication",
+    )
+
     microros_agent_node = Node(
         package="micro_ros_agent",
         executable="micro_ros_agent",
-        arguments=micoros_communication_args[robot_model],
+        arguments=microros_args[microros_mode],
         output="screen",
     )
 
-    return env_setup_actions + [microros_agent_node]
+    def on_pre_comm_exit(event, context):
+        if event.returncode == 0:
+            return [microros_agent_node]
+        else:
+            return [EmitEvent(event=Shutdown(reason="Pre-communication failed"))]
+
+    handle_exit = RegisterEventHandler(
+        OnProcessExit(target_action=pre_communication, on_exit=on_pre_comm_exit)
+    )
+
+    return env_setup_actions + [pre_communication, handle_exit]
 
 
 def generate_launch_description():
+
     declare_config_dir_arg = DeclareLaunchArgument(
         "config_dir",
         default_value="",
         description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    )
+
+    declare_microros_mode_arg = DeclareLaunchArgument(
+        "microros_mode",
+        default_value="default",
+        description="Use specified mode for micro-ROS communication (udp not supported on ROSbot 3).",
+        choices=["default", "udp", "serial"],
+    )
+
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
+        description="Add namespace to all launched nodes.",
     )
 
     declare_port_arg = DeclareLaunchArgument(
@@ -115,7 +170,7 @@ def generate_launch_description():
 
     declare_serial_baudrate_arg = DeclareLaunchArgument(
         "serial_baudrate",
-        default_value="576000",
+        default_value="921600",
         description="ROSbot only. Baud rate for serial communication",
     )
 
@@ -128,10 +183,12 @@ def generate_launch_description():
     return LaunchDescription(
         [
             declare_config_dir_arg,
+            declare_namespace_arg,
             declare_port_arg,
             declare_robot_model_arg,
             declare_serial_baudrate_arg,
             declare_serial_port_arg,
+            declare_microros_mode_arg,
             OpaqueFunction(function=generate_microros_agent_node),
         ]
     )

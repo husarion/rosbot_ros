@@ -48,8 +48,8 @@ class BringupTestNode(Node):
         self.create_test_subscribers_and_publishers()
 
     def create_test_subscribers_and_publishers(self):
-        self.imu_pub = self.create_publisher(Imu, "/_imu/data_raw", 10)
-        self.joint_pub = self.create_publisher(JointState, "/_motors_response", 10)
+        self.imu_pub = self.create_publisher(Imu, "_imu/data", 10)
+        self.joint_pub = self.create_publisher(JointState, "_motors/feedback", 10)
         self.scan_pub = self.create_publisher(LaserScan, "scan", 10)
 
         self.joint_state_sub = self.create_subscription(

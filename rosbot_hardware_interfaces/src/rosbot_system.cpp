@@ -19,15 +19,16 @@
 #include <vector>
 
 #include "rclcpp/logging.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
 namespace rosbot_hardware_interfaces {
-CallbackReturn
-RosbotSystem::on_init(const hardware_interface::HardwareInfo &hardware_info) {
+CallbackReturn RosbotSystem::on_init(
+    const hardware_interface::HardwareComponentInterfaceParams &params) {
   RCLCPP_INFO(rclcpp::get_logger("RosbotSystem"), "Initializing");
 
-  if (hardware_interface::SystemInterface::on_init(hardware_info) !=
+  if (hardware_interface::SystemInterface::on_init(params) !=
       CallbackReturn::SUCCESS) {
     return CallbackReturn::ERROR;
   }
@@ -90,6 +91,10 @@ RosbotSystem::on_init(const hardware_interface::HardwareInfo &hardware_info) {
   connection_check_period_ms_ =
       std::stoul(info_.hardware_parameters["connection_check_period_ms"]);
 
+  node_ = get_node();
+  auto ns = node_->get_namespace();
+  RCLCPP_INFO(node_->get_logger(), "Creating node with namespace: %s", ns);
+
   std::string velocity_command_joint_order_raw =
       info_.hardware_parameters["velocity_command_joint_order"];
   // remove whitespaces
@@ -123,11 +128,6 @@ RosbotSystem::on_init(const hardware_interface::HardwareInfo &hardware_info) {
     }
   }
 
-  node_ = std::make_shared<rclcpp::Node>("rosbot_system_node");
-  executor_.add_node(node_);
-  executor_thread_ = std::make_unique<std::thread>(
-      std::bind(&rclcpp::executors::MultiThreadedExecutor::spin, &executor_));
-
   return CallbackReturn::SUCCESS;
 }
 
@@ -151,13 +151,13 @@ CallbackReturn RosbotSystem::on_activate(const rclcpp_lifecycle::State &) {
   }
 
   motor_command_publisher_ = node_->create_publisher<Float32MultiArray>(
-      "~/motors_cmd", rclcpp::SensorDataQoS());
+      "_motors/cmd", rclcpp::SensorDataQoS());
   realtime_motor_command_publisher_ =
       std::make_shared<realtime_tools::RealtimePublisher<Float32MultiArray>>(
           motor_command_publisher_);
 
   motor_state_subscriber_ = node_->create_subscription<JointState>(
-      "~/motors_response", rclcpp::SensorDataQoS(),
+      "_motors/feedback", rclcpp::SensorDataQoS(),
       std::bind(&RosbotSystem::motor_state_cb, this, std::placeholders::_1));
 
   std::shared_ptr<JointState> motor_state;

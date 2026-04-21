@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+
+PACKAGE_NAME="rosbot_utils"
+RULE_FILE="99-rosbot.rules"
+TARGET="/etc/udev/rules.d/"
+
+PACKAGE_PREFIX=$(ros2 pkg prefix ${PACKAGE_NAME})
+SOURCE="${PACKAGE_PREFIX}/share/${PACKAGE_NAME}/udev/${RULE_FILE}"
+
+# Sprawdź czy plik istnieje
+if [[ ! -f "${SOURCE}" ]]; then
+    echo "Error: ${SOURCE} not found"
+    exit 1
+fi
+
+echo "Installing udev rules..."
+
+sudo cp "${SOURCE}" "${TARGET}"
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+
+echo "udev rules installed."
+
+if ! groups $USER | grep -q '\bdialout\b'; then
+    echo "Adding $USER to dialout group..."
+    sudo usermod -aG dialout $USER
+    echo "User added to dialout group. You need to log out and log back in for changes to take effect."
+fi

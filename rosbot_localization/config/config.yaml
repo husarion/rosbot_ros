@@ -2,9 +2,9 @@
 /**:
 
   # Ref: http://docs.ros.org/en/noetic/api/robot_localization/html/state_estimation_nodes.html
-  ekf:
+  ekf_node:
     ros__parameters:
-      frequency: 20.0
+      frequency: 25.0
       sensor_timeout: 0.05
       two_d_mode: true
 
@@ -25,7 +25,7 @@
                   false, false, true, # droll , dpitch ,dyaw
                   false, false, false] # ddX , ddY , ddZ
 
-      odom0_queue_size: 2
+      odom0_queue_size: 5
       odom0_nodelay: true
       odom0_differential: false
       odom0_relative: true

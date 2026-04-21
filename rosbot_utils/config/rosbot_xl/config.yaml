@@ -1,5 +1,11 @@
 ---
 /**:
+  battery_alert:
+    ros__parameters:
+      audio_device: ''
+      interval_sec: 300
+      percentage_threshold: 0.12
+
   laser_filter:
     ros__parameters:
       filter1:

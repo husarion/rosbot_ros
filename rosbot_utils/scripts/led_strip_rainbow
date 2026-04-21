@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+
+# Copyright 2024 Husarion sp. z o.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import cv2
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
+from sensor_msgs.msg import Image
+
+
+class LEDStripPublisher(Node):
+
+    def __init__(self):
+        super().__init__("led_strip_manager")
+
+        self.num_leds = 18
+        self.gradient_resolution = 180
+        self.position = 0.0
+        self.speed = 1.5
+
+        qos_profile = QoSProfile(depth=1, reliability=QoSReliabilityPolicy.BEST_EFFORT)
+        self.publisher_ = self.create_publisher(Image, "led_strip", qos_profile)
+
+        self.rainbow = self.create_rainbow_gradient()
+
+        timer_period = 0.04
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+
+    def create_rainbow_gradient(self):
+        gradient = np.zeros((self.gradient_resolution, 3), dtype=np.uint8)
+
+        for i in range(self.gradient_resolution):
+            hue = int(179 * (i / self.gradient_resolution))
+            hsv = np.uint8([[[hue, 255, 255]]])
+            rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)[0][0]
+            gradient[i] = rgb
+
+        return gradient
+
+    def sample_gradient(self):
+        led_colors = np.zeros((1, self.num_leds, 3), dtype=np.uint8)
+
+        for i in range(self.num_leds):
+            pos = (
+                self.position + i * self.gradient_resolution / self.num_leds
+            ) % self.gradient_resolution
+
+            i0 = int(np.floor(pos))
+            i1 = (i0 + 1) % self.gradient_resolution
+            t = pos - i0
+
+            c0 = self.rainbow[i0].astype(float)
+            c1 = self.rainbow[i1].astype(float)
+
+            color = (1 - t) * c0 + t * c1
+            led_colors[0, i] = color.astype(np.uint8)
+
+        return led_colors
+
+    def timer_callback(self):
+
+        led_image = self.sample_gradient()
+
+        msg = Image()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.height = 1
+        msg.width = self.num_leds
+        msg.encoding = "rgb8"
+        msg.is_bigendian = False
+        msg.step = self.num_leds * 3
+        msg.data = led_image.tobytes()
+
+        self.publisher_.publish(msg)
+
+        self.position = (self.position + self.speed) % self.gradient_resolution
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    node = LEDStripPublisher()
+    rclpy.spin(node)
+
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()

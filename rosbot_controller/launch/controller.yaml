@@ -30,28 +30,9 @@ launch:
         - value: manipulation_pro
         - value: custom
 
-  - let:
-      name: manipulator_dev
-      value: $(command "bash -c '\
-        VENDOR=0403; \
-        PRODUCT=6014; \
-        DEFAULT=/dev/ttyUSB0; \
-        if ls /dev/ttyUSB* 1> /dev/null 2>&1; then \
-          for dev in /dev/ttyUSB*; do \
-            ATTRS=\$(udevadm info -q property -n \$dev); \
-            VID=\$(echo \$ATTRS | grep ^ID_VENDOR_ID= | cut -d= -f2); \
-            PID=\$(echo \$ATTRS | grep ^ID_MODEL_ID= | cut -d= -f2); \
-            if [[ \$VID == \$VENDOR && \$PID == \$PRODUCT ]]; then \
-              echo -n \$dev; \
-              exit 0; \
-            fi; \
-          done; \
-        fi; \
-        echo -n \$DEFAULT;'")
-
   - arg:
       name: manipulator_serial_port
-      default: $(var manipulator_dev)
+      default: /dev/manipulator
       description: Port to connect to the manipulator.
 
   - arg:
@@ -134,60 +115,37 @@ launch:
           value: $(var manipulator_serial_port)
         - name: mock_joints
           value: 'False'
-        - name: robot_model
-          value: $(var robot_model)
         - name: use_sim
           value: $(var use_sim)
 
   # =======================
-  # Controller manager
+  # Controllers (wait few seconds to resolve parameters file)
   # =======================
 
-  - node:
-      unless: $(var use_sim)
-      pkg: controller_manager
-      exec: ros2_control_node
-      param:
-        - from: $(var resolved_controller_config)
-      remap:
-        - from: differential_drive_controller/cmd_vel
-          to: cmd_vel
-        - from: differential_drive_controller/odom
-          to: odometry/wheels
-        - from: differential_drive_controller/transition_event
-          to: _differential_drive_controller/transition_event
-        - from: imu_sensor_node/imu
-          to: /_imu/data_raw
-        - from: imu_broadcaster/imu
-          to: imu/data
-        - from: imu_broadcaster/transition_event
-          to: _imu_broadcaster/transition_event
-        - from: joint_state_broadcaster/transition_event
-          to: _joint_state_broadcaster/transition_event
-        - from: mecanum_drive_controller/cmd_vel
-          to: cmd_vel
-        - from: mecanum_drive_controller/odom
-          to: odometry/wheels
-        - from: mecanum_drive_controller/transition_event
-          to: _mecanum_drive_controller/transition_event
-        - from: ~/motors_cmd
-          to: /_motors_cmd
-        - from: ~/motors_response
-          to: /_motors_response
-
-  # =======================
-  # Controllers spawner
-  # =======================
-
-  - node:
-      pkg: controller_manager
-      exec: spawner
-      args: >
-        $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
-        imu_broadcaster
-        joint_state_broadcaster
-        -c controller_manager
-        --controller-manager-timeout 20
+  - timer:
+      period: 3.0
+      children:
+        - node:
+            unless: $(var use_sim)
+            pkg: controller_manager
+            exec: ros2_control_node
+            param:
+              - from: $(var resolved_controller_config)
+        - node:
+            pkg: controller_manager
+            exec: spawner
+            args: >
+              $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
+              imu_broadcaster
+              joint_state_broadcaster
+              -c controller_manager
+              --activate-as-group
+              --controller-manager-timeout 20
+              --controller-ros-args
+              "--ros-args
+              -r ~/cmd_vel:=cmd_vel
+              -r ~/odom:=odometry/wheels
+              -r ~/imu:=imu/data"
 
   # =======================
   # Manipulator (delayed)

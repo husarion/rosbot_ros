@@ -35,7 +35,7 @@ After running the ROSbot XL Manipulation Package, you should be able to control 
 
 ![gamepad_manipulation](.docs/gamepad_manipulation.drawio.png)
 
-Gamepad controls are defined in the `config` directory in the [`joy_servo.yaml`](https://github.com/husarion/open_manipulator_x/blob/jazzy/rosbot_joy/config/joy_servo.yaml) (manipulator) and [`joy2twist.yaml`](rosbot_joy/config/joy.yaml) (ROSbot XL). Feel free to adjust them to your preference.
+Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/config/config.yaml) inside rosbot_joy package. Feel free to adjust them to your preference.
 
 You may have noticed that the movement of the manipulator is slow, and the full capabilities of the manipulator are not fully utilized. This is a safety precaution to ensure that the collision checker effectively prevents the manipulator from bumping into the robot.
 The dynamic limits of the manipulator have been tuned in order to provide a reliable collision prevention mechanism. While this setup should cover most situations, there is still a possibility of accidental contact with the robot or its sensors. Therefore, we advise you to remain aware of this potential risk when operating the manipulator.

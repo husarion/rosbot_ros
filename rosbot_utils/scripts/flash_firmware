@@ -20,9 +20,8 @@ import signal
 import sys
 
 from ament_index_python.packages import get_package_share_directory
-from rosbot_utils.flash_firmware_uart import FirmwareFlasherUART
-from rosbot_utils.flash_firmware_usb import FirmwareFlasherUSB
-from rosbot_utils.utils import find_device_port
+from rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
+from rosbot_utils.mcu_manager_uart import McuManagerUART
 
 # Global variable to hold the subprocess reference
 subproc = None
@@ -43,10 +42,11 @@ def main(args=None):
     signal.signal(signal.SIGINT, signal_handler)
 
     parser = argparse.ArgumentParser(description="Flash ROSbot Firmware")
+    _robot_model_env = os.getenv("ROBOT_MODEL")
     parser.add_argument(
         "--robot-model",
-        required=True,
-        default=os.getenv("ROBOT_MODEL"),
+        required=_robot_model_env is None,
+        default=_robot_model_env,
         choices=["rosbot", "rosbot_xl"],
         help="Specify the robot model",
     )
@@ -55,32 +55,42 @@ def main(args=None):
         action="store_true",
         help="Flash via USB. Automatically set for ROSbot XL; other ROSbots use UART by default. (You can flash firmware to ROSbot via USB-A from your PC)",
     )
-    default_manipulator_serial_port = find_device_port("0403", "6015", "/dev/ttyUSB0")
+    parser.add_argument("-f", "--file", help="Specify the firmware file")
     parser.add_argument(
         "-p",
         "--port",
-        default=default_manipulator_serial_port,
+        default="/dev/rosbot",
         help="Specify the communication port",
     )
-    parser.add_argument("-f", "--file", help="Specify the firmware file")
     args = parser.parse_args(args)
 
-    port = args.port
     robot_model = args.robot_model
     if robot_model == "rosbot_xl":
         args.usb = True
 
     rosbot_utils = get_package_share_directory("rosbot_utils")
-    rosbot_firmware = os.path.join(rosbot_utils, "firmware", "rosbot", "range_laserscan_fix.bin")
-    rosbot_xl_firmware = os.path.join(rosbot_utils, "firmware", "rosbot_xl", "v1.4.0.bin")
-    firmware_dict = {"rosbot": rosbot_firmware, "rosbot_xl": rosbot_xl_firmware}
-    firmware = args.file if args.file else firmware_dict[robot_model]
+    robot_firmware = os.path.join(rosbot_utils, "firmware", robot_model, "v1.0.0-jazzy.bin")
+    firmware = args.file if args.file else robot_firmware
 
     try:
         if args.usb:
-            FirmwareFlasherUSB(firmware, port)
+            port = args.port
+            udev_rules = "/etc/udev/rules.d/99-rosbot.rules"
+
+            if not os.path.exists(port):
+                print(f"ERROR: Device {port} not found. Is it connected?")
+                sys.exit(1)
+            if not os.path.exists(udev_rules):
+                print(
+                    f"ERROR: No access to device {port}.\nInstall udev rules first:\n  ros2 run rosbot_utils install_udev_rules"
+                )
+                sys.exit(1)
+
+            mcu_manager = McuManagerFTDI(port)
+            mcu_manager.flash_firmware(firmware)
         else:
-            FirmwareFlasherUART(firmware)
+            mcu_manager = McuManagerUART()
+            mcu_manager.flash_firmware(firmware)
         print("Firmware flashing completed successfully!")
     except Exception as e:
         print(f"ERROR: {e}")
