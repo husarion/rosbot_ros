@@ -2,6 +2,16 @@
 
 Detailed information about content of rosbot package for ROS2.
 
+## Control
+
+### Gamepad
+
+After running the ROSbot XL Manipulation Package, you should be able to control the manipulator. The easiest way to move the manipulator is to connect a gamepad and steer the robot. The graphic below shows how to steer the manipulator using a gamepad.
+
+![gamepad_rosbot](.docs/gamepad_rosbot.drawio.png)
+
+Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/config/config.yaml) inside rosbot_joy package. Feel free to adjust them to your preference.
+
 ## ROS API
 
 ### Available Nodes

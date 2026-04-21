@@ -71,11 +71,12 @@ launch:
         - name: robot_model
           value: $(var robot_model)
 
-  - include:
-      file: $(find-pkg-share rosbot_utils)/launch/battery_alert.yaml
-      let:
-        - name: robot_model
-          value: $(var robot_model)
+#  Dont work in snap
+#   - include:
+#       file: $(find-pkg-share rosbot_utils)/launch/battery_alert.yaml
+#       let:
+#         - name: robot_model
+#           value: $(var robot_model)
 
   - node:
       pkg: rosbot_utils
