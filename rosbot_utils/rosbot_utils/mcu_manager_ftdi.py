@@ -33,6 +33,7 @@ class McuManagerFTDI:
     def _open_ftdi_with_retry(self, max_attempts: int = 3, interval: float = 1.5):
         # USB re-enumeration after reset or abrupt process kill can take up to ~2s;
         # device.langids is unavailable during that window causing PyFTDI to fail.
+        # On first failure, usbreset forces the kernel to release a stale device state.
         for attempt in range(max_attempts):
             try:
                 self.ftdi.open_from_url(url=self.device)
@@ -40,6 +41,8 @@ class McuManagerFTDI:
             except Exception:
                 if attempt == max_attempts - 1:
                     raise
+                if attempt == 0:
+                    sh.usbreset("0403:6015")
                 time.sleep(interval)
                 self.ftdi = Ftdi()
 
