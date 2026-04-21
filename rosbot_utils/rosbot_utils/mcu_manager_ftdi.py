@@ -30,8 +30,21 @@ class McuManagerFTDI:
         self.device = "ftdi://ftdi:ft-x:/1"
         self.ftdi = Ftdi()
 
+    def _open_ftdi_with_retry(self, max_attempts: int = 3, interval: float = 1.5):
+        # USB re-enumeration after reset or abrupt process kill can take up to ~2s;
+        # device.langids is unavailable during that window causing PyFTDI to fail.
+        for attempt in range(max_attempts):
+            try:
+                self.ftdi.open_from_url(url=self.device)
+                return
+            except Exception:
+                if attempt == max_attempts - 1:
+                    raise
+                time.sleep(interval)
+                self.ftdi = Ftdi()
+
     def enter_bootloader_mode(self):
-        self.ftdi.open_from_url(url=self.device)
+        self._open_ftdi_with_retry()
         self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
         self.ftdi.set_cbus_gpio(0b11)  # set BOOT0 to 1 and RST to 1
         time.sleep(0.1)
@@ -42,7 +55,7 @@ class McuManagerFTDI:
         time.sleep(0.3)
 
     def exit_bootloader_mode(self):
-        self.ftdi.open_from_url(url=self.device)
+        self._open_ftdi_with_retry()
         self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
         self.ftdi.set_cbus_gpio(0b10)  # set BOOT0 to 1 and RST to 1
         time.sleep(0.3)
@@ -92,7 +105,7 @@ USB Flashing:
             raise e
 
     def reset_mcu(self):
-        self.ftdi.open_from_url(url=self.device)
+        self._open_ftdi_with_retry()
         time.sleep(0.1)
         self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
         self.ftdi.set_cbus_gpio(0b10)  # set BOOT0 to 1 and RST to 1
@@ -102,4 +115,4 @@ USB Flashing:
         self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
         self.ftdi.close()
         sh.usbreset("0403:6015")
-        time.sleep(0.3)
+        time.sleep(1.5)
