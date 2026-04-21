@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2026-04-21)
+------------------
 * New firmware with microros namespace pre-communication support (`#168 <https://github.com/husarion/rosbot_ros/issues/168>`_)
   - **New firmware** (`v1.0.0-jazzy`) for ROSbot 3 and ROSbot XL enabling namespace
   configuration via serial pre-communication before microros agent starts
