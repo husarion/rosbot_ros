@@ -2,6 +2,33 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* New firmware with microros namespace pre-communication support (`#168 <https://github.com/husarion/rosbot_ros/issues/168>`_)
+  - **New firmware** (`v1.0.0-jazzy`) for ROSbot 3 and ROSbot XL enabling namespace
+  configuration via serial pre-communication before microros agent starts
+  - **`configure_robot` script** — serial pre-communication node: sends namespace to MCU
+  over FTDI/UART, verifies firmware version, waits for ACK
+  - **Separated bringup** — `bringup.yaml` dispatches to `rosbot.yaml` / `rosbot_xl.yaml`;
+  ROSbot XL gets dedicated nodes: `battery_alert`, `led_strip_car_wave`
+  - **`tf_namespace_bridge`** — bridges namespaced `/tf` to global `/tf` and `/tf_static`
+  - **`microros_mode` arg** — allows overriding default communication mode (serial/udp)
+  - Controller tuning: updated ICR, wheel params and acceleration limits for both robots
+  - Renamed `FirmwareFlasherUSB/UART` → `McuManagerFTDI/UART` with added `reset_mcu()`
+  - `battery_alert`: switched from `aplay` to `paplay` with configurable `audio_device`
+  ROS parameter (snap-friendly via `audio-playback` interface);
+  `pulseaudio-utils` dep commented pending [`ros/rosdistro#50811 <https://github.com/ros/rosdistro/issues/50811>`_](https://github.com/ros/rosdistro/pull/50811)
+  - Fixed: argparse `required=True` ignoring `os.getenv()` default in `configure_robot`
+  and `flash_firmware`
+  - Fixed: namespace validation before serial write in `configure_robot`
+  - Fixed: missing `hasattr(e, "stderr")` guard in `mcu_manager_uart`
+  - Fixed: deprecated `on_init(HardwareInfo&)` → `on_init(HardwareComponentInterfaceParams&)`
+  in `rosbot_hardware_interfaces`
+* Add missing changelog descriptions for past releases (`#167 <https://github.com/husarion/rosbot_ros/issues/167>`_)
+  * Remove automatic bump
+  * Add missing changelog descriptions for past releases
+* Contributors: Rafal Gorecki
+
 0.18.8 (2026-03-02)
 -------------------
 * Remove conditional dependencies

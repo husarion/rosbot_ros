@@ -2,6 +2,14 @@
 Changelog for package rosbot_moveit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix rosbot_moveit dependencies
+* Add missing changelog descriptions for past releases (`#167 <https://github.com/husarion/rosbot_ros/issues/167>`_)
+  * Remove automatic bump
+  * Add missing changelog descriptions for past releases
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 0.18.8 (2026-03-02)
 -------------------
 * Remove conditional dependencies
