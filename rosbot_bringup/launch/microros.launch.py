@@ -105,7 +105,7 @@ def generate_microros_agent_node(context, *args, **kwargs):
     ]
     if namespace:
         pre_communication_cmd.extend(["--namespace", namespace])
-    if microros_mode == "serial":
+    if microros_mode == "serial" and robot_model != "rosbot":
         pre_communication_cmd.extend(["--usb"])
 
     pre_communication = ExecuteProcess(
