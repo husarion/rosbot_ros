@@ -25,4 +25,4 @@ services:
       - ./dds-config-udp.xml:/udp_profiles.xml:ro
     command: >
       ros2 launch rosbot_bringup bringup.launch.py
-        robot_model:=rosbot_xl
+        robot_model:=rosbot_xl arm_activate:=false

@@ -32,9 +32,17 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    arm_activate = LaunchConfiguration("arm_activate")
     microros = LaunchConfiguration("microros")
     namespace = LaunchConfiguration("namespace")
     robot_model = LaunchConfiguration("robot_model")
+
+    declare_arm_activate_arg = DeclareLaunchArgument(
+        "arm_activate",
+        default_value="False",
+        description="Whether to activate the manipulator arm on startup.",
+        choices=["True", "False"],
+    )
 
     declare_microros_arg = DeclareLaunchArgument(
         "microros",
@@ -66,6 +74,9 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([rosbot_controller, "launch", "controller.launch.py"])
         ),
+        launch_arguments={
+            "arm_activate": arm_activate,
+        }.items(),
     )
 
     microros_launch = IncludeLaunchDescription(
@@ -106,6 +117,7 @@ def generate_launch_description():
     )
 
     actions = [
+        declare_arm_activate_arg,
         declare_microros_arg,
         declare_namespace_arg,
         declare_robot_model_arg,
