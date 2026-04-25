@@ -51,8 +51,8 @@ export HUSARION_ROS_BUILD_TYPE=simulation
 ```bash
 source /opt/ros/$ROS_DISTRO/setup.bash
 
-vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos
-vcs import src < src/rosbot_ros/rosbot/manipulator.repos # For ROSbot XL manipulation package
+vcs import src < src/avdr_rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos
+vcs import src < src/avdr_rosbot_ros/rosbot/manipulator.repos # For ROSbot XL manipulation package
 
 sudo rosdep init
 rosdep update --rosdistro $ROS_DISTRO
@@ -69,7 +69,7 @@ For ROSbot XL, you can specify a particular configuration using the launch `conf
 
 ```bash
 source install/setup.bash
-ros2 launch rosbot_bringup bringup.launch.py robot_model:=<rosbot/rosbot_xl>
+ros2 launch rosbot_bringup bringup.launch.py robot_model:=rosbot_xl
 ```
 
 > [!NOTE]

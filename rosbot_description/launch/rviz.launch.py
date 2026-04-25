@@ -38,7 +38,7 @@ def generate_launch_description():
     declare_rviz_config_arg = DeclareLaunchArgument(
         "rviz_config",
         default_value=PathJoinSubstitution(
-            [FindPackageShare("rosbot_description"), "rviz", "rosbot.rviz"]
+            [FindPackageShare("rosbot_description"), "rviz", "rosbot.sensors.rviz"]
         ),
         description="RViz configuration file.",
     )

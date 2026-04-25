@@ -49,7 +49,7 @@ def generate_launch_description():
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
-                [FindPackageShare("husarion_gz_worlds"), "launch", "gz_sim.launch.py"]
+                [FindPackageShare("avdr_gz_worlds"), "launch", "gz_sim.launch.py"]
             )
         ),
         launch_arguments={"gz_log_level": "1"}.items(),

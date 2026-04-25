@@ -11,3 +11,7 @@ repositories:
     type: git
     url: https://github.com/husarion/husarion_gz_worlds
     version: 0d61d49485d72ab717c557c1f7fc5baa45592c75
+  avdr_gz_worlds:
+    type: git
+    url: https://github.com/avdr-labs/avdr_gz_worlds
+    version: 99b80c8f958b96ec57151bf85bd7aa770b9a032e

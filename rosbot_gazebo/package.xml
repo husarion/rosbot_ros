@@ -18,6 +18,7 @@
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">husarion_gz_worlds</exec_depend>
+  <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">avdr_gz_worlds</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">ign_ros2_control</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">laser_filters</exec_depend>
   <exec_depend condition="$HUSARION_ROS_BUILD_TYPE == simulation">launch</exec_depend>
