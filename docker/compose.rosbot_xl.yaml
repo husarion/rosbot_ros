@@ -14,7 +14,7 @@ x-common-config:
 
 services:
   rosbot:
-    # image: husarion/rosbot:humble
+    image: avdr/rosbot-xl:humble
     build:
       context: ..
       dockerfile: docker/Dockerfile.hardware

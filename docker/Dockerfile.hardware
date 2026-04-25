@@ -7,7 +7,7 @@ WORKDIR /ros2_ws
 ENV HUSARION_ROS_BUILD_TYPE=hardware
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
-COPY .. src/rosbot_ros
+COPY .. src/avdr_rosbot_ros
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         python3-pip \
@@ -15,8 +15,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         stm32flash \
         ros-${ROS_DISTRO}-teleop-twist-keyboard && \
     # Setup workspace
-    vcs import src < src/rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos && \
-    vcs import src < src/rosbot_ros/rosbot/manipulator.repos && \
+    vcs import src < src/avdr_rosbot_ros/rosbot/rosbot_${HUSARION_ROS_BUILD_TYPE}.repos && \
+    vcs import src < src/avdr_rosbot_ros/rosbot/manipulator.repos && \
     # Install dependencies
     rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     source /opt/ros/$ROS_DISTRO/setup.bash && \
     colcon build --packages-up-to rosbot --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     # Get version
-    echo $(cat /ros2_ws/src/rosbot_ros/rosbot/package.xml | grep '<version>' | sed -r 's/.*<version>([0-9]+.[0-9]+.[0-9]+)<\/version>/\1/g') >> /version.txt && \
+    echo $(cat /ros2_ws/src/avdr_rosbot_ros/rosbot/package.xml | grep '<version>' | sed -r 's/.*<version>([0-9]+.[0-9]+.[0-9]+)<\/version>/\1/g') >> /version.txt && \
     # Size optimization
     export SUDO_FORCE_REMOVE=yes && \
     apt-get remove -y \
