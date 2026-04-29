@@ -53,8 +53,8 @@
       # Limits
       linear:
         x:
-          max_velocity: 1.0 # m/s
-          min_velocity: -1.0 # m/s
+          max_velocity: 1.1 # m/s
+          min_velocity: -1.1 # m/s
           max_acceleration: 1.2 # m/s^2
           max_deceleration: -2.0 # m/s^2
           max_acceleration_reverse: -1.2 # m/s^2

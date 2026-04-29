@@ -44,6 +44,7 @@ def main(args=None):
     parser = argparse.ArgumentParser(description="Flash ROSbot Firmware")
     _robot_model_env = os.getenv("ROBOT_MODEL")
     parser.add_argument(
+        "-m",
         "--robot-model",
         required=_robot_model_env is None,
         default=_robot_model_env,
@@ -69,8 +70,9 @@ def main(args=None):
         args.usb = True
 
     rosbot_utils = get_package_share_directory("rosbot_utils")
-    robot_firmware = os.path.join(rosbot_utils, "firmware", robot_model, "v1.0.0-jazzy.bin")
+    robot_firmware = os.path.join(rosbot_utils, "firmware", robot_model + "-v1.0.1-jazzy.bin")
     firmware = args.file if args.file else robot_firmware
+    print(f"Using firmware file: {firmware}")
 
     try:
         if args.usb:

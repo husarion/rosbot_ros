@@ -21,68 +21,84 @@ import shutil
 from ament_index_python.packages import get_package_share_directory
 
 
-def copy_config_folder(pkg_name, dest_dir):
+def copy_package_folder(pkg_name, folder_name, dest_base):
     """
-    Copy the entire <pkg_share>/config directory.
+    Copy <pkg_share>/folder_name to dest_base/pkg_name/folder_name.
 
-    This includes all files and subfolders into `dest_dir`.
-    Prompts the user if the destination already exists.
+    Skips if package or folder does not exist.
     """
     try:
         pkg_share = get_package_share_directory(pkg_name)
     except Exception:
-        print(
-            f"Package '{pkg_name}' not found."
-        )  # Hardware/Simulation specific package difference
-        return
-    src_config_dir = os.path.join(pkg_share, "config")
-    dest_config_dir = os.path.join(dest_dir, pkg_name, "config")
-
-    if not os.path.exists(src_config_dir):
-        print(f"[WARNING] Package '{pkg_name}' has no 'config' directory at {src_config_dir}")
+        print(f"[WARN] Package '{pkg_name}' not found.")
         return
 
-    # Copy the entire config folder (files + directories)
-    shutil.copytree(src_config_dir, dest_config_dir)
+    src = os.path.join(pkg_share, folder_name)
+    dst = os.path.join(dest_base, pkg_name, folder_name)
+
+    if not os.path.isdir(src):
+        print(f"[WARN] '{pkg_name}' has no '{folder_name}' folder at {src}")
+        return
+
+    shutil.copytree(src, dst)
+    print(f"  [OK] {pkg_name}/{folder_name}")
 
 
 def main(args=None):
     parser = argparse.ArgumentParser(
-        description="Copy full 'config' folders from multiple ROS 2 packages."
+        description="Copy selected folders from multiple ROS 2 packages."
     )
+    parser.add_argument("destination", help="Destination base directory")
+    parser.add_argument("-y", "--yes", action="store_true", help="Overwrite without prompt")
     parser.add_argument(
-        "destination", help="Destination base directory to copy config folders into"
+        "--add",
+        action="append",
+        default=[],
+        metavar="PKG:FOLDER",
+        help="Add extra pkg:folder pair (can be used multiple times)",
     )
     args = parser.parse_args()
 
-    packages_list = [
-        "rosbot_bringup",
-        "rosbot_controller",
-        "rosbot_description",
-        # "rosbot_gazebo", # Pkg not used in snap
-        # "rosbot_hardware_interfaces", # No config folder
-        "rosbot_joy",
-        "rosbot_localization",
-        "rosbot_moveit",
-        "rosbot_utils",
-    ]
+    packages_to_copy = {
+        "rosbot_bringup": ["config"],
+        "rosbot_controller": ["config"],
+        "rosbot_description": ["config"],
+        # "rosbot_gazebo": ["config"],  # not used in snap
+        "rosbot_hardware_interfaces": [],
+        "rosbot_joy": ["config"],
+        "rosbot_localization": ["config"],
+        "rosbot_moveit": ["config"],
+        "rosbot_utils": ["config", "firmware"],  # example: copy both
+    }
 
-    # Ask if destination exists
+    # Allow adding folders from CLI without editing code
+    for item in args.add:
+        if ":" not in item:
+            parser.error(f"--add requires PKG:FOLDER format, got '{item}'")
+        pkg, folder = item.split(":", 1)
+        packages_to_copy.setdefault(pkg, []).append(folder)
+
+    # Handle existing destination
     if os.path.exists(args.destination):
-        response = (
-            input(f"[?] Destination '{args.destination}' exists. Overwrite? [y/N]: ")
-            .strip()
-            .lower()
-        )
-        if response != "y":
-            print("Aborted.")
-            exit()
+        if not args.yes:
+            resp = (
+                input(f"[?] Destination '{args.destination}' exists. Overwrite? [y/N]: ")
+                .strip()
+                .lower()
+            )
+            if resp != "y":
+                print("Aborted.")
+                return
         shutil.rmtree(args.destination)
+    os.makedirs(args.destination, exist_ok=True)
 
-    for pkg in packages_list:
-        copy_config_folder(pkg, args.destination)
+    print(f"Copying to '{args.destination}'...")
+    for pkg, folders in packages_to_copy.items():
+        # remove duplicates while preserving order
+        for folder in dict.fromkeys(folders):
+            copy_package_folder(pkg, folder, args.destination)
 
-    print(f"✅ All Config folders copied to '{args.destination}'\n")
+    print(f"\n✅ All folders copied to '{args.destination}'")
 
 
 if __name__ == "__main__":
