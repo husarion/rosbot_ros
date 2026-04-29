@@ -2,6 +2,14 @@
 launch:
 
   - arg:
+      name: led_strip
+      default: 'True'
+      description: ROSbot XL only. Enable or disable the LED strip.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
       name: microros
       default: 'True'
       description: Automatically communicate with hardware using microros.
@@ -81,3 +89,4 @@ launch:
   - node:
       pkg: rosbot_utils
       exec: led_strip_car_wave
+      if: $(eval '"$(var led_strip)" == "True"')
