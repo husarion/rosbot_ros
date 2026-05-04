@@ -38,7 +38,7 @@ A description of *how* the repo is wired together: packages, their roles, how th
                 ▼                           │ uses
        ┌──────────────────────┐             ▼
        │ STM32 firmware       │   ┌──────────────────────────┐
-       │ (v1.0.1-jazzy)       │   │ rosbot_hardware_interfaces│ (HW only)
+       │ (v1.1.0-jazzy)       │   │ rosbot_hardware_interfaces│ (HW only)
        └──────────────────────┘   │  RosbotSystem (motors)    │
                                   │  RosbotImuSensor          │
                                   └──────────────────────────┘
@@ -80,7 +80,7 @@ Three launches:
 
 - [rosbot.yaml](rosbot_bringup/launch/rosbot.yaml), [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) — specific model.
 - [bringup.yaml](rosbot_bringup/launch/bringup.yaml) — alias dispatching to one of the above based on `robot_model`/`ROBOT_MODEL`.
-- [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — starts `micro_ros_agent` in `serial` or `udp4` mode. Beforehand it runs **pre-communication** (`ros2 run rosbot_utils configure_robot`), which: (a) verifies the firmware version (must be `v1.0.1-jazzy`), (b) sets the namespace over serial. If pre-comm exits with rc≠0 — the whole launch issues a `Shutdown`.
+- [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — starts `micro_ros_agent` in `serial` or `udp4` mode. Beforehand it runs **pre-communication** (`ros2 run rosbot_utils configure_robot`), which: (a) verifies the firmware version (must be `v1.1.0-jazzy`), (b) sets the namespace over serial. If pre-comm exits with rc≠0 — the whole launch issues a `Shutdown`.
 
 XL additionally has: arg `led_strip` (starts `rosbot_utils/led_strip_car_wave`) and the `microros_mode=udp` path (port 8888).
 
@@ -169,7 +169,7 @@ See [MANIPULATOR.md](MANIPULATOR.md) — limits, troubleshooting, safety rules.
 The broadest package, a Python + ament_cmake mix:
 
 - **Scripts** (installed under `lib/rosbot_utils`):
-  - `flash_firmware` — flashes the STM32 with binaries from [firmware/](rosbot_utils/firmware/) (built-in `rosbot-v1.0.1-jazzy.bin`, `rosbot_xl-v1.0.1-jazzy.bin`).
+  - `flash_firmware` — flashes the STM32 with binaries from [firmware/](rosbot_utils/firmware/) (built-in `rosbot-v1.1.0-jazzy.bin`, `rosbot_xl-v1.1.0-jazzy.bin`).
   - `configure_robot` — pre-communication: verifies the firmware version, sets the namespace over serial. Called from `microros.launch.py`.
   - `create_config_dir <dst>` — copies `share/<pkg>/config` from each rosbot_* package into `<dst>/<pkg>/config`. Used to build a "user" config dir for the Husarion snap.
   - `install_udev_rules` — installs [udev/99-rosbot.rules](rosbot_utils/udev/99-rosbot.rules) (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`).
@@ -187,7 +187,7 @@ The broadest package, a Python + ament_cmake mix:
 
 1. `ros2 launch rosbot_bringup rosbot_xl.yaml`.
 2. `microros.launch.py`:
-   - `pre_communication` (`configure_robot`) is run as `ExecuteProcess`. It opens the serial port, reads `FW: v1.0.1-jazzy`, sends `NS:<namespace>\n`, waits for `ACK`. Exit ≠ 0 → `Shutdown`.
+   - `pre_communication` (`configure_robot`) is run as `ExecuteProcess`. It opens the serial port, reads `FW: v1.1.0-jazzy`, sends `NS:<namespace>\n`, waits for `ACK`. Exit ≠ 0 → `Shutdown`.
    - on pre-comm success: `OnProcessExit` adds `micro_ros_agent` (`udp4 --port 8888` for XL).
 3. `rosbot_controller/controller.yaml`:
    - sed-resolves `controllers.yaml` into `/tmp/rosbot_controller_<ns>.yaml` (`<namespace>/`, `<manipulator_state>`).
@@ -268,10 +268,10 @@ All topics are namespaced when `ROBOT_NAMESPACE` is set.
 
 ## 7. Firmware and pre-communication
 
-- Binaries: `rosbot_utils/firmware/{rosbot,rosbot_xl}-v1.0.1-jazzy.bin`. The version pin is hardcoded in [scripts/configure_robot](rosbot_utils/scripts/configure_robot) (`expected_fw = "v1.0.1-jazzy"`) and [scripts/flash_firmware](rosbot_utils/scripts/flash_firmware).
+- Binaries: `rosbot_utils/firmware/{rosbot,rosbot_xl}-v1.1.0-jazzy.bin`. The version pin is hardcoded in [scripts/configure_robot](rosbot_utils/scripts/configure_robot) (`expected_fw = "v1.1.0-jazzy"`) and [scripts/flash_firmware](rosbot_utils/scripts/flash_firmware).
 - Flash: `ros2 run rosbot_utils flash_firmware --robot-model rosbot[_xl]`. For XL the `--usb` flag is set automatically (FTDI), for ROSbot it defaults to UART over GPIO (resets via gpiochip).
 - Pre-communication serial protocol:
-  - boot: the MCU emits `FW: v1.0.1-jazzy\n`,
+  - boot: the MCU emits `FW: v1.1.0-jazzy\n`,
   - host: `NS:<namespace>\n`,
   - MCU: `ACK\n` on success.
 - USB-B development (on a PC, no Raspberry): see [CONTRIBUTING.md](CONTRIBUTING.md). The connection requires holding `btn1`/`btn2` + reset by hand.

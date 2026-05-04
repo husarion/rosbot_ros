@@ -171,7 +171,7 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=rosbot_xl
 
 ## 6. Hard rules (firm NO's)
 
-1. **Do not change the firmware version (`v1.0.1-jazzy`)** in `flash_firmware`/`configure_robot` without swapping the binary in `rosbot_utils/firmware/`, and vice versa. The driver and the firmware are tightly coupled.
+1. **Do not change the firmware version (`v1.1.0-jazzy`)** in `flash_firmware`/`configure_robot` without swapping the binary in `rosbot_utils/firmware/`, and vice versa. The driver and the firmware are tightly coupled.
 2. **Do not commit `build/`, `install/`, `log/`, `*.pyc`** — they are in `.gitignore`. The vcstool submodules (`husarion_components_description`, `husarion_controllers`, `husarion_gz_worlds`, `micro-ROS-Agent`, `tf_namespace_bridge`) are also ignored.
 3. **Do not disable `ament_copyright`** or any other pre-commit hook without approval — CI enforces them.
 4. **Do not change `controllers.yaml` parameters that carry the `Based on real measurements` comment** without fresh measurements. Those are empirically tuned values.
@@ -216,7 +216,7 @@ A "new feature" entry template in **CLAUDE.md** (section [9](#9-decision-and-nua
 
 - *2026-04-30: Initial version of CLAUDE.md / ARCHITECTURE.md.*
 - *2025-04-21: Added `led_strip` arg in [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) (commit `bbd741b`).*
-- *2025-04-XX: Firmware bumped to `v1.0.1-jazzy`, improved PID (commits `b87b1a4`, `e5509b2`).*
+- *2025-04-XX: Firmware bumped to `v1.1.0-jazzy`, improved PID (commits `b87b1a4`, `e5509b2`).*
 
 ---
 

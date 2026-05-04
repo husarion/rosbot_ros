@@ -57,7 +57,7 @@ def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5
             serial_port.close()
             return False
 
-        expected_fw = "v1.0.1-jazzy"
+        expected_fw = "v1.1.0-jazzy"
         suffix = f"-{match.group(4)}" if match.group(4) else ""
         current_fw = f"v{'.'.join(match.groups()[:3])}{suffix}"
         if current_fw != expected_fw:
