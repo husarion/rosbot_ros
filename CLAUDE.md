@@ -217,6 +217,7 @@ A "new feature" entry template in **CLAUDE.md** (section [9](#9-decision-and-nua
 - *2026-04-30: Initial version of CLAUDE.md / ARCHITECTURE.md.*
 - *2025-04-21: Added `led_strip` arg in [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) (commit `bbd741b`).*
 - *2025-04-XX: Firmware bumped to `v1.1.0-jazzy`, improved PID (commits `b87b1a4`, `e5509b2`).*
+- *2026-05-04: Exposed `frame_filters` parameter for `tf_namespace_bridge` via per-package config files in `rosbot_bringup/config/` and `rosbot_gazebo/config/` (default empty = pass-through).*
 
 ---
 

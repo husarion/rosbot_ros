@@ -2,6 +2,12 @@
 launch:
 
   - arg:
+      name: config_dir
+      default: ''
+      description: Path to the common configuration directory. You can create such common configuration
+        directory with `ros2 run rosbot_utils create_config_dir {directory}`.
+
+  - arg:
       name: microros
       default: 'True'
       description: Automatically communicate with hardware using microros.
@@ -37,10 +43,17 @@ launch:
   - push_ros_namespace:
       namespace: $(var namespace)
 
+  - let:
+      name: tf_namespace_bridge_config
+      value: $(eval "('$(var config_dir)/rosbot_bringup' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_bringup)') + '/config/tf_namespace_bridge.yaml'")
+
   - node:
       pkg: tf_namespace_bridge
       exec: tf_namespace_bridge
       if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
+      param:
+        - from: $(var tf_namespace_bridge_config)
 
   - set_remap:
       from: /diagnostics

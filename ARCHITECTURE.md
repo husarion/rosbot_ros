@@ -239,7 +239,7 @@ Subdirectories created under `~/my_rosbot_config/`: `rosbot_bringup/config/`, `r
 - `ROBOT_NAMESPACE` env var → `namespace` arg.
 - Inside a launch: `push_ros_namespace` shifts every node under the `/<ns>/` prefix.
 - TF is namespaced (`set_remap /tf → tf` and `/tf_static → tf_static` in every launch).
-- Global `/tf` (needed for nav2 / a global RViz view) is bridged by [tf_namespace_bridge](https://github.com/husarion/tf_namespace_bridge) — it starts when `tf_namespace_bridge:=True` and `namespace ≠ ''`.
+- Global `/tf` (needed for nav2 / a global RViz view) is bridged by [tf_namespace_bridge](https://github.com/husarion/tf_namespace_bridge) — it starts when `tf_namespace_bridge:=True` and `namespace ≠ ''`. Which frames are bridged is controlled by the `frame_filters` parameter (glob patterns against `child_frame_id`); the default empty list = pass-through. Edit [rosbot_bringup/config/tf_namespace_bridge.yaml](rosbot_bringup/config/tf_namespace_bridge.yaml) for HW or [rosbot_gazebo/config/tf_namespace_bridge.yaml](rosbot_gazebo/config/tf_namespace_bridge.yaml) for sim.
 - Multirobot in sim: run `spawn_robot.yaml` for each robot with a different `namespace` and `(x,y,z)`. Example: see the `test_multirobot.py` tests in `rosbot_bringup` and `rosbot_gazebo`.
 
 In the IMU controllers `sensor_name: <namespace>/imu` (placeholder sed-replaced) — Gazebo requires unique sensor names, otherwise the `gz_ros2_control` plugin overwrites readings.
