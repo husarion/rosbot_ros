@@ -11,9 +11,8 @@ launch:
       name: RCUTILS_COLORIZED_OUTPUT
       value: '1'
 
-  - set_parameter:
-      name: use_sim_time
-      value: 'True'
+  - set_use_sim_time:
+      value: true
 
   - let:
       name: gz_bridge_config

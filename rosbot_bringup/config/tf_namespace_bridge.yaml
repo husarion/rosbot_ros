@@ -2,4 +2,4 @@
 /**:
   tf_namespace_bridge:
     ros__parameters:
-      frame_filters: []
+      frame_filters: ['*']

@@ -14,4 +14,4 @@ repositories:
   tf_namespace_bridge:
     type: git
     url: https://github.com/husarion/tf_namespace_bridge
-    version: c24265c8c563f5daabd4c8cd9c1366ea73f37161
+    version: c185c1a3f48d49b04a342ccb49f94acf3bfca7f3

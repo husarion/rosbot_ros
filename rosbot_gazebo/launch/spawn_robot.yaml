@@ -97,8 +97,13 @@ launch:
       value: $(var rosbot_gazebo_config)/tf_namespace_bridge.yaml
 
   - executable:
-      cmd: bash -c "sed 's:<namespace>/:"$(var ns)":g' "$(var rosbot_gazebo_config)/rosbot_bridge.yaml"
-        > "$(var rosbot_bridge_config)""
+      cmd: |
+        bash -c "
+          sed \
+            -e 's|<namespace>/|"$(var ns)"|g' \
+            "$(var rosbot_gazebo_config)/rosbot_bridge.yaml" \
+            > "$(var rosbot_bridge_config)"
+        "
 
   - log:
       message:
@@ -129,9 +134,8 @@ launch:
           from: /tf_static
           to: tf_static
 
-      - set_parameter:
-          name: use_sim_time
-          value: 'True'
+      - set_use_sim_time:
+          value: true
 
       - node:
           pkg: ros_gz_bridge
