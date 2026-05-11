@@ -131,6 +131,7 @@ launch:
             exec: ros2_control_node
             param:
               - from: $(var resolved_controller_config)
+            on_exit: shutdown
         - node:
             pkg: controller_manager
             exec: spawner
