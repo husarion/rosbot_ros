@@ -35,7 +35,7 @@ After running the ROSbot XL Manipulation Package, you should be able to control 
 
 ![gamepad_manipulation](.docs/gamepad_manipulation.drawio.png)
 
-Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/config/config.yaml) inside rosbot_joy package. Feel free to adjust them to your preference.
+Drive controls (`cmd_vel`) are configured in [`rosbot_joy/config/config.yaml`](rosbot_joy/config/config.yaml). Manipulator gamepad mappings are hardcoded in [`rosbot_moveit/src/joy2servo.cpp`](rosbot_moveit/src/joy2servo.cpp) (`enum Axis` / `enum Button`). Since MoveIt jazzy, joystick servoing for `<6`-DoF arms only supports joint-jog (TWIST mode requires 6 DoF — see [moveit_msgs#185](https://github.com/moveit/moveit_msgs/issues/185)).
 
 You may have noticed that the movement of the manipulator is slow, and the full capabilities of the manipulator are not fully utilized. This is a safety precaution to ensure that the collision checker effectively prevents the manipulator from bumping into the robot.
 The dynamic limits of the manipulator have been tuned in order to provide a reliable collision prevention mechanism. While this setup should cover most situations, there is still a possibility of accidental contact with the robot or its sensors. Therefore, we advise you to remain aware of this potential risk when operating the manipulator.

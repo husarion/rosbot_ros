@@ -12,13 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
-import yaml
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import (
+    Command,
+    FindExecutable,
     LaunchConfiguration,
     PathJoinSubstitution,
     PythonExpression,
@@ -27,17 +25,6 @@ from launch_param_builder import ParameterBuilder
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from moveit_configs_utils import MoveItConfigsBuilder
-
-
-def load_yaml(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-
-    try:
-        with open(absolute_file_path, "r") as file:
-            return yaml.safe_load(file)
-    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
-        return None
 
 
 def generate_launch_description():
@@ -62,13 +49,33 @@ def generate_launch_description():
     )
     joy_config = PathJoinSubstitution([pkg_config_dir, "config", "config.yaml"])
 
-    moveit_config = (
-        MoveItConfigsBuilder("robot_xl", package_name="rosbot_moveit").joint_limits(
-            file_path="config/joint_limits.yaml"
-        )
-    ).to_moveit_configs()
+    # Match the URDF used by move_group (manipulation configuration); otherwise
+    # servo's internal robot model would diverge from the live one.
+    components_config = PathJoinSubstitution(
+        [FindPackageShare("rosbot_description"), "config", "rosbot_xl", "manipulation.yaml"]
+    )
+    robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [
+                    FindPackageShare("rosbot_description"),
+                    "urdf",
+                    "rosbot_xl.urdf.xacro",
+                ]
+            ),
+            " components_config:=",
+            components_config,
+            " configuration:='manipulation'",
+        ]
+    )
 
-    # Get parameters for the Servo node
+    moveit_config = MoveItConfigsBuilder(
+        "rosbot_xl", package_name="rosbot_moveit"
+    ).to_moveit_configs()
+    moveit_config.robot_description = {"robot_description": robot_description_content}
+
     servo_params = {
         "moveit_servo": ParameterBuilder("rosbot_moveit")
         .yaml("config/moveit_servo.yaml")
@@ -80,8 +87,7 @@ def generate_launch_description():
         executable="servo_node",
         parameters=[
             servo_params,
-            # acceleration_filter_update_period,
-            # planning_group_name,
+            moveit_config.robot_description,
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
             moveit_config.joint_limits,
@@ -90,15 +96,9 @@ def generate_launch_description():
     )
 
     joy2servo = Node(
-        package="rosbot_joy",
+        package="rosbot_moveit",
         executable="joy2servo",
         parameters=[joy_config],
     )
 
-    actions = [
-        declare_config_dir_arg,
-        servo_node,
-        joy2servo,
-    ]
-
-    return LaunchDescription(actions)
+    return LaunchDescription([declare_config_dir_arg, servo_node, joy2servo])

@@ -10,7 +10,7 @@ After running the ROSbot XL Manipulation Package, you should be able to control 
 
 ![gamepad_rosbot](.docs/gamepad_rosbot.drawio.png)
 
-Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/config/config.yaml) inside rosbot_joy package. Feel free to adjust them to your preference.
+Drive controls (`cmd_vel`) are defined in [`rosbot_joy/config/config.yaml`](rosbot_joy/config/config.yaml). The manipulator gamepad mappings (XL only) are hardcoded in [`rosbot_moveit/src/joy2servo.cpp`](rosbot_moveit/src/joy2servo.cpp).
 
 ## ROS API
 

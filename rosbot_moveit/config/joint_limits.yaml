@@ -16,11 +16,8 @@ joint_limits:
     max_acceleration: 18.7253757
     has_position_limits: true
 
-  gripper_right_joint:
-    has_velocity_limits: true
-    max_velocity: 4.796164779
-    has_acceleration_limits: true
-    max_acceleration: 18.7253757
+  # gripper_right_joint is a <passive_joint> in the SRDF (mimicked from
+  # gripper_left_joint by the URDF); MoveIt does not plan it, so no limits here.
   joint1:
     has_velocity_limits: true
     max_velocity: 4.796164779

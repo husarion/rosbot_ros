@@ -20,12 +20,12 @@
 #include <moveit/move_group_interface/move_group_interface.hpp>
 #include <moveit_msgs/srv/servo_command_type.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <rosbot_joy/servo/joy2servo.hpp>
+#include <rosbot_moveit/joy2servo.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 #include <string>
 #include <unordered_map>
 
-namespace rosbot_joy::servo {
+namespace rosbot_moveit {
 
 Joy2Servo::Joy2Servo() : Node("joy2servo") {
   twist_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>(
@@ -220,11 +220,11 @@ void Joy2Servo::UpdateReqCommand(const sensor_msgs::msg::Joy::SharedPtr msg) {
   }
 }
 
-} // namespace rosbot_joy::servo
+} // namespace rosbot_moveit
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<rosbot_joy::servo::Joy2Servo>();
+  auto node = std::make_shared<rosbot_moveit::Joy2Servo>();
   node->InitializeMoveGroup();
   rclcpp::spin(node);
   rclcpp::shutdown();

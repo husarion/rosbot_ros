@@ -40,7 +40,10 @@ monitored_planning_scene_topic: planning_scene
 
 ## MoveIt properties
 move_group_name: manipulator  # Often 'manipulator' or 'arm'
-planning_frame: link1  # The MoveIt planning frame. Often 'base_link' or 'world'
+# planning_frame is intentionally the arm's base (link1), not the robot base.
+# Cartesian/twist commands and IK are computed relative to the arm root, so the
+# manipulator behaves consistently regardless of robot pose / namespace.
+planning_frame: link1
 
 ## Other frames
 ee_frame_name: end_effector_link  # The name of the end effector link, used to return the EE pose
