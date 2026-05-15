@@ -42,14 +42,30 @@ Joy2Servo::Joy2Servo() : Node("joy2servo") {
 }
 
 void Joy2Servo::InitializeMoveGroup() {
+  // MoveGroupInterface builds topic names via
+  // rclcpp::names::append(opt.move_group_namespace, TOPIC), which yields a
+  // fully-qualified name and bypasses the node's namespace. Pass the node's
+  // namespace so trajectory_execution_event / attached_collision_object live
+  // under it instead of /.
+  const std::string move_group_namespace = this->get_namespace();
+
+  moveit::planning_interface::MoveGroupInterface::Options gripper_options(
+      "gripper",
+      moveit::planning_interface::MoveGroupInterface::ROBOT_DESCRIPTION,
+      move_group_namespace);
   gripper_group_ =
       std::make_unique<moveit::planning_interface::MoveGroupInterface>(
-          shared_from_this(), "gripper");
+          shared_from_this(), gripper_options);
   gripper_group_->setMaxVelocityScalingFactor(0.4);
   gripper_group_->setMaxAccelerationScalingFactor(0.2);
+
+  moveit::planning_interface::MoveGroupInterface::Options manipulator_options(
+      "manipulator",
+      moveit::planning_interface::MoveGroupInterface::ROBOT_DESCRIPTION,
+      move_group_namespace);
   manipulator_group_ =
       std::make_unique<moveit::planning_interface::MoveGroupInterface>(
-          shared_from_this(), "manipulator");
+          shared_from_this(), manipulator_options);
   manipulator_group_->setMaxVelocityScalingFactor(0.4);
   manipulator_group_->setMaxAccelerationScalingFactor(0.2);
 }

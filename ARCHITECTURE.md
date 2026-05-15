@@ -158,9 +158,9 @@ The covariance matrices are **tuned empirically** — comments such as "values m
 
 - MoveIt config for `rosbot_xl` with OpenMANIPULATOR-X (SRDF, kinematics, OMPL, Pilz, joint_limits, moveit_servo, moveit_controllers, initial_positions).
 - [launch/move_group.launch.py](rosbot_moveit/launch/move_group.launch.py) — builds the config via `MoveItConfigsBuilder`, **overrides robot_description** using the same xacro as bringup with `configuration:='manipulation'` (so the URDF stays consistent with the rest of the stack).
-- [launch/servo.launch.py](rosbot_moveit/launch/servo.launch.py) — `moveit_servo` + `joy2servo` (cartesian/joint control from the pad).
+- [launch/servo.launch.py](rosbot_moveit/launch/servo.launch.py) — `moveit_servo` + `joy2servo` (cartesian/joint control from the pad). `moveit_servo.yaml` overrides `monitored_planning_scene_topic` to the relative `planning_scene` — the upstream default `/planning_scene` is absolute and would strip the namespace from the PSM's private sub-node (`servo_node_private_*`).
 - [launch/rviz.launch.py](rosbot_moveit/launch/rviz.launch.py) — RViz with MotionPlanning + servo.
-- C++ executables: [src/dock.cpp](rosbot_moveit/src/dock.cpp) (sends the arm to the dock pose), [src/home.cpp](rosbot_moveit/src/home.cpp) (Home).
+- C++ executables: [src/dock.cpp](rosbot_moveit/src/dock.cpp) (sends the arm to the dock pose), [src/home.cpp](rosbot_moveit/src/home.cpp) (Home). Both — along with `rosbot_joy/joy2servo` — pass `node->get_namespace()` as the 3rd `MoveGroupInterface::Options` argument so MoveIt's internal topics (`trajectory_execution_event`, `attached_collision_object`) and the `move_group` action stay inside the robot namespace; the 2-arg `MoveGroupInterface(node, group)` ctor would leak them to `/`.
 
 See [MANIPULATOR.md](MANIPULATOR.md) — limits, troubleshooting, safety rules.
 

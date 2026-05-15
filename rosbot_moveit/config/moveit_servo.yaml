@@ -33,6 +33,11 @@ smoothing_filter_plugin_name: online_signal_smoothing::ButterworthFilterPlugin
 # then is_primary_planning_scene_monitor needs to be set to false.
 is_primary_planning_scene_monitor: true
 
+# Default is "/planning_scene" (absolute) — the leading slash strips the node's namespace, so the
+# servo_node_private_* sub-node ends up publishing on /planning_scene. Use a relative name so it
+# stays inside the robot namespace.
+monitored_planning_scene_topic: planning_scene
+
 ## MoveIt properties
 move_group_name: manipulator  # Often 'manipulator' or 'arm'
 planning_frame: link1  # The MoveIt planning frame. Often 'base_link' or 'world'
