@@ -98,7 +98,16 @@ def generate_launch_description():
     joy2servo = Node(
         package="rosbot_moveit",
         executable="joy2servo",
-        parameters=[joy_config],
+        parameters=[
+            joy_config,
+            # MoveGroupInterface inside joy2servo lazily loads a RobotModelLoader and
+            # complains "No kinematics plugins defined" without these parameters. They
+            # also feed setNamedTarget("Home"/"Dock") (which needs SRDF named states)
+            # and the gripper move() calls (which need joint_limits).
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            moveit_config.joint_limits,
+        ],
     )
 
     return LaunchDescription([declare_config_dir_arg, servo_node, joy2servo])

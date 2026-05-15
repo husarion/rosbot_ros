@@ -91,7 +91,7 @@ Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_multirobot.
 ### `rosbot_controller` — ros2_control + manipulator
 
 - [controller.yaml](rosbot_controller/launch/controller.yaml) — the orchestrator: loads URDF, generates a resolved YAML at `/tmp/rosbot_controller_<ns>.yaml` (via `sed`, replacing `<namespace>/` and `<manipulator_state>`), starts `controller_manager` (unless `use_sim`), and after 3 s the controller spawner: `differential_drive_controller` or `mecanum_drive_controller` (depending on `mecanum`), `imu_broadcaster`, `joint_state_broadcaster`. After 5 s — `manipulator.yaml` if `configuration` starts with `manipulation`.
-- [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — spawner for `manipulator_controller` (JointTrajectoryController) + `gripper_controller` (GripperActionController), inclusion of `move_group.launch.py` and `servo.launch.py`, plus `ros2 run rosbot_moveit home` after 10 s.
+- [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — spawner for `manipulator_controller` (JointTrajectoryController) + `gripper_controller` (GripperActionController), inclusion of `move_group.launch.py` and `servo.launch.py`, plus include of `rosbot_moveit/launch/home.launch.py` after 10 s (the `home` executable receives the MoveIt config — kinematics/SRDF/joint_limits — via that wrapper so `MoveGroupInterface` doesn't warn about missing kinematics plugins).
 - [config/](rosbot_controller/config/) — `controllers.yaml` per model (kinematic parameters, limits, IMU covariances).
 - [scripts/arm_control](rosbot_controller/scripts/arm_control) — CLI: `active`/`inactive` toggles `OpenManipulatorXSystem` and the arm controllers.
 

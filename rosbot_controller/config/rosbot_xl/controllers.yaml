@@ -14,6 +14,11 @@
         type: joint_state_broadcaster/JointStateBroadcaster
       manipulator_controller:
         type: joint_trajectory_controller/JointTrajectoryController
+      # NOTE: `parallel_gripper_action_controller/GripperActionController` (the replacement
+      # advertised in the deprecation warning) uses `control_msgs/action/ParallelGripperCommand`,
+      # while MoveIt's `moveit_simple_controller_manager` only knows `GripperCommand` —
+      # switching breaks MoveIt-driven gripper motions. Keep the deprecated type until MoveIt
+      # supports `ParallelGripperCommand` action.
       gripper_controller:
         type: position_controllers/GripperActionController
 
@@ -164,7 +169,14 @@
       action_monitor_rate: 20.0
       allow_nonzero_velocity_at_trajectory_end: true
       allow_partial_joints_goal: false
-      open_loop_control: true
+      # Open-loop equivalent: zero PID gains + interpolate from previous desired state
+      # (replaces deprecated `open_loop_control: true`).
+      interpolate_from_desired_state: true
+      gains:
+        joint1: {p: 0.0, i: 0.0, d: 0.0}
+        joint2: {p: 0.0, i: 0.0, d: 0.0}
+        joint3: {p: 0.0, i: 0.0, d: 0.0}
+        joint4: {p: 0.0, i: 0.0, d: 0.0}
       allow_integration_in_goal_trajectories: true
       constraints:
         stopped_velocity_tolerance: 0.01

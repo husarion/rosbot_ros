@@ -59,6 +59,12 @@ def generate_launch_description():
         "publish_robot_description_semantic": True,
         "allow_trajectory_execution": True,
         "capabilities": "",
+        # OccupancyMapMonitor is part of PlanningSceneMonitor (not a move_group capability)
+        # and is always started, even without `sensors_3d.yaml`. It logs one ERROR ("No 3D
+        # sensor plugin(s) defined") and one WARN ("Resolution not specified") at startup
+        # and then sits idle. The only ways to silence it are to provide a fake sensor
+        # plugin (adds clutter for a no-op subscriber) or to patch MoveIt. Until rosbot_xl
+        # gains a depth camera in the manipulation config, the messages are accepted.
         "disable_capabilities": "",
         "monitor_dynamics": False,
         "publish_planning_scene": True,
@@ -69,6 +75,9 @@ def generate_launch_description():
         "trajectory_execution.allowed_execution_duration_scaling": 2.0,
         "trajectory_execution.allowed_goal_duration_margin": 0.5,
         "trajectory_execution.allowed_start_tolerance": 0.0,
+        # Planning workspace cube (meters) — silences MoveIt's "planning volume was not specified"
+        # warning. Sized to contain OpenManipulator-X reach (~0.4 m) with margin.
+        "default_workspace_bounds": 1.0,
     }
 
     move_group_params = [
