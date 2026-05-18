@@ -10,6 +10,24 @@
 default:
     @just --list
 
+# Path to the Python venv where release tooling (pre-commit) lives.
+# Kept separate from the system Python so the recipe works the same on
+# any host without depending on whatever the operator has globally.
+venv := env_var_or_default("ROSBOT_ROS_RELEASE_VENV", "$HOME/.venv-rosbot-ros-release")
+
+# One-time bootstrap of the release-tooling venv. Idempotent — called
+# automatically by `just release` when the venv is missing.
+install-deps:
+    #!/bin/bash
+    set -euo pipefail
+    if [[ ! -d {{venv}} ]]; then
+      python3 -m venv {{venv}}
+    fi
+    {{venv}}/bin/pip install --upgrade pip
+    {{venv}}/bin/pip install pre-commit
+    echo
+    echo "Release tooling installed in {{venv}}."
+
 # Cut a release for the current branch. Drives the full local→published
 # flow: sanity gate (clean tree, in sync with origin, pre-commit clean),
 # ask Claude for a semver bump + Keep-a-Changelog section based on the
@@ -31,6 +49,14 @@ default:
 release:
     #!/bin/bash
     set -euo pipefail
+    # Auto-bootstrap the release-tooling venv if it's missing. Same
+    # pattern as rosbot-firmware — keeps the recipe self-sufficient on
+    # any clean host.
+    if [[ ! -x {{venv}}/bin/pre-commit ]]; then
+        echo "release: 'pre-commit' not in {{venv}} — bootstrapping..."
+        just install-deps
+    fi
+    export PATH="{{venv}}/bin:$PATH"
 
     # ---- 1. sanity ----
     [ -z "$(git status --porcelain)" ] \
@@ -51,7 +77,7 @@ release:
     command -v jq >/dev/null \
         || { echo "release: 'jq' not on PATH" >&2; exit 1; }
     command -v pre-commit >/dev/null \
-        || { echo "release: 'pre-commit' not on PATH (run: pip install pre-commit)" >&2; exit 1; }
+        || { echo "release: 'pre-commit' still missing after install-deps" >&2; exit 1; }
 
     # ---- 2. tag suffix + commit range ----
     # Bare tag on the canonical 'jazzy' branch; suffixed on feature branches.
