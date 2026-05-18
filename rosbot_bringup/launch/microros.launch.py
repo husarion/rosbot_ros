@@ -102,6 +102,15 @@ def generate_microros_agent_node(context, *args, **kwargs):
         "configure_robot",
         "--robot-model",
         robot_model,
+        # On the jazzy-mavlink track the micro-ROS firmware lineage is
+        # rebuilt from the rosbot-firmware MAVLink-track source and ships
+        # in the same release as the MAVLink firmware. Its embedded FW
+        # string therefore matches the release tag (e.g. v0.1.1-jazzy-mavlink),
+        # not the legacy v1.1.0-jazzy string configure_robot defaults to.
+        # Bump this in lockstep with the rosbot-firmware release this
+        # rosbot_ros release tracks.
+        "--expected-firmware",
+        "v0.1.1-jazzy-mavlink",
     ]
     if namespace:
         pre_communication_cmd.extend(["--namespace", namespace])
