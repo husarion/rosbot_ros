@@ -18,9 +18,8 @@ launch:
   - arg:
       name: microros
       default: 'True'
-      description: Automatically communicate with hardware using the chosen
-        link layer. Set to 'False' to skip link-layer launch entirely (e.g.
-        when running the bridge in a separate container).
+      description: Automatically communicate with hardware using the chosen link layer. Set to 'False'
+        to skip link-layer launch entirely (e.g. when running the bridge in a separate container).
       choice:
         - value: 'True'
         - value: 'False'
@@ -28,12 +27,10 @@ launch:
   - arg:
       name: link_layer
       default: microros
-      description: Which MCU<->SBC protocol stack to launch when
-        microros=True. 'microros' starts the XRCE-DDS agent (default,
-        compatible with the micro-ROS firmware). 'mavlink' starts the
-        rosbot_mavlink_bridge node (requires the MAVLink firmware variant
-        and the rosbot_mavlink_bridge package on the ROS overlay; see
-        rosbot-firmware/MAVLINK_MIGRATION.md).
+      description: Which MCU<->SBC protocol stack to launch when microros=True. 'microros' starts the
+        XRCE-DDS agent (default, compatible with the micro-ROS firmware). 'mavlink' starts the rosbot_mavlink_bridge
+        node (requires the MAVLink firmware variant and the rosbot_mavlink_bridge package on the ROS overlay;
+        see rosbot-firmware/MAVLINK_MIGRATION.md).
       choice:
         - value: microros
         - value: mavlink

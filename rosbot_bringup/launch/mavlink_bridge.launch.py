@@ -133,10 +133,12 @@ def generate_bridge_launch(context, *args, **kwargs):
     # swapped for the SBC's actual MCU serial line.
     bridge_launch_args = [("namespace", namespace)]
     if robot_model == "rosbot":
-        bridge_launch_args.extend([
-            ("serial_port", serial_port),
-            ("serial_baudrate", serial_baudrate),
-        ])
+        bridge_launch_args.extend(
+            [
+                ("serial_port", serial_port),
+                ("serial_baudrate", serial_baudrate),
+            ]
+        )
 
     bridge_launch = IncludeLaunchDescription(
         AnyLaunchDescriptionSource(_resolve_bridge_launch(robot_model)),

@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+# Copyright 2026 Husarion sp. z o.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Apply a release: bump <version> in every package.xml + prepend a CHANGELOG section.
 
 Usage:
@@ -39,7 +53,11 @@ def prepend_section(tag: str, section_body: str) -> None:
     text = CHANGELOG.read_text()
     m = re.search(r"(?m)^## \[", text)
     if m:
-        new_text = text[: m.start()] + new_section + text[m.start() :]
+        # Extract slice index to a name — keeps black's preferred
+        # spacing without tripping flake8's E203 (whitespace-before-colon
+        # is unavoidable when both slice sides are complex expressions).
+        i = m.start()
+        new_text = text[:i] + new_section + text[i:]
     else:
         if not text.endswith("\n\n"):
             text = text.rstrip("\n") + "\n\n"
