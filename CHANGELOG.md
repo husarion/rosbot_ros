@@ -15,6 +15,12 @@ The version numbers here are independent of `rosbot-firmware`'s — the
 two repos co-evolve but version on different cadences. `rosbot-snap`
 pins specific tagged versions of each at build time.
 
+## [1.1.2-jazzy-mavlink] - 2026-05-18
+
+### Fixed
+
+- `rosbot_bringup`'s `microros.launch.py` now passes `--expected-firmware v0.1.1-jazzy-mavlink` to `configure_robot`, matching the MAVLink-track firmware release. Without this, the micro-ROS bringup path on the MAVLink lineage was rejected by `configure_robot`'s version-equality check against the default `v1.1.0-jazzy`, since the MAVLink-track rosbot-firmware release ships both MAVLink and micro-ROS artifacts stamped with `v0.1.1-jazzy-mavlink`.
+
 ## [1.1.1-jazzy-mavlink] - 2026-05-18
 
 ### Added
