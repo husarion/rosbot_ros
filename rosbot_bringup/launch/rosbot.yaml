@@ -10,10 +10,22 @@ launch:
   - arg:
       name: microros
       default: 'True'
-      description: Automatically communicate with hardware using microros.
+      description: Automatically communicate with hardware using the chosen
+        link layer. Set to 'False' to skip link-layer launch.
       choice:
         - value: 'True'
         - value: 'False'
+
+  - arg:
+      name: link_layer
+      default: microros
+      description: Which MCU<->SBC protocol stack to launch when
+        microros=True. 'microros' starts the XRCE-DDS agent. 'mavlink'
+        starts the rosbot_mavlink_bridge node (requires the MAVLink firmware
+        + the rosbot_mavlink_bridge package on the overlay).
+      choice:
+        - value: microros
+        - value: mavlink
 
   - arg:
       name: namespace
@@ -67,7 +79,14 @@ launch:
 
   - include:
       file: $(find-pkg-share rosbot_bringup)/launch/microros.launch.py
-      if: $(var microros)
+      if: $(eval '"$(var microros)" == "True" and "$(var link_layer)" == "microros"')
+      let:
+        - name: robot_model
+          value: $(var robot_model)
+
+  - include:
+      file: $(find-pkg-share rosbot_bringup)/launch/mavlink_bridge.launch.py
+      if: $(eval '"$(var microros)" == "True" and "$(var link_layer)" == "mavlink"')
       let:
         - name: robot_model
           value: $(var robot_model)
