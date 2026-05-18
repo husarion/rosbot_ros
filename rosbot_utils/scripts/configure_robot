@@ -32,7 +32,13 @@ def print_error(msg: str):
     print(f"{RED}[ERROR] {msg}{RESET}")
 
 
-def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5.0) -> bool:
+def configure_robot(
+    port: str,
+    namespace: str,
+    baudrate: int,
+    timeout: float = 5.0,
+    expected_fw: str = "v1.1.0-jazzy",
+) -> bool:
     if namespace and not re.match(r"^[a-zA-Z0-9_/]+$", namespace):
         print_error(
             f"Invalid namespace: '{namespace}'. Use only alphanumeric characters, underscores and slashes."
@@ -57,7 +63,6 @@ def configure_robot(port: str, namespace: str, baudrate: int, timeout: float = 5
             serial_port.close()
             return False
 
-        expected_fw = "v1.1.0-jazzy"
         suffix = f"-{match.group(4)}" if match.group(4) else ""
         current_fw = f"v{'.'.join(match.groups()[:3])}{suffix}"
         if current_fw != expected_fw:
@@ -106,6 +111,13 @@ def main(args=None):
     )
     parser.add_argument("-n", "--namespace", default="", help="Specify the robot namespace")
     parser.add_argument("-b", "--baudrate", type=int, default=921600, help="Serial baudrate")
+    parser.add_argument(
+        "--expected-firmware",
+        default="v1.1.0-jazzy",
+        help="Firmware version string the MCU must report. Default tracks the "
+        "micro-ROS jazzy lineage; the MAVLink launch passes its own tag (e.g. "
+        "'v0.1.1-jazzy-mavlink') so each launch path enforces its own pin.",
+    )
     args = parser.parse_args(args)
 
     robot_model = args.robot_model
@@ -128,13 +140,17 @@ def main(args=None):
 
             mcu_manager = McuManagerFTDI(port)
             mcu_manager.reset_mcu()
-            success = configure_robot(port, args.namespace, args.baudrate)
+            success = configure_robot(
+                port, args.namespace, args.baudrate, expected_fw=args.expected_firmware
+            )
             sys.exit(0 if success else 1)
         else:
             mcu_manager = McuManagerUART()
             mcu_manager.reset_mcu()
             port = mcu_manager.get_port()
-            success = configure_robot(port, args.namespace, args.baudrate)
+            success = configure_robot(
+                port, args.namespace, args.baudrate, expected_fw=args.expected_firmware
+            )
             sys.exit(0 if success else 1)
 
     except Exception as e:
