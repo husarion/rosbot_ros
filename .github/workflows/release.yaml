@@ -1,0 +1,124 @@
+---
+name: Release
+
+# Fired by `just release` pushing a `X.Y.Z[-<suffix>]` tag (no leading 'v').
+# The recipe has already bumped every package.xml, written the CHANGELOG.md
+# section, committed and tagged — this workflow verifies, publishes the
+# GitHub Release using the CHANGELOG section as the body, and hands off to
+# build-docker.yaml to push the docker images.
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
+
+permissions:
+  contents: write
+
+jobs:
+  parse-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.parse.outputs.tag_name }}
+      version: ${{ steps.parse.outputs.version }}
+      suffix: ${{ steps.parse.outputs.suffix }}
+    steps:
+      - name: Parse tag
+        id: parse
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [[ ! "$TAG" =~ ^([0-9]+\.[0-9]+\.[0-9]+)(-[A-Za-z0-9.\-]+)?$ ]]; then
+            echo "::error::tag '${TAG}' must look like X.Y.Z[-<suffix>]"
+            exit 1
+          fi
+          VERSION="${BASH_REMATCH[1]}"
+          SUFFIX="${BASH_REMATCH[2]:-}"
+          echo "tag_name=${TAG}"   >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "suffix=${SUFFIX}"   >> "$GITHUB_OUTPUT"
+          echo "Tag ${TAG} -> version=${VERSION} suffix=${SUFFIX:-<none>}"
+
+  verify:
+    name: Verify package.xml versions match tag
+    needs: parse-tag
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.parse-tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check every package.xml is at ${{ needs.parse-tag.outputs.version }}
+        run: |
+          set -euo pipefail
+          mismatch=0
+          while IFS= read -r pkg; do
+            v=$(sed -nE 's,.*<version>([^<]+)</version>.*,\1,p' "$pkg" | head -n1)
+            if [ "$v" != "$VERSION" ]; then
+              echo "::error file=$pkg::version is '$v', expected '$VERSION'"
+              mismatch=1
+            fi
+          done < <(find . -name package.xml -not -path './build/*' -not -path './install/*')
+          [ "$mismatch" = "0" ]
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: [parse-tag, verify]
+    runs-on: ubuntu-latest
+    env:
+      TAG_NAME: ${{ needs.parse-tag.outputs.tag_name }}
+      SUFFIX: ${{ needs.parse-tag.outputs.suffix }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Extract release body from CHANGELOG.md
+        run: |
+          set -euo pipefail
+          awk -v key="## [${TAG_NAME}]" '
+            index($0, key) == 1 { capturing=1; next }
+            /^## \[/             { capturing=0 }
+            capturing            { print }
+          ' CHANGELOG.md > release_body.md
+          if [ ! -s release_body.md ]; then
+            echo "::error::No CHANGELOG.md section found for [${TAG_NAME}]"
+            grep -nE '^## \[' CHANGELOG.md || true
+            exit 1
+          fi
+          # Trim leading/trailing blank lines.
+          sed -i -e '/./,$!d' -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' release_body.md
+          cat release_body.md
+      - name: Determine prerelease flag
+        id: pr
+        run: |
+          # Pre-release when the tag carries a track suffix
+          # (e.g. 1.0.1-jazzy-mavlink). Bare X.Y.Z tags (cut from the
+          # canonical 'jazzy' branch) are production releases that take
+          # the 'Latest' slot on the repo home page.
+          if [ -n "$SUFFIX" ]; then
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: ${{ env.TAG_NAME }}
+          body_path: release_body.md
+          prerelease: ${{ steps.pr.outputs.value }}
+
+  # Hand off to the existing per-image build matrix. Pushes
+  # husarion/rosbot:jazzy-<tag> and husarion/rosbot-gazebo:jazzy-<tag>
+  # to Docker Hub (credentials live as DOCKERHUB_* secrets, set up by
+  # the existing development pipeline).
+  #
+  # Pre-release tags skip docker entirely — those are experimental and
+  # shouldn't pollute the Docker Hub registry, and they keep the workflow
+  # from going red if DOCKERHUB secrets aren't configured on the runner
+  # for the pre-release path.
+  docker:
+    name: Docker images
+    needs: [parse-tag, verify]
+    if: needs.parse-tag.outputs.suffix == ''
+    uses: ./.github/workflows/build-docker.yaml
+    secrets: inherit
+    with:
+      branch_name: ${{ needs.parse-tag.outputs.tag_name }}
+      build_type: development
