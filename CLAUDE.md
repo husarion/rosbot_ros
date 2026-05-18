@@ -219,6 +219,7 @@ A "new feature" entry template in **CLAUDE.md** (section [9](#9-decision-and-nua
 - *2025-04-XX: Firmware bumped to `v1.1.0-jazzy`, improved PID (commits `b87b1a4`, `e5509b2`).*
 - *2026-05-04: Exposed `frame_filters` parameter for `tf_namespace_bridge` via per-package config files in `rosbot_bringup/config/` and `rosbot_gazebo/config/` (default empty = pass-through).*
 - *2026-05-15: Namespaced MoveIt topics for `joy2servo` and `servo_node`. `MoveGroupInterface` builds its `trajectory_execution_event` / `attached_collision_object` publishers via `rclcpp::names::append(opt.move_group_namespace, TOPIC)` — that is an FQN expansion that **ignores** the parent node's namespace, so the 2-arg ctor leaves these topics at `/`. Fixed by passing `this->get_namespace()` as the 3rd arg of `MoveGroupInterface::Options`. `moveit_servo`'s `monitored_planning_scene_topic` defaults to absolute `/planning_scene` (leading slash strips namespace from the PSM's private node) — fixed by setting it to relative `planning_scene` in `rosbot_moveit/config/moveit_servo.yaml`. `/parameter_events` is global by design.*
+- *2026-05-18: Deduplicated FIRMWARE_VERSION constant — single source in `rosbot_utils.firmware_version`.*
 
 ---
 
