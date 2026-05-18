@@ -108,6 +108,14 @@ def generate_bridge_launch(context, *args, **kwargs):
         "configure_robot",
         "--robot-model",
         robot_model,
+        # The MAVLink firmware lineage versions independently from the
+        # micro-ROS one (separate -jazzy-mavlink track in
+        # rosbot-firmware/CHANGELOG.md). Pin the expected version here
+        # so configure_robot's version-equality check accepts the
+        # MAVLink firmware. Bump this string in lockstep with the
+        # rosbot-firmware MAVLink release this rosbot_ros release tracks.
+        "--expected-firmware",
+        "v0.1.1-jazzy-mavlink",
     ]
     if namespace:
         pre_communication_cmd.extend(["--namespace", namespace])
