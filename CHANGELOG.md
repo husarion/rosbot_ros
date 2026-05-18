@@ -18,9 +18,11 @@ pins specific tagged versions of each at build time.
 ## [1.1.1-jazzy-mavlink] - 2026-05-18
 
 ### Added
+
 - `--expected-firmware` arg on `rosbot_utils`'s `configure_robot` script — default keeps the previous `v1.1.0-jazzy` check, so micro-ROS callers are unchanged.
 
 ### Fixed
+
 - MAVLink-track firmware boot was rejected by `configure_robot`'s hardcoded `v1.1.0-jazzy` equality check. `rosbot_bringup`'s `mavlink_bridge.launch.py` now passes the MAVLink track's expected version (`v0.1.1-jazzy-mavlink` from rosbot-firmware) so the pre-communication phase accepts it.
 
 ## [1.1.0-jazzy-mavlink] - 2026-05-18
