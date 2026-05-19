@@ -120,21 +120,17 @@ void Joy2Servo::InitializeMoveGroup() {
 void Joy2Servo::MoveToDockPose() {
   gripper_group_->setNamedTarget("Close");
   gripper_group_->move();
-  gripper_group_->move(); // To make sure the action is finished
 
   manipulator_group_->setNamedTarget("Dock");
   manipulator_group_->move();
-  manipulator_group_->move(); // To make sure the action is finished
 }
 
 void Joy2Servo::MoveToHomePose() {
   manipulator_group_->setNamedTarget("Home");
   manipulator_group_->move();
-  manipulator_group_->move(); // To make sure the action is finished
 
   gripper_group_->setNamedTarget("Open");
   gripper_group_->move();
-  gripper_group_->move(); // To make sure the action is finished
 }
 
 void Joy2Servo::ControlGripper(const sensor_msgs::msg::Joy::SharedPtr msg) {
