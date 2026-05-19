@@ -54,7 +54,7 @@ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 #### Run the Robot
 
-For ROSbot XL, you can specify a particular configuration using the launch `configuration` argument. If you are using the `manipulation` configuration, please refer to [MANIPULATOR.md](MANIPULATOR.md) for detailed instructions.
+For ROSbot XL, you can specify a particular configuration using the launch `configuration` argument. If you are using the `manipulation` configuration, please refer to [MANIPULATOR.md](MANIPULATOR.md) for detailed instructions — including the **gamepad controls** for the OpenMANIPULATOR-X (`X` = joint-jog mode, `Y` = Cartesian XYZ via MoveIt Servo POSE, `RT + Back/Start` = Dock/Home named poses).
 
 **Real robot:**
 

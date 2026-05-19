@@ -3,7 +3,7 @@
 <package format="3">
   <name>rosbot_joy</name>
   <version>1.0.0</version>
-  <description>The rosbot_joy package to handle joystick inputs for the rosbot and open manipulator</description>
+  <description>The rosbot_joy package to handle joystick inputs for the rosbot drive (via teleop_twist_joy).</description>
   <maintainer email="support@husarion.com">Husarion</maintainer>
   <license>Apache License 2.0</license>
 
@@ -14,18 +14,6 @@
   <author email="rafal.gorecki@husarion.com">Rafal Gorecki</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <depend>builtin_interfaces</depend>
-  <depend>control_msgs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>moveit_msgs</depend>
-  <depend>moveit_ros_planning</depend>
-  <depend>moveit_ros_planning_interface</depend>
-  <depend>moveit_servo</depend>
-  <depend>rclcpp</depend>
-  <depend>rclcpp_action</depend>
-  <depend>sensor_msgs</depend>
-  <depend>std_srvs</depend>
 
   <exec_depend>joy</exec_depend>
   <exec_depend>launch</exec_depend>

@@ -5,7 +5,7 @@
 >
 > 1. **Before starting driver!** Make sure the manipulator is **undock**, manipulator is **away from a collision** (does not rest on robot objects) and **joints are away from its position limits** (e.g. one of the joints is started from extreme position).
 > 2. Controlling MoveIt and via the joystick are two independent processes. You should not send commands to both of these services at the same time.
-> 3. When the power supply is lost, the robot loses momentum and falls by inertia. Therefore, you should hold the manipulator when the power is cut off, or call the docking node `ros2 run rosbot_moveit dock` (prefix with `ROS_NAMESPACE=$ROBOT_NAMESPACE` when the robot was launched in a namespace, so `dock` reaches the namespaced `move_group`) or press `RT` + `Back` buttons on gamepad.
+> 3. When the power supply is lost, the robot loses momentum and falls by inertia. Therefore, you should hold the manipulator when the power is cut off, or call the docking node `ros2 launch rosbot_moveit dock.launch.py` (pass `namespace:=$ROBOT_NAMESPACE` when the robot was launched in a namespace so `dock` reaches the namespaced `move_group`) or press `RT` + `Back` buttons on gamepad. The launch wrapper injects `robot_description_kinematics` etc. so the `MoveGroupInterface` inside `dock` does not log `No kinematics plugins defined`; the executable can still be run bare with `ros2 run rosbot_moveit dock --ros-args -r __ns:=/$ROBOT_NAMESPACE` if you only need a quick test.
 > 4. The manipulator does not analyze collisions with the antenna, to improve the range of the manipulator's movements. It's good practice to position the antenna horizontally on the physical robot.
 > 5. In the event of overload, loss of communication or sudden stopping of the manipulator process (e.g. during reboot), some joints may not receive the command to stop operation. This may prevent re-establishing communication. In such a case, it will be necessary to **reset the power supply**.
 
@@ -35,7 +35,61 @@ After running the ROSbot XL Manipulation Package, you should be able to control 
 
 ![gamepad_manipulation](.docs/gamepad_manipulation.drawio.png)
 
-Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/config/config.yaml) inside rosbot_joy package. Feel free to adjust them to your preference.
+Drive controls (`cmd_vel`) are configured in [`rosbot_joy/config/config.yaml`](rosbot_joy/config/config.yaml). Manipulator gamepad mappings are hardcoded in [`rosbot_moveit/src/joy2servo.cpp`](rosbot_moveit/src/joy2servo.cpp) (`enum Axis` / `enum Button`).
+
+Everything below runs **only while the dead-man trigger `RT` is held** (right trigger ≤ -0.3).
+
+#### Mode toggle
+
+| Button | Mode | Behaviour |
+|---|---|---|
+| **Y** | `Cartesian` **(default)** — XYZ in EE frame | `joy2servo` integrates stick velocity (`cartesian_linear_velocity` param, default `0.1 m/s`) into a target EE pose, runs KDL position-only IK in-process, and publishes the resulting joint velocities as **JointJog**. The IK is done in joy2servo because `moveit_servo`'s POSE/TWIST paths run a singularity guard on the full 6×N Jacobian which trips on any 4-DoF pose (see [moveit_msgs#185](https://github.com/moveit/moveit_msgs/issues/185)); the JointJog path does not run that guard. |
+| **X** | `JointSpace` — per-joint | Each stick axis drives one joint directly. No IK. Useful as a low-level fallback for joints unreachable in Cartesian (e.g. joint4 wrist when EE is at limit). |
+
+Both modes publish on `servo_node/delta_joint_cmds`. X / Y are XOR-ed — pressing both at once is a no-op.
+
+#### JOINT_JOG axis map
+
+| Stick | Joint |
+|---|---|
+| Left stick X | `joint1` |
+| Left stick Y | `joint2` |
+| Right stick X | `joint3` |
+| Right stick Y | `joint4` (inverted: stick up = joint up) |
+
+#### Cartesian axis map (delta interpreted in EE frame)
+
+Each tick joy2servo reads the current EE pose, adds `stick * cartesian_linear_velocity * dt` in EE frame, runs KDL position-only IK on the result, and publishes the resulting joint velocities as JointJog. Sign convention: stick up / right = positive.
+
+| Stick | Direction |
+|---|---|
+| Right stick Y | ±X (stick up = arm extends forward) |
+| Right stick X | ±Y (stick right = sideways across the gripper) |
+| Left stick Y | ±Z (stick up = perpendicular-up to the gripper) |
+| Left stick X | unused |
+
+Releasing the stick zeroes the joint velocities — the arm stops immediately at the current pose. IK failures (out-of-reach targets) are logged and skipped silently.
+
+#### Combo actions (work in both modes)
+
+| Combo | Action |
+|---|---|
+| `RT + Back` | Move to **Dock** pose (gripper Close → arm Dock, planned via OMPL through `MoveGroupInterface`) |
+| `RT + Start` | Move to **Home** pose (arm Home → gripper Open) |
+| `RT + RB` + `LT axis` | Analogue gripper — `LT` axis maps to `gripper_left_joint` position (`-0.009 m` … `+0.015 m`) |
+
+#### Tunable parameters
+
+```bash
+ros2 run rosbot_moveit joy2servo --ros-args \
+  -p cartesian_linear_velocity:=0.2 \
+  -p cartesian_step_dt:=0.05 \
+  -p cartesian_max_joint_velocity:=1.0
+```
+
+- `cartesian_linear_velocity` (m/s, default `0.1`) — EE linear speed when a stick is at full deflection
+- `cartesian_step_dt` (seconds, default `0.05`) — per-tick integration step; should be ≥ servo's `publish_period` and ≈ joy autorepeat period (default `1/20 Hz = 0.05`)
+- `cartesian_max_joint_velocity` (rad/s, default `1.0`) — uniform cap on the joint velocities produced by Cartesian-mode IK. Applied as a single scaling factor so the EE direction is preserved (just slower). Bounds how far the arm can travel per `collision_check_rate` tick — without it, KDL IK "branch jumps" near singularities can produce multi-rad/s spikes that overshoot `self_collision_proximity_threshold` before the collision check updates.
 
 You may have noticed that the movement of the manipulator is slow, and the full capabilities of the manipulator are not fully utilized. This is a safety precaution to ensure that the collision checker effectively prevents the manipulator from bumping into the robot.
 The dynamic limits of the manipulator have been tuned in order to provide a reliable collision prevention mechanism. While this setup should cover most situations, there is still a possibility of accidental contact with the robot or its sensors. Therefore, we advise you to remain aware of this potential risk when operating the manipulator.

@@ -91,7 +91,7 @@ Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_multirobot.
 ### `rosbot_controller` — ros2_control + manipulator
 
 - [controller.yaml](rosbot_controller/launch/controller.yaml) — the orchestrator: loads URDF, generates a resolved YAML at `/tmp/rosbot_controller_<ns>.yaml` (via `sed`, replacing `<namespace>/` and `<manipulator_state>`), starts `controller_manager` (unless `use_sim`), and after 3 s the controller spawner: `differential_drive_controller` or `mecanum_drive_controller` (depending on `mecanum`), `imu_broadcaster`, `joint_state_broadcaster`. After 5 s — `manipulator.yaml` if `configuration` starts with `manipulation`.
-- [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — spawner for `manipulator_controller` (JointTrajectoryController) + `gripper_controller` (GripperActionController), inclusion of `move_group.launch.py` and `servo.launch.py`, plus `ros2 run rosbot_moveit home` after 10 s.
+- [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — spawner for `manipulator_controller` and `gripper_controller` (both `JointTrajectoryController`; gripper drives a single prismatic joint), inclusion of `move_group.launch.py` and `servo.launch.py`, plus include of `rosbot_moveit/launch/home.launch.py` after 10 s (the `home` executable receives the MoveIt config — kinematics/SRDF/joint_limits — via that wrapper so `MoveGroupInterface` doesn't warn about missing kinematics plugins).
 - [config/](rosbot_controller/config/) — `controllers.yaml` per model (kinematic parameters, limits, IMU covariances).
 - [scripts/arm_control](rosbot_controller/scripts/arm_control) — CLI: `active`/`inactive` toggles `OpenManipulatorXSystem` and the arm controllers.
 
@@ -142,11 +142,11 @@ Plugin parameters: `connection_timeout_ms`, `connection_check_period_ms`. Define
 
 > **This is the firmware ABI.** Changing a topic / payload requires a synchronized firmware update.
 
-### `rosbot_joy` — joystick
+### `rosbot_joy` — joystick (drive)
 
-- C++ node `joy2servo` (manipulator control via moveit_servo from a gamepad) — used by `rosbot_moveit/launch/servo.launch.py`.
+- **Config-only package** (no compiled code). Pad-driven arm control (`joy2servo`) lives in `rosbot_moveit` now.
 - Launch [joy.yaml](rosbot_joy/launch/joy.yaml) starts the standard `joy/joy_node` + `teleop_twist_joy/teleop_node` (mapped to `cmd_vel` via the `joy_vel` arg).
-- [config/config.yaml](rosbot_joy/config/config.yaml) — full pad mapping (linear/angular axes, dead_man_switch, joints/cartesian/gripper). Pad layout: see `.docs/gamepad_*.drawio.png`.
+- [config/config.yaml](rosbot_joy/config/config.yaml) — `joy_node` + `teleop_twist_joy` params (drive only). Pad layout: see `.docs/gamepad_*.drawio.png`.
 
 ### `rosbot_localization` — EKF
 
@@ -156,11 +156,15 @@ The covariance matrices are **tuned empirically** — comments such as "values m
 
 ### `rosbot_moveit` — manipulation (XL)
 
-- MoveIt config for `rosbot_xl` with OpenMANIPULATOR-X (SRDF, kinematics, OMPL, Pilz, joint_limits, moveit_servo, moveit_controllers, initial_positions).
-- [launch/move_group.launch.py](rosbot_moveit/launch/move_group.launch.py) — builds the config via `MoveItConfigsBuilder`, **overrides robot_description** using the same xacro as bringup with `configuration:='manipulation'` (so the URDF stays consistent with the rest of the stack).
-- [launch/servo.launch.py](rosbot_moveit/launch/servo.launch.py) — `moveit_servo` + `joy2servo` (cartesian/joint control from the pad). `moveit_servo.yaml` overrides `monitored_planning_scene_topic` to the relative `planning_scene` — the upstream default `/planning_scene` is absolute and would strip the namespace from the PSM's private sub-node (`servo_node_private_*`).
+- MoveIt config for `rosbot_xl` with OpenMANIPULATOR-X (SRDF, kinematics, OMPL, Pilz, joint_limits, moveit_servo, moveit_controllers, initial_positions). 4-DoF arm → `kinematics.yaml` keeps `position_only_ik: true`; without it KDL cannot satisfy orientation goals.
+- [launch/move_group.launch.py](rosbot_moveit/launch/move_group.launch.py) — builds the config via `MoveItConfigsBuilder`, **overrides `robot_description`** using the same xacro as bringup with `configuration:='manipulation'` (so the URDF stays consistent with the rest of the stack).
+- [launch/servo.launch.py](rosbot_moveit/launch/servo.launch.py) — `moveit_servo/servo_node` + `joy2servo` (joint-jog from the pad — TWIST mode is unusable on <6 DoF arms since MoveIt jazzy, see [moveit_msgs#185](https://github.com/moveit/moveit_msgs/issues/185)). `moveit_servo.yaml` overrides `monitored_planning_scene_topic` to the relative `planning_scene` — the upstream default `/planning_scene` is absolute and would strip the namespace from the PSM's private sub-node (`servo_node_private_*`).
 - [launch/rviz.launch.py](rosbot_moveit/launch/rviz.launch.py) — RViz with MotionPlanning + servo.
-- C++ executables: [src/dock.cpp](rosbot_moveit/src/dock.cpp) (sends the arm to the dock pose), [src/home.cpp](rosbot_moveit/src/home.cpp) (Home). Both — along with `rosbot_joy/joy2servo` — pass `node->get_namespace()` as the 3rd `MoveGroupInterface::Options` argument so MoveIt's internal topics (`trajectory_execution_event`, `attached_collision_object`) and the `move_group` action stay inside the robot namespace; the 2-arg `MoveGroupInterface(node, group)` ctor would leak them to `/`.
+- C++ artifacts:
+  - [include/rosbot_moveit/arm_pose_mover.hpp](rosbot_moveit/include/rosbot_moveit/arm_pose_mover.hpp) + [src/arm_pose_mover.cpp](rosbot_moveit/src/arm_pose_mover.cpp) — shared library wrapping `MoveGroupInterface` (executor lifetime, retry loop, namespaced `Options`). Used by both [dock.cpp](rosbot_moveit/src/dock.cpp) (`Close` gripper → arm to `Dock`) and [home.cpp](rosbot_moveit/src/home.cpp) (arm to `Home` → `Open` gripper).
+  - [src/joy2servo.cpp](rosbot_moveit/src/joy2servo.cpp) — formerly `rosbot_joy/joy2servo`; moved here in 2026-05-15 because it is purely a MoveIt Servo client. Two runtime modes (toggle: `X` / `Y` buttons): **JOINT_JOG** (per-joint, no IK) and **POSE** (Cartesian XYZ — integrates joystick velocity into an absolute `PoseStamped` target on `servo_node/pose_target_cmds`; KDL with `position_only_ik: true` ignores orientation, which is the only working Cartesian path on the 4-DoF arm in MoveIt jazzy). TWIST mode is removed because it hits the pseudo-inverse Jacobian singularity check below 6 DoF.
+  - All three pass `node->get_namespace()` as the 3rd `MoveGroupInterface::Options` argument so MoveIt's internal topics (`trajectory_execution_event`, `attached_collision_object`) and the `move_group` action stay inside the robot namespace.
+- OMPL planner list trimmed to 3 (`RRTConnect` default + `RRTstar` + `PRMstar`); the gripper group keeps a single `RRTConnect` config because `setNamedTarget("Open"/"Close") + move()` from `dock`/`home` still runs through OMPL before MoveIt forwards the trajectory to the JTC via `FollowJointTrajectory`. Continuous joystick gripper control goes around MoveIt entirely — `joy2servo` publishes `trajectory_msgs/JointTrajectory` directly on `gripper_controller/joint_trajectory`.
 
 See [MANIPULATOR.md](MANIPULATOR.md) — limits, troubleshooting, safety rules.
 
