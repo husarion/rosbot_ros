@@ -13,28 +13,32 @@
 # limitations under the License.
 
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
 def generate_launch_description():
+    namespace = LaunchConfiguration("namespace")
+
     moveit_config = (
         MoveItConfigsBuilder("rosbot_xl", package_name="rosbot_moveit").joint_limits(
             file_path="config/joint_limits.yaml"
         )
     ).to_moveit_configs()
 
-    # `home` uses MoveGroupInterface, which loads a RobotModelLoader that needs
+    # `dock` uses MoveGroupInterface, which loads a RobotModelLoader that needs
     # `robot_description_kinematics` to avoid the "No kinematics plugins defined" warning.
-    # No namespace arg here: this file is included from rosbot_controller/launch/manipulator.yaml,
-    # which is itself inside the bringup's push_ros_namespace(rosbot_xl) group. Declaring a
-    # `namespace` LaunchArgument here would conflict with the parent's `namespace` value and
-    # PushRosNamespace would double-stack (saw /rosbot_xl/rosbot_xl/move_to_home_pose in HW
-    # testing). Standalone invocation can use `ros2 run rosbot_moveit home --ros-args
-    # -r __ns:=/<ns>`; see `dock.launch.py` for the standalone-friendly variant.
-    home_node = Node(
+    # Standalone-only wrapper (the auto-home path runs `home.launch.py` from
+    # manipulator.yaml; there is no auto-dock equivalent). Uses `Node(namespace=...)`
+    # rather than `PushRosNamespace` so that the empty default does not double-stack
+    # an existing parent namespace when this file is hypothetically included from
+    # somewhere already inside a `push_ros_namespace` group.
+    dock_node = Node(
         package="rosbot_moveit",
-        executable="home",
+        executable="dock",
+        namespace=namespace,
         parameters=[
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
@@ -43,4 +47,13 @@ def generate_launch_description():
         output="screen",
     )
 
-    return LaunchDescription([home_node])
+    return LaunchDescription(
+        [
+            DeclareLaunchArgument(
+                "namespace",
+                default_value="",
+                description="Robot namespace; leave empty when the robot was launched without one.",
+            ),
+            dock_node,
+        ]
+    )
