@@ -12,28 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <chrono>
 #include <control_msgs/msg/joint_jog.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <moveit/move_group_interface/move_group_interface.hpp>
 #include <moveit_msgs/srv/servo_command_type.hpp>
 #include <mutex>
 #include <rclcpp/rclcpp.hpp>
-#include <rclcpp_action/rclcpp_action.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <sensor_msgs/msg/joy.hpp>
-#include <signal.h>
-#include <stdio.h>
-#include <termios.h>
-#include <unistd.h>
 
 namespace rosbot_moveit {
 
-enum CommandType {
-  NONE = -1,
-  JOINT_JOG = moveit_msgs::srv::ServoCommandType::Request::JOINT_JOG,
-  TWIST = moveit_msgs::srv::ServoCommandType::Request::TWIST,
-  POSE = moveit_msgs::srv::ServoCommandType::Request::POSE,
-};
+// Internal mode toggle in joy2servo. *Both* modes publish JointJog to servo:
+//   * Cartesian  (default, button Y) - sticks integrate EE-frame velocity
+//                  into a target pose; joy2servo runs KDL position-only IK
+//                  on it and publishes the resulting joint deltas as
+//                  JointJog. We do the IK ourselves because moveit_servo's
+//                  POSE path runs an unconditional singularity guard on the
+//                  full 6xN Jacobian (rank-deficient by construction on
+//                  <6 DoF arms, see moveit_msgs#185), which halts every
+//                  motion on a 4-DoF arm even with position_only_ik=true.
+//                  The JointJog path does not run that guard.
+//   * JointSpace (button X)         - sticks map 1:1 to joint velocities
+//                  (no IK), useful as a low-level fallback / for joints
+//                  unreachable in Cartesian.
+enum class InputMode { JointSpace, Cartesian };
 
 enum Axis {
   LEFT_STICK_HORIZONTAL = 0,
@@ -60,56 +62,57 @@ enum Button {
   RIGHT_STICK_CLICK = 10
 };
 
-const std::string TWIST_TOPIC = "servo_node/delta_twist_cmds";
 const std::string JOINT_TOPIC = "servo_node/delta_joint_cmds";
-const std::string GRIPPER_ACTION = "gripper_controller/gripper_cmd";
-
 const size_t ROS_QUEUE_SIZE = 10;
 const std::string EE_FRAME_ID = "end_effector_link";
 const double DEAD_MAN_SWITCH_THRESHOLD = -0.3;
+const double JOY_DEADZONE = 0.05;
 const double GRIPPER_MIN_POSE = -0.009;
 const double GRIPPER_MAX_POSE = 0.015;
-const double MAX_CMD_TYPE_REQ_PERIOD = 0.5;
-// const std::vector<double> GRIPPER_MAX_EFFORT = { 10.0 };
-const double GRIPPER_MAX_EFFORT = 10.0;
-const std::vector<std::string> GRIPPER_JOINT_NAME = {"gripper_left_joint"};
 const std::vector<std::string> JOINT_NAMES = {"joint1", "joint2", "joint3",
                                               "joint4"};
 
-// Converts key-presses to Twist or Jog commands for Servo, in lieu of a
-// controller
 class Joy2Servo : public rclcpp::Node {
 public:
   Joy2Servo();
   void InitializeMoveGroup();
 
 private:
-  void ChangeCommandType(const CommandType cmd_type);
-  void ChangeCommandTypeCallback(
-      const rclcpp::Client<moveit_msgs::srv::ServoCommandType>::SharedFuture
-          future);
   void ControlGripper(const sensor_msgs::msg::Joy::SharedPtr msg);
-  void ConvertAndPublishJoint(const sensor_msgs::msg::Joy::SharedPtr msg);
-  void ConvertAndPublishTwist(const sensor_msgs::msg::Joy::SharedPtr msg);
+  void PublishJointSpaceJog(const sensor_msgs::msg::Joy::SharedPtr msg);
+  void PublishCartesianJog(const sensor_msgs::msg::Joy::SharedPtr msg);
+  void PublishJointVelocities(const std::vector<double> &velocities);
   bool IsDeadManSwitch(const sensor_msgs::msg::Joy::SharedPtr msg);
   void JoyCb(const sensor_msgs::msg::Joy::SharedPtr msg);
+  void JointStateCb(const sensor_msgs::msg::JointState::SharedPtr msg);
   void MoveToDockPose();
   void MoveToHomePose();
-  void UpdateReqCommand(const sensor_msgs::msg::Joy::SharedPtr msg);
+  void UpdateInputMode(const sensor_msgs::msg::Joy::SharedPtr msg);
+  void SetServoCommandTypeToJointJog();
 
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_pub_;
   rclcpp::Publisher<control_msgs::msg::JointJog>::SharedPtr joint_pub_;
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
+  rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr
+      joint_state_sub_;
   rclcpp::Client<moveit_msgs::srv::ServoCommandType>::SharedPtr
       switch_cmd_type_srv_;
   moveit::planning_interface::MoveGroupInterfacePtr gripper_group_;
   moveit::planning_interface::MoveGroupInterfacePtr manipulator_group_;
 
-  CommandType req_cmd_type_ = CommandType::JOINT_JOG;
-  CommandType cmd_type_ = CommandType::NONE;
-  double joint_vel_cmd_; // TODO: Add scaler
+  InputMode mode_ = InputMode::Cartesian;
   double gripper_position_;
-  std::mutex joy_mutex_; // Add this to your class
+  double cartesian_linear_velocity_;
+  // Per-tick step duration used as both the EE-frame offset multiplier and
+  // the velocity divisor in Cartesian mode. Should be ≥ servo's
+  // publish_period (~30 ms) and ≈ joy's autorepeat period (50 ms by default
+  // in rosbot_joy/config.yaml).
+  double cartesian_step_dt_;
+  // Latest /joint_states snapshot used to seed RobotState in Cartesian mode -
+  // avoids MGI's lazy CurrentStateMonitor warm-up which logs "Didn't receive
+  // robot state ... within 1.0 seconds" on the first IK call.
+  std::mutex joint_state_mutex_;
+  sensor_msgs::msg::JointState::SharedPtr latest_joint_state_;
+  std::mutex joy_mutex_;
 };
 
 } // namespace rosbot_moveit

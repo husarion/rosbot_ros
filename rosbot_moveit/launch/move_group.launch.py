@@ -75,9 +75,6 @@ def generate_launch_description():
         "trajectory_execution.allowed_execution_duration_scaling": 2.0,
         "trajectory_execution.allowed_goal_duration_margin": 0.5,
         "trajectory_execution.allowed_start_tolerance": 0.0,
-        # Planning workspace cube (meters) — silences MoveIt's "planning volume was not specified"
-        # warning. Sized to contain OpenManipulator-X reach (~0.4 m) with margin.
-        "default_workspace_bounds": 1.0,
     }
 
     move_group_params = [

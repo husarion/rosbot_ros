@@ -13,32 +13,69 @@
 // limitations under the License.
 
 #include <chrono>
-#include <control_msgs/msg/joint_jog.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <cmath>
 #include <map>
 #include <memory>
-#include <moveit/move_group_interface/move_group_interface.hpp>
-#include <moveit_msgs/srv/servo_command_type.hpp>
+#include <moveit/robot_state/robot_state.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <rosbot_moveit/arm_pose_mover.hpp>
 #include <rosbot_moveit/joy2servo.hpp>
-#include <sensor_msgs/msg/joy.hpp>
 #include <string>
-#include <unordered_map>
 
 namespace rosbot_moveit {
 
 Joy2Servo::Joy2Servo() : Node("joy2servo") {
-  twist_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>(
-      TWIST_TOPIC, ROS_QUEUE_SIZE);
+  cartesian_linear_velocity_ =
+      this->declare_parameter<double>("cartesian_linear_velocity", 0.1);
+  cartesian_step_dt_ =
+      this->declare_parameter<double>("cartesian_step_dt", 0.05);
+
   joint_pub_ = this->create_publisher<control_msgs::msg::JointJog>(
       JOINT_TOPIC, ROS_QUEUE_SIZE);
 
   joy_sub_ = this->create_subscription<sensor_msgs::msg::Joy>(
       "joy", 10, std::bind(&Joy2Servo::JoyCb, this, std::placeholders::_1));
 
+  joint_state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
+      "joint_states", rclcpp::SensorDataQoS(),
+      std::bind(&Joy2Servo::JointStateCb, this, std::placeholders::_1));
+
   switch_cmd_type_srv_ =
       this->create_client<moveit_msgs::srv::ServoCommandType>(
           "servo_node/switch_command_type");
+}
+
+void Joy2Servo::JointStateCb(
+    const sensor_msgs::msg::JointState::SharedPtr msg) {
+  std::lock_guard<std::mutex> lock(joint_state_mutex_);
+  latest_joint_state_ = msg;
+}
+
+void Joy2Servo::SetServoCommandTypeToJointJog() {
+  // moveit_servo's expected_command_type_ defaults to "unset" in jazzy 2.12.4
+  // and refuses any incoming message until switch_command_type is called.
+  // We always publish JointJog (both UI modes go through that topic), so call
+  // it once at startup and never again.
+  if (!switch_cmd_type_srv_->wait_for_service(std::chrono::seconds(5))) {
+    RCLCPP_WARN_STREAM(this->get_logger(),
+                       switch_cmd_type_srv_->get_service_name()
+                           << " not available after 5s; servo will reject "
+                              "JointJog messages until it appears");
+    return;
+  }
+  auto request =
+      std::make_shared<moveit_msgs::srv::ServoCommandType::Request>();
+  request->command_type =
+      moveit_msgs::srv::ServoCommandType::Request::JOINT_JOG;
+  switch_cmd_type_srv_->async_send_request(
+      request,
+      [logger = this->get_logger()](
+          rclcpp::Client<moveit_msgs::srv::ServoCommandType>::SharedFuture
+              future) {
+        if (!future.get()->success) {
+          RCLCPP_WARN(logger, "servo refused switch_command_type=JOINT_JOG");
+        }
+      });
 }
 
 void Joy2Servo::InitializeMoveGroup() {
@@ -56,6 +93,10 @@ void Joy2Servo::InitializeMoveGroup() {
   gripper_group_ =
       std::make_unique<moveit::planning_interface::MoveGroupInterface>(
           shared_from_this(), gripper_options);
+  gripper_group_->setWorkspace(
+      -ARM_WORKSPACE_HALF_EDGE, -ARM_WORKSPACE_HALF_EDGE,
+      -ARM_WORKSPACE_HALF_EDGE, ARM_WORKSPACE_HALF_EDGE,
+      ARM_WORKSPACE_HALF_EDGE, ARM_WORKSPACE_HALF_EDGE);
   gripper_group_->setMaxVelocityScalingFactor(0.4);
   gripper_group_->setMaxAccelerationScalingFactor(0.2);
 
@@ -66,8 +107,14 @@ void Joy2Servo::InitializeMoveGroup() {
   manipulator_group_ =
       std::make_unique<moveit::planning_interface::MoveGroupInterface>(
           shared_from_this(), manipulator_options);
+  manipulator_group_->setWorkspace(
+      -ARM_WORKSPACE_HALF_EDGE, -ARM_WORKSPACE_HALF_EDGE,
+      -ARM_WORKSPACE_HALF_EDGE, ARM_WORKSPACE_HALF_EDGE,
+      ARM_WORKSPACE_HALF_EDGE, ARM_WORKSPACE_HALF_EDGE);
   manipulator_group_->setMaxVelocityScalingFactor(0.4);
   manipulator_group_->setMaxAccelerationScalingFactor(0.2);
+
+  SetServoCommandTypeToJointJog();
 }
 
 void Joy2Servo::MoveToDockPose() {
@@ -90,45 +137,7 @@ void Joy2Servo::MoveToHomePose() {
   gripper_group_->move(); // To make sure the action is finished
 }
 
-void Joy2Servo::ChangeCommandType(CommandType cmd_type) {
-  auto request_ =
-      std::make_shared<moveit_msgs::srv::ServoCommandType::Request>();
-  request_->command_type = cmd_type;
-
-  if (switch_cmd_type_srv_->wait_for_service(std::chrono::seconds(1))) {
-    auto future = switch_cmd_type_srv_->async_send_request(
-        request_, std::bind(&Joy2Servo::ChangeCommandTypeCallback, this,
-                            std::placeholders::_1));
-  } else {
-    RCLCPP_WARN_STREAM(this->get_logger(),
-                       "Service " << switch_cmd_type_srv_->get_service_name()
-                                  << " not available after waiting");
-  }
-}
-
-void Joy2Servo::ChangeCommandTypeCallback(
-    const rclcpp::Client<moveit_msgs::srv::ServoCommandType>::SharedFuture
-        future) {
-  static const std::unordered_map<CommandType, std::string> cmd_type_map = {
-      {CommandType::NONE, "Uninitialized"},
-      {CommandType::JOINT_JOG, "JointJog"},
-      {CommandType::TWIST, "Twist"},
-      {CommandType::POSE, "Pose"}};
-
-  std::string req_cmd_type_str = cmd_type_map.find(req_cmd_type_)->second;
-
-  if (future.get()->success) {
-    cmd_type_ = req_cmd_type_;
-    RCLCPP_INFO_STREAM(this->get_logger(),
-                       "Switched to input type: " << req_cmd_type_str);
-  } else {
-    RCLCPP_WARN_STREAM(this->get_logger(),
-                       "Failed to switch input to: " << req_cmd_type_str);
-  }
-}
-
 void Joy2Servo::ControlGripper(const sensor_msgs::msg::Joy::SharedPtr msg) {
-
   constexpr double AXIS_MIN = -1.0;
   constexpr double AXIS_MAX = 1.0;
   constexpr double POSITION_EPSILON = 0.001;
@@ -149,35 +158,109 @@ void Joy2Servo::ControlGripper(const sensor_msgs::msg::Joy::SharedPtr msg) {
   }
 }
 
-void Joy2Servo::ConvertAndPublishJoint(
-    const sensor_msgs::msg::Joy::SharedPtr msg) {
+void Joy2Servo::PublishJointVelocities(const std::vector<double> &velocities) {
   auto joint_msg = std::make_unique<control_msgs::msg::JointJog>();
-
   joint_msg->joint_names = JOINT_NAMES;
-  joint_msg->velocities = {
-      msg->axes[Axis::LEFT_STICK_HORIZONTAL],
-      msg->axes[Axis::LEFT_STICK_VERTICAL], // Invert axis to match joystick up
-                                            // with joint up movement
-      msg->axes[Axis::RIGHT_STICK_HORIZONTAL],
-      -msg->axes[Axis::RIGHT_STICK_VERTICAL] // Invert axis to match joystick up
-                                             // with joint up movement
-  };
-
+  joint_msg->velocities = velocities;
   joint_msg->header.stamp = this->now();
   joint_msg->header.frame_id = EE_FRAME_ID;
   joint_pub_->publish(std::move(joint_msg));
 }
 
-void Joy2Servo::ConvertAndPublishTwist(
+void Joy2Servo::PublishJointSpaceJog(
     const sensor_msgs::msg::Joy::SharedPtr msg) {
-  auto twist_msg = std::make_unique<geometry_msgs::msg::TwistStamped>();
-  twist_msg->twist.linear.x = msg->axes[Axis::RIGHT_STICK_VERTICAL];
-  twist_msg->twist.linear.z = msg->axes[Axis::LEFT_STICK_VERTICAL];
-  twist_msg->twist.angular.y = msg->axes[Axis::LEFT_STICK_HORIZONTAL];
+  PublishJointVelocities({
+      msg->axes[Axis::LEFT_STICK_HORIZONTAL],
+      msg->axes[Axis::LEFT_STICK_VERTICAL],
+      msg->axes[Axis::RIGHT_STICK_HORIZONTAL],
+      -msg->axes[Axis::RIGHT_STICK_VERTICAL], // stick up = joint up
+  });
+}
 
-  twist_msg->header.stamp = this->now();
-  twist_msg->header.frame_id = EE_FRAME_ID;
-  twist_pub_->publish(std::move(twist_msg));
+void Joy2Servo::PublishCartesianJog(
+    const sensor_msgs::msg::Joy::SharedPtr msg) {
+  // Step size used for both the target offset and the velocity divisor.
+  // Param-driven (default 50 ms) so the resulting joint velocity is
+  // proportional to stick magnitude only — joy_node publishes at irregular
+  // 20-50 Hz, and pegging dt to that interval produced a ratchet feel as the
+  // velocity oscillated between joy ticks.
+  const double cartesian_step_dt = cartesian_step_dt_;
+
+  auto deadzone = [](double v) { return std::abs(v) < JOY_DEADZONE ? 0.0 : v; };
+  const double sx = deadzone(msg->axes[Axis::RIGHT_STICK_VERTICAL]);
+  const double sy = deadzone(msg->axes[Axis::RIGHT_STICK_HORIZONTAL]);
+  const double sz = deadzone(msg->axes[Axis::LEFT_STICK_VERTICAL]);
+
+  // No stick input -> zero joint velocities (immediate stop; skip IK).
+  if (sx == 0.0 && sy == 0.0 && sz == 0.0) {
+    PublishJointVelocities(std::vector<double>(JOINT_NAMES.size(), 0.0));
+    return;
+  }
+
+  sensor_msgs::msg::JointState::SharedPtr joint_state;
+  {
+    std::lock_guard<std::mutex> lock(joint_state_mutex_);
+    joint_state = latest_joint_state_;
+  }
+  if (!joint_state) {
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
+                                "Cartesian mode: no /joint_states yet");
+    return;
+  }
+
+  // Seed a fresh RobotState from the latest /joint_states - bypasses MGI's
+  // CurrentStateMonitor which starts lazily and would warn on first call.
+  moveit::core::RobotState state(manipulator_group_->getRobotModel());
+  state.setToDefaultValues();
+  state.setVariablePositions(joint_state->name, joint_state->position);
+  state.update();
+  const moveit::core::JointModelGroup *jmg =
+      state.getJointModelGroup("manipulator");
+
+  // Target EE pose = current + (stick * velocity * cartesian_step_dt) in EE.
+  const Eigen::Isometry3d ee_in_world =
+      state.getGlobalLinkTransform(EE_FRAME_ID);
+  const Eigen::Vector3d delta_in_ee(
+      sx * cartesian_linear_velocity_ * cartesian_step_dt,
+      sy * cartesian_linear_velocity_ * cartesian_step_dt,
+      sz * cartesian_linear_velocity_ * cartesian_step_dt);
+  Eigen::Isometry3d target = ee_in_world;
+  target.translation() += ee_in_world.linear() * delta_in_ee;
+
+  std::vector<double> current_joints;
+  state.copyJointGroupPositions(jmg, current_joints);
+
+  geometry_msgs::msg::Pose target_msg;
+  target_msg.position.x = target.translation().x();
+  target_msg.position.y = target.translation().y();
+  target_msg.position.z = target.translation().z();
+  const Eigen::Quaterniond q(target.linear());
+  target_msg.orientation.x = q.x();
+  target_msg.orientation.y = q.y();
+  target_msg.orientation.z = q.z();
+  target_msg.orientation.w = q.w();
+  // KDL with position_only_ik=true (kinematics.yaml) ignores orientation rows
+  // of the IK task - exactly what we need for the 4-DoF arm.
+  if (!state.setFromIK(jmg, target_msg, EE_FRAME_ID, 0.05)) {
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
+                                "Cartesian mode: IK failed for target ("
+                                    << target_msg.position.x << ", "
+                                    << target_msg.position.y << ", "
+                                    << target_msg.position.z << ")");
+    return;
+  }
+
+  std::vector<double> target_joints;
+  state.copyJointGroupPositions(jmg, target_joints);
+
+  // joint_velocity = (target - current) / cartesian_step_dt. The JointJog
+  // handler in servo applies velocity over its publish_period; it does not
+  // run the singularity guard (unlike the POSE/TWIST handlers).
+  std::vector<double> velocities(current_joints.size());
+  for (size_t i = 0; i < current_joints.size(); ++i) {
+    velocities[i] = (target_joints[i] - current_joints[i]) / cartesian_step_dt;
+  }
+  PublishJointVelocities(velocities);
 }
 
 bool Joy2Servo::IsDeadManSwitch(const sensor_msgs::msg::Joy::SharedPtr msg) {
@@ -187,14 +270,10 @@ bool Joy2Servo::IsDeadManSwitch(const sensor_msgs::msg::Joy::SharedPtr msg) {
 void Joy2Servo::JoyCb(const sensor_msgs::msg::Joy::SharedPtr msg) {
   std::unique_lock<std::mutex> lock(joy_mutex_, std::try_to_lock);
   if (!lock.owns_lock()) {
-    // Previous callback is still running, skip this one
-    return;
+    return; // previous callback still running
   }
 
-  UpdateReqCommand(msg);
-  if (req_cmd_type_ != cmd_type_) {
-    ChangeCommandType(req_cmd_type_);
-  }
+  UpdateInputMode(msg);
 
   if (IsDeadManSwitch(msg)) {
     if (msg->buttons[Button::BACK]) {
@@ -203,21 +282,30 @@ void Joy2Servo::JoyCb(const sensor_msgs::msg::Joy::SharedPtr msg) {
       MoveToHomePose();
     } else if (msg->buttons[Button::RIGHT_BUMPER]) {
       ControlGripper(msg);
-    } else if (req_cmd_type_ == CommandType::JOINT_JOG) {
-      ConvertAndPublishJoint(msg);
-    } else if (req_cmd_type_ == CommandType::TWIST) {
-      ConvertAndPublishTwist(msg);
+    } else if (mode_ == InputMode::JointSpace) {
+      PublishJointSpaceJog(msg);
+    } else if (mode_ == InputMode::Cartesian) {
+      PublishCartesianJog(msg);
     }
   }
 }
 
-void Joy2Servo::UpdateReqCommand(const sensor_msgs::msg::Joy::SharedPtr msg) {
-  if (msg->buttons[Button::X] ^ msg->buttons[Button::Y]) {
-    // req_cmd_type_ = msg->buttons[Button::X] ? CommandType::JOINT_JOG :
-    // CommandType::TWIST;
-    // FIXME: singularity error
-    req_cmd_type_ = CommandType::JOINT_JOG;
+void Joy2Servo::UpdateInputMode(const sensor_msgs::msg::Joy::SharedPtr msg) {
+  // X => JointSpace, Y => Cartesian. XOR so accidentally pressing both is a
+  // no-op.
+  if (!(msg->buttons[Button::X] ^ msg->buttons[Button::Y])) {
+    return;
   }
+  const InputMode requested =
+      msg->buttons[Button::X] ? InputMode::JointSpace : InputMode::Cartesian;
+  if (requested == mode_) {
+    return;
+  }
+  mode_ = requested;
+  RCLCPP_INFO_STREAM(
+      this->get_logger(),
+      "Switched to input mode: "
+          << (mode_ == InputMode::JointSpace ? "JointSpace" : "Cartesian"));
 }
 
 } // namespace rosbot_moveit

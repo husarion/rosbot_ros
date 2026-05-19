@@ -50,14 +50,22 @@ ee_frame_name: end_effector_link  # The name of the end effector link, used to r
 robot_link_command_frame: end_effector_link  # commands must be given in the frame of a robot link. Usually either the base or end effector
 
 ## Stopping behaviour
-incoming_command_timeout: 0.15   # Stop servoing if X seconds elapse without a new command
+incoming_command_timeout: 0.15   # Stop servoing if X seconds elapse without a new command. Must be > joy_node autorepeat period (50 ms at 20 Hz) - otherwise servo halts between joy messages and the arm stutters. Stop-on-release responsiveness comes from joy2servo publishing a zero-velocity JointJog on stick centring, not from this timeout.
 # If 0, republish commands forever even if the robot is stationary. Otherwise, specify num. to publish.
 # Important because ROS may drop some messages and we need the robot to halt reliably.
 num_outgoing_halt_msgs_to_publish: 4
 
 ## Configure handling of singularities and joint limits
-lower_singularity_threshold: 12.0   # Start decelerating when the condition number hits this (close to singularity)
-hard_stop_singularity_threshold: 43.0 # Stop when the condition number hits this
+# Singularity thresholds are intentionally astronomical for the OpenMANIPULATOR-X (4 DoF).
+# `velocityScalingFactorForSingularity` (moveit_servo/src/utils/common.cpp) computes the
+# condition number of the full 6xN geometric Jacobian — for any arm with <6 DoF that
+# Jacobian is rank-deficient by construction (sigma_min ≈ 0, cond → ∞), so every pose
+# would trip HALT_FOR_SINGULARITY and zero the joint delta even though KDL with
+# position_only_ik solves the actual goal fine. There is no flag in jazzy to disable the
+# check or point it at the position-only 3xN sub-Jacobian, so we set both thresholds well
+# above any realisable cond(J) value (servo only validates hard > lower).
+lower_singularity_threshold: 1.0e+12
+hard_stop_singularity_threshold: 1.0e+13
 joint_limit_margin: 0.1 # added as a buffer to joint limits [radians]. If moving quickly, make this larger.
 leaving_singularity_threshold_multiplier: 1.0 # Multiply the hard stop limit by this when leaving singularity (see https://github.com/ros-planning/moveit2/pull/620)
 

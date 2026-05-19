@@ -46,7 +46,9 @@ def test_srdf_groups_and_named_states():
 
 def test_kinematics_keeps_position_only_ik():
     """OpenMANIPULATOR-X is 4 DoF; without position_only_ik the KDL solver
-    cannot satisfy orientation goals and IK fails."""
+    cannot satisfy orientation goals and IK fails. This is also what makes
+    joy2servo's POSE mode work on a sub-6-DoF arm - KDL with
+    position_only_ik zero-weights the orientation rows of the IK task."""
     with open(_share("config/kinematics.yaml")) as f:
         cfg = yaml.safe_load(f)
     assert cfg["manipulator"]["position_only_ik"] is True
@@ -59,6 +61,19 @@ def test_moveit_servo_topics_relative():
         cfg = yaml.safe_load(f)
     assert cfg["monitored_planning_scene_topic"] == "planning_scene"
     assert cfg["joint_topic"] == "joint_states"
+
+
+def test_singularity_thresholds_effectively_disabled():
+    """4-DoF arm: the full 6xN Jacobian used by velocityScalingFactorForSingularity
+    is rank-deficient by construction, so the condition number is effectively
+    infinite. Both thresholds must be high enough that POSE mode does not get
+    permanently halted with HALT_FOR_SINGULARITY."""
+    with open(_share("config/moveit_servo.yaml")) as f:
+        cfg = yaml.safe_load(f)
+    assert cfg["lower_singularity_threshold"] >= 1.0e9
+    assert cfg["hard_stop_singularity_threshold"] >= 1.0e9
+    # Servo internally validates `hard > lower`.
+    assert cfg["hard_stop_singularity_threshold"] > cfg["lower_singularity_threshold"]
 
 
 def test_moveit_controllers_have_required_actions():

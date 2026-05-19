@@ -49,6 +49,9 @@ bool ArmPoseMover::MoveToTargets(const std::vector<NamedTarget> &sequence) {
     MGI::Options opts(target.group_name, MGI::ROBOT_DESCRIPTION,
                       node_->get_namespace());
     MGI group(node_, opts);
+    group.setWorkspace(-ARM_WORKSPACE_HALF_EDGE, -ARM_WORKSPACE_HALF_EDGE,
+                       -ARM_WORKSPACE_HALF_EDGE, ARM_WORKSPACE_HALF_EDGE,
+                       ARM_WORKSPACE_HALF_EDGE, ARM_WORKSPACE_HALF_EDGE);
     if (target.velocity_scaling) {
       group.setMaxVelocityScalingFactor(*target.velocity_scaling);
     }
