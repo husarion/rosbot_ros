@@ -35,8 +35,6 @@ After running the ROSbot XL Manipulation Package, you should be able to control 
 
 ![gamepad_manipulation](.docs/gamepad_manipulation.drawio.png)
 
-> ⚠️ The diagram above is **out of date** — it still shows the old `MODE (Set to 'X')` D-pad indicator and a `Slow Mode` (LB) button that no longer exists in `joy2servo`. The authoritative mapping is the tables below; the drawio will be regenerated in a follow-up.
-
 Drive controls (`cmd_vel`) are configured in [`rosbot_joy/config/config.yaml`](rosbot_joy/config/config.yaml). Manipulator gamepad mappings are hardcoded in [`rosbot_moveit/src/joy2servo.cpp`](rosbot_moveit/src/joy2servo.cpp) (`enum Axis` / `enum Button`).
 
 Everything below runs **only while the dead-man trigger `RT` is held** (right trigger ≤ -0.3).
