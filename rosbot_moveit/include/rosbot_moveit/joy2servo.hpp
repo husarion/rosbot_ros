@@ -19,6 +19,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <sensor_msgs/msg/joy.hpp>
+#include <trajectory_msgs/msg/joint_trajectory.hpp>
 
 namespace rosbot_moveit {
 
@@ -63,12 +64,21 @@ enum Button {
 };
 
 const std::string JOINT_TOPIC = "servo_node/delta_joint_cmds";
+// Direct JointTrajectory topic on the JTC gripper_controller. Bypasses the
+// FollowJointTrajectory action used by MoveIt — joystick control wants
+// continuous, low-latency updates, not goal-and-wait semantics.
+const std::string GRIPPER_TRAJECTORY_TOPIC =
+    "gripper_controller/joint_trajectory";
 const size_t ROS_QUEUE_SIZE = 10;
 const std::string EE_FRAME_ID = "end_effector_link";
 const double DEAD_MAN_SWITCH_THRESHOLD = -0.3;
 const double JOY_DEADZONE = 0.05;
 const double GRIPPER_MIN_POSE = -0.009;
 const double GRIPPER_MAX_POSE = 0.015;
+// JTC interpolates from the current position to this point's target. Must be
+// larger than the controller_manager update period (10 ms at 100 Hz) and at
+// least one joy callback period (~50 ms) so motion is smooth across ticks.
+const double GRIPPER_TRAJECTORY_TIME_FROM_START = 0.1; // seconds
 const std::vector<std::string> JOINT_NAMES = {"joint1", "joint2", "joint3",
                                               "joint4"};
 
@@ -91,6 +101,8 @@ private:
   void SetServoCommandTypeToJointJog();
 
   rclcpp::Publisher<control_msgs::msg::JointJog>::SharedPtr joint_pub_;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr
+      gripper_traj_pub_;
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr
       joint_state_sub_;
@@ -100,13 +112,19 @@ private:
   moveit::planning_interface::MoveGroupInterfacePtr manipulator_group_;
 
   InputMode mode_ = InputMode::Cartesian;
-  double gripper_position_;
   double cartesian_linear_velocity_;
   // Per-tick step duration used as both the EE-frame offset multiplier and
   // the velocity divisor in Cartesian mode. Should be ≥ servo's
   // publish_period (~30 ms) and ≈ joy's autorepeat period (50 ms by default
   // in rosbot_joy/config.yaml).
   double cartesian_step_dt_;
+  // Hard cap on |joint velocity| published from Cartesian mode (rad/s),
+  // applied as a uniform scaling so the EE direction is preserved. Bounds
+  // how far the arm can travel per collision_check tick — without it, IK
+  // "branch jumps" (especially with position_only_ik on a redundant 4-DoF
+  // arm) can produce multi-rad/s velocities that overshoot
+  // self_collision_proximity_threshold inside a single check cycle.
+  double cartesian_max_joint_velocity_;
   // Latest /joint_states snapshot used to seed RobotState in Cartesian mode -
   // avoids MGI's lazy CurrentStateMonitor warm-up which logs "Didn't receive
   // robot state ... within 1.0 seconds" on the first IK call.

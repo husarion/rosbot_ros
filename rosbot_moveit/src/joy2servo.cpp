@@ -14,7 +14,6 @@
 
 #include <chrono>
 #include <cmath>
-#include <map>
 #include <memory>
 #include <moveit/robot_state/robot_state.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -29,9 +28,15 @@ Joy2Servo::Joy2Servo() : Node("joy2servo") {
       this->declare_parameter<double>("cartesian_linear_velocity", 0.1);
   cartesian_step_dt_ =
       this->declare_parameter<double>("cartesian_step_dt", 0.05);
+  cartesian_max_joint_velocity_ =
+      this->declare_parameter<double>("cartesian_max_joint_velocity", 1.0);
 
   joint_pub_ = this->create_publisher<control_msgs::msg::JointJog>(
       JOINT_TOPIC, ROS_QUEUE_SIZE);
+
+  gripper_traj_pub_ =
+      this->create_publisher<trajectory_msgs::msg::JointTrajectory>(
+          GRIPPER_TRAJECTORY_TOPIC, ROS_QUEUE_SIZE);
 
   joy_sub_ = this->create_subscription<sensor_msgs::msg::Joy>(
       "joy", 10, std::bind(&Joy2Servo::JoyCb, this, std::placeholders::_1));
@@ -123,11 +128,21 @@ void Joy2Servo::MoveToDockPose() {
 
   manipulator_group_->setNamedTarget("Dock");
   manipulator_group_->move();
+  // Second call: the first MGI->move() on the manipulator group can return
+  // "success" before the arm physically reaches the named target (HW-observed
+  // 2026-05-19: from Home, RT+Back closes the gripper but the arm doesn't go
+  // to Dock on the first press; second press completes it). The double call
+  // masks the underlying MGI / CurrentStateMonitor staleness issue and is
+  // kept until a proper fix is found — see FOLLOWUP_PLAN.md C4 for the
+  // investigation status (attempts via `setStartStateToCurrentState()` and
+  // explicit seed from `latest_joint_state_` failed to fully fix it).
+  manipulator_group_->move();
 }
 
 void Joy2Servo::MoveToHomePose() {
   manipulator_group_->setNamedTarget("Home");
   manipulator_group_->move();
+  manipulator_group_->move(); // See note in MoveToDockPose.
 
   gripper_group_->setNamedTarget("Open");
   gripper_group_->move();
@@ -136,22 +151,25 @@ void Joy2Servo::MoveToHomePose() {
 void Joy2Servo::ControlGripper(const sensor_msgs::msg::Joy::SharedPtr msg) {
   constexpr double AXIS_MIN = -1.0;
   constexpr double AXIS_MAX = 1.0;
-  constexpr double POSITION_EPSILON = 0.001;
 
-  double axis_value = msg->axes[Axis::LEFT_TRIGGER];
-  double target_position =
+  const double axis_value = msg->axes[Axis::LEFT_TRIGGER];
+  const double target_position =
       GRIPPER_MIN_POSE + ((axis_value - AXIS_MIN) / (AXIS_MAX - AXIS_MIN)) *
                              (GRIPPER_MAX_POSE - GRIPPER_MIN_POSE);
 
-  if (std::abs(target_position - gripper_position_) > POSITION_EPSILON) {
-    std::map<std::string, double> joint_positions;
-    joint_positions["gripper_left_joint"] = target_position;
-    gripper_group_->setJointValueTarget(joint_positions);
-    gripper_group_->move();
-    gripper_position_ = target_position;
-    RCLCPP_INFO_STREAM(this->get_logger(),
-                       "Gripper moved to position: " << target_position);
-  }
+  // Single-point JointTrajectory: JTC interpolates from the current position
+  // to `target_position` over GRIPPER_TRAJECTORY_TIME_FROM_START. Each new
+  // trajectory replaces the previous one — no action goal cancel/restart
+  // cycle that caused stair-step motion with GripperActionController.
+  trajectory_msgs::msg::JointTrajectory traj;
+  traj.header.stamp = this->now();
+  traj.joint_names = {"gripper_left_joint"};
+  trajectory_msgs::msg::JointTrajectoryPoint point;
+  point.positions = {target_position};
+  point.time_from_start =
+      rclcpp::Duration::from_seconds(GRIPPER_TRAJECTORY_TIME_FROM_START);
+  traj.points.push_back(point);
+  gripper_traj_pub_->publish(traj);
 }
 
 void Joy2Servo::PublishJointVelocities(const std::vector<double> &velocities) {
@@ -243,6 +261,12 @@ void Joy2Servo::PublishCartesianJog(
                                     << target_msg.position.x << ", "
                                     << target_msg.position.y << ", "
                                     << target_msg.position.z << ")");
+    // Halt immediately. Without this, servo waits for
+    // `incoming_command_timeout` (150 ms) + republishes
+    // `num_outgoing_halt_msgs_to_publish` halt messages (~130 ms) before
+    // the controller actually decelerates — ~280 ms of coasting past the
+    // unreachable target at the last published velocity.
+    PublishJointVelocities(std::vector<double>(JOINT_NAMES.size(), 0.0));
     return;
   }
 
@@ -256,6 +280,21 @@ void Joy2Servo::PublishCartesianJog(
   for (size_t i = 0; i < current_joints.size(); ++i) {
     velocities[i] = (target_joints[i] - current_joints[i]) / cartesian_step_dt;
   }
+
+  // Uniform clamp: if any joint exceeds the cap, scale the whole vector down
+  // by the same factor so the trajectory direction (and therefore the
+  // Cartesian step direction) is preserved — just slower.
+  double max_abs = 0.0;
+  for (double v : velocities) {
+    max_abs = std::max(max_abs, std::abs(v));
+  }
+  if (max_abs > cartesian_max_joint_velocity_) {
+    const double scale = cartesian_max_joint_velocity_ / max_abs;
+    for (double &v : velocities) {
+      v *= scale;
+    }
+  }
+
   PublishJointVelocities(velocities);
 }
 

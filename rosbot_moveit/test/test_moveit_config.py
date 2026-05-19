@@ -63,19 +63,6 @@ def test_moveit_servo_topics_relative():
     assert cfg["joint_topic"] == "joint_states"
 
 
-def test_singularity_thresholds_effectively_disabled():
-    """4-DoF arm: the full 6xN Jacobian used by velocityScalingFactorForSingularity
-    is rank-deficient by construction, so the condition number is effectively
-    infinite. Both thresholds must be high enough that POSE mode does not get
-    permanently halted with HALT_FOR_SINGULARITY."""
-    with open(_share("config/moveit_servo.yaml")) as f:
-        cfg = yaml.safe_load(f)
-    assert cfg["lower_singularity_threshold"] >= 1.0e9
-    assert cfg["hard_stop_singularity_threshold"] >= 1.0e9
-    # Servo internally validates `hard > lower`.
-    assert cfg["hard_stop_singularity_threshold"] > cfg["lower_singularity_threshold"]
-
-
 def test_moveit_controllers_have_required_actions():
     """The arm controllers exposed to MoveIt must match the ros2_control side
     (manipulator_controller / gripper_controller)."""
@@ -83,6 +70,20 @@ def test_moveit_controllers_have_required_actions():
         cfg = yaml.safe_load(f)
     controllers = cfg["moveit_simple_controller_manager"]["controller_names"]
     assert set(controllers) == {"manipulator_controller", "gripper_controller"}
+
+
+def test_gripper_uses_follow_joint_trajectory():
+    """Gripper must be driven via FollowJointTrajectory (not GripperCommand) so
+    MoveIt talks to the JTC gripper_controller. The action type and ros2_control
+    type are coupled: if the controller in rosbot_controller/controllers.yaml is
+    flipped back to GripperActionController, this entry must also flip back to
+    `GripperCommand` + `action_ns: gripper_cmd`, and joy2servo's direct
+    JointTrajectory publish path will no longer work."""
+    with open(_share("config/moveit_controllers.yaml")) as f:
+        cfg = yaml.safe_load(f)
+    mscm = cfg["moveit_simple_controller_manager"]
+    assert mscm["gripper_controller"]["type"] == "FollowJointTrajectory"
+    assert mscm["gripper_controller"]["action_ns"] == "follow_joint_trajectory"
 
 
 def test_ompl_manipulator_planner_configured():

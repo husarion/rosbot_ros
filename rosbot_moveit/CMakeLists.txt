@@ -10,7 +10,8 @@ set(PACKAGE_INCLUDE_DEPENDS
     moveit_ros_planning_interface
     rclcpp
     rclcpp_action
-    sensor_msgs)
+    sensor_msgs
+    trajectory_msgs)
 
 foreach(Dependency IN ITEMS ${PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)

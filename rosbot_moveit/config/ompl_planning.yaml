@@ -14,9 +14,9 @@ start_state_max_bounds_error: 0.1
 
 # OMPL configs trimmed from the full SetupAssistant default (24 planners x 2
 # groups). The manipulator uses RRTConnect by default; RRTstar and PRMstar are
-# kept as optimizing fallbacks. Gripper keeps just RRTConnect because
-# MoveGroup still runs OMPL for setNamedTarget() calls on the gripper group,
-# even though execution goes through GripperCommand directly.
+# kept as optimizing fallbacks. Gripper keeps just RRTConnect — MoveGroup
+# still runs OMPL for setNamedTarget() ("Open"/"Close") on the gripper group,
+# then forwards the trajectory to the JTC via FollowJointTrajectory.
 ompl:
   planner_configs:
     RRTConnectkConfigDefault:

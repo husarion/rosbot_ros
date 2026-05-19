@@ -83,11 +83,13 @@ Releasing the stick zeroes the joint velocities — the arm stops immediately at
 ```bash
 ros2 run rosbot_moveit joy2servo --ros-args \
   -p cartesian_linear_velocity:=0.2 \
-  -p cartesian_step_dt:=0.05
+  -p cartesian_step_dt:=0.05 \
+  -p cartesian_max_joint_velocity:=1.0
 ```
 
 - `cartesian_linear_velocity` (m/s, default `0.1`) — EE linear speed when a stick is at full deflection
 - `cartesian_step_dt` (seconds, default `0.05`) — per-tick integration step; should be ≥ servo's `publish_period` and ≈ joy autorepeat period (default `1/20 Hz = 0.05`)
+- `cartesian_max_joint_velocity` (rad/s, default `1.0`) — uniform cap on the joint velocities produced by Cartesian-mode IK. Applied as a single scaling factor so the EE direction is preserved (just slower). Bounds how far the arm can travel per `collision_check_rate` tick — without it, KDL IK "branch jumps" near singularities can produce multi-rad/s spikes that overshoot `self_collision_proximity_threshold` before the collision check updates.
 
 You may have noticed that the movement of the manipulator is slow, and the full capabilities of the manipulator are not fully utilized. This is a safety precaution to ensure that the collision checker effectively prevents the manipulator from bumping into the robot.
 The dynamic limits of the manipulator have been tuned in order to provide a reliable collision prevention mechanism. While this setup should cover most situations, there is still a possibility of accidental contact with the robot or its sensors. Therefore, we advise you to remain aware of this potential risk when operating the manipulator.

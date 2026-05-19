@@ -108,6 +108,20 @@ def generate_launch_description():
             moveit_config.robot_description_kinematics,
             moveit_config.joint_limits,
         ],
+        # Drop default log level to WARN to silence "Using position only ik"
+        # which moveit_kinematics' KDL plugin prints at INFO on every
+        # searchPositionIK() call (20-50 Hz in Cartesian mode). Per-logger
+        # filtering doesn't work in jazzy because MoveIt attaches plugin
+        # loggers under an auto-named internal node (display name like
+        # "moveit_<random>"), so the prefix is unpredictable. Whitelist our
+        # own `joy2servo` logger back to INFO so the input-mode toggle stays
+        # visible.
+        ros_arguments=[
+            "--log-level",
+            "warn",
+            "--log-level",
+            "joy2servo:=info",
+        ],
     )
 
     return LaunchDescription([declare_config_dir_arg, servo_node, joy2servo])
