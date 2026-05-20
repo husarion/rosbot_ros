@@ -88,3 +88,21 @@ def test_manipulator_presence_matches_configuration(configuration):
             f"configuration='{configuration}' must NOT include the manipulator "
             "(joint1 present unexpectedly)"
         )
+
+
+def test_components_config_derived_from_configuration():
+    """Soft-compat: when components_config is not given explicitly, it must
+    derive from the configuration arg. manipulation.yaml ships an LDR06 lidar
+    (rplidar_link in URDF); basic.yaml has no components. If derivation broke
+    (always defaulted to basic.yaml), both URDFs would carry the same set."""
+    basic_urdf = _process_xacro("rosbot_xl", "False", "basic")
+    manipulation_urdf = _process_xacro("rosbot_xl", "False", "manipulation")
+    assert "rplidar_link" not in basic_urdf, (
+        "basic configuration unexpectedly carries lidar — components_config "
+        "derivation is reading the wrong yaml."
+    )
+    assert "rplidar_link" in manipulation_urdf, (
+        "manipulation configuration is missing the lidar component — "
+        "components_config did not derive from configuration. "
+        "Did rosbot_xl.urdf.xacro lose its soft-compat property?"
+    )

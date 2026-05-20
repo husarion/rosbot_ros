@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <robot name="rosbot_xl" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:arg name="components_config" default="$(find rosbot_description)/config/rosbot_xl/basic.yaml" />
+  <xacro:arg name="components_config" default="" />
   <xacro:arg name="configuration" default="basic" />
   <xacro:arg name="controller_config" default="" />
   <xacro:arg name="include_camera_mount" default="False" />
@@ -9,6 +9,11 @@
   <xacro:arg name="mecanum" default="False" />
   <xacro:arg name="namespace" default="" />
   <xacro:arg name="use_sim" default="False" />
+
+  <!-- Soft compat: if components_config is not given explicitly, derive it
+       from configuration so the two stay in sync. -->
+  <xacro:property name="components_config_resolved"
+    value="${'$(arg components_config)' if '$(arg components_config)' else '$(find rosbot_description)/config/rosbot_xl/$(arg configuration).yaml'}" />
 
   <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/rosbot_xl_macro.urdf.xacro" ns="husarion" />
   <xacro:include filename="$(find husarion_components_description)/urdf/components.urdf.xacro" ns="components" />
@@ -21,7 +26,7 @@
     use_sim="$(arg use_sim)" />
 
   <xacro:components.create_components
-    components_config_path="$(arg components_config)"
+    components_config_path="${components_config_resolved}"
     namespace="$(arg namespace)"
     use_sim="$(arg use_sim)"
     use_tf_prefix="False" />
