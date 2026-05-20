@@ -17,13 +17,13 @@ from itertools import product
 import launch_pytest
 import pytest
 import rclpy
+from bringup_helpers import BringupTestNode, readings_data_test
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_testing.actions import ReadyToTest
 from launch_testing.util import KeepAliveProc
-from test_utils import BringupTestNode, readings_data_test
 
 
 @launch_pytest.fixture

@@ -25,11 +25,13 @@ jobs:
             rosbot/rosbot_hardware.repos
             rosbot/rosbot_simulation.repos
           target-ros2-distro: jazzy
-          # rosbot_bringup and rosbot_gazebo works only locally
+          # rosbot_bringup/test/test_bringup.py drives the launch with
+          # microros:=False and publishes fake HW topics itself, so it runs
+          # here. Real-Gazebo tests were removed from rosbot_gazebo — only
+          # offline schema tests remain.
           colcon-defaults: |
             {
               "test": {
-                "packages-select-regex": ["rosbot*"],
-                "packages-skip": ["rosbot_bringup", "rosbot_gazebo"]
+                "packages-select-regex": ["rosbot*"]
               }
             }

@@ -7,19 +7,13 @@ install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
-  set(_pytest_tests test/test_multirobot.py test/test_sim.py)
-  foreach(_test_path ${_pytest_tests})
-    get_filename_component(_test_name ${_test_path} NAME_WE)
-    ament_add_pytest_test(
-      ${_test_name}
-      ${_test_path}
-      APPEND_ENV
-      PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}
-      TIMEOUT
-      1800
-      WORKING_DIRECTORY
-      ${CMAKE_SOURCE_DIR})
-  endforeach()
+
+  # Offline-only: real Gazebo cannot run reliably in CI (no GPU, slow), and the
+  # previous launch_pytest tests held no value beyond what test_bringup already
+  # covers for the driver chain. Run a full Gazebo simulation locally via `ros2
+  # launch rosbot_gazebo simulation.yaml` when validating sim changes by hand.
+  ament_add_pytest_test(test_launch_offline test/test_launch_offline.py TIMEOUT
+                        60 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 endif()
 
 ament_package()

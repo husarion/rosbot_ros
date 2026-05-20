@@ -12,44 +12,58 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import itertools
+"""xacro -> URDF with the per-model controllers.yaml plumbed through.
+
+Focuses on the controller_config + use_sim plumbing that rosbot_description's
+test_xacro.py does not exercise. URDF correctness across the full
+configuration matrix is owned by rosbot_description; here we only pick two
+representative rosbot_xl configurations (basic = no arm, manipulation_pro =
+arm) to keep the matrix small.
+"""
+
 import os
 
+import pytest
 import xacro
 from ament_index_python.packages import get_package_share_directory
 
+# Two anchor configurations: 'basic' covers the no-manipulator path, and
+# 'manipulation_pro' covers the manipulator-on path with the largest
+# component set. Other configurations are exercised by rosbot_description.
+ROSBOT_XL_REPRESENTATIVE_CONFIGURATIONS = ["basic", "manipulation_pro"]
 
-def test_rosbot_description_parsing():
-    robot_model_values = ["rosbot", "rosbot_xl"]
-    mecanum_values = ["True", "False"]
-    use_sim_values = ["True", "False"]
 
-    all_combinations = list(
-        itertools.product(
-            robot_model_values,
-            mecanum_values,
-            use_sim_values,
-        )
-    )
+def _matrix():
+    cases = []
+    for mecanum in ("True", "False"):
+        for use_sim in ("True", "False"):
+            cases.append(("rosbot", mecanum, use_sim, None))
+            for cfg in ROSBOT_XL_REPRESENTATIVE_CONFIGURATIONS:
+                cases.append(("rosbot_xl", mecanum, use_sim, cfg))
+    return cases
 
-    for combination in all_combinations:
-        robot_model, mecanum, use_sim = combination
 
-        rosbot_controller = get_package_share_directory("rosbot_controller")
-        controller_config = os.path.join(
-            rosbot_controller, "config", robot_model, "controllers.yaml"
-        )
+@pytest.mark.parametrize("robot_model,mecanum,use_sim,configuration", _matrix())
+def test_xacro_with_controller_config(robot_model, mecanum, use_sim, configuration):
+    rosbot_controller = get_package_share_directory("rosbot_controller")
+    rosbot_description = get_package_share_directory("rosbot_description")
+    controller_config = os.path.join(rosbot_controller, "config", robot_model, "controllers.yaml")
 
-        mappings = {
-            "controller_config": controller_config,
-            "mecanum": mecanum,
-            "use_sim": use_sim,
-        }
-        rosbot_description = get_package_share_directory("rosbot_description")
-        xacro_path = os.path.join(rosbot_description, "urdf", f"{robot_model}.urdf.xacro")
-        try:
-            xacro.process_file(xacro_path, mappings=mappings)
-        except xacro.XacroException as e:
-            assert (
-                False
-            ), f"xacro parsing failed: {str(e)} for mecanum: {mecanum}, use_sim: {use_sim}"
+    mappings = {
+        "controller_config": controller_config,
+        "mecanum": mecanum,
+        "use_sim": use_sim,
+    }
+    if robot_model == "rosbot_xl":
+        mappings["configuration"] = configuration
+
+    xacro_path = os.path.join(rosbot_description, "urdf", f"{robot_model}.urdf.xacro")
+    doc = xacro.process_file(xacro_path, mappings=mappings)
+    urdf = doc.toxml()
+
+    assert (
+        "<link" in urdf
+    ), f"No <link> for ({robot_model}, mecanum={mecanum}, use_sim={use_sim}, {configuration})"
+    assert (
+        "<joint" in urdf
+    ), f"No <joint> for ({robot_model}, mecanum={mecanum}, use_sim={use_sim}, {configuration})"

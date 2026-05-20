@@ -150,6 +150,7 @@ def readings_data_test(node, robot_name="ROSbot"):
         node.controller_odom_msg_event,
         node.imu_msg_event,
         node.ekf_odom_msg_event,
+        node.scan_filter_event,
     ]
 
     event_names = [
@@ -157,9 +158,12 @@ def readings_data_test(node, robot_name="ROSbot"):
         "Controller Odometry",
         "IMU",
         "EKF Odometry",
+        "Filtered Scan",
     ]
 
-    msgs_received_flag, not_set_indices = wait_for_all_events(events, timeout=20.0)
+    # 30s instead of 20s leaves a margin on slow CI runners; an 8-second
+    # bringup with no margin trips the timeout on the first GC pause.
+    msgs_received_flag, not_set_indices = wait_for_all_events(events, timeout=30.0)
 
     if not msgs_received_flag:
         not_set_event_names = [event_names[i] for i in not_set_indices]
