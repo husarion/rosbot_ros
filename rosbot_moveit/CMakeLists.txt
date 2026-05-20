@@ -53,6 +53,8 @@ if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
   ament_add_pytest_test(test_moveit_config test/test_moveit_config.py TIMEOUT
                         60 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  ament_add_pytest_test(test_moveit_extra test/test_moveit_extra.py TIMEOUT 60
+                        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 endif()
 
 ament_package()
