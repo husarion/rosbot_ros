@@ -20,6 +20,7 @@ configuration starts with 'manipulation'.
 """
 
 import os
+import xml.etree.ElementTree as ET
 
 import pytest
 import xacro
@@ -88,6 +89,62 @@ def test_manipulator_presence_matches_configuration(configuration):
             f"configuration='{configuration}' must NOT include the manipulator "
             "(joint1 present unexpectedly)"
         )
+
+
+def test_gazebo_urdf_namespace_remappings():
+    """Namespace-audit Phase 5 (Decyzja Q2, 2026-05-21).
+
+    The gz_ros2_control plugin's <remapping> block in gazebo.urdf.xacro is the
+    only channel that namespaces the absolute /controller_manager/* surface and
+    /tf, /tf_static, /diagnostics — push_ros_namespace cannot reach this plugin
+    because gz_sim instantiates it outside the LaunchContext. Regressing the
+    list (e.g. an upstream xacro reshuffle drops the block) silently breaks
+    multi-robot isolation. Pin the exact set here.
+    """
+    # The gz_ros2_control plugin is gated by `use_sim:=True` in
+    # gazebo.urdf.xacro; the HW branch uses RosbotSystem instead.
+    share = get_package_share_directory("rosbot_description")
+    xacro_path = os.path.join(share, "urdf", "rosbot_xl.urdf.xacro")
+    doc = xacro.process_file(
+        xacro_path,
+        mappings={"mecanum": "False", "configuration": "basic", "use_sim": "True"},
+    )
+    urdf = doc.toxml()
+    root = ET.fromstring(urdf)
+
+    plugin = None
+    for elem in root.iter("plugin"):
+        if "gz_ros2_control" in (elem.get("filename") or ""):
+            plugin = elem
+            break
+    assert plugin is not None, "gz_ros2_control-system plugin missing from URDF"
+
+    actual_remaps = {r.text for r in plugin.iter("remapping") if r.text}
+
+    expected_remaps = {
+        "/diagnostics:=diagnostics",
+        "/tf:=tf",
+        "/tf_static:=tf_static",
+        "/controller_manager/cleanup_controller:=controller_manager/cleanup_controller",
+        "/controller_manager/configure_controller:=controller_manager/configure_controller",
+        "/controller_manager/list_controllers:=controller_manager/list_controllers",
+        "/controller_manager/list_controller_types:=controller_manager/list_controller_types",
+        "/controller_manager/list_hardware_components:=controller_manager/list_hardware_components",
+        "/controller_manager/list_hardware_interfaces:=controller_manager/list_hardware_interfaces",
+        "/controller_manager/load_controller:=controller_manager/load_controller",
+        "/controller_manager/reload_controller_libraries:=controller_manager/reload_controller_libraries",
+        "/controller_manager/set_hardware_component_state:=controller_manager/set_hardware_component_state",
+        "/controller_manager/switch_controller:=controller_manager/switch_controller",
+        "/controller_manager/unload_controller:=controller_manager/unload_controller",
+        "/controller_manager/activity:=controller_manager/activity",
+        "/controller_manager/statistics:=controller_manager/statistics",
+        "/controller_manager/introspection_data:=controller_manager/introspection_data",
+    }
+    missing = expected_remaps - actual_remaps
+    assert not missing, (
+        "gazebo.urdf.xacro <remapping> block is missing entries required for "
+        "multi-robot namespace isolation: " + ", ".join(sorted(missing))
+    )
 
 
 def test_components_config_derived_from_configuration():

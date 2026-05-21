@@ -248,6 +248,15 @@ Subdirectories created under `~/my_rosbot_config/`: `rosbot_bringup/config/`, `r
 
 In the IMU controllers `sensor_name: <namespace>/imu` (placeholder sed-replaced) — Gazebo requires unique sensor names, otherwise the `gz_ros2_control` plugin overwrites readings.
 
+### Sim vs HW: divergent namespacing mechanisms
+
+The mechanism that actually applies the namespace to each node differs between hardware and simulation, and this divergence is intentional (it is an upstream constraint, not a design choice):
+
+- **HW bringup** — every node started by `rosbot.yaml` / `rosbot_xl.yaml` lives inside a `GroupAction` with `push_ros_namespace`. The launch context applies the namespace to every `Node` action created within the group, including `controller_manager` (`ros2_control_node`), `ekf_node`, the controller spawners, and `micro_ros_agent`. This is the canonical ROS 2 launch idiom and handles every service / topic / action the node publishes without per-name remapping.
+- **Sim (gz_ros2_control)** — `controller_manager` is *not* started by a launch `Node` action. It is instantiated by the `gz_ros2_control-system` plugin inside the Gazebo process, which is loaded by `gz_sim` before the `LaunchContext` can apply `push_ros_namespace`. The plugin's `<ros><namespace>` tag handles the relative side, but services that the controller_manager publishes with absolute names (`/controller_manager/list_controllers` etc., plus the `/diagnostics` / `/tf` / `/tf_static` / introspection topics) need explicit URDF `<remapping>` entries in [common/gazebo.urdf.xacro](rosbot_description/urdf/common/gazebo.urdf.xacro). The current block covers 14 entries — the full public CM surface in `ros-jazzy-controller-manager` (11 services + 3 diagnostic topics) — see the inline comment at lines 11-33 of that file for the rationale.
+
+Accepted per the namespace-audit decision (2026-05-21, Q4): URDF remapping is the only viable path for gz_ros2_control's CM surface and we keep the HW `push_ros_namespace` pattern. The regression test [rosbot_bringup/test/test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py) guards the HW side; [rosbot_description/test/test_xacro.py](rosbot_description/test/test_xacro.py) (`test_gazebo_urdf_namespace_remappings`) guards the URDF block on the sim side.
+
 ---
 
 ## 6. Public topics and nodes

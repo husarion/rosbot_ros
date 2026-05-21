@@ -20,6 +20,7 @@ tests cover the schema that does not need a runtime: arg declarations,
 include targets, and the snap-relevant config_dir convention.
 """
 
+import ast
 import os
 
 import pytest
@@ -86,6 +87,49 @@ def test_rosbot_xl_has_led_strip_arg():
     rosbot_args = _args(_launch("rosbot.yaml"))
     assert "led_strip" in xl_args
     assert "led_strip" not in rosbot_args
+
+
+def test_microros_agent_node_has_no_explicit_namespace():
+    """Namespace-audit HW retest 2026-05-21.
+
+    `push_ros_namespace` from the bringup GroupAction DOES reach the
+    micro_ros_agent Node even though it is returned from a
+    RegisterEventHandler/OnProcessExit callback. Empirically: with an
+    explicit `namespace=LaunchConfiguration("namespace")` on the Node,
+    the agent process spawns with `__ns:=/test_ns/test_ns` — double-stack.
+    Without it, push_ros_namespace inheritance gives the right single
+    `/test_ns`. So the Node must NOT pass `namespace=`.
+    """
+    path = os.path.join(
+        get_package_share_directory("rosbot_bringup"), "launch", "microros.launch.py"
+    )
+    with open(path) as f:
+        tree = ast.parse(f.read())
+
+    matched = False
+    for call in ast.walk(tree):
+        if not isinstance(call, ast.Call):
+            continue
+        func = call.func
+        is_node_ctor = (isinstance(func, ast.Name) and func.id == "Node") or (
+            isinstance(func, ast.Attribute) and func.attr == "Node"
+        )
+        if not is_node_ctor:
+            continue
+        kwargs = {kw.arg: kw.value for kw in call.keywords if kw.arg}
+        package = kwargs.get("package")
+        if not (isinstance(package, ast.Constant) and package.value == "micro_ros_agent"):
+            continue
+        assert "namespace" not in kwargs, (
+            "micro_ros_agent Node() must NOT pass `namespace=` — double-stack "
+            "with bringup push_ros_namespace. Empirically verified 2026-05-21."
+        )
+        matched = True
+        break
+
+    assert (
+        matched
+    ), "Did not find a Node(package='micro_ros_agent', ...) call in microros.launch.py"
 
 
 def test_tf_namespace_bridge_default_is_pass_through():
