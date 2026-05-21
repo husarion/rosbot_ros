@@ -87,7 +87,7 @@ XL additionally has: arg `led_strip` (starts `rosbot_utils/led_strip_car_wave`) 
 
 `config_dir` → `<config_dir>/rosbot_bringup/config/microros_localhost_only.xml` (FastDDS limited to 127.0.0.1, used when `ROS_LOCALHOST_ONLY=1`).
 
-Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_multirobot.py](rosbot_bringup/test/test_multirobot.py) — they launch the full bringup with `microros:=False` and faked HW publishers (`_imu/data`, `_motors/feedback`), and assert that `joint_states`, `odometry/wheels`, `imu/data`, `odometry/filtered` show up. **Skipped in CI** (local only).
+Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_multirobot.py](rosbot_bringup/test/test_multirobot.py) — they launch the full bringup with `hardware_bridge:=False` and faked HW publishers (`_imu/data`, `_motors/feedback`), and assert that `joint_states`, `odometry/wheels`, `imu/data`, `odometry/filtered` show up. **Skipped in CI** (local only).
 
 ### `rosbot_controller` — ros2_control + manipulator
 

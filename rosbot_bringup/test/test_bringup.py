@@ -42,7 +42,7 @@ Running test with
         PathJoinSubstitution([rosbot_bringup, "launch", "bringup.yaml"]),
         launch_arguments={
             "mecanum": mecanum,
-            "microros": "False",
+            "hardware_bridge": "False",
             "namespace": namespace,
             "robot_model": robot_model,
         }.items(),
