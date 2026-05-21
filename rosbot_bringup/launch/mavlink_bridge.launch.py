@@ -12,15 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Sibling of microros.launch.py — picks the MAVLink path instead of XRCE-DDS.
-# Mirrors the same arg surface (config_dir, namespace, robot_model, port,
-# serial_port, serial_baudrate, microros_mode) so the wrapping
-# rosbot[_xl].yaml can dispatch to either launch interchangeably.
-#
-# Depends on the `rosbot_mavlink_bridge` package (from
-# https://github.com/husarion/rosbot-firmware, branch jazzy-mavlink) being
-# present on the ROS overlay — the bridge ships in the same release as the
-# MAVLink firmware (D24, see rosbot-firmware/MAVLINK_MIGRATION.md).
+# MAVLink sibling of microros.launch.py. Requires the rosbot_mavlink_bridge
+# package on the overlay (shipped with the MAVLink firmware release).
 
 import os
 
@@ -48,7 +41,6 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def _resolve_bridge_launch(robot_model: str) -> str:
-    """Return the absolute path of the variant-matching bridge launch file."""
     pkg_dir = FindPackageShare("rosbot_mavlink_bridge").find("rosbot_mavlink_bridge")
     return os.path.join(pkg_dir, "launch", f"{robot_model}.launch.py")
 
@@ -77,10 +69,6 @@ def generate_bridge_launch(context, *args, **kwargs):
         [config_rosbot_bringup_dir, "config", "microros_localhost_only.xml"]
     )
 
-    # The bridge runs as a plain rclcpp node — no XRCE_DOMAIN_ID_OVERRIDE
-    # needed. But honour the same ROS_LOCALHOST_ONLY pattern as
-    # microros.launch.py so the snap behaves the same way regardless of
-    # which link layer the operator chose.
     if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
         env_setup_actions.extend(
             [
@@ -98,9 +86,6 @@ def generate_bridge_launch(context, *args, **kwargs):
             ]
         )
 
-    # configure_robot owns the FTDI namespace handshake. The MAVLink
-    # firmware honours the same pre-communication phase (D22), so we run
-    # the same pre-step here that microros.launch.py runs.
     pre_communication_cmd = [
         "ros2",
         "run",
@@ -108,20 +93,12 @@ def generate_bridge_launch(context, *args, **kwargs):
         "configure_robot",
         "--robot-model",
         robot_model,
-        # The MAVLink firmware lineage versions independently from the
-        # micro-ROS one (separate -jazzy-mavlink track in
-        # rosbot-firmware/CHANGELOG.md). Pin the expected version here
-        # so configure_robot's version-equality check accepts the
-        # MAVLink firmware. Bump this string in lockstep with the
-        # rosbot-firmware MAVLink release this rosbot_ros release tracks.
+        # Bump in lockstep with the rosbot-firmware MAVLink release.
         "--expected-firmware",
         "v0.1.1-jazzy-mavlink",
     ]
     if namespace:
         pre_communication_cmd.extend(["--namespace", namespace])
-    # The MAVLink rosbot variant talks over the same SBC<->MCU serial as
-    # micro-ROS today, so flip --usb only on rosbot_xl (which uses FTDI
-    # for the diagnostic banner regardless).
     if robot_model != "rosbot":
         pre_communication_cmd.extend(["--usb"])
 
@@ -131,14 +108,6 @@ def generate_bridge_launch(context, *args, **kwargs):
         name="pre_communication",
     )
 
-    # Bridge launch picks up its transport / peer-ip / topic config from
-    # the bundled config/<robot_model>.yaml. We override `namespace` so
-    # the bridge node lands under the same rclcpp namespace the rest of
-    # the stack uses.
-    #
-    # For the rosbot variant we also pass serial_port + serial_baudrate
-    # so the bridge container's defaults (which expect /dev/ttyUSB0) get
-    # swapped for the SBC's actual MCU serial line.
     bridge_launch_args = [("namespace", namespace)]
     if robot_model == "rosbot":
         bridge_launch_args.extend(
@@ -172,9 +141,6 @@ def generate_launch_description():
         description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
     )
 
-    # microros_mode is accepted for arg-surface symmetry with
-    # microros.launch.py, but unused — the MAVLink stack's transport choice
-    # (UDP for rosbot_xl, serial for rosbot) is implicit in the dialect.
     declare_microros_mode_arg = DeclareLaunchArgument(
         "microros_mode",
         default_value="default",

@@ -114,9 +114,7 @@ def main(args=None):
     parser.add_argument(
         "--expected-firmware",
         default="v1.1.0-jazzy",
-        help="Firmware version string the MCU must report. Default tracks the "
-        "micro-ROS jazzy lineage; the MAVLink launch passes its own tag (e.g. "
-        "'v0.1.1-jazzy-mavlink') so each launch path enforces its own pin.",
+        help="Firmware version string the MCU must report.",
     )
     args = parser.parse_args(args)
 

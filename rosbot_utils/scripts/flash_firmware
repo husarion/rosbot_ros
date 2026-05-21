@@ -67,10 +67,7 @@ def main(args=None):
         "--variant",
         default="micro-ros",
         choices=["micro-ros", "mavlink"],
-        help="Bundled firmware variant to flash when --file is not given. "
-        "'micro-ros' (default) selects <model>-v1.1.0-jazzy.bin; 'mavlink' "
-        "selects <model>_mavlink-v0.1.1.bin (pair with the mavlink_bridge "
-        "launch).",
+        help="Bundled firmware variant to flash when --file is not given.",
     )
     args = parser.parse_args(args)
 
