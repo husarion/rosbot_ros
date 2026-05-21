@@ -29,17 +29,17 @@ A description of *how* the repo is wired together: packages, their roles, how th
                │            └──────┬───────────────┘
                │                   │ <ros2_control> in URDF
                ▼                   ▼
-       ┌─────────────────┐   ┌─────────────────────────────┐
-       │ micro_ros_agent │   │ controller_manager + drivers │
-       │  (serial / udp) │   │  diff/mecanum, imu_broadcaster│
-       └────────┬────────┘   │  joint_state_broadcaster      │
-                │            │  (manipulator_controller XL)  │
-                │            └──────────────┬───────────────┘
-                ▼                           │ uses
-       ┌──────────────────────┐             ▼
-       │ STM32 firmware       │   ┌──────────────────────────┐
-       │ (v1.1.0-jazzy)       │   │ rosbot_hardware_interfaces│ (HW only)
-       └──────────────────────┘   │  RosbotSystem (motors)    │
+       ┌───────────────────────────┐   ┌─────────────────────────────┐
+       │ link-layer (link_layer=…) │   │ controller_manager + drivers │
+       │  micro_ros_agent  OR      │   │  diff/mecanum, imu_broadcaster│
+       │  rosbot_mavlink_bridge    │   │  joint_state_broadcaster      │
+       └────────┬──────────────────┘   │  (manipulator_controller XL)  │
+                │                      └──────────────┬───────────────┘
+                ▼                                     │ uses
+       ┌──────────────────────────────┐               ▼
+       │ STM32 firmware               │   ┌──────────────────────────┐
+       │ micro-ROS: v1.1.0-jazzy      │   │ rosbot_hardware_interfaces│ (HW only)
+       │ MAVLink:   v0.1.1-jazzy-mav. │   │  RosbotSystem (motors)    │
                                   │  RosbotImuSensor          │
                                   └──────────────────────────┘
 
@@ -56,7 +56,7 @@ A description of *how* the repo is wired together: packages, their roles, how th
 
 Real / simulation split:
 
-- **HW:** `microros.launch.py` starts the agent and (after pre-communication) `controller_manager` with `RosbotSystem` + `RosbotImuSensor` as `<ros2_control>` plugins.
+- **HW:** the bringup picks a link-layer launch based on the `link_layer` arg (`microros.launch.py` → micro-ROS XRCE-DDS, default, or `mavlink_bridge.launch.py` → `rosbot_mavlink_bridge`). After pre-communication, `controller_manager` runs with `RosbotSystem` + `RosbotImuSensor` as `<ros2_control>` plugins regardless of which link-layer is in use — the bridge/agent terminates on the same ROS topics either way.
 - **Sim:** in `rosbot_gazebo/launch/spawn_robot.yaml` instead of `controller_manager` ros2_control is hosted by the `gz_ros2_control/GazeboSimSystem` plugin inside Gazebo.
 
 ---
@@ -76,11 +76,12 @@ Real / simulation split:
 
 ### `rosbot_bringup` — HW entry point
 
-Three launches:
+Four launches:
 
 - [rosbot.yaml](rosbot_bringup/launch/rosbot.yaml), [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) — specific model.
 - [bringup.yaml](rosbot_bringup/launch/bringup.yaml) — alias dispatching to one of the above based on `robot_model`/`ROBOT_MODEL`.
-- [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — starts `micro_ros_agent` in `serial` or `udp4` mode. Beforehand it runs **pre-communication** (`ros2 run rosbot_utils configure_robot`), which: (a) verifies the firmware version (must be `v1.1.0-jazzy`), (b) sets the namespace over serial. If pre-comm exits with rc≠0 — the whole launch issues a `Shutdown`.
+- [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — starts `micro_ros_agent` in `serial` or `udp4` mode. Beforehand it runs **pre-communication** (`ros2 run rosbot_utils configure_robot`), which: (a) verifies the firmware version (`v1.1.0-jazzy` by default — overridable via `--expected-firmware`), (b) sets the namespace over serial. If pre-comm exits with rc≠0 — the whole launch issues a `Shutdown`.
+- [mavlink_bridge.launch.py](rosbot_bringup/launch/mavlink_bridge.launch.py) — alternative link-layer launch that starts the `rosbot_mavlink_bridge` node instead of the micro-ROS agent. Selected by the `link_layer:=mavlink` argument on `rosbot.yaml` / `rosbot_xl.yaml`. Runs the same pre-communication step, but passes `--expected-firmware v0.1.1-jazzy-mavlink` so the MAVLink firmware string is accepted. Requires the MAVLink firmware variant on the MCU and the `rosbot_mavlink_bridge` package on the ROS overlay.
 
 XL additionally has: arg `led_strip` (starts `rosbot_utils/led_strip_car_wave`) and the `microros_mode=udp` path (port 8888).
 
@@ -169,8 +170,8 @@ See [MANIPULATOR.md](MANIPULATOR.md) — limits, troubleshooting, safety rules.
 The broadest package, a Python + ament_cmake mix:
 
 - **Scripts** (installed under `lib/rosbot_utils`):
-  - `flash_firmware` — flashes the STM32 with binaries from [firmware/](rosbot_utils/firmware/) (built-in `rosbot-v1.1.0-jazzy.bin`, `rosbot_xl-v1.1.0-jazzy.bin`).
-  - `configure_robot` — pre-communication: verifies the firmware version, sets the namespace over serial. Called from `microros.launch.py`.
+  - `flash_firmware` — flashes the STM32 with binaries from [firmware/](rosbot_utils/firmware/). Built-in variants: `rosbot[_xl]-v1.1.0-jazzy.bin` (micro-ROS, default — `--variant micro-ros`) and `rosbot[_xl]_mavlink-v0.1.1.bin` (MAVLink — `--variant mavlink`). The `--file` flag still overrides the bundled path for an arbitrary binary.
+  - `configure_robot` — pre-communication: verifies the firmware version (`--expected-firmware`, default `v1.1.0-jazzy` — `mavlink_bridge.launch.py` passes `v0.1.1-jazzy-mavlink`), sets the namespace over serial. Called from `microros.launch.py` and `mavlink_bridge.launch.py`.
   - `create_config_dir <dst>` — copies `share/<pkg>/config` from each rosbot_* package into `<dst>/<pkg>/config`. Used to build a "user" config dir for the Husarion snap.
   - `install_udev_rules` — installs [udev/99-rosbot.rules](rosbot_utils/udev/99-rosbot.rules) (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`).
   - `battery_alert` — a Python node (with [src/battery_alert_parameters.yaml](rosbot_utils/src/battery_alert_parameters.yaml) generated by `generate_parameter_library`), plays a sound below `<percentage_threshold`.
@@ -268,10 +269,12 @@ All topics are namespaced when `ROBOT_NAMESPACE` is set.
 
 ## 7. Firmware and pre-communication
 
-- Binaries: `rosbot_utils/firmware/{rosbot,rosbot_xl}-v1.1.0-jazzy.bin`. The version pin is hardcoded in [scripts/configure_robot](rosbot_utils/scripts/configure_robot) (`expected_fw = "v1.1.0-jazzy"`) and [scripts/flash_firmware](rosbot_utils/scripts/flash_firmware).
-- Flash: `ros2 run rosbot_utils flash_firmware --robot-model rosbot[_xl]`. For XL the `--usb` flag is set automatically (FTDI), for ROSbot it defaults to UART over GPIO (resets via gpiochip).
-- Pre-communication serial protocol:
-  - boot: the MCU emits `FW: v1.1.0-jazzy\n`,
+- Binaries in `rosbot_utils/firmware/`:
+  - **micro-ROS track (default):** `rosbot[_xl]-v1.1.0-jazzy.bin`. Pin enforced by `configure_robot`'s default `--expected-firmware v1.1.0-jazzy`, called from `microros.launch.py`.
+  - **MAVLink track:** `rosbot[_xl]_mavlink-v0.1.1.bin`. Pin enforced by `mavlink_bridge.launch.py` passing `--expected-firmware v0.1.1-jazzy-mavlink` to `configure_robot`.
+- Flash: `ros2 run rosbot_utils flash_firmware --robot-model rosbot[_xl] [--variant micro-ros|mavlink]`. Default `--variant micro-ros` keeps the legacy single-binary behavior. For XL the `--usb` flag is set automatically (FTDI), for ROSbot it defaults to UART over GPIO (resets via gpiochip).
+- Pre-communication serial protocol (same for both tracks; only the FW string the MCU emits differs):
+  - boot: the MCU emits `FW: <version>\n` (e.g. `v1.1.0-jazzy` or `v0.1.1-jazzy-mavlink`),
   - host: `NS:<namespace>\n`,
   - MCU: `ACK\n` on success.
 - USB-B development (on a PC, no Raspberry): see [CONTRIBUTING.md](CONTRIBUTING.md). The connection requires holding `btn1`/`btn2` + reset by hand.

@@ -171,7 +171,7 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=rosbot_xl
 
 ## 6. Hard rules (firm NO's)
 
-1. **Do not change the firmware version (`v1.1.0-jazzy`)** in `flash_firmware`/`configure_robot` without swapping the binary in `rosbot_utils/firmware/`, and vice versa. The driver and the firmware are tightly coupled.
+1. **Do not change the firmware version** (`v1.1.0-jazzy` for micro-ROS, `v0.1.1-jazzy-mavlink` for MAVLink) in `flash_firmware`/`configure_robot`/`mavlink_bridge.launch.py` without swapping the matching binary in `rosbot_utils/firmware/`, and vice versa. The driver and the firmware are tightly coupled per track.
 2. **Do not commit `build/`, `install/`, `log/`, `*.pyc`** — they are in `.gitignore`. The vcstool submodules (`husarion_components_description`, `husarion_controllers`, `husarion_gz_worlds`, `micro-ROS-Agent`, `tf_namespace_bridge`) are also ignored.
 3. **Do not disable `ament_copyright`** or any other pre-commit hook without approval — CI enforces them.
 4. **Do not change `controllers.yaml` parameters that carry the `Based on real measurements` comment** without fresh measurements. Those are empirically tuned values.
@@ -219,6 +219,7 @@ A "new feature" entry template in **CLAUDE.md** (section [9](#9-decision-and-nua
 - *2025-04-XX: Firmware bumped to `v1.1.0-jazzy`, improved PID (commits `b87b1a4`, `e5509b2`).*
 - *2026-05-04: Exposed `frame_filters` parameter for `tf_namespace_bridge` via per-package config files in `rosbot_bringup/config/` and `rosbot_gazebo/config/` (default empty = pass-through).*
 - *2026-05-15: Namespaced MoveIt topics for `joy2servo` and `servo_node`. `MoveGroupInterface` builds its `trajectory_execution_event` / `attached_collision_object` publishers via `rclcpp::names::append(opt.move_group_namespace, TOPIC)` — that is an FQN expansion that **ignores** the parent node's namespace, so the 2-arg ctor leaves these topics at `/`. Fixed by passing `this->get_namespace()` as the 3rd arg of `MoveGroupInterface::Options`. `moveit_servo`'s `monitored_planning_scene_topic` defaults to absolute `/planning_scene` (leading slash strips namespace from the PSM's private node) — fixed by setting it to relative `planning_scene` in `rosbot_moveit/config/moveit_servo.yaml`. `/parameter_events` is global by design.*
+- *2026-05-21: Added MAVLink alternative link layer on `jazzy-mavlink`. New arg `link_layer:=mavlink` on `rosbot[_xl].yaml` selects `mavlink_bridge.launch.py` instead of `microros.launch.py`. `configure_robot` gained `--expected-firmware` (default keeps `v1.1.0-jazzy`; the MAVLink launch passes `v0.1.1-jazzy-mavlink`). `flash_firmware` gained `--variant micro-ros|mavlink` to pick between bundled binaries (`rosbot[_xl]-v1.1.0-jazzy.bin` vs `rosbot[_xl]_mavlink-v0.1.1.bin`). Release tooling (`just release`, tag-driven workflow, CHANGELOG.md bootstrap) was added as infrastructure — **do not run releases on dev branches**; bare-suffix `X.Y.Z` tags belong on `jazzy`.*
 
 ---
 

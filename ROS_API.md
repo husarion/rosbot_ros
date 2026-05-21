@@ -43,7 +43,7 @@ Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/co
 | ✅  | ✅  | **`robot_state_publisher`**   | Uses the URDF specified by the parameter robot\*description and the joint positions from the topic joint\*states to calculate the forward kinematics of the robot and publish the results using tf <br /> _[robot_state_publisher/robot_state_publisher]_                                                                                             |
 | ✅  | ❌  | **`rosbot_system_node`**      | The node communicating with the hardware responsible for receiving and sending data related to engine control <br /> _[rosbot_hardware_interfaces/rosbot_system]_                                                                                                                                                                                   |
 | ❌  | ✅  | **`rosbot_gz_bridge`**        | Transmits data about the robot between the Gazebo simulator and ROS. <br /> _[ros_gz_bridge/parameter_bridge]_ |
-| ✅  | ❌  | **`rosbot_mcu`**             | Microcontroller unit (MCU) communication node. <br /> _[micro_ros_agent/micro_ros_agent]_                                                                                                                                                                                                                      |
+| ✅  | ❌  | **`rosbot_mcu`**             | Microcontroller unit (MCU) communication node. Default: `micro_ros_agent` (XRCE-DDS). With `link_layer:=mavlink` it is replaced by the `rosbot_mavlink_bridge` node, which speaks MAVLink to the MCU instead. <br /> _[micro_ros_agent/micro_ros_agent]_                                                                                                                                                                                                                      |
 
 ### Available Topics
 
@@ -92,7 +92,8 @@ The main package responsible for running the physical robot.
 
 - `rosbot.yaml` - activates all logic related to the ROSbot's movement and processing of sensory data.
 - `rosbot_xl.yaml` - activates all logic related to the ROSbot XL's movement and processing of sensory data.
-- `microros.launch.py` - establishes connection with the hardware using microROS agent.
+- `microros.launch.py` - establishes connection with the hardware using microROS agent. Selected when `link_layer:=microros` (default).
+- `mavlink_bridge.launch.py` - alternative link-layer launch that starts the `rosbot_mavlink_bridge` node instead of the microROS agent. Selected when `link_layer:=mavlink`. Requires the MAVLink firmware variant on the MCU (`flash_firmware --variant mavlink`) and the `rosbot_mavlink_bridge` package on the ROS overlay.
 
 ### `rosbot_controller`
 

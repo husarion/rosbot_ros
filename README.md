@@ -70,6 +70,12 @@ ros2 launch rosbot_bringup <rosbot/rosbot_xl>.yaml
 > source install/setup.bash
 > ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
 > ```
+>
+> To flash the MAVLink-stack firmware variant (paired with `link_layer:=mavlink` in bringup), pass `--variant mavlink`:
+>
+> ```bash
+> ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl> --variant mavlink
+> ```
 
 **Simulation:**
 
@@ -103,8 +109,9 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=<rosbot/rosbot_xl>
 | ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `False`                                                                                       |
 | ✅  | ✅  | `namespace`         | Add namespace to all launched nodes. <br/> **_string:_** `env(ROBOT_NAMESPACE)`                                                                                                                       |
 | ✅  | ✅  | `robot_model`       | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |
+| ✅  | ❌  | `link_layer`        | MCU↔SBC protocol stack to launch when `microros:=True`. `microros` starts the XRCE-DDS agent (pairs with the micro-ROS firmware); `mavlink` starts the rosbot_mavlink_bridge node (requires the MAVLink firmware variant + `rosbot_mavlink_bridge` on the overlay). <br/> **_string:_** `microros` (choices: `microros`, `mavlink`)                                                                                                                          |
 | ✅  | ❌  | `manipulator_serial_port`  | Port to connect to the manipulator. <br/> **_string:_** `/dev/ttyUSB0`                                                                                                                                  |
-| ✅  | ❌  | `microros`          | Automatically connect with hardware using microros. <br/> **_bool:_** `True`                                                                                                                       |
+| ✅  | ❌  | `microros`          | Whether to launch the link-layer stack (selected by `link_layer`). Set to `False` to skip it entirely (e.g. when running the bridge/agent in a separate container). <br/> **_bool:_** `True`                                                                                                                       |
 | ✅  | ❌  | `port`              | **ROSbot XL only.** UDP4 port for micro-ROS agent. <br/> **_string:_** `8888`                                                                                                                         |
 | ✅  | ❌  | `serial_baudrate`   | ROSbot only. Baud rate for serial communication. <br/> **_string:_** `921600`                                                                                                                                  |
 | ✅  | ❌  | `serial_port`       | ROSbot only. Serial port for micro-ROS agent. <br/> **_string:_** `/dev/ttySERIAL`                                                                                                           |
