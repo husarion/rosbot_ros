@@ -92,17 +92,8 @@ def test_manipulator_presence_matches_configuration(configuration):
 
 
 def test_gazebo_urdf_namespace_remappings():
-    """Namespace-audit Phase 5 (Decyzja Q2, 2026-05-21).
-
-    The gz_ros2_control plugin's <remapping> block in gazebo.urdf.xacro is the
-    only channel that namespaces the absolute /controller_manager/* surface and
-    /tf, /tf_static, /diagnostics — push_ros_namespace cannot reach this plugin
-    because gz_sim instantiates it outside the LaunchContext. Regressing the
-    list (e.g. an upstream xacro reshuffle drops the block) silently breaks
-    multi-robot isolation. Pin the exact set here.
-    """
-    # The gz_ros2_control plugin is gated by `use_sim:=True` in
-    # gazebo.urdf.xacro; the HW branch uses RosbotSystem instead.
+    """Pins the gz_ros2_control <remapping> set — push_ros_namespace cannot
+    reach this plugin (gz_sim hosts it outside the LaunchContext)."""
     share = get_package_share_directory("rosbot_description")
     xacro_path = os.path.join(share, "urdf", "rosbot_xl.urdf.xacro")
     doc = xacro.process_file(

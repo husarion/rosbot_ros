@@ -12,27 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Regression guard for the namespace-audit (Variant B insurance).
-
-Brings the rosbot_xl bringup up with ``microros:=False`` and a fixed
-``namespace='test_ns'``, waits for the stack to stabilise, and then asserts:
-
-* No topic / service / node leaks onto the global root ``/`` outside the
-  explicit whitelist (TF + parameter_events + rosout). A new upstream
-  global must be added to the whitelist on purpose — the test fail message
-  points at the leaking name so the reviewer sees what changed.
-* A list of critical topics / services exists under ``/test_ns/`` (the
-  positive side: not just "nothing leaks" but "the robot's published
-  contract is reachable under the prefix").
-
-Scope notes:
-* ``microros:=False`` keeps this test CI-runnable (no real driver, no
-  micro-ROS agent — base-only hardware faked via :class:`BringupTestNode`).
-* ``configuration='manipulation'`` is NOT covered here: bringup.yaml does
-  not propagate the arg, and offline manipulation would need the
-  ``manipulator_controller`` spawner to talk to a dynamixel bus that is
-  not present in CI. Manipulation namespacing is exercised by the HW
-  retest sequence in Phase 6 of the namespace-audit plan.
+"""Regression guard: no topic/service leaks to `/` outside the global allowlist
+after namespaced bringup, and required topics/services present under `/<ns>/`.
 """
 
 import time
@@ -51,9 +32,7 @@ from launch_testing.util import KeepAliveProc
 NAMESPACE = "test_ns"
 ROBOT_MODEL = "rosbot_xl"
 
-# Topics that legitimately stay on `/` after a namespaced bringup. Adding to
-# this set is a deliberate API decision — reviewers should challenge any new
-# entry.
+# Adding entries here is a deliberate API decision — challenge in review.
 ALLOWED_GLOBAL_TOPICS = {
     "/tf",
     "/tf_static",
@@ -61,15 +40,9 @@ ALLOWED_GLOBAL_TOPICS = {
     "/rosout",
 }
 
-# Services that legitimately stay on `/`. Each running node still exposes its
-# own private parameter services under its node namespace, but with bringup
-# under /test_ns/ every per-node parameter service should be /test_ns/<node>/...
-# — i.e. nothing at the global root after the fix.
 ALLOWED_GLOBAL_SERVICES: set[str] = set()
 
-# Critical topics that MUST be present under /<ns>/ after bringup. Limited to
-# the base-only stack because ``microros:=False`` + no real HW means the
-# manipulator controllers do not spawn in offline mode.
+# Base-only stack — `microros:=False` skips manipulator spawners.
 REQUIRED_NS_TOPICS = {
     f"/{NAMESPACE}/joint_states",
     f"/{NAMESPACE}/odometry/filtered",
@@ -80,11 +53,7 @@ REQUIRED_NS_TOPICS = {
     f"/{NAMESPACE}/diagnostics",
 }
 
-# Critical services that MUST be present under /<ns>/. controller_manager
-# services land under /<ns>/ via push_ros_namespace on HW (gz_ros2_control
-# uses the URDF <remapping> path covered by Phase 5 sim test). EKF wystawia
-# `set_pose` jako relative — z push_ros_namespace ląduje pod /<ns>/set_pose
-# (NIE /<ns>/ekf_node/set_pose; HW retest 2026-05-21).
+# EKF's `set_pose` lands at `/<ns>/set_pose` (NOT `/<ns>/ekf_node/set_pose`).
 REQUIRED_NS_SERVICES = {
     f"/{NAMESPACE}/controller_manager/list_controllers",
     f"/{NAMESPACE}/controller_manager/switch_controller",
@@ -134,9 +103,7 @@ def test_namespace_isolation():
         node.start_publishing_fake_hardware()
         node.start_node_thread()
 
-        # 15s leaves room for controller spawners + EKF stabilisation on slow
-        # CI runners; test_bringup.py uses 30s for the heavier readings loop,
-        # we just need name discovery rather than data flow.
+        # 15s = controller spawners + EKF stabilisation (name discovery only).
         time.sleep(15.0)
 
         topic_names = [name for name, _ in node.get_topic_names_and_types()]
