@@ -63,6 +63,15 @@ def main(args=None):
         default="/dev/rosbot",
         help="Specify the communication port",
     )
+    parser.add_argument(
+        "--variant",
+        default="micro-ros",
+        choices=["micro-ros", "mavlink"],
+        help="Bundled firmware variant to flash when --file is not given. "
+        "'micro-ros' (default) selects <model>-v1.1.0-jazzy.bin; 'mavlink' "
+        "selects <model>_mavlink-v0.1.1.bin (pair with the mavlink_bridge "
+        "launch).",
+    )
     args = parser.parse_args(args)
 
     robot_model = args.robot_model
@@ -70,7 +79,11 @@ def main(args=None):
         args.usb = True
 
     rosbot_utils = get_package_share_directory("rosbot_utils")
-    robot_firmware = os.path.join(rosbot_utils, "firmware", robot_model + "-v1.1.0-jazzy.bin")
+    bundled_firmware = {
+        "micro-ros": f"{robot_model}-v1.1.0-jazzy.bin",
+        "mavlink": f"{robot_model}_mavlink-v0.1.1.bin",
+    }
+    robot_firmware = os.path.join(rosbot_utils, "firmware", bundled_firmware[args.variant])
     firmware = args.file if args.file else robot_firmware
     print(f"Using firmware file: {firmware}")
 
