@@ -1,0 +1,29 @@
+---
+# Enable GitHub auto-merge (squash) on PRs labelled auto-firmware-bump.
+# Needs repo Allow auto-merge + branch protection with a required
+# status check on jazzy-mavlink-v2. Add block-automerge to pause.
+name: Firmware bump auto-merge
+
+on:
+  pull_request_target:
+    types: [opened, labeled, reopened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable-automerge:
+    if: >
+      contains(github.event.pull_request.labels.*.name, 'auto-firmware-bump') &&
+      !contains(github.event.pull_request.labels.*.name, 'block-automerge')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh pr merge --auto --squash --delete-branch "$PR_NUMBER" -R "$REPO"
