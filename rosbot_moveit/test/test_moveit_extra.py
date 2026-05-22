@@ -14,14 +14,7 @@
 
 """Extra invariants: MoveItConfigsBuilder smoke + servo<->SRDF group link + joint coverage."""
 
-import os
-
-import yaml
-from ament_index_python.packages import get_package_share_directory
-
-
-def _share(rel_path: str) -> str:
-    return os.path.join(get_package_share_directory("rosbot_moveit"), rel_path)
+from conftest import load_yaml, srdf_root
 
 
 def test_moveit_configs_builder_loads():
@@ -42,12 +35,8 @@ def test_moveit_configs_builder_loads():
 
 def test_servo_move_group_matches_srdf():
     """moveit_servo's move_group_name must reference a real SRDF group."""
-    import xml.etree.ElementTree as ET
-
-    with open(_share("config/moveit_servo.yaml")) as f:
-        servo = yaml.safe_load(f)
-    srdf_root = ET.parse(_share("config/rosbot_xl.srdf")).getroot()
-    srdf_groups = {g.attrib["name"] for g in srdf_root.findall("group")}
+    servo = load_yaml("config/moveit_servo.yaml")
+    srdf_groups = {g.attrib["name"] for g in srdf_root().findall("group")}
     assert servo["move_group_name"] in srdf_groups, (
         f"move_group_name={servo['move_group_name']!r} is not defined in the SRDF "
         f"(groups: {sorted(srdf_groups)})"
@@ -56,23 +45,17 @@ def test_servo_move_group_matches_srdf():
 
 def test_servo_command_in_type_is_speed_units():
     """joy2servo publishes JointJog in rad/s; 'unitless' silently rescales and arm crawls."""
-    with open(_share("config/moveit_servo.yaml")) as f:
-        servo = yaml.safe_load(f)
+    servo = load_yaml("config/moveit_servo.yaml")
     assert servo["command_in_type"] == "speed_units"
 
 
 def test_initial_positions_covers_actuated_srdf_joints():
     """Every non-passive SRDF group joint must appear in initial_positions."""
-    import xml.etree.ElementTree as ET
+    initial = load_yaml("config/initial_positions.yaml")["initial_positions"]
+    root = srdf_root()
 
-    with open(_share("config/initial_positions.yaml")) as f:
-        initial = yaml.safe_load(f)["initial_positions"]
-    srdf_root = ET.parse(_share("config/rosbot_xl.srdf")).getroot()
-
-    group_joints = {
-        j.attrib["name"] for g in srdf_root.findall("group") for j in g.findall("joint")
-    }
-    passive = {pj.attrib["name"] for pj in srdf_root.findall("passive_joint")}
+    group_joints = {j.attrib["name"] for g in root.findall("group") for j in g.findall("joint")}
+    passive = {pj.attrib["name"] for pj in root.findall("passive_joint")}
     # Explicit allow-list - fixed URDF joints aren't visible from SRDF.
     expected_actuated = {"joint1", "joint2", "joint3", "joint4", "gripper_left_joint"}
     assert expected_actuated <= group_joints - passive, (

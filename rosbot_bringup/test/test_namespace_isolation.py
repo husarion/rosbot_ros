@@ -21,13 +21,7 @@ import time
 import launch_pytest
 import pytest
 import rclpy
-from bringup_helpers import BringupTestNode
-from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.substitutions import PathJoinSubstitution
-from launch_ros.substitutions import FindPackageShare
-from launch_testing.actions import ReadyToTest
-from launch_testing.util import KeepAliveProc
+from bringup_helpers import BringupTestNode, make_bringup_launch_description
 
 NAMESPACE = "test_ns"
 ROBOT_MODEL = "rosbot_xl"
@@ -63,22 +57,10 @@ REQUIRED_NS_SERVICES = {
 
 @launch_pytest.fixture
 def generate_test_description():
-    rosbot_bringup = FindPackageShare("rosbot_bringup")
-    bringup_launch = IncludeLaunchDescription(
-        PathJoinSubstitution([rosbot_bringup, "launch", "bringup.yaml"]),
-        launch_arguments={
-            "microros": "False",
-            "namespace": NAMESPACE,
-            "robot_model": ROBOT_MODEL,
-        }.items(),
-    )
-
-    return LaunchDescription(
-        [
-            bringup_launch,
-            KeepAliveProc(),
-            ReadyToTest(),
-        ]
+    return make_bringup_launch_description(
+        microros="False",
+        namespace=NAMESPACE,
+        robot_model=ROBOT_MODEL,
     )
 
 
