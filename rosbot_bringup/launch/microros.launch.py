@@ -102,11 +102,6 @@ def generate_microros_agent_node(context, *args, **kwargs):
         "configure_robot",
         "--robot-model",
         robot_model,
-        # Tell the runtime-switch firmware to bring up its micro-ROS path
-        # after the handshake. Older single-protocol firmware ignores the
-        # BACKEND: line (no parser); they still need to be re-flashed if
-        # this launch is run against them — the configure_robot script
-        # reports the no-ACK condition explicitly.
         "--backend",
         "microros",
     ]

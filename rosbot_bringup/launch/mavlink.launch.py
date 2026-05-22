@@ -96,9 +96,6 @@ def generate_bridge_launch(context, *args, **kwargs):
         # Bump in lockstep with the rosbot-firmware MAVLink release.
         "--expected-firmware",
         "v0.1.1-jazzy-mavlink",
-        # Runtime-switch firmware brings up MAVLink iff we say so during
-        # the handshake. The configure_robot script aborts with a clear
-        # error if the firmware has no BACKEND: parser (= older build).
         "--backend",
         "mavlink",
     ]

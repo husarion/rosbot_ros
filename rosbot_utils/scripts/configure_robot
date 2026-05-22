@@ -81,14 +81,8 @@ def configure_robot(
 
         print(f"✓ Firmware version detected: {current_fw}")
 
-        # Optional BACKEND: line — the firmware's CommunicationManager
-        # accepts this in the same handshake window as NS:. We use it to
-        # tell the MCU which upstream-link backend (micro-ROS vs MAVLink)
-        # to bring up after the handshake completes. Older firmware
-        # without the BACKEND: parser would silently fall out of the
-        # handshake here, so an explicit no-ACK is treated as fatal — the
-        # caller is responsible for matching `--backend` with firmware
-        # that actually understands the line.
+        # BACKEND: emitted before NS:. No-ACK is fatal — older firmware
+        # silently falls out of the handshake on an unknown line.
         if backend:
             serial_port.write(f"BACKEND:{backend}\n".encode("utf-8"))
             serial_port.flush()
