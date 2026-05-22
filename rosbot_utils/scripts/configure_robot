@@ -99,16 +99,24 @@ def configure_robot(
 
         serial_port.write(f"NS:{namespace}\n".encode("utf-8"))
         serial_port.flush()
-
-        ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
-        serial_port.close()
-
-        if ack == "ACK":
-            print(f"✓ Robot configured with namespace: /{namespace}")
-            return True
-        else:
-            print_error(f"Namespace configuration failed. No ACK received: '{ack}'")
+        ns_ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
+        if ns_ack != "ACK":
+            print_error(f"Namespace configuration failed. No ACK received: '{ns_ack}'")
+            serial_port.close()
             return False
+        print(f"✓ Robot configured with namespace: /{namespace}")
+
+        # END closes the pre-comm window without waiting for the
+        # firmware's 2.5 s timeout. Older firmware ignores the line —
+        # it has already exited the handshake on NS:, so we treat a
+        # missing ACK as benign and don't fail the launch.
+        serial_port.write(b"END\n")
+        serial_port.flush()
+        end_ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
+        serial_port.close()
+        if end_ack == "ACK":
+            print("✓ Pre-comm closed via END")
+        return True
 
     except serial.SerialException as e:
         print_error(f"Serial error: {e}")
