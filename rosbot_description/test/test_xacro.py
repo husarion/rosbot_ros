@@ -12,12 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""xacro -> URDF for every supported (robot_model, mecanum, configuration) combo.
-
-Beyond parsing, the resulting URDF is required to declare at least one link
-and one joint, and the manipulator must show up if and only if the rosbot_xl
-configuration starts with 'manipulation'.
-"""
+"""xacro -> URDF for every (robot_model, mecanum, configuration) combo."""
 
 import os
 import xml.etree.ElementTree as ET
@@ -26,8 +21,7 @@ import pytest
 import xacro
 from ament_index_python.packages import get_package_share_directory
 
-# rosbot has no `configuration` arg; rosbot_xl uses one of these to pick the
-# components yaml in rosbot_description/config/rosbot_xl/.
+# rosbot_xl picks components yaml in rosbot_description/config/rosbot_xl/ by name.
 ROSBOT_XL_CONFIGURATIONS = [
     "basic",
     "telepresence",
@@ -63,8 +57,6 @@ _TEST_MATRIX = (
 @pytest.mark.parametrize("robot_model,mecanum,configuration", _TEST_MATRIX)
 def test_xacro_produces_valid_urdf(robot_model, mecanum, configuration):
     urdf = _process_xacro(robot_model, mecanum, configuration)
-    # Cheap structural sanity: parsing succeeded and the document contains the
-    # bare minimum of a robot description.
     assert (
         "<link" in urdf
     ), f"No <link> in URDF for ({robot_model}, mecanum={mecanum}, {configuration})"
@@ -139,10 +131,8 @@ def test_gazebo_urdf_namespace_remappings():
 
 
 def test_components_config_derived_from_configuration():
-    """Soft-compat: when components_config is not given explicitly, it must
-    derive from the configuration arg. manipulation.yaml ships an LDR06 lidar
-    (rplidar_link in URDF); basic.yaml has no components. If derivation broke
-    (always defaulted to basic.yaml), both URDFs would carry the same set."""
+    """Soft-compat: components_config must derive from configuration arg
+    (basic has no lidar; manipulation has rplidar_link)."""
     basic_urdf = _process_xacro("rosbot_xl", "False", "basic")
     manipulation_urdf = _process_xacro("rosbot_xl", "False", "manipulation")
     assert "rplidar_link" not in basic_urdf, (

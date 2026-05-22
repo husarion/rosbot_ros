@@ -24,12 +24,8 @@ from moveit_configs_utils import MoveItConfigsBuilder
 
 
 def _resolve_rviz_config_and_spawn(context):
-    """Patch the bundled moveit.rviz so the MotionPlanning panel reaches the
-    namespaced ``move_group``. RViz hardcodes ``Move Group Namespace: ""`` in
-    its config; without a substitution the panel constructs MGI on / and
-    cannot find /<ns>/move_group. Mirrors the resolved-config pattern used by
-    rosbot_controller's controller.yaml (sed -> /tmp/rosbot_*_<ns>.<ext>).
-    """
+    """Patch moveit.rviz's hardcoded `Move Group Namespace: ""` so the panel
+    reaches /<ns>/move_group. Mirrors the /tmp/rosbot_*_<ns> pattern."""
     namespace = LaunchConfiguration("namespace").perform(context).strip("/")
     move_group_ns = "/" + namespace if namespace else ""
     resolved_path = (
@@ -60,9 +56,7 @@ def _resolve_rviz_config_and_spawn(context):
                 moveit_config.planning_pipelines,
                 moveit_config.robot_description_kinematics,
             ],
-            # Same /tf, /tf_static, /diagnostics remap as every other node in
-            # the bringup group: keep TF traffic on the namespaced topics so
-            # RViz reads the same tree the rest of the stack publishes.
+            # Match bringup group remaps so RViz reads the namespaced TF tree.
             remappings=[
                 ("/tf", "tf"),
                 ("/tf_static", "tf_static"),

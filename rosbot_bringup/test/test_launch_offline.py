@@ -12,13 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Offline schema tests for rosbot_bringup launch files.
-
-The systemic launch_pytest tests in test_bringup.py / test_multirobot.py
-require micro-ROS and the real robot, so they cannot run in CI. These
-tests cover the schema that does not need a runtime: arg declarations,
-include targets, and the snap-relevant config_dir convention.
-"""
+"""Offline schema tests (arg declarations, include targets, config_dir convention)."""
 
 import ast
 import os
@@ -57,8 +51,6 @@ def test_bringup_yaml_dispatches_on_robot_model():
 def test_per_model_launch_declares_required_args(model):
     doc = _launch(f"{model}.yaml")
     args = _args(doc)
-    # config_dir (snap convention), namespace (multi-robot), microros (HW switch),
-    # tf_namespace_bridge (multirobot TF), robot_model (sanity).
     required = {"config_dir", "namespace", "microros", "tf_namespace_bridge", "robot_model"}
     missing = required - set(args)
     assert not missing, f"{model}.yaml missing args: {missing}"
@@ -66,9 +58,7 @@ def test_per_model_launch_declares_required_args(model):
 
 @pytest.mark.parametrize("model", ROBOT_MODELS)
 def test_per_model_launch_pulls_in_subsystems(model):
-    """Each bringup file must include the controller, joy, localization and
-    laser_filter subsystems — these are the contract advertised in
-    ROS_API.md and the snap config_dir layout."""
+    """Each bringup must include controller / joy / localization / laser_filter (ROS_API.md contract)."""
     doc = _launch(f"{model}.yaml")
     include_files = " ".join(inc.get("file", "") for inc in _includes(doc))
     for needle in (
@@ -81,8 +71,7 @@ def test_per_model_launch_pulls_in_subsystems(model):
 
 
 def test_rosbot_xl_has_led_strip_arg():
-    """ROSbot XL-specific arg (CLAUDE.md §9 2025-04-21). The plain rosbot
-    launch must not carry it (no LED strip)."""
+    """ROSbot XL-only arg (CLAUDE.md §9 2025-04-21)."""
     xl_args = _args(_launch("rosbot_xl.yaml"))
     rosbot_args = _args(_launch("rosbot.yaml"))
     assert "led_strip" in xl_args
@@ -90,16 +79,8 @@ def test_rosbot_xl_has_led_strip_arg():
 
 
 def test_microros_agent_node_has_no_explicit_namespace():
-    """Namespace-audit HW retest 2026-05-21.
-
-    `push_ros_namespace` from the bringup GroupAction DOES reach the
-    micro_ros_agent Node even though it is returned from a
-    RegisterEventHandler/OnProcessExit callback. Empirically: with an
-    explicit `namespace=LaunchConfiguration("namespace")` on the Node,
-    the agent process spawns with `__ns:=/test_ns/test_ns` — double-stack.
-    Without it, push_ros_namespace inheritance gives the right single
-    `/test_ns`. So the Node must NOT pass `namespace=`.
-    """
+    """push_ros_namespace reaches OnProcessExit-spawned Node too; explicit
+    namespace= double-stacks /<ns>/<ns> (HW retest 2026-05-21)."""
     path = os.path.join(
         get_package_share_directory("rosbot_bringup"), "launch", "microros.launch.py"
     )

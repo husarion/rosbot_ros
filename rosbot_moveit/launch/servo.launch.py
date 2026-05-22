@@ -49,8 +49,7 @@ def generate_launch_description():
     )
     joy_config = PathJoinSubstitution([pkg_config_dir, "config", "config.yaml"])
 
-    # Match the URDF used by move_group (manipulation configuration); otherwise
-    # servo's internal robot model would diverge from the live one.
+    # URDF must match move_group; otherwise servo's model diverges from live.
     components_config = PathJoinSubstitution(
         [FindPackageShare("rosbot_description"), "config", "rosbot_xl", "manipulation.yaml"]
     )
@@ -100,22 +99,15 @@ def generate_launch_description():
         executable="joy2servo",
         parameters=[
             joy_config,
-            # MoveGroupInterface inside joy2servo lazily loads a RobotModelLoader and
-            # complains "No kinematics plugins defined" without these parameters. They
-            # also feed setNamedTarget("Home"/"Dock") (which needs SRDF named states)
-            # and the gripper move() calls (which need joint_limits).
+            # MGI needs SRDF + kinematics + joint_limits for named targets /
+            # gripper move(); otherwise logs "No kinematics plugins defined".
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
             moveit_config.joint_limits,
         ],
-        # Drop default log level to WARN to silence "Using position only ik"
-        # which moveit_kinematics' KDL plugin prints at INFO on every
-        # searchPositionIK() call (20-50 Hz in Cartesian mode). Per-logger
-        # filtering doesn't work in jazzy because MoveIt attaches plugin
-        # loggers under an auto-named internal node (display name like
-        # "moveit_<random>"), so the prefix is unpredictable. Whitelist our
-        # own `joy2servo` logger back to INFO so the input-mode toggle stays
-        # visible.
+        # WARN default silences KDL "Using position only ik" spam (printed per
+        # searchPositionIK call at 20-50 Hz). Per-logger filter doesn't work in
+        # jazzy: MoveIt attaches plugin loggers under auto-named internal nodes.
         ros_arguments=[
             "--log-level",
             "warn",

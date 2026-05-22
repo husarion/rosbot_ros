@@ -24,14 +24,8 @@ def generate_launch_description():
         )
     ).to_moveit_configs()
 
-    # `home` uses MoveGroupInterface, which loads a RobotModelLoader that needs
-    # `robot_description_kinematics` to avoid the "No kinematics plugins defined" warning.
-    # No namespace arg here: this file is included from rosbot_controller/launch/manipulator.yaml,
-    # which is itself inside the bringup's push_ros_namespace(rosbot_xl) group. Declaring a
-    # `namespace` LaunchArgument here would conflict with the parent's `namespace` value and
-    # PushRosNamespace would double-stack (saw /rosbot_xl/rosbot_xl/move_to_home_pose in HW
-    # testing). Standalone invocation can use `ros2 run rosbot_moveit home --ros-args
-    # -r __ns:=/<ns>`; see `dock.launch.py` for the standalone-friendly variant.
+    # No `namespace` arg: included under parent's push_ros_namespace; declaring
+    # one would double-stack. For standalone use see dock.launch.py.
     home_node = Node(
         package="rosbot_moveit",
         executable="home",

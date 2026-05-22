@@ -12,11 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Extra invariants on top of test_moveit_config.py.
-
-Smoke-tests MoveItConfigsBuilder("rosbot_xl") and pins the servo<->SRDF
-group-name link and the initial_positions / SRDF joint coverage.
-"""
+"""Extra invariants: MoveItConfigsBuilder smoke + servo<->SRDF group link + joint coverage."""
 
 import os
 
@@ -29,24 +25,17 @@ def _share(rel_path: str) -> str:
 
 
 def test_moveit_configs_builder_loads():
-    """Guards the 2026-05-15 typo regression ('robot_xl' vs 'rosbot_xl').
-
-    MoveItConfigsBuilder reads .setup_assistant + config/*.yaml and silently
-    falls back to defaults if the robot name does not match a registered
-    package — the only signal that you have it wrong shows up at runtime as
-    'No kinematics plugins defined'. This test fails the build instead.
-    """
+    """Guards 2026-05-15 typo regression ('robot_xl' vs 'rosbot_xl').
+    MoveItConfigsBuilder silently falls back to defaults on bad name -
+    only runtime signal is 'No kinematics plugins defined'."""
     from moveit_configs_utils import MoveItConfigsBuilder
 
     configs = MoveItConfigsBuilder("rosbot_xl", package_name="rosbot_moveit").to_moveit_configs()
-    # robot_description_semantic is loaded from rosbot_xl.srdf; the dict body
-    # carries the FQN root tag.
     srdf = configs.robot_description_semantic["robot_description_semantic"]
     assert '<robot name="rosbot_xl">' in srdf, (
         "MoveItConfigsBuilder failed to load rosbot_xl.srdf — likely the "
         "robot_name argument no longer matches the .srdf file name."
     )
-    # kinematics + joint_limits must be present for joy2servo (see servo.launch.py).
     assert configs.robot_description_kinematics
     assert configs.joint_limits
 
@@ -66,17 +55,14 @@ def test_servo_move_group_matches_srdf():
 
 
 def test_servo_command_in_type_is_speed_units():
-    """joy2servo publishes JointJog in rad/s (speed_units). Flipping this to
-    'unitless' silently rescales joy2servo's scale_joint output by joy stick
-    range and the arm crawls."""
+    """joy2servo publishes JointJog in rad/s; 'unitless' silently rescales and arm crawls."""
     with open(_share("config/moveit_servo.yaml")) as f:
         servo = yaml.safe_load(f)
     assert servo["command_in_type"] == "speed_units"
 
 
 def test_initial_positions_covers_actuated_srdf_joints():
-    """initial_positions seeds the ros2_control fake/mock system. Every joint
-    in a SRDF group must be present unless it is marked <passive_joint>."""
+    """Every non-passive SRDF group joint must appear in initial_positions."""
     import xml.etree.ElementTree as ET
 
     with open(_share("config/initial_positions.yaml")) as f:
@@ -87,9 +73,7 @@ def test_initial_positions_covers_actuated_srdf_joints():
         j.attrib["name"] for g in srdf_root.findall("group") for j in g.findall("joint")
     }
     passive = {pj.attrib["name"] for pj in srdf_root.findall("passive_joint")}
-    # The URDF carries fixed joints; we cannot resolve those from the SRDF
-    # alone, so allow that the initial_positions list is a *subset* match for
-    # the actuated set. Explicit allow-list keeps the test debuggable.
+    # Explicit allow-list - fixed URDF joints aren't visible from SRDF.
     expected_actuated = {"joint1", "joint2", "joint3", "joint4", "gripper_left_joint"}
     assert expected_actuated <= group_joints - passive, (
         "Expected actuated joints diverged from SRDF — update the test, then verify "

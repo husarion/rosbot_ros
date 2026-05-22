@@ -25,12 +25,8 @@
 
 namespace rosbot_moveit {
 
-// Half-edge of the workspace cube (in metres) passed to
-// MoveGroupInterface::setWorkspace by every node that talks to move_group in
-// this package. OpenManipulator-X reach ≈ 0.4 m; 0.5 m gives a comfortable
-// margin while still bounding planner sampling. Without setWorkspace,
-// MotionPlanRequest.workspace_parameters arrive zero and
-// ValidateWorkspaceBounds warns + substitutes a huge (1e12) default.
+// Workspace cube half-edge (m) for MGI::setWorkspace; bounds planner sampling
+// and silences ValidateWorkspaceBounds substituting a 1e12 default.
 constexpr double ARM_WORKSPACE_HALF_EDGE = 0.5;
 
 struct NamedTarget {
