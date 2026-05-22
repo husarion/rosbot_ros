@@ -30,7 +30,7 @@ A description of *how* the repo is wired together: packages, their roles, how th
                │                   │ <ros2_control> in URDF
                ▼                   ▼
        ┌───────────────────────────┐   ┌─────────────────────────────┐
-       │ link-layer (link_layer=…) │   │ controller_manager + drivers │
+       │ backend (backend=…)       │   │ controller_manager + drivers │
        │  micro_ros_agent  OR      │   │  diff/mecanum, imu_broadcaster│
        │  rosbot_mavlink_bridge    │   │  joint_state_broadcaster      │
        └────────┬──────────────────┘   │  (manipulator_controller XL)  │
@@ -56,7 +56,7 @@ A description of *how* the repo is wired together: packages, their roles, how th
 
 Real / simulation split:
 
-- **HW:** the bringup picks a link-layer launch based on the `link_layer` arg (`microros.launch.py` → micro-ROS XRCE-DDS, default, or `mavlink_bridge.launch.py` → `rosbot_mavlink_bridge`). After pre-communication, `controller_manager` runs with `RosbotSystem` + `RosbotImuSensor` as `<ros2_control>` plugins regardless of which link-layer is in use — the bridge/agent terminates on the same ROS topics either way.
+- **HW:** the bringup picks a backend launch based on the `backend` arg (`microros.launch.py` → micro-ROS XRCE-DDS, default, or `mavlink.launch.py` → `rosbot_mavlink_bridge`). After pre-communication, `controller_manager` runs with `RosbotSystem` + `RosbotImuSensor` as `<ros2_control>` plugins regardless of which backend is in use — the bridge/agent terminates on the same ROS topics either way.
 - **Sim:** in `rosbot_gazebo/launch/spawn_robot.yaml` instead of `controller_manager` ros2_control is hosted by the `gz_ros2_control/GazeboSimSystem` plugin inside Gazebo.
 
 ---
@@ -81,7 +81,7 @@ Four launches:
 - [rosbot.yaml](rosbot_bringup/launch/rosbot.yaml), [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) — specific model.
 - [bringup.yaml](rosbot_bringup/launch/bringup.yaml) — alias dispatching to one of the above based on `robot_model`/`ROBOT_MODEL`.
 - [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — starts `micro_ros_agent` in `serial` or `udp4` mode. Beforehand it runs **pre-communication** (`ros2 run rosbot_utils configure_robot`), which: (a) verifies the firmware version (`v1.1.0-jazzy` by default — overridable via `--expected-firmware`), (b) sets the namespace over serial. If pre-comm exits with rc≠0 — the whole launch issues a `Shutdown`.
-- [mavlink_bridge.launch.py](rosbot_bringup/launch/mavlink_bridge.launch.py) — alternative link-layer launch that starts the `rosbot_mavlink_bridge` node instead of the micro-ROS agent. Selected by the `link_layer:=mavlink` argument on `rosbot.yaml` / `rosbot_xl.yaml`. Runs the same pre-communication step, but passes `--expected-firmware v0.1.1-jazzy-mavlink` so the MAVLink firmware string is accepted. Requires the MAVLink firmware variant on the MCU and the `rosbot_mavlink_bridge` package on the ROS overlay.
+- [mavlink.launch.py](rosbot_bringup/launch/mavlink.launch.py) — alternative backend launch that starts the `rosbot_mavlink_bridge` node instead of the micro-ROS agent. Selected by the `backend:=mavlink` argument on `rosbot.yaml` / `rosbot_xl.yaml`. Runs the same pre-communication step, passes `--backend mavlink` so the runtime-switch firmware brings up its MAVLink path, and passes `--expected-firmware v0.1.1-jazzy-mavlink` so the firmware string is accepted. Requires the runtime-switch firmware on the MCU and the `rosbot_mavlink_bridge` package on the ROS overlay.
 
 XL additionally has: arg `led_strip` (starts `rosbot_utils/led_strip_car_wave`) and the `microros_mode=udp` path (port 8888).
 

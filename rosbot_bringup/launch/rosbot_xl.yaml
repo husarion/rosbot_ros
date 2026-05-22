@@ -18,14 +18,14 @@ launch:
   - arg:
       name: hardware_bridge
       default: 'True'
-      description: Launch the SBC<->MCU bridge (selected by link_layer). Set to 'False' to skip it entirely
+      description: Launch the SBC<->MCU bridge (selected by backend). Set to 'False' to skip it entirely
         (e.g. when running the bridge/agent in a separate container).
       choice:
         - value: 'True'
         - value: 'False'
 
   - arg:
-      name: link_layer
+      name: backend
       default: microros
       description: Which MCU<->SBC protocol stack the hardware bridge speaks. 'microros' starts the XRCE-DDS
         agent (default, compatible with the micro-ROS firmware). 'mavlink' starts the rosbot_mavlink_bridge
@@ -83,7 +83,7 @@ launch:
       to: tf_static
 
   - include:
-      file: $(find-pkg-share rosbot_bringup)/launch/$(var link_layer).launch.py
+      file: $(find-pkg-share rosbot_bringup)/launch/$(var backend).launch.py
       if: $(var hardware_bridge)
       let:
         - name: robot_model
