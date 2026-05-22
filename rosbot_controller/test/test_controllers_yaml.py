@@ -14,16 +14,8 @@
 
 """controllers.yaml placeholder substitution invariants.
 
-The launch (controller.yaml) sed-replaces <namespace> and <manipulator_state>
-in /tmp/rosbot_controller_<ns>.yaml before controller_manager reads it. These
-tests simulate the same substitution and assert that:
-  - the result parses as valid YAML for every model / state combination,
-  - only the manipulator-bearing config (rosbot_xl) carries
-    <manipulator_state>, and
-  - the manipulator initial state ends up under the right key.
-
-CLAUDE.md §6 rule #4 forbids touching the tuned numeric values; this test
-only checks the placeholder schema, not the tuning.
+Mirrors the sed step in controller.yaml. Only schema is checked - CLAUDE.md §6 rule #4
+forbids touching the tuned numeric values.
 """
 
 import os

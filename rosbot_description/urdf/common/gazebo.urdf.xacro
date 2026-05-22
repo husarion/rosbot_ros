@@ -8,21 +8,26 @@
         <parameters>${config_file}</parameters>
         <ros>
           <namespace>${namespace}</namespace>
-          <!-- Controller-prefixed remaps (cmd_vel/odom/imu) used to live here, but they
-               triggered the "remap to controller_manager is deprecated" warning. They are
-               now expressed per-controller via the controller-ros-args flag on the spawner
-               (see rosbot_controller/launch/controller.yaml). Transition-event remaps were
-               cosmetic (hiding from `ros2 topic list`) and have been dropped.
-               /diagnostics, /tf and /tf_static remaps stay here because the controller
-               manager is created by gz_ros2_control inside the Gazebo process — it is
-               outside the launch group that applies the global SetRemap for /tf in
-               spawn_robot.yaml, so URDF remapping is the only way to namespace its
-               absolute-topic output. tf_namespace_bridge itself does NOT apply that
-               remap (it is launched before SetRemap in the group and stays on the
-               global topic to act as the bridge). -->
+          <!-- push_ros_namespace cannot reach this plugin (gz_sim hosts it
+               outside the LaunchContext); URDF remapping is the only channel. -->
+
           <remapping>/diagnostics:=diagnostics</remapping>
           <remapping>/tf:=tf</remapping>
           <remapping>/tf_static:=tf_static</remapping>
+          <remapping>/controller_manager/cleanup_controller:=controller_manager/cleanup_controller</remapping>
+          <remapping>/controller_manager/configure_controller:=controller_manager/configure_controller</remapping>
+          <remapping>/controller_manager/list_controllers:=controller_manager/list_controllers</remapping>
+          <remapping>/controller_manager/list_controller_types:=controller_manager/list_controller_types</remapping>
+          <remapping>/controller_manager/list_hardware_components:=controller_manager/list_hardware_components</remapping>
+          <remapping>/controller_manager/list_hardware_interfaces:=controller_manager/list_hardware_interfaces</remapping>
+          <remapping>/controller_manager/load_controller:=controller_manager/load_controller</remapping>
+          <remapping>/controller_manager/reload_controller_libraries:=controller_manager/reload_controller_libraries</remapping>
+          <remapping>/controller_manager/set_hardware_component_state:=controller_manager/set_hardware_component_state</remapping>
+          <remapping>/controller_manager/switch_controller:=controller_manager/switch_controller</remapping>
+          <remapping>/controller_manager/unload_controller:=controller_manager/unload_controller</remapping>
+          <remapping>/controller_manager/activity:=controller_manager/activity</remapping>
+          <remapping>/controller_manager/statistics:=controller_manager/statistics</remapping>
+          <remapping>/controller_manager/introspection_data:=controller_manager/introspection_data</remapping>
         </ros>
       </plugin>
     </gazebo>

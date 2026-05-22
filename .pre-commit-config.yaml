@@ -45,6 +45,7 @@ repos:
         description: Checks for common misspellings in text files.
         entry: codespell
         exclude_types: [rst, svg]
+        exclude: ^\.claude/
         language: python
         types: [text]
 
@@ -100,7 +101,7 @@ repos:
     rev: v0.44.0
     hooks:
       - id: markdownlint-fix
-        exclude: pull_request_template.md
+        exclude: pull_request_template.md|^\.claude/
         entry: markdownlint --fix
         language: node
         types: [markdown]

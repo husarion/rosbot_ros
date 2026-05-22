@@ -1,3 +1,4 @@
+.claude
 .vscode
 *.pyc
 
@@ -14,3 +15,8 @@ micro-ROS-Agent/
 
 # pyspelling
 *.dic
+
+# Claude Code workspace — per-machine and ephemeral
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scratch/

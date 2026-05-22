@@ -12,14 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Offline schema tests for rosbot_bringup launch files.
+"""Offline schema tests (arg declarations, include targets, config_dir convention)."""
 
-The systemic launch_pytest tests in test_bringup.py / test_multirobot.py
-require micro-ROS and the real robot, so they cannot run in CI. These
-tests cover the schema that does not need a runtime: arg declarations,
-include targets, and the snap-relevant config_dir convention.
-"""
-
+import ast
 import os
 
 import pytest
@@ -56,8 +51,6 @@ def test_bringup_yaml_dispatches_on_robot_model():
 def test_per_model_launch_declares_required_args(model):
     doc = _launch(f"{model}.yaml")
     args = _args(doc)
-    # config_dir (snap convention), namespace (multi-robot), microros (HW switch),
-    # tf_namespace_bridge (multirobot TF), robot_model (sanity).
     required = {"config_dir", "namespace", "microros", "tf_namespace_bridge", "robot_model"}
     missing = required - set(args)
     assert not missing, f"{model}.yaml missing args: {missing}"
@@ -65,9 +58,7 @@ def test_per_model_launch_declares_required_args(model):
 
 @pytest.mark.parametrize("model", ROBOT_MODELS)
 def test_per_model_launch_pulls_in_subsystems(model):
-    """Each bringup file must include the controller, joy, localization and
-    laser_filter subsystems — these are the contract advertised in
-    ROS_API.md and the snap config_dir layout."""
+    """Each bringup must include controller / joy / localization / laser_filter (ROS_API.md contract)."""
     doc = _launch(f"{model}.yaml")
     include_files = " ".join(inc.get("file", "") for inc in _includes(doc))
     for needle in (
@@ -80,12 +71,46 @@ def test_per_model_launch_pulls_in_subsystems(model):
 
 
 def test_rosbot_xl_has_led_strip_arg():
-    """ROSbot XL-specific arg (CLAUDE.md §9 2025-04-21). The plain rosbot
-    launch must not carry it (no LED strip)."""
+    """ROSbot XL-only arg (CLAUDE.md §9 2025-04-21)."""
     xl_args = _args(_launch("rosbot_xl.yaml"))
     rosbot_args = _args(_launch("rosbot.yaml"))
     assert "led_strip" in xl_args
     assert "led_strip" not in rosbot_args
+
+
+def test_microros_agent_node_has_no_explicit_namespace():
+    """push_ros_namespace reaches OnProcessExit-spawned Node too; explicit
+    namespace= double-stacks /<ns>/<ns> (HW retest 2026-05-21)."""
+    path = os.path.join(
+        get_package_share_directory("rosbot_bringup"), "launch", "microros.launch.py"
+    )
+    with open(path) as f:
+        tree = ast.parse(f.read())
+
+    matched = False
+    for call in ast.walk(tree):
+        if not isinstance(call, ast.Call):
+            continue
+        func = call.func
+        is_node_ctor = (isinstance(func, ast.Name) and func.id == "Node") or (
+            isinstance(func, ast.Attribute) and func.attr == "Node"
+        )
+        if not is_node_ctor:
+            continue
+        kwargs = {kw.arg: kw.value for kw in call.keywords if kw.arg}
+        package = kwargs.get("package")
+        if not (isinstance(package, ast.Constant) and package.value == "micro_ros_agent"):
+            continue
+        assert "namespace" not in kwargs, (
+            "micro_ros_agent Node() must NOT pass `namespace=` — double-stack "
+            "with bringup push_ros_namespace. Empirically verified 2026-05-21."
+        )
+        matched = True
+        break
+
+    assert (
+        matched
+    ), "Did not find a Node(package='micro_ros_agent', ...) call in microros.launch.py"
 
 
 def test_tf_namespace_bridge_default_is_pass_through():

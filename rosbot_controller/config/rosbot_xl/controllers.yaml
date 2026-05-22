@@ -14,12 +14,8 @@
         type: joint_state_broadcaster/JointStateBroadcaster
       manipulator_controller:
         type: joint_trajectory_controller/JointTrajectoryController
-      # JTC, not GripperActionController: GripperActionController accepts a single
-      # position setpoint per action goal and cancels-and-restarts on every new goal,
-      # which causes visible stair-step motion when joy2servo's analog trigger pushes
-      # a new target at 20 Hz. JTC interpolates between trajectory points at the
-      # controller_manager update_rate, and MoveIt's moveit_simple_controller_manager
-      # drives it via FollowJointTrajectory (same path as manipulator_controller).
+      # JTC (not GripperActionController) - GAC cancel/restart per goal causes
+      # stair-step motion when joy2servo pushes targets at 20 Hz.
       gripper_controller:
         type: joint_trajectory_controller/JointTrajectoryController
 
@@ -170,8 +166,7 @@
       action_monitor_rate: 20.0
       allow_nonzero_velocity_at_trajectory_end: true
       allow_partial_joints_goal: false
-      # Open-loop equivalent: zero PID gains + interpolate from previous desired state
-      # (replaces deprecated `open_loop_control: true`).
+      # Open-loop: zero PID + interpolate from desired state (replaces deprecated `open_loop_control`).
       interpolate_from_desired_state: true
       gains:
         joint1: {p: 0.0, i: 0.0, d: 0.0}
@@ -196,9 +191,7 @@
       action_monitor_rate: 20.0
       allow_nonzero_velocity_at_trajectory_end: true
       allow_partial_joints_goal: false
-      # Open-loop equivalent: zero PID gains + interpolate from previous desired state.
-      # Matches manipulator_controller — the Dynamixel runs its own current-based
-      # position loop, so JTC must not double-control.
+      # Open-loop: Dynamixel runs its own position loop; JTC must not double-control.
       interpolate_from_desired_state: true
       gains:
         gripper_left_joint: {p: 0.0, i: 0.0, d: 0.0}

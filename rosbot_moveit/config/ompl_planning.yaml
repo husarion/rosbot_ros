@@ -12,11 +12,8 @@ response_adapters:
   - default_planning_response_adapters/DisplayMotionPath
 start_state_max_bounds_error: 0.1
 
-# OMPL configs trimmed from the full SetupAssistant default (24 planners x 2
-# groups). The manipulator uses RRTConnect by default; RRTstar and PRMstar are
-# kept as optimizing fallbacks. Gripper keeps just RRTConnect — MoveGroup
-# still runs OMPL for setNamedTarget() ("Open"/"Close") on the gripper group,
-# then forwards the trajectory to the JTC via FollowJointTrajectory.
+# Trimmed from SetupAssistant default (24 planners x 2 groups). RRTConnect
+# default; RRTstar/PRMstar as optimizing fallbacks. Gripper needs OMPL for setNamedTarget().
 ompl:
   planner_configs:
     RRTConnectkConfigDefault:
@@ -31,9 +28,7 @@ ompl:
       type: geometric::PRMstar
 
   manipulator:
-    # Silences MoveIt's "planner plugin did not fill out 'planner_id'" warning
-    # by ensuring an explicit planner is selected when MotionPlanRequest leaves
-    # the field empty.
+    # Silences "planner plugin did not fill out 'planner_id'" warning.
     default_planner_config: RRTConnectkConfigDefault
     planner_configs:
       - RRTConnectkConfigDefault

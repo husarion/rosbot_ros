@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Schema / invariant tests for the EKF parameter file consumed by robot_localization."""
+"""Schema invariants for robot_localization's EKF param file."""
 
 import os
 
