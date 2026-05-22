@@ -77,15 +77,8 @@ launch:
       to: tf_static
 
   - include:
-      file: $(find-pkg-share rosbot_bringup)/launch/microros.launch.py
-      if: $(eval '"$(var hardware_bridge)" == "True" and "$(var link_layer)" == "microros"')
-      let:
-        - name: robot_model
-          value: $(var robot_model)
-
-  - include:
-      file: $(find-pkg-share rosbot_bringup)/launch/mavlink_bridge.launch.py
-      if: $(eval '"$(var hardware_bridge)" == "True" and "$(var link_layer)" == "mavlink"')
+      file: $(find-pkg-share rosbot_bringup)/launch/$(var link_layer).launch.py
+      if: $(var hardware_bridge)
       let:
         - name: robot_model
           value: $(var robot_model)
