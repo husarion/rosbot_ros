@@ -1,7 +1,8 @@
 ---
 # Enable GitHub auto-merge (squash) on PRs labelled auto-firmware-bump.
-# Needs repo Allow auto-merge + branch protection with a required
-# status check on jazzy-mavlink-v2. Add block-automerge to pause.
+# Needs repo Allow auto-merge + branch protection with required checks
+# on jazzy-mavlink-v2; without them the job fail-softs (warn + admin
+# checklist in Job Summary, exit 0). Add block-automerge to pause.
 name: Firmware bump auto-merge
 
 on:
@@ -19,11 +20,36 @@ jobs:
       !contains(github.event.pull_request.labels.*.name, 'block-automerge')
     runs-on: ubuntu-latest
     steps:
-      - name: Enable auto-merge (squash)
+      - name: Try to enable auto-merge (squash)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
-          set -euo pipefail
-          gh pr merge --auto --squash --delete-branch "$PR_NUMBER" -R "$REPO"
+          set -uo pipefail  # no -e: failure handled below
+
+          OUT=$(mktemp)
+          if gh pr merge --auto --squash --delete-branch \
+                  "$PR_NUMBER" -R "$REPO" >"$OUT" 2>&1; then
+              echo "Auto-merge enabled for PR #$PR_NUMBER."
+              cat "$OUT"
+              exit 0
+          fi
+
+          echo "::warning title=Auto-merge could not be enabled::PR #$PR_NUMBER needs manual merge until repo settings are configured."
+
+          {
+              echo "## :warning: Auto-merge could not be enabled on PR #$PR_NUMBER"
+              echo
+              echo "### Admin setup (one-off)"
+              echo "1. Settings → General → Allow auto-merge: ON"
+              echo "2. Settings → Branches: branch protection on \`$BASE_REF\` with a required status check"
+              echo
+              echo "### \`gh\` output"
+              echo "\`\`\`"
+              cat "$OUT"
+              echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          exit 0
