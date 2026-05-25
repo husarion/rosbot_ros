@@ -36,7 +36,7 @@ ALLOWED_GLOBAL_TOPICS = {
 
 ALLOWED_GLOBAL_SERVICES: set[str] = set()
 
-# Base-only stack — `microros:=False` skips manipulator spawners.
+# Base-only stack — `hardware_bridge:=False` skips manipulator spawners.
 REQUIRED_NS_TOPICS = {
     f"/{NAMESPACE}/joint_states",
     f"/{NAMESPACE}/odometry/filtered",
@@ -58,7 +58,7 @@ REQUIRED_NS_SERVICES = {
 @launch_pytest.fixture
 def generate_test_description():
     return make_bringup_launch_description(
-        microros="False",
+        hardware_bridge="False",
         namespace=NAMESPACE,
         robot_model=ROBOT_MODEL,
     )
