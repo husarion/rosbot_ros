@@ -56,9 +56,18 @@ def test_bringup_yaml_dispatches_on_robot_model():
 def test_per_model_launch_declares_required_args(model):
     doc = _launch(f"{model}.yaml")
     args = _args(doc)
-    # config_dir (snap convention), namespace (multi-robot), microros (HW switch),
-    # tf_namespace_bridge (multirobot TF), robot_model (sanity).
-    required = {"config_dir", "namespace", "microros", "tf_namespace_bridge", "robot_model"}
+    # config_dir (snap convention), namespace (multi-robot),
+    # hardware_bridge (HW switch — renamed from `microros` when the MAVLink
+    # backend landed, CLAUDE.md §9 2026-05-21), backend (microros|mavlink
+    # picker), tf_namespace_bridge (multirobot TF), robot_model (sanity).
+    required = {
+        "config_dir",
+        "namespace",
+        "hardware_bridge",
+        "backend",
+        "tf_namespace_bridge",
+        "robot_model",
+    }
     missing = required - set(args)
     assert not missing, f"{model}.yaml missing args: {missing}"
 
