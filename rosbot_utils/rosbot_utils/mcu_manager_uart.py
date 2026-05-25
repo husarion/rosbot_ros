@@ -100,7 +100,7 @@ class McuManagerUART:
         self.reset_pin.set_value(0)
         time.sleep(0.1)
 
-    def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
+    def flashing_operation(self, operation_name, binary_file=None, baudrate=460800):
         print(f"\n{operation_name} operation started")
         time.sleep(0.5)
 
