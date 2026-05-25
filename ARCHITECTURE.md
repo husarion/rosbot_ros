@@ -38,10 +38,10 @@ A description of *how* the repo is wired together: packages, their roles, how th
                 ▼                                     │ uses
        ┌──────────────────────────────┐               ▼
        │ STM32 firmware               │   ┌──────────────────────────┐
-       │ micro-ROS: v1.1.0-jazzy      │   │ rosbot_hardware_interfaces│ (HW only)
-       │ MAVLink:   v0.1.1-jazzy-mav. │   │  RosbotSystem (motors)    │
-                                  │  RosbotImuSensor          │
-                                  └──────────────────────────┘
+       │ runtime-switch               │   │ rosbot_hardware_interfaces│ (HW only)
+       │   ${FIRMWARE_VERSION}        │   │  RosbotSystem (motors)    │
+       │   (both micro-ROS + MAVLink) │   │  RosbotImuSensor          │
+       └──────────────────────────────┘   └──────────────────────────┘
 
        ┌────────────────────────┐    ┌──────────────────────┐
        │ rosbot_localization    │    │ rosbot_utils          │
@@ -80,8 +80,8 @@ Four launches:
 
 - [rosbot.yaml](rosbot_bringup/launch/rosbot.yaml), [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) — specific model.
 - [bringup.yaml](rosbot_bringup/launch/bringup.yaml) — alias dispatching to one of the above based on `robot_model`/`ROBOT_MODEL`.
-- [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — starts `micro_ros_agent` in `serial` or `udp4` mode. Beforehand it runs **pre-communication** (`ros2 run rosbot_utils configure_robot`), which: (a) verifies the firmware version (`v1.1.0-jazzy` by default — overridable via `--expected-firmware`), (b) sets the namespace over serial. If pre-comm exits with rc≠0 — the whole launch issues a `Shutdown`.
-- [mavlink.launch.py](rosbot_bringup/launch/mavlink.launch.py) — alternative backend launch that starts the `rosbot_mavlink_bridge` node instead of the micro-ROS agent. Selected by the `backend:=mavlink` argument on `rosbot.yaml` / `rosbot_xl.yaml`. Runs the same pre-communication step, passes `--backend mavlink` so the runtime-switch firmware brings up its MAVLink path, and passes `--expected-firmware v0.1.1-jazzy-mavlink` so the firmware string is accepted. Requires the runtime-switch firmware on the MCU and the `rosbot_mavlink_bridge` package on the ROS overlay.
+- [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — starts `micro_ros_agent` in `serial` or `udp4` mode. Beforehand it runs **pre-communication** (`ros2 run rosbot_utils configure_robot`), which: (a) verifies the firmware version against `rosbot_utils.firmware_version.FIRMWARE_VERSION`, (b) sets the namespace over serial. If pre-comm exits with rc≠0 — the whole launch issues a `Shutdown`.
+- [mavlink.launch.py](rosbot_bringup/launch/mavlink.launch.py) — alternative backend launch that starts the `rosbot_mavlink_bridge` node instead of the micro-ROS agent. Selected by the `backend:=mavlink` argument on `rosbot.yaml` / `rosbot_xl.yaml`. Runs the same pre-communication step and passes `--backend mavlink` so the runtime-switch firmware brings up its MAVLink path. Requires the runtime-switch firmware on the MCU and the `rosbot_mavlink_bridge` package on the ROS overlay.
 
 XL additionally has: arg `led_strip` (starts `rosbot_utils/led_strip_car_wave`) and the `microros_mode=udp` path (port 8888).
 
@@ -92,7 +92,7 @@ Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_multirobot.
 ### `rosbot_controller` — ros2_control + manipulator
 
 - [controller.yaml](rosbot_controller/launch/controller.yaml) — the orchestrator: loads URDF, generates a resolved YAML at `/tmp/rosbot_controller_<ns>.yaml` (via `sed`, replacing `<namespace>/` and `<manipulator_state>`), starts `controller_manager` (unless `use_sim`), and after 3 s the controller spawner: `differential_drive_controller` or `mecanum_drive_controller` (depending on `mecanum`), `imu_broadcaster`, `joint_state_broadcaster`. After 5 s — `manipulator.yaml` if `configuration` starts with `manipulation`.
-- [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — spawner for `manipulator_controller` (JointTrajectoryController) + `gripper_controller` (GripperActionController), inclusion of `move_group.launch.py` and `servo.launch.py`, plus `ros2 run rosbot_moveit home` after 10 s.
+- [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — spawner for `manipulator_controller` and `gripper_controller` (both `JointTrajectoryController`; gripper drives a single prismatic joint), inclusion of `move_group.launch.py` and `servo.launch.py`, plus include of `rosbot_moveit/launch/home.launch.py` after 10 s (the `home` executable receives the MoveIt config — kinematics/SRDF/joint_limits — via that wrapper so `MoveGroupInterface` doesn't warn about missing kinematics plugins).
 - [config/](rosbot_controller/config/) — `controllers.yaml` per model (kinematic parameters, limits, IMU covariances).
 - [scripts/arm_control](rosbot_controller/scripts/arm_control) — CLI: `active`/`inactive` toggles `OpenManipulatorXSystem` and the arm controllers.
 
@@ -143,11 +143,11 @@ Plugin parameters: `connection_timeout_ms`, `connection_check_period_ms`. Define
 
 > **This is the firmware ABI.** Changing a topic / payload requires a synchronized firmware update.
 
-### `rosbot_joy` — joystick
+### `rosbot_joy` — joystick (drive)
 
-- C++ node `joy2servo` (manipulator control via moveit_servo from a gamepad) — used by `rosbot_moveit/launch/servo.launch.py`.
+- **Config-only package** (no compiled code). Pad-driven arm control (`joy2servo`) lives in `rosbot_moveit` now.
 - Launch [joy.yaml](rosbot_joy/launch/joy.yaml) starts the standard `joy/joy_node` + `teleop_twist_joy/teleop_node` (mapped to `cmd_vel` via the `joy_vel` arg).
-- [config/config.yaml](rosbot_joy/config/config.yaml) — full pad mapping (linear/angular axes, dead_man_switch, joints/cartesian/gripper). Pad layout: see `.docs/gamepad_*.drawio.png`.
+- [config/config.yaml](rosbot_joy/config/config.yaml) — `joy_node` + `teleop_twist_joy` params (drive only). Pad layout: see `.docs/gamepad_*.drawio.png`.
 
 ### `rosbot_localization` — EKF
 
@@ -157,11 +157,15 @@ The covariance matrices are **tuned empirically** — comments such as "values m
 
 ### `rosbot_moveit` — manipulation (XL)
 
-- MoveIt config for `rosbot_xl` with OpenMANIPULATOR-X (SRDF, kinematics, OMPL, Pilz, joint_limits, moveit_servo, moveit_controllers, initial_positions).
-- [launch/move_group.launch.py](rosbot_moveit/launch/move_group.launch.py) — builds the config via `MoveItConfigsBuilder`, **overrides robot_description** using the same xacro as bringup with `configuration:='manipulation'` (so the URDF stays consistent with the rest of the stack).
-- [launch/servo.launch.py](rosbot_moveit/launch/servo.launch.py) — `moveit_servo` + `joy2servo` (cartesian/joint control from the pad). `moveit_servo.yaml` overrides `monitored_planning_scene_topic` to the relative `planning_scene` — the upstream default `/planning_scene` is absolute and would strip the namespace from the PSM's private sub-node (`servo_node_private_*`).
+- MoveIt config for `rosbot_xl` with OpenMANIPULATOR-X (SRDF, kinematics, OMPL, Pilz, joint_limits, moveit_servo, moveit_controllers, initial_positions). 4-DoF arm → `kinematics.yaml` keeps `position_only_ik: true`; without it KDL cannot satisfy orientation goals.
+- [launch/move_group.launch.py](rosbot_moveit/launch/move_group.launch.py) — builds the config via `MoveItConfigsBuilder`, **overrides `robot_description`** using the same xacro as bringup with `configuration:='manipulation'` (so the URDF stays consistent with the rest of the stack).
+- [launch/servo.launch.py](rosbot_moveit/launch/servo.launch.py) — `moveit_servo/servo_node` + `joy2servo` (joint-jog from the pad — TWIST mode is unusable on <6 DoF arms since MoveIt jazzy, see [moveit_msgs#185](https://github.com/moveit/moveit_msgs/issues/185)). `moveit_servo.yaml` overrides `monitored_planning_scene_topic` to the relative `planning_scene` — the upstream default `/planning_scene` is absolute and would strip the namespace from the PSM's private sub-node (`servo_node_private_*`).
 - [launch/rviz.launch.py](rosbot_moveit/launch/rviz.launch.py) — RViz with MotionPlanning + servo.
-- C++ executables: [src/dock.cpp](rosbot_moveit/src/dock.cpp) (sends the arm to the dock pose), [src/home.cpp](rosbot_moveit/src/home.cpp) (Home). Both — along with `rosbot_joy/joy2servo` — pass `node->get_namespace()` as the 3rd `MoveGroupInterface::Options` argument so MoveIt's internal topics (`trajectory_execution_event`, `attached_collision_object`) and the `move_group` action stay inside the robot namespace; the 2-arg `MoveGroupInterface(node, group)` ctor would leak them to `/`.
+- C++ artifacts:
+  - [include/rosbot_moveit/arm_pose_mover.hpp](rosbot_moveit/include/rosbot_moveit/arm_pose_mover.hpp) + [src/arm_pose_mover.cpp](rosbot_moveit/src/arm_pose_mover.cpp) — shared library wrapping `MoveGroupInterface` (executor lifetime, retry loop, namespaced `Options`). Used by both [dock.cpp](rosbot_moveit/src/dock.cpp) (`Close` gripper → arm to `Dock`) and [home.cpp](rosbot_moveit/src/home.cpp) (arm to `Home` → `Open` gripper).
+  - [src/joy2servo.cpp](rosbot_moveit/src/joy2servo.cpp) — formerly `rosbot_joy/joy2servo`; moved here in 2026-05-15 because it is purely a MoveIt Servo client. Two runtime modes (toggle: `X` / `Y` buttons): **JOINT_JOG** (per-joint, no IK) and **POSE** (Cartesian XYZ — integrates joystick velocity into an absolute `PoseStamped` target on `servo_node/pose_target_cmds`; KDL with `position_only_ik: true` ignores orientation, which is the only working Cartesian path on the 4-DoF arm in MoveIt jazzy). TWIST mode is removed because it hits the pseudo-inverse Jacobian singularity check below 6 DoF.
+  - All three pass `node->get_namespace()` as the 3rd `MoveGroupInterface::Options` argument so MoveIt's internal topics (`trajectory_execution_event`, `attached_collision_object`) and the `move_group` action stay inside the robot namespace.
+- OMPL planner list trimmed to 3 (`RRTConnect` default + `RRTstar` + `PRMstar`); the gripper group keeps a single `RRTConnect` config because `setNamedTarget("Open"/"Close") + move()` from `dock`/`home` still runs through OMPL before MoveIt forwards the trajectory to the JTC via `FollowJointTrajectory`. Continuous joystick gripper control goes around MoveIt entirely — `joy2servo` publishes `trajectory_msgs/JointTrajectory` directly on `gripper_controller/joint_trajectory`.
 
 See [MANIPULATOR.md](MANIPULATOR.md) — limits, troubleshooting, safety rules.
 
@@ -170,8 +174,8 @@ See [MANIPULATOR.md](MANIPULATOR.md) — limits, troubleshooting, safety rules.
 The broadest package, a Python + ament_cmake mix:
 
 - **Scripts** (installed under `lib/rosbot_utils`):
-  - `flash_firmware` — flashes the STM32 with binaries from [firmware/](rosbot_utils/firmware/). Built-in variants: `rosbot[_xl]_mavlink-v0.1.1.bin` (MAVLink, default — `--variant mavlink`) and `rosbot[_xl]-v1.1.0-jazzy.bin` (micro-ROS — `--variant micro-ros`). The `--file` flag still overrides the bundled path for an arbitrary binary.
-  - `configure_robot` — pre-communication: verifies the firmware version (`--expected-firmware`, default `v1.1.0-jazzy` — `mavlink.launch.py` passes `v0.1.1-jazzy-mavlink`), sets the namespace over serial. Called from `microros.launch.py` and `mavlink.launch.py`.
+  - `flash_firmware` — flashes the STM32 with the runtime-switch firmware binary in [firmware/](rosbot_utils/firmware/) pinned to `rosbot_utils.firmware_version.FIRMWARE_VERSION` (`rosbot[_xl]-${FIRMWARE_VERSION}.bin`). One binary serves both micro-ROS and MAVLink backends — pick at boot via `backend:=microros|mavlink` on the bringup yaml. `--file` overrides the bundled path for an arbitrary binary.
+  - `configure_robot` — pre-communication: verifies the MCU's reported firmware string against `FIRMWARE_VERSION`, sets the namespace over serial, and (when called with `--backend`) emits the `BACKEND:` handshake line so the firmware brings up the chosen upstream link. Called from `microros.launch.py` and `mavlink.launch.py`.
   - `create_config_dir <dst>` — copies `share/<pkg>/config` from each rosbot_* package into `<dst>/<pkg>/config`. Used to build a "user" config dir for the Husarion snap.
   - `install_udev_rules` — installs [udev/99-rosbot.rules](rosbot_utils/udev/99-rosbot.rules) (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`).
   - `battery_alert` — a Python node (with [src/battery_alert_parameters.yaml](rosbot_utils/src/battery_alert_parameters.yaml) generated by `generate_parameter_library`), plays a sound below `<percentage_threshold`.
@@ -188,7 +192,7 @@ The broadest package, a Python + ament_cmake mix:
 
 1. `ros2 launch rosbot_bringup rosbot_xl.yaml`.
 2. `microros.launch.py`:
-   - `pre_communication` (`configure_robot`) is run as `ExecuteProcess`. It opens the serial port, reads `FW: v1.1.0-jazzy`, sends `NS:<namespace>\n`, waits for `ACK`. Exit ≠ 0 → `Shutdown`.
+   - `pre_communication` (`configure_robot`) is run as `ExecuteProcess`. It opens the serial port, reads `FW: ${FIRMWARE_VERSION}`, sends `NS:<namespace>\n`, waits for `ACK`. Exit ≠ 0 → `Shutdown`.
    - on pre-comm success: `OnProcessExit` adds `micro_ros_agent` (`udp4 --port 8888` for XL).
 3. `rosbot_controller/controller.yaml`:
    - sed-resolves `controllers.yaml` into `/tmp/rosbot_controller_<ns>.yaml` (`<namespace>/`, `<manipulator_state>`).
@@ -269,14 +273,13 @@ All topics are namespaced when `ROBOT_NAMESPACE` is set.
 
 ## 7. Firmware and pre-communication
 
-- Binaries in `rosbot_utils/firmware/`:
-  - **MAVLink track (default):** `rosbot[_xl]_mavlink-v0.1.1.bin`. Pin enforced by `mavlink.launch.py` passing `--expected-firmware v0.1.1-jazzy-mavlink` to `configure_robot`.
-  - **micro-ROS track:** `rosbot[_xl]-v1.1.0-jazzy.bin`. Pin enforced by `configure_robot`'s default `--expected-firmware v1.1.0-jazzy`, called from `microros.launch.py`.
-- Flash: `ros2 run rosbot_utils flash_firmware --robot-model rosbot[_xl] [--variant micro-ros|mavlink]`. Default `--variant mavlink` ships the runtime-switch firmware. For XL the `--usb` flag is set automatically (FTDI), for ROSbot it defaults to UART over GPIO (resets via gpiochip).
-- Pre-communication serial protocol (same for both tracks; only the FW string the MCU emits differs):
-  - boot: the MCU emits `FW: <version>\n` (e.g. `v1.1.0-jazzy` or `v0.1.1-jazzy-mavlink`),
-  - host: `NS:<namespace>\n`,
-  - MCU: `ACK\n` on success.
+- Single bundled binary in `rosbot_utils/firmware/`: `rosbot[_xl]-${FIRMWARE_VERSION}.bin` (runtime-switch firmware — speaks both micro-ROS and MAVLink; backend chosen at boot via the handshake's `BACKEND:` line). `FIRMWARE_VERSION` lives in [rosbot_utils/firmware_version.py](rosbot_utils/rosbot_utils/firmware_version.py); `configure_robot` rejects any other firmware string.
+- Flash: `ros2 run rosbot_utils flash_firmware --robot-model rosbot[_xl]`. For XL `--usb` is set automatically (FTDI); for ROSbot it defaults to UART over GPIO (resets via gpiochip).
+- Pre-communication serial protocol:
+  - boot: the MCU emits `FW: ${FIRMWARE_VERSION}\n`,
+  - host (optional): `BACKEND:microros|mavlink\n` → MCU `ACK\n`,
+  - host: `NS:<namespace>\n` → MCU `ACK\n`,
+  - host: `END\n` (closes pre-comm without waiting on the 2.5 s timeout; older firmware ignores it).
 - USB-B development (on a PC, no Raspberry): see [CONTRIBUTING.md](CONTRIBUTING.md). The connection requires holding `btn1`/`btn2` + reset by hand.
 
 ---

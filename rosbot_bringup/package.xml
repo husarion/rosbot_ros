@@ -31,6 +31,7 @@
   <test_depend>launch_ros</test_depend>
   <test_depend>nav_msgs</test_depend>
   <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-yaml</test_depend>
   <test_depend>rclpy</test_depend>
   <test_depend>sensor_msgs</test_depend>
 

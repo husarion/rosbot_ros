@@ -20,6 +20,7 @@ import re
 import sys
 
 import serial
+from rosbot_utils.firmware_version import FIRMWARE_VERSION
 from rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
 from rosbot_utils.mcu_manager_uart import McuManagerUART
 from rosbot_utils.utils import find_device_port
@@ -40,7 +41,6 @@ def configure_robot(
     namespace: str,
     baudrate: int,
     timeout: float = 5.0,
-    expected_fw: str = "v1.1.0-jazzy",
     backend: str = "",
 ) -> bool:
     if namespace and not re.match(r"^[a-zA-Z0-9_/]+$", namespace):
@@ -64,17 +64,16 @@ def configure_robot(
             serial_port.close()
             return False
 
-        match = re.match(r"^FW:\s*v?(\d+)\.(\d+)\.(\d+)(?:-([\w\-]+))?$", line)
-        if not match:
+        banner_match = re.match(r"^FW:\s*(\S+)$", line)
+        if not banner_match:
             print_error(f"Unexpected response: {repr(line)}")
             serial_port.close()
             return False
 
-        suffix = f"-{match.group(4)}" if match.group(4) else ""
-        current_fw = f"v{'.'.join(match.groups()[:3])}{suffix}"
-        if current_fw != expected_fw:
+        current_fw = banner_match.group(1)
+        if not re.fullmatch(rf"FW:\s*{re.escape(FIRMWARE_VERSION)}", line):
             print_error(
-                f"Unsupported firmware: {current_fw} Expected: {expected_fw}. Run: ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>"
+                f"Unsupported firmware: {current_fw} Expected: {FIRMWARE_VERSION}. Run: ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>"
             )
             serial_port.close()
             return False
@@ -144,11 +143,6 @@ def main(args=None):
     parser.add_argument("-n", "--namespace", default="", help="Specify the robot namespace")
     parser.add_argument("-b", "--baudrate", type=int, default=921600, help="Serial baudrate")
     parser.add_argument(
-        "--expected-firmware",
-        default="v1.1.0-jazzy",
-        help="Firmware version string the MCU must report.",
-    )
-    parser.add_argument(
         "--backend",
         default="",
         choices=("", *VALID_BACKENDS),
@@ -181,7 +175,6 @@ def main(args=None):
                 port,
                 args.namespace,
                 args.baudrate,
-                expected_fw=args.expected_firmware,
                 backend=args.backend,
             )
             sys.exit(0 if success else 1)
@@ -193,7 +186,6 @@ def main(args=None):
                 port,
                 args.namespace,
                 args.baudrate,
-                expected_fw=args.expected_firmware,
                 backend=args.backend,
             )
             sys.exit(0 if success else 1)

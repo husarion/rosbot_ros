@@ -22,4 +22,11 @@ install(
 
 install(DIRECTORY config firmware launch udev DESTINATION share/${PROJECT_NAME})
 
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+
+  ament_add_pytest_test(test_firmware_version test/test_firmware_version.py)
+  ament_add_pytest_test(test_configs test/test_configs.py)
+endif()
+
 ament_package()

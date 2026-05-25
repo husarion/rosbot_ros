@@ -26,3 +26,22 @@ pre-commit run -a
 ```
 
 After initialization [pre-commit configuration](.pre-commit-config.yaml) will applied on every commit.
+
+### Auto-fix workflow
+
+Several hooks (`black`, `isort`, `cmake-format`, `prettier`, `trailing-whitespace`)
+rewrite the file on the spot when they find something to fix. If they fire during
+`git commit`, the commit aborts with `Stashed changes conflicted with hook auto-fixes`
+and you have to `git add` the rewritten files and re-commit — easy to miss when
+batching.
+
+To avoid the cycle, run pre-commit on the staged files **before** `git commit`:
+
+```bash
+git add <files>
+pre-commit run --files $(git diff --cached --name-only)
+git add <files>   # re-stage anything the hooks rewrote
+git commit -m "..."
+```
+
+Or, for a small change, just `pre-commit run -a` once before staging.

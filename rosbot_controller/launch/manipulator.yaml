@@ -40,6 +40,5 @@ launch:
       period: 10.0
       if: $(var arm_activate)
       children:
-        - node:
-            pkg: rosbot_moveit
-            exec: home
+        - include:
+            file: $(find-pkg-share rosbot_moveit)/launch/home.launch.py

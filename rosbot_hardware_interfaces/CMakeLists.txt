@@ -55,4 +55,11 @@ ament_export_libraries(${PROJECT_NAME})
 ament_export_dependencies(hardware_interface realtime_tools rclcpp_lifecycle
                           rclcpp std_msgs)
 
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_plugins test/test_plugins.cpp ENV ROS_DOMAIN_ID=87
+                  ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST)
+  ament_target_dependencies(test_plugins hardware_interface pluginlib rclcpp)
+endif()
+
 ament_package()

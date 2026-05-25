@@ -10,17 +10,23 @@ default_acceleration_scaling_factor: 0.1
 # Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
 joint_limits:
   gripper_left_joint:
+    # Prismatic joint, units m/s and m/s². Previous values (4.796 / 18.73) were
+    # rad/s/rad/s² copied from joint1-4 and made no physical sense for a 28 mm
+    # stroke. Tuned 2026-05-19 against MoveIt-driven Open/Close cycles on real
+    # HW (see CLAUDE.md sec 9). Peak velocity is bounded by the Dynamixel's
+    # internal Profile Velocity (~0.056 m/s observed in joy-spam at any cap);
+    # 0.10 leaves a small headroom. Acceleration was the binding constraint at
+    # 0.5 m/s² (gripper Open under joy2servo's vel=0.4/acc=0.2 scaling took
+    # ~1.13 s); 2.0 brings it to ~0.7 s and matches the HW peak (~1.88 m/s²)
+    # observed during joy-spam direct trajectory steps.
     has_velocity_limits: true
-    max_velocity: 4.796164779
+    max_velocity: 0.10  # m/s
     has_acceleration_limits: true
-    max_acceleration: 18.7253757
+    max_acceleration: 2.0  # m/s²
     has_position_limits: true
 
-  gripper_right_joint:
-    has_velocity_limits: true
-    max_velocity: 4.796164779
-    has_acceleration_limits: true
-    max_acceleration: 18.7253757
+  # gripper_right_joint is a <passive_joint> in the SRDF (mimicked from
+  # gripper_left_joint by the URDF); MoveIt does not plan it, so no limits here.
   joint1:
     has_velocity_limits: true
     max_velocity: 4.796164779

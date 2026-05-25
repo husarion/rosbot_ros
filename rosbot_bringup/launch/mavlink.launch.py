@@ -93,9 +93,6 @@ def generate_bridge_launch(context, *args, **kwargs):
         "configure_robot",
         "--robot-model",
         robot_model,
-        # Bump in lockstep with the rosbot-firmware MAVLink release.
-        "--expected-firmware",
-        "v0.1.1-jazzy-mavlink",
         "--backend",
         "mavlink",
     ]

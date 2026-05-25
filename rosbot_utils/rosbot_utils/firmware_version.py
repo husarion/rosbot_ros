@@ -1,5 +1,4 @@
 # Copyright 2024 Husarion sp. z o.o.
-# Copyright 2023 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import psutil
+"""Single source of truth for the MCU firmware version shipped with this driver.
 
-# The pytest cannot kill properly the Gazebo's tasks what blocks launching
-# several tests in a row.
-# https://github.com/ros-controls/gz_ros2_control/blob/master/gz_ros2_control_tests/tests/position_test.py
+The driver and the firmware are tightly coupled (see CLAUDE.md hard rule #6.1).
+Bumping this constant without also swapping the corresponding ``.bin`` files in
+``rosbot_utils/firmware/`` will break the firmware sanity check in
+``configure_robot`` and is a release-blocking error.
+"""
 
-
-def kill_ign_linux_processes():
-    for proc in psutil.process_iter():
-        # check whether the process name matches
-        if proc.name() == "ruby":
-            proc.kill()
+FIRMWARE_VERSION: str = "v2.0.0-jazzy"

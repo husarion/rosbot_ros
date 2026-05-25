@@ -40,21 +40,28 @@ monitored_planning_scene_topic: planning_scene
 
 ## MoveIt properties
 move_group_name: manipulator  # Often 'manipulator' or 'arm'
-planning_frame: link1  # The MoveIt planning frame. Often 'base_link' or 'world'
+# planning_frame is intentionally the arm's base (link1), not the robot base.
+# Cartesian/twist commands and IK are computed relative to the arm root, so the
+# manipulator behaves consistently regardless of robot pose / namespace.
+planning_frame: link1
 
 ## Other frames
 ee_frame_name: end_effector_link  # The name of the end effector link, used to return the EE pose
 robot_link_command_frame: end_effector_link  # commands must be given in the frame of a robot link. Usually either the base or end effector
 
 ## Stopping behaviour
-incoming_command_timeout: 0.15   # Stop servoing if X seconds elapse without a new command
+incoming_command_timeout: 0.15   # Stop servoing if X seconds elapse without a new command. Must be > joy_node autorepeat period (50 ms at 20 Hz) - otherwise servo halts between joy messages and the arm stutters. Stop-on-release responsiveness comes from joy2servo publishing a zero-velocity JointJog on stick centring, not from this timeout.
 # If 0, republish commands forever even if the robot is stationary. Otherwise, specify num. to publish.
 # Important because ROS may drop some messages and we need the robot to halt reliably.
 num_outgoing_halt_msgs_to_publish: 4
 
 ## Configure handling of singularities and joint limits
-lower_singularity_threshold: 12.0   # Start decelerating when the condition number hits this (close to singularity)
-hard_stop_singularity_threshold: 43.0 # Stop when the condition number hits this
+# Upstream defaults. The guard runs only on POSE/TWIST commands; joy2servo
+# publishes JointJog (which skips it), so the values are inert here. Kept at
+# the upstream defaults rather than inflated for clarity — see CLAUDE.md
+# 2026-05-15 for why POSE/TWIST is unusable on a 4-DoF arm in jazzy.
+lower_singularity_threshold: 17.0
+hard_stop_singularity_threshold: 30.0
 joint_limit_margin: 0.1 # added as a buffer to joint limits [radians]. If moving quickly, make this larger.
 leaving_singularity_threshold_multiplier: 1.0 # Multiply the hard stop limit by this when leaving singularity (see https://github.com/ros-planning/moveit2/pull/620)
 
@@ -67,6 +74,17 @@ command_out_topic: manipulator_controller/joint_trajectory # Publish outgoing co
 
 ## Collision checking for the entire robot body
 check_collisions: true # Check collisions?
-collision_check_rate: 10.0 # [Hz] Collision-checking can easily bog down a CPU if done too often.
+# 30 Hz instead of the upstream-default 10 Hz: at the joy2servo Cartesian
+# clamp (cartesian_max_joint_velocity = 1.0 rad/s) the worst-case tip speed
+# is ~0.3 m/s (1 rad/s × ~0.3 m link), so one 100 ms tick covers 30 mm —
+# more than the 20 mm proximity threshold, leaving no ramp window. 33 ms
+# tick @ 30 Hz drops that to 10 mm.
+collision_check_rate: 30.0 # [Hz] Collision-checking can easily bog down a CPU if done too often.
+# Kept at the upstream default. 0.05 m halted both modes on startup because
+# some non-SRDF-disabled link pairs rest within 5 cm of each other and
+# `collision_velocity_scale_` clamped to ~0. The deceleration runway at this
+# threshold is short — close approaches at the 1 rad/s clamp will still
+# contact — but increasing it without retuning the SRDF bag-of-`Never`s
+# trades guaranteed motion for false positives at rest.
 self_collision_proximity_threshold: 0.02 # Start decelerating when a self-collision is this far [m]
 scene_collision_proximity_threshold: 0.03 # Start decelerating when a scene collision is this far [m]

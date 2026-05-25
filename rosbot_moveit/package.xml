@@ -15,17 +15,24 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <test_depend>ament_cmake_pytest</test_depend>
+
+  <depend>control_msgs</depend>
+  <depend>geometry_msgs</depend>
   <depend>moveit_msgs</depend>
   <depend>moveit_ros_planning</depend>
   <depend>moveit_ros_planning_interface</depend>
+  <depend>moveit_servo</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>sensor_msgs</depend>
+  <depend>trajectory_msgs</depend>
 
   <exec_depend>moveit_configs_utils</exec_depend>
   <exec_depend>moveit_kinematics</exec_depend>
   <exec_depend>moveit_planners</exec_depend>
   <exec_depend>moveit_ros_move_group</exec_depend>
   <exec_depend>moveit_ros_visualization</exec_depend>
-  <exec_depend>moveit_servo</exec_depend>
   <exec_depend>moveit_setup_assistant</exec_depend>
   <exec_depend>moveit_simple_controller_manager</exec_depend>
   <exec_depend>rosbot_description</exec_depend>
