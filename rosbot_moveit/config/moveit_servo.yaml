@@ -33,16 +33,12 @@ smoothing_filter_plugin_name: online_signal_smoothing::ButterworthFilterPlugin
 # then is_primary_planning_scene_monitor needs to be set to false.
 is_primary_planning_scene_monitor: true
 
-# Default is "/planning_scene" (absolute) — the leading slash strips the node's namespace, so the
-# servo_node_private_* sub-node ends up publishing on /planning_scene. Use a relative name so it
-# stays inside the robot namespace.
+# Relative name keeps it inside the robot namespace (default "/planning_scene" leaks to root).
 monitored_planning_scene_topic: planning_scene
 
 ## MoveIt properties
-move_group_name: manipulator  # Often 'manipulator' or 'arm'
-# planning_frame is intentionally the arm's base (link1), not the robot base.
-# Cartesian/twist commands and IK are computed relative to the arm root, so the
-# manipulator behaves consistently regardless of robot pose / namespace.
+move_group_name: manipulator
+# Arm base, not robot base - consistent IK regardless of robot pose / namespace.
 planning_frame: link1
 
 ## Other frames
@@ -56,10 +52,7 @@ incoming_command_timeout: 0.15   # Stop servoing if X seconds elapse without a n
 num_outgoing_halt_msgs_to_publish: 4
 
 ## Configure handling of singularities and joint limits
-# Upstream defaults. The guard runs only on POSE/TWIST commands; joy2servo
-# publishes JointJog (which skips it), so the values are inert here. Kept at
-# the upstream defaults rather than inflated for clarity — see CLAUDE.md
-# 2026-05-15 for why POSE/TWIST is unusable on a 4-DoF arm in jazzy.
+# Inert here - joy2servo uses JointJog path which skips this guard. See CLAUDE.md 2026-05-15.
 lower_singularity_threshold: 17.0
 hard_stop_singularity_threshold: 30.0
 joint_limit_margin: 0.1 # added as a buffer to joint limits [radians]. If moving quickly, make this larger.
@@ -73,18 +66,11 @@ status_topic: ~/status # Publish status to this topic
 command_out_topic: manipulator_controller/joint_trajectory # Publish outgoing commands here
 
 ## Collision checking for the entire robot body
-check_collisions: true # Check collisions?
-# 30 Hz instead of the upstream-default 10 Hz: at the joy2servo Cartesian
-# clamp (cartesian_max_joint_velocity = 1.0 rad/s) the worst-case tip speed
-# is ~0.3 m/s (1 rad/s × ~0.3 m link), so one 100 ms tick covers 30 mm —
-# more than the 20 mm proximity threshold, leaving no ramp window. 33 ms
-# tick @ 30 Hz drops that to 10 mm.
-collision_check_rate: 30.0 # [Hz] Collision-checking can easily bog down a CPU if done too often.
-# Kept at the upstream default. 0.05 m halted both modes on startup because
-# some non-SRDF-disabled link pairs rest within 5 cm of each other and
-# `collision_velocity_scale_` clamped to ~0. The deceleration runway at this
-# threshold is short — close approaches at the 1 rad/s clamp will still
-# contact — but increasing it without retuning the SRDF bag-of-`Never`s
-# trades guaranteed motion for false positives at rest.
-self_collision_proximity_threshold: 0.02 # Start decelerating when a self-collision is this far [m]
+check_collisions: true
+# 30 Hz (upstream default 10 Hz): @1 rad/s Cartesian clamp, 100 ms tick covers
+# 30 mm > 20 mm threshold (no ramp); 33 ms @ 30 Hz drops it to 10 mm.
+collision_check_rate: 30.0 # [Hz]
+# 0.02 m: raising it triggers false positives because some non-SRDF-disabled
+# link pairs rest within 5 cm and would clamp velocity to ~0 at startup.
+self_collision_proximity_threshold: 0.02 # [m]
 scene_collision_proximity_threshold: 0.03 # Start decelerating when a scene collision is this far [m]

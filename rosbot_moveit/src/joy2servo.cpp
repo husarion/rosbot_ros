@@ -57,10 +57,8 @@ void Joy2Servo::JointStateCb(
 }
 
 void Joy2Servo::SetServoCommandTypeToJointJog() {
-  // moveit_servo's expected_command_type_ defaults to "unset" in jazzy 2.12.4
-  // and refuses any incoming message until switch_command_type is called.
-  // We always publish JointJog (both UI modes go through that topic), so call
-  // it once at startup and never again.
+  // moveit_servo defaults expected_command_type_ to "unset" in jazzy 2.12.4
+  // and rejects messages until switch_command_type is called.
   if (!switch_cmd_type_srv_->wait_for_service(std::chrono::seconds(5))) {
     RCLCPP_WARN_STREAM(this->get_logger(),
                        switch_cmd_type_srv_->get_service_name()
@@ -84,11 +82,8 @@ void Joy2Servo::SetServoCommandTypeToJointJog() {
 }
 
 void Joy2Servo::InitializeMoveGroup() {
-  // MoveGroupInterface builds topic names via
-  // rclcpp::names::append(opt.move_group_namespace, TOPIC), which yields a
-  // fully-qualified name and bypasses the node's namespace. Pass the node's
-  // namespace so trajectory_execution_event / attached_collision_object live
-  // under it instead of /.
+  // MGI builds FQN topics via rclcpp::names::append(move_group_namespace, ...),
+  // bypassing the node's namespace - pass it explicitly.
   const std::string move_group_namespace = this->get_namespace();
 
   moveit::planning_interface::MoveGroupInterface::Options gripper_options(
@@ -128,14 +123,8 @@ void Joy2Servo::MoveToDockPose() {
 
   manipulator_group_->setNamedTarget("Dock");
   manipulator_group_->move();
-  // Second call: the first MGI->move() on the manipulator group can return
-  // "success" before the arm physically reaches the named target (HW-observed
-  // 2026-05-19: from Home, RT+Back closes the gripper but the arm doesn't go
-  // to Dock on the first press; second press completes it). The double call
-  // masks the underlying MGI / CurrentStateMonitor staleness issue and is
-  // kept until a proper fix is found — see FOLLOWUP_PLAN.md C4 for the
-  // investigation status (attempts via `setStartStateToCurrentState()` and
-  // explicit seed from `latest_joint_state_` failed to fully fix it).
+  // Band-aid: MGI->move() returns success before arm reaches target on first
+  // call (CurrentStateMonitor staleness). See FOLLOWUP_PLAN.md C4.
   manipulator_group_->move();
 }
 
@@ -157,10 +146,8 @@ void Joy2Servo::ControlGripper(const sensor_msgs::msg::Joy::SharedPtr msg) {
       GRIPPER_MIN_POSE + ((axis_value - AXIS_MIN) / (AXIS_MAX - AXIS_MIN)) *
                              (GRIPPER_MAX_POSE - GRIPPER_MIN_POSE);
 
-  // Single-point JointTrajectory: JTC interpolates from the current position
-  // to `target_position` over GRIPPER_TRAJECTORY_TIME_FROM_START. Each new
-  // trajectory replaces the previous one — no action goal cancel/restart
-  // cycle that caused stair-step motion with GripperActionController.
+  // Single-point JointTrajectory: each new traj replaces the previous one,
+  // avoiding the goal cancel/restart stair-step of GripperActionController.
   trajectory_msgs::msg::JointTrajectory traj;
   traj.header.stamp = this->now();
   traj.joint_names = {"gripper_left_joint"};
@@ -193,11 +180,7 @@ void Joy2Servo::PublishJointSpaceJog(
 
 void Joy2Servo::PublishCartesianJog(
     const sensor_msgs::msg::Joy::SharedPtr msg) {
-  // Step size used for both the target offset and the velocity divisor.
-  // Param-driven (default 50 ms) so the resulting joint velocity is
-  // proportional to stick magnitude only — joy_node publishes at irregular
-  // 20-50 Hz, and pegging dt to that interval produced a ratchet feel as the
-  // velocity oscillated between joy ticks.
+  // Param-driven dt (not joy callback period) so vel scales with stick only.
   const double cartesian_step_dt = cartesian_step_dt_;
 
   auto deadzone = [](double v) { return std::abs(v) < JOY_DEADZONE ? 0.0 : v; };
@@ -205,7 +188,6 @@ void Joy2Servo::PublishCartesianJog(
   const double sy = deadzone(msg->axes[Axis::RIGHT_STICK_HORIZONTAL]);
   const double sz = deadzone(msg->axes[Axis::LEFT_STICK_VERTICAL]);
 
-  // No stick input -> zero joint velocities (immediate stop; skip IK).
   if (sx == 0.0 && sy == 0.0 && sz == 0.0) {
     PublishJointVelocities(std::vector<double>(JOINT_NAMES.size(), 0.0));
     return;
@@ -222,8 +204,7 @@ void Joy2Servo::PublishCartesianJog(
     return;
   }
 
-  // Seed a fresh RobotState from the latest /joint_states - bypasses MGI's
-  // CurrentStateMonitor which starts lazily and would warn on first call.
+  // Seed from latest /joint_states - bypasses MGI's lazy CurrentStateMonitor.
   moveit::core::RobotState state(manipulator_group_->getRobotModel());
   state.setToDefaultValues();
   state.setVariablePositions(joint_state->name, joint_state->position);
@@ -231,7 +212,6 @@ void Joy2Servo::PublishCartesianJog(
   const moveit::core::JointModelGroup *jmg =
       state.getJointModelGroup("manipulator");
 
-  // Target EE pose = current + (stick * velocity * cartesian_step_dt) in EE.
   const Eigen::Isometry3d ee_in_world =
       state.getGlobalLinkTransform(EE_FRAME_ID);
   const Eigen::Vector3d delta_in_ee(
@@ -253,19 +233,17 @@ void Joy2Servo::PublishCartesianJog(
   target_msg.orientation.y = q.y();
   target_msg.orientation.z = q.z();
   target_msg.orientation.w = q.w();
-  // KDL with position_only_ik=true (kinematics.yaml) ignores orientation rows
-  // of the IK task - exactly what we need for the 4-DoF arm.
+  // position_only_ik (kinematics.yaml) zero-weights orientation - needed on
+  // 4-DoF arm.
   if (!state.setFromIK(jmg, target_msg, EE_FRAME_ID, 0.05)) {
     RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                 "Cartesian mode: IK failed for target ("
                                     << target_msg.position.x << ", "
                                     << target_msg.position.y << ", "
                                     << target_msg.position.z << ")");
-    // Halt immediately. Without this, servo waits for
-    // `incoming_command_timeout` (150 ms) + republishes
-    // `num_outgoing_halt_msgs_to_publish` halt messages (~130 ms) before
-    // the controller actually decelerates — ~280 ms of coasting past the
-    // unreachable target at the last published velocity.
+    // Halt immediately; otherwise servo coasts ~280 ms
+    // (incoming_command_timeout
+    // + num_outgoing_halt_msgs_to_publish) at the last published velocity.
     PublishJointVelocities(std::vector<double>(JOINT_NAMES.size(), 0.0));
     return;
   }
@@ -273,17 +251,13 @@ void Joy2Servo::PublishCartesianJog(
   std::vector<double> target_joints;
   state.copyJointGroupPositions(jmg, target_joints);
 
-  // joint_velocity = (target - current) / cartesian_step_dt. The JointJog
-  // handler in servo applies velocity over its publish_period; it does not
-  // run the singularity guard (unlike the POSE/TWIST handlers).
+  // JointJog path skips servo's singularity guard (unlike POSE/TWIST).
   std::vector<double> velocities(current_joints.size());
   for (size_t i = 0; i < current_joints.size(); ++i) {
     velocities[i] = (target_joints[i] - current_joints[i]) / cartesian_step_dt;
   }
 
-  // Uniform clamp: if any joint exceeds the cap, scale the whole vector down
-  // by the same factor so the trajectory direction (and therefore the
-  // Cartesian step direction) is preserved — just slower.
+  // Uniform clamp: scale whole vector to preserve Cartesian direction.
   double max_abs = 0.0;
   for (double v : velocities) {
     max_abs = std::max(max_abs, std::abs(v));
@@ -326,8 +300,7 @@ void Joy2Servo::JoyCb(const sensor_msgs::msg::Joy::SharedPtr msg) {
 }
 
 void Joy2Servo::UpdateInputMode(const sensor_msgs::msg::Joy::SharedPtr msg) {
-  // X => JointSpace, Y => Cartesian. XOR so accidentally pressing both is a
-  // no-op.
+  // X => JointSpace, Y => Cartesian; XOR so pressing both is a no-op.
   if (!(msg->buttons[Button::X] ^ msg->buttons[Button::Y])) {
     return;
   }

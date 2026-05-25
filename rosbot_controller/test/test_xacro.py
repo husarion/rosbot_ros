@@ -12,13 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""xacro -> URDF with the per-model controllers.yaml plumbed through.
+"""xacro -> URDF with per-model controllers.yaml + use_sim plumbing.
 
-Focuses on the controller_config + use_sim plumbing that rosbot_description's
-test_xacro.py does not exercise. URDF correctness across the full
-configuration matrix is owned by rosbot_description; here we only pick two
-representative rosbot_xl configurations (basic = no arm, manipulation_pro =
-arm) to keep the matrix small.
+Full configuration matrix lives in rosbot_description; here we use two anchors.
 """
 
 import os
@@ -27,9 +23,7 @@ import pytest
 import xacro
 from ament_index_python.packages import get_package_share_directory
 
-# Two anchor configurations: 'basic' covers the no-manipulator path, and
-# 'manipulation_pro' covers the manipulator-on path with the largest
-# component set. Other configurations are exercised by rosbot_description.
+# basic = no arm, manipulation_pro = arm; widest component set.
 ROSBOT_XL_REPRESENTATIVE_CONFIGURATIONS = ["basic", "manipulation_pro"]
 
 

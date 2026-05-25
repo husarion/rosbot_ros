@@ -23,19 +23,12 @@
 
 namespace rosbot_moveit {
 
-// Internal mode toggle in joy2servo. *Both* modes publish JointJog to servo:
-//   * Cartesian  (default, button Y) - sticks integrate EE-frame velocity
-//                  into a target pose; joy2servo runs KDL position-only IK
-//                  on it and publishes the resulting joint deltas as
-//                  JointJog. We do the IK ourselves because moveit_servo's
-//                  POSE path runs an unconditional singularity guard on the
-//                  full 6xN Jacobian (rank-deficient by construction on
-//                  <6 DoF arms, see moveit_msgs#185), which halts every
-//                  motion on a 4-DoF arm even with position_only_ik=true.
-//                  The JointJog path does not run that guard.
-//   * JointSpace (button X)         - sticks map 1:1 to joint velocities
-//                  (no IK), useful as a low-level fallback / for joints
-//                  unreachable in Cartesian.
+// Both modes publish JointJog (skips servo's singularity guard, which is
+// unconditional on POSE/TWIST and rank-deficient on 4-DoF, see
+// moveit_msgs#185).
+//   Cartesian (Y): sticks -> EE velocity -> local KDL position-only IK ->
+//   JointJog. JointSpace (X): sticks -> joint velocities (no IK); fallback for
+//   unreachable poses.
 enum class InputMode { JointSpace, Cartesian };
 
 enum Axis {
@@ -64,9 +57,7 @@ enum Button {
 };
 
 const std::string JOINT_TOPIC = "servo_node/delta_joint_cmds";
-// Direct JointTrajectory topic on the JTC gripper_controller. Bypasses the
-// FollowJointTrajectory action used by MoveIt — joystick control wants
-// continuous, low-latency updates, not goal-and-wait semantics.
+// Direct JTC topic - bypasses MoveIt's FollowJointTrajectory goal-and-wait.
 const std::string GRIPPER_TRAJECTORY_TOPIC =
     "gripper_controller/joint_trajectory";
 const size_t ROS_QUEUE_SIZE = 10;
@@ -75,9 +66,8 @@ const double DEAD_MAN_SWITCH_THRESHOLD = -0.3;
 const double JOY_DEADZONE = 0.05;
 const double GRIPPER_MIN_POSE = -0.009;
 const double GRIPPER_MAX_POSE = 0.015;
-// JTC interpolates from the current position to this point's target. Must be
-// larger than the controller_manager update period (10 ms at 100 Hz) and at
-// least one joy callback period (~50 ms) so motion is smooth across ticks.
+// Must exceed CM update period (10 ms) and one joy callback (~50 ms) for smooth
+// motion.
 const double GRIPPER_TRAJECTORY_TIME_FROM_START = 0.1; // seconds
 const std::vector<std::string> JOINT_NAMES = {"joint1", "joint2", "joint3",
                                               "joint4"};
@@ -113,21 +103,14 @@ private:
 
   InputMode mode_ = InputMode::Cartesian;
   double cartesian_linear_velocity_;
-  // Per-tick step duration used as both the EE-frame offset multiplier and
-  // the velocity divisor in Cartesian mode. Should be ≥ servo's
-  // publish_period (~30 ms) and ≈ joy's autorepeat period (50 ms by default
-  // in rosbot_joy/config.yaml).
+  // Per-tick step duration; should be >= servo publish_period (~30 ms) and
+  // ~joy autorepeat (50 ms).
   double cartesian_step_dt_;
-  // Hard cap on |joint velocity| published from Cartesian mode (rad/s),
-  // applied as a uniform scaling so the EE direction is preserved. Bounds
-  // how far the arm can travel per collision_check tick — without it, IK
-  // "branch jumps" (especially with position_only_ik on a redundant 4-DoF
-  // arm) can produce multi-rad/s velocities that overshoot
-  // self_collision_proximity_threshold inside a single check cycle.
+  // Hard cap on |joint velocity| (rad/s) in Cartesian mode; without it,
+  // position_only_ik branch jumps overshoot self_collision_proximity_threshold.
   double cartesian_max_joint_velocity_;
-  // Latest /joint_states snapshot used to seed RobotState in Cartesian mode -
-  // avoids MGI's lazy CurrentStateMonitor warm-up which logs "Didn't receive
-  // robot state ... within 1.0 seconds" on the first IK call.
+  // Seeds RobotState for Cartesian IK; bypasses MGI's lazy CurrentStateMonitor
+  // warm-up.
   std::mutex joint_state_mutex_;
   sensor_msgs::msg::JointState::SharedPtr latest_joint_state_;
   std::mutex joy_mutex_;

@@ -51,6 +51,9 @@ launch:
       name: RCUTILS_COLORIZED_OUTPUT
       value: '1'
 
+  - log:
+      message: Bringing up ROSbot, namespace=$(var namespace), configuration=base
+
   - push_ros_namespace:
       namespace: $(var namespace)
 

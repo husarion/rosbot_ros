@@ -33,10 +33,8 @@ def generate_launch_description():
         [FindPackageShare("rosbot_description"), "config", "rosbot_xl", "manipulation.yaml"]
     )
 
-    # MoveItConfigsBuilder generates robot_description from a vanilla xacro
-    # invocation (no extra args). We override it here so the URDF matches the
-    # bringup stack (components_config + configuration:='manipulation'); otherwise
-    # MoveIt and the live robot have different kinematic trees.
+    # Override builder's vanilla xacro so URDF matches bringup
+    # (components_config + configuration:='manipulation').
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -59,12 +57,8 @@ def generate_launch_description():
         "publish_robot_description_semantic": True,
         "allow_trajectory_execution": True,
         "capabilities": "",
-        # OccupancyMapMonitor is part of PlanningSceneMonitor (not a move_group capability)
-        # and is always started, even without `sensors_3d.yaml`. It logs one ERROR ("No 3D
-        # sensor plugin(s) defined") and one WARN ("Resolution not specified") at startup
-        # and then sits idle. The only ways to silence it are to provide a fake sensor
-        # plugin (adds clutter for a no-op subscriber) or to patch MoveIt. Until rosbot_xl
-        # gains a depth camera in the manipulation config, the messages are accepted.
+        # OccupancyMapMonitor runs unconditionally inside PlanningSceneMonitor;
+        # without sensors_3d.yaml it logs one ERROR + WARN at startup. Accepted.
         "disable_capabilities": "",
         "monitor_dynamics": False,
         "publish_planning_scene": True,
@@ -87,8 +81,6 @@ def generate_launch_description():
         executable="move_group",
         output="screen",
         parameters=move_group_params,
-        # Set the display variable, in case OpenGL code is used internally
-        # additional_env={"DISPLAY": ":1"},
     )
 
     return LaunchDescription([move_group_node])

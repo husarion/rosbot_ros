@@ -28,13 +28,8 @@ def generate_launch_description():
         )
     ).to_moveit_configs()
 
-    # `dock` uses MoveGroupInterface, which loads a RobotModelLoader that needs
-    # `robot_description_kinematics` to avoid the "No kinematics plugins defined" warning.
-    # Standalone-only wrapper (the auto-home path runs `home.launch.py` from
-    # manipulator.yaml; there is no auto-dock equivalent). Uses `Node(namespace=...)`
-    # rather than `PushRosNamespace` so that the empty default does not double-stack
-    # an existing parent namespace when this file is hypothetically included from
-    # somewhere already inside a `push_ros_namespace` group.
+    # Standalone-only (no auto-dock equivalent of home). Uses Node(namespace=)
+    # not PushRosNamespace so empty default won't double-stack a parent ns.
     dock_node = Node(
         package="rosbot_moveit",
         executable="dock",

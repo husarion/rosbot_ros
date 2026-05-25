@@ -12,21 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""xacro -> URDF for every supported (robot_model, mecanum, configuration) combo.
-
-Beyond parsing, the resulting URDF is required to declare at least one link
-and one joint, and the manipulator must show up if and only if the rosbot_xl
-configuration starts with 'manipulation'.
-"""
+"""xacro -> URDF for every (robot_model, mecanum, configuration) combo."""
 
 import os
+import xml.etree.ElementTree as ET
 
 import pytest
 import xacro
 from ament_index_python.packages import get_package_share_directory
 
-# rosbot has no `configuration` arg; rosbot_xl uses one of these to pick the
-# components yaml in rosbot_description/config/rosbot_xl/.
+# rosbot_xl picks components yaml in rosbot_description/config/rosbot_xl/ by name.
 ROSBOT_XL_CONFIGURATIONS = [
     "basic",
     "telepresence",
@@ -62,8 +57,6 @@ _TEST_MATRIX = (
 @pytest.mark.parametrize("robot_model,mecanum,configuration", _TEST_MATRIX)
 def test_xacro_produces_valid_urdf(robot_model, mecanum, configuration):
     urdf = _process_xacro(robot_model, mecanum, configuration)
-    # Cheap structural sanity: parsing succeeded and the document contains the
-    # bare minimum of a robot description.
     assert (
         "<link" in urdf
     ), f"No <link> in URDF for ({robot_model}, mecanum={mecanum}, {configuration})"
@@ -90,11 +83,56 @@ def test_manipulator_presence_matches_configuration(configuration):
         )
 
 
+def test_gazebo_urdf_namespace_remappings():
+    """Pins the gz_ros2_control <remapping> set — push_ros_namespace cannot
+    reach this plugin (gz_sim hosts it outside the LaunchContext)."""
+    share = get_package_share_directory("rosbot_description")
+    xacro_path = os.path.join(share, "urdf", "rosbot_xl.urdf.xacro")
+    doc = xacro.process_file(
+        xacro_path,
+        mappings={"mecanum": "False", "configuration": "basic", "use_sim": "True"},
+    )
+    urdf = doc.toxml()
+    root = ET.fromstring(urdf)
+
+    plugin = None
+    for elem in root.iter("plugin"):
+        if "gz_ros2_control" in (elem.get("filename") or ""):
+            plugin = elem
+            break
+    assert plugin is not None, "gz_ros2_control-system plugin missing from URDF"
+
+    actual_remaps = {r.text for r in plugin.iter("remapping") if r.text}
+
+    expected_remaps = {
+        "/diagnostics:=diagnostics",
+        "/tf:=tf",
+        "/tf_static:=tf_static",
+        "/controller_manager/cleanup_controller:=controller_manager/cleanup_controller",
+        "/controller_manager/configure_controller:=controller_manager/configure_controller",
+        "/controller_manager/list_controllers:=controller_manager/list_controllers",
+        "/controller_manager/list_controller_types:=controller_manager/list_controller_types",
+        "/controller_manager/list_hardware_components:=controller_manager/list_hardware_components",
+        "/controller_manager/list_hardware_interfaces:=controller_manager/list_hardware_interfaces",
+        "/controller_manager/load_controller:=controller_manager/load_controller",
+        "/controller_manager/reload_controller_libraries:=controller_manager/reload_controller_libraries",
+        "/controller_manager/set_hardware_component_state:=controller_manager/set_hardware_component_state",
+        "/controller_manager/switch_controller:=controller_manager/switch_controller",
+        "/controller_manager/unload_controller:=controller_manager/unload_controller",
+        "/controller_manager/activity:=controller_manager/activity",
+        "/controller_manager/statistics:=controller_manager/statistics",
+        "/controller_manager/introspection_data:=controller_manager/introspection_data",
+    }
+    missing = expected_remaps - actual_remaps
+    assert not missing, (
+        "gazebo.urdf.xacro <remapping> block is missing entries required for "
+        "multi-robot namespace isolation: " + ", ".join(sorted(missing))
+    )
+
+
 def test_components_config_derived_from_configuration():
-    """Soft-compat: when components_config is not given explicitly, it must
-    derive from the configuration arg. manipulation.yaml ships an LDR06 lidar
-    (rplidar_link in URDF); basic.yaml has no components. If derivation broke
-    (always defaulted to basic.yaml), both URDFs would carry the same set."""
+    """Soft-compat: components_config must derive from configuration arg
+    (basic has no lidar; manipulation has rplidar_link)."""
     basic_urdf = _process_xacro("rosbot_xl", "False", "basic")
     manipulation_urdf = _process_xacro("rosbot_xl", "False", "manipulation")
     assert "rplidar_link" not in basic_urdf, (

@@ -12,7 +12,8 @@ if(BUILD_TESTING)
   # publishes fake _motors/feedback + _imu/data itself, so it needs neither HW
   # nor a micro-ROS agent — only the full vcstool dependency set
   # (husarion_controllers, ...).
-  set(_pytest_tests test/test_launch_offline.py test/test_bringup.py)
+  set(_pytest_tests test/test_launch_offline.py test/test_bringup.py
+                    test/test_namespace_isolation.py)
   foreach(_test_path ${_pytest_tests})
     get_filename_component(_test_name ${_test_path} NAME_WE)
     ament_add_pytest_test(

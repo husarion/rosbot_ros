@@ -19,9 +19,30 @@ import time
 from threading import Event, Thread
 
 import rclpy
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+from launch_testing.actions import ReadyToTest
+from launch_testing.util import KeepAliveProc
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from sensor_msgs.msg import Imu, JointState, LaserScan
+
+
+def make_bringup_launch_description(**launch_arguments):
+    """Build a LaunchDescription that launches ``rosbot_bringup/bringup.yaml``.
+
+    ``launch_arguments`` are forwarded as launch-argument overrides; tests
+    typically pass ``hardware_bridge='False'`` to keep the test offline. The
+    returned description bundles ``KeepAliveProc`` + ``ReadyToTest`` so
+    launch_pytest fixtures stay one-liners.
+    """
+    bringup_launch = IncludeLaunchDescription(
+        PathJoinSubstitution([FindPackageShare("rosbot_bringup"), "launch", "bringup.yaml"]),
+        launch_arguments=launch_arguments.items(),
+    )
+    return LaunchDescription([bringup_launch, KeepAliveProc(), ReadyToTest()])
 
 
 class BringupTestNode(Node):

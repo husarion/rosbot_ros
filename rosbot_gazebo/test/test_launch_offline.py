@@ -12,13 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Offline schema tests for rosbot_gazebo launch + bridge configs.
-
-The systemic test_sim.py / test_multirobot.py launch the real Gazebo
-simulation and cannot run in CI. These tests cover the schema that does
-not need a runtime: launch arg declarations, snap config_dir layout,
-configuration sweep + bridge config invariants.
-"""
+"""Offline schema tests for rosbot_gazebo launch + bridge configs."""
 
 import os
 
@@ -69,9 +63,7 @@ def test_spawn_robot_args_cover_pose_and_config():
 
 
 def test_spawn_robot_configuration_choices_match_rosbot_description():
-    """The configuration arg must offer the same set of yaml files that
-    rosbot_description/config/rosbot_xl/ ships. Drift here means launch
-    will accept a configuration name that has no matching yaml."""
+    """configuration arg must match rosbot_description/config/rosbot_xl/*.yaml."""
     args = _args(_launch("spawn_robot.yaml"))
     spawn_choices = {c["value"] for c in args["configuration"].get("choice", [])}
     yaml_dir = os.path.join(
@@ -94,9 +86,7 @@ def test_spawn_robot_robot_model_choices():
     "config_file,top_level_check",
     [
         ("gz_bridge.yaml", "/clock"),
-        # rosbot_bridge.yaml carries the <namespace>/ placeholder substituted
-        # in spawn_robot.yaml's sed step; the topic_name keys with that
-        # placeholder are the contract we pin.
+        # <namespace>/ is sed-substituted by spawn_robot.yaml.
         ("rosbot_bridge.yaml", "<namespace>"),
     ],
 )
@@ -110,8 +100,7 @@ def test_bridge_configs_parse(config_file, top_level_check):
 
 
 def test_rosbot_bridge_has_namespace_placeholder():
-    """spawn_robot.yaml's sed substitutes <namespace>/ before the bridge node
-    reads the resolved file. Losing the placeholder breaks namespacing."""
+    """Losing <namespace>/ breaks the sed step in spawn_robot.yaml."""
     with open(_share("config", "rosbot_bridge.yaml")) as f:
         raw = f.read()
     assert "<namespace>/" in raw, (

@@ -56,6 +56,10 @@ launch:
       name: RCUTILS_COLORIZED_OUTPUT
       value: '1'
 
+  - log:
+      message: Bringing up ROSbot XL, namespace=$(var namespace), configuration=base, led_strip=$(var
+        led_strip)
+
   - push_ros_namespace:
       namespace: $(var namespace)
 

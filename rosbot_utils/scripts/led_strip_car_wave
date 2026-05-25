@@ -68,8 +68,12 @@ class LEDStripWavePublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    rclpy.spin(LEDStripWavePublisher())
-    rclpy.shutdown()
+    try:
+        rclpy.spin(LEDStripWavePublisher())
+    except KeyboardInterrupt:
+        pass
+    finally:
+        rclpy.try_shutdown()
 
 
 if __name__ == "__main__":

@@ -17,13 +17,11 @@ from itertools import product
 import launch_pytest
 import pytest
 import rclpy
-from bringup_helpers import BringupTestNode, readings_data_test
-from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.substitutions import PathJoinSubstitution
-from launch_ros.substitutions import FindPackageShare
-from launch_testing.actions import ReadyToTest
-from launch_testing.util import KeepAliveProc
+from bringup_helpers import (
+    BringupTestNode,
+    make_bringup_launch_description,
+    readings_data_test,
+)
 
 
 @launch_pytest.fixture
@@ -37,24 +35,13 @@ Running test with
     robot_model={robot_model}
     """
     )
-    rosbot_bringup = FindPackageShare("rosbot_bringup")
-    bringup_launch = IncludeLaunchDescription(
-        PathJoinSubstitution([rosbot_bringup, "launch", "bringup.yaml"]),
-        launch_arguments={
-            "mecanum": mecanum,
-            "hardware_bridge": "False",
-            "namespace": namespace,
-            "robot_model": robot_model,
-        }.items(),
-    )
 
     return (
-        LaunchDescription(
-            [
-                bringup_launch,
-                KeepAliveProc(),
-                ReadyToTest(),
-            ]
+        make_bringup_launch_description(
+            mecanum=mecanum,
+            hardware_bridge="False",
+            namespace=namespace,
+            robot_model=robot_model,
         ),
         mecanum,
         namespace,

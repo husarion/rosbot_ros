@@ -87,6 +87,9 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=<rosbot/rosbot_xl>
 > source install/setup.bash
 > ros2 launch rosbot_gazebo spawn_robot.yaml robot_model:=<rosbot/rosbot_xl> namespace:=robot1 x:=0 y:=0
 > ```
+>
+> All topics/services/actions are namespaced under `/<namespace>/` on HW
+> and sim — see [Namespace policy](ROS_API.md#namespace-policy).
 
 ### Launch Arguments
 

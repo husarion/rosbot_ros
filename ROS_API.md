@@ -14,6 +14,21 @@ Drive controls (`cmd_vel`) are defined in [`rosbot_joy/config/config.yaml`](rosb
 
 ## ROS API
 
+### Namespace policy
+
+Everything below is published under `/<namespace>/` when the `namespace`
+launch arg (or `ROBOT_NAMESPACE` env) is set. Intentional globals:
+
+- `/tf`, `/tf_static` — bridged via [tf_namespace_bridge](https://github.com/husarion/tf_namespace_bridge).
+- `/parameter_events`, `/rosout` — ROS 2 infra.
+- `/clock` — sim only.
+
+Hard-coded, no runtime opt-out. HW uses `push_ros_namespace`, sim uses URDF
+`<remapping>` for the `controller_manager` surface — see
+[Namespacing and multirobot](ARCHITECTURE.md#5-namespacing-and-multirobot).
+Enforced by
+[test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py).
+
 ### Available Nodes
 
 [controller_manager/controller_manager]: https://github.com/ros-controls/ros2_control/blob/master/controller_manager
