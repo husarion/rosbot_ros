@@ -102,6 +102,8 @@ def generate_microros_agent_node(context, *args, **kwargs):
         "configure_robot",
         "--robot-model",
         robot_model,
+        "--backend",
+        "microros",
     ]
     if namespace:
         pre_communication_cmd.extend(["--namespace", namespace])

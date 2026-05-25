@@ -32,17 +32,24 @@ def print_error(msg: str):
     print(f"{RED}[ERROR] {msg}{RESET}")
 
 
+VALID_BACKENDS = ("microros", "mavlink")
+
+
 def configure_robot(
     port: str,
     namespace: str,
     baudrate: int,
     timeout: float = 5.0,
     expected_fw: str = "v1.1.0-jazzy",
+    backend: str = "",
 ) -> bool:
     if namespace and not re.match(r"^[a-zA-Z0-9_/]+$", namespace):
         print_error(
             f"Invalid namespace: '{namespace}'. Use only alphanumeric characters, underscores and slashes."
         )
+        return False
+    if backend and backend not in VALID_BACKENDS:
+        print_error(f"Invalid backend: '{backend}'. Use one of {VALID_BACKENDS}.")
         return False
     try:
         print(f"Pre-communication with MCU on {port}...")
@@ -73,18 +80,43 @@ def configure_robot(
             return False
 
         print(f"✓ Firmware version detected: {current_fw}")
+
+        # BACKEND: emitted before NS:. No-ACK is fatal — older firmware
+        # silently falls out of the handshake on an unknown line.
+        if backend:
+            serial_port.write(f"BACKEND:{backend}\n".encode("utf-8"))
+            serial_port.flush()
+            backend_ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
+            if backend_ack != "ACK":
+                print_error(
+                    f"BACKEND configuration failed (got '{backend_ack}'). "
+                    f"Firmware likely predates the runtime-switch handshake — "
+                    f"flash a build with the BACKEND: parser before running this launch."
+                )
+                serial_port.close()
+                return False
+            print(f"✓ Backend selected: {backend}")
+
         serial_port.write(f"NS:{namespace}\n".encode("utf-8"))
         serial_port.flush()
-
-        ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
-        serial_port.close()
-
-        if ack == "ACK":
-            print(f"✓ Robot configured with namespace: /{namespace}")
-            return True
-        else:
-            print_error(f"Namespace configuration failed. No ACK received: '{ack}'")
+        ns_ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
+        if ns_ack != "ACK":
+            print_error(f"Namespace configuration failed. No ACK received: '{ns_ack}'")
+            serial_port.close()
             return False
+        print(f"✓ Robot configured with namespace: /{namespace}")
+
+        # END closes the pre-comm window without waiting for the
+        # firmware's 2.5 s timeout. Older firmware ignores the line —
+        # it has already exited the handshake on NS:, so we treat a
+        # missing ACK as benign and don't fail the launch.
+        serial_port.write(b"END\n")
+        serial_port.flush()
+        end_ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
+        serial_port.close()
+        if end_ack == "ACK":
+            print("✓ Pre-comm closed via END")
+        return True
 
     except serial.SerialException as e:
         print_error(f"Serial error: {e}")
@@ -116,6 +148,13 @@ def main(args=None):
         default="v1.1.0-jazzy",
         help="Firmware version string the MCU must report.",
     )
+    parser.add_argument(
+        "--backend",
+        default="",
+        choices=("", *VALID_BACKENDS),
+        help="Upstream-link backend to enable on the MCU via the BACKEND: handshake line. "
+        "Empty (default) leaves the firmware's own default in place (MICRO_ROS).",
+    )
     args = parser.parse_args(args)
 
     robot_model = args.robot_model
@@ -139,7 +178,11 @@ def main(args=None):
             mcu_manager = McuManagerFTDI(port)
             mcu_manager.reset_mcu()
             success = configure_robot(
-                port, args.namespace, args.baudrate, expected_fw=args.expected_firmware
+                port,
+                args.namespace,
+                args.baudrate,
+                expected_fw=args.expected_firmware,
+                backend=args.backend,
             )
             sys.exit(0 if success else 1)
         else:
@@ -147,7 +190,11 @@ def main(args=None):
             mcu_manager.reset_mcu()
             port = mcu_manager.get_port()
             success = configure_robot(
-                port, args.namespace, args.baudrate, expected_fw=args.expected_firmware
+                port,
+                args.namespace,
+                args.baudrate,
+                expected_fw=args.expected_firmware,
+                backend=args.backend,
             )
             sys.exit(0 if success else 1)
 

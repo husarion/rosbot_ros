@@ -71,7 +71,7 @@ ros2 launch rosbot_bringup <rosbot/rosbot_xl>.yaml
 > ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
 > ```
 >
-> To flash the MAVLink-stack firmware variant (paired with `link_layer:=mavlink` in bringup), pass `--variant mavlink`:
+> The runtime-switch firmware variant covers both backends; flash it the usual way and pick the link at boot via `backend:=mavlink` (default `microros`).
 >
 > ```bash
 > ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl> --variant mavlink
@@ -109,8 +109,8 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=<rosbot/rosbot_xl>
 | ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `False`                                                                                       |
 | ✅  | ✅  | `namespace`         | Add namespace to all launched nodes. <br/> **_string:_** `env(ROBOT_NAMESPACE)`                                                                                                                       |
 | ✅  | ✅  | `robot_model`       | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |
-| ✅  | ❌  | `hardware_bridge`   | Whether to launch the SBC↔MCU bridge (selected by `link_layer`). Set to `False` to skip it entirely (e.g. when running the bridge/agent in a separate container). <br/> **_bool:_** `True`                                                                                                                       |
-| ✅  | ❌  | `link_layer`        | MCU↔SBC protocol stack the hardware bridge speaks. `microros` starts the XRCE-DDS agent (pairs with the micro-ROS firmware); `mavlink` starts the rosbot_mavlink_bridge node (requires the MAVLink firmware variant + `rosbot_mavlink_bridge` on the overlay). <br/> **_string:_** `microros` (choices: `microros`, `mavlink`)                                                                                                                          |
+| ✅  | ❌  | `hardware_bridge`   | Whether to launch the SBC↔MCU bridge (selected by `backend`). Set to `False` to skip it entirely (e.g. when running the bridge/agent in a separate container). <br/> **_bool:_** `True`                                                                                                                       |
+| ✅  | ❌  | `backend`           | MCU↔SBC upstream-link backend the hardware bridge drives. `microros` starts the XRCE-DDS agent (`micro_ros_agent`); `mavlink` starts the `rosbot_mavlink_bridge` node. The matching `BACKEND:` line is emitted to the MCU during the pre-comm handshake; runtime-switch firmware brings up the chosen path. <br/> **_string:_** `microros` (choices: `microros`, `mavlink`)                                                                                                                          |
 | ✅  | ❌  | `manipulator_serial_port`  | Port to connect to the manipulator. <br/> **_string:_** `/dev/ttyUSB0`                                                                                                                                  |
 | ✅  | ❌  | `port`              | **ROSbot XL only.** UDP4 port for micro-ROS agent. <br/> **_string:_** `8888`                                                                                                                         |
 | ✅  | ❌  | `serial_baudrate`   | ROSbot only. Baud rate for serial communication. <br/> **_string:_** `921600`                                                                                                                                  |

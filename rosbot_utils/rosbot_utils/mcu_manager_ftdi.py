@@ -69,7 +69,7 @@ class McuManagerFTDI:
         sh.usbreset("0403:6015")
         time.sleep(0.3)
 
-    def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
+    def flashing_operation(self, operation_name, binary_file=None, baudrate=460800):
         print(f"\n{operation_name} operation started")
         time.sleep(0.5)
 
