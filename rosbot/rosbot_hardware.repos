@@ -11,9 +11,13 @@ repositories:
     type: git
     url: https://github.com/micro-ROS/micro-ROS-Agent
     version: af007872b034d1ed31de4815377031350ab0034b
-  # Builds rosbot_mavlink_bridge (runtime dep of mavlink.launch.py).
-  # Flashing still uses bundled .bin in rosbot_utils/firmware/.
-  # `version` is auto-bumped by rosbot-firmware's release workflow.
+  # Source mirror of the rosbot-firmware repo. The only ROS package inside
+  # the tree (`bridge/rosbot_mavlink_bridge`) is picked up by colcon and
+  # builds the bridge — runtime dependency of mavlink.launch.py. Bundled
+  # .bin files in rosbot_utils/firmware/ stay the source of truth for
+  # flashing; this entry is for getting bridge + firmware sources into
+  # the workspace. `version` is auto-bumped by rosbot-firmware's release
+  # workflow.
   rosbot-firmware:
     type: git
     url: https://github.com/husarion/rosbot-firmware.git
