@@ -65,7 +65,7 @@ def main(args=None):
     )
     parser.add_argument(
         "--variant",
-        default="micro-ros",
+        default="mavlink",
         choices=["micro-ros", "mavlink"],
         help="Bundled firmware variant to flash when --file is not given.",
     )

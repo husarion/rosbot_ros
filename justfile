@@ -1,22 +1,11 @@
-# Husarion rosbot_ros — run `just --list` to see recipes.
-#
-# Most day-to-day work happens at the colcon workspace level (see CLAUDE.md
-# §3 for the canonical 'colcon build' / 'colcon test' loop). This file is
-# the release driver — kept minimal on purpose. The pre-commit setup
-# already documented in CONTRIBUTING.md is what catches formatting; this
-# recipe just orchestrates the version bump + changelog + tag + push.
+# Release driver. Day-to-day build/test stays at the colcon workspace level (CLAUDE.md §3).
 
 [private]
 default:
     @just --list
 
-# Path to the Python venv where release tooling (pre-commit) lives.
-# Kept separate from the system Python so the recipe works the same on
-# any host without depending on whatever the operator has globally.
 venv := env_var_or_default("ROSBOT_ROS_RELEASE_VENV", "$HOME/.venv-rosbot-ros-release")
 
-# One-time bootstrap of the release-tooling venv. Idempotent — called
-# automatically by `just release` when the venv is missing.
 install-deps:
     #!/bin/bash
     set -euo pipefail
@@ -25,33 +14,15 @@ install-deps:
     fi
     {{venv}}/bin/pip install --upgrade pip
     {{venv}}/bin/pip install pre-commit
-    echo
     echo "Release tooling installed in {{venv}}."
 
-# Cut a release for the current branch. Drives the full local→published
-# flow: sanity gate (clean tree, in sync with origin, pre-commit clean),
-# ask Claude for a semver bump + Keep-a-Changelog section based on the
-# commits since the last tag, show the diff, and on y/N confirm bump
-# every package.xml + prepend CHANGELOG.md + commit + tag + push.
-#
-# CI (.github/workflows/release.yaml) takes over on the tag push and
-# publishes the GitHub Release (body from CHANGELOG) + triggers the
-# docker image build via the existing build-docker.yaml workflow.
-#
-# Tag convention (matches existing rosbot_ros history):
-#   on 'jazzy' branch          -> bare X.Y.Z (e.g. 1.0.1)
-#   on 'jazzy-<something>'     -> X.Y.Z-<something> (e.g. 1.0.1-jazzy-mavlink)
-#
-# Requires: claude CLI, jq, python3, pre-commit. The recipe runs
-# pre-commit as its build gate — colcon build is left to CI (run-tests.yaml)
-# because the workspace setup (vcs import + rosdep) is too stateful to
-# reproduce inside a release recipe.
+# Cut a release for the current branch: pre-commit gate → claude drafts
+# version + CHANGELOG section → apply-release.py bumps package.xml + prepends
+# CHANGELOG → y/N → commit + tag + push (CI publishes via .github/workflows/release.yaml).
+# Tags: bare X.Y.Z on jazzy, X.Y.Z-<branch-suffix> elsewhere.
 release:
     #!/bin/bash
     set -euo pipefail
-    # Auto-bootstrap the release-tooling venv if it's missing. Same
-    # pattern as rosbot-firmware — keeps the recipe self-sufficient on
-    # any clean host.
     if [[ ! -x {{venv}}/bin/pre-commit ]]; then
         echo "release: 'pre-commit' not in {{venv}} — bootstrapping..."
         just install-deps
@@ -80,7 +51,6 @@ release:
         || { echo "release: 'pre-commit' still missing after install-deps" >&2; exit 1; }
 
     # ---- 2. tag suffix + commit range ----
-    # Bare tag on the canonical 'jazzy' branch; suffixed on feature branches.
     if [ "$branch" = "jazzy" ]; then
         tag_suffix=""
     else

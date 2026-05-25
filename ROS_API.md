@@ -22,7 +22,6 @@ Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/co
 [imu_sensor_broadcaster/imu_sensor_broadcaster]: https://github.com/ros-controls/ros2_controllers/tree/master/imu_sensor_broadcaster
 [joint_state_broadcaster/joint_state_broadcaster]: https://github.com/ros-controls/ros2_controllers/tree/master/joint_state_broadcaster
 [laser_filters/scan_to_scan_filter_chain]: https://github.com/ros-perception/laser_filters/blob/ros2/src/scan_to_scan_filter_chain.cpp
-[micro_ros_agent/micro_ros_agent]: https://github.com/micro-ROS/micro-ROS-Agent
 [robot_localization/ekf_node]: https://github.com/cra-ros-pkg/robot_localization
 [robot_state_publisher/robot_state_publisher]: https://github.com/ros/robot_state_publisher
 [rosbot_hardware_interfaces/rosbot_imu_sensor]: https://github.com/husarion/rosbot_hardware_interfaces/blob/main/src/rosbot_imu_sensor.cpp
@@ -43,7 +42,7 @@ Gamepad controls are defined in the [`config.yaml`](src/rosbot_ros/rosbot_joy/co
 | ✅  | ✅  | **`robot_state_publisher`**   | Uses the URDF specified by the parameter robot\*description and the joint positions from the topic joint\*states to calculate the forward kinematics of the robot and publish the results using tf <br /> _[robot_state_publisher/robot_state_publisher]_                                                                                             |
 | ✅  | ❌  | **`rosbot_system_node`**      | The node communicating with the hardware responsible for receiving and sending data related to engine control <br /> _[rosbot_hardware_interfaces/rosbot_system]_                                                                                                                                                                                   |
 | ❌  | ✅  | **`rosbot_gz_bridge`**        | Transmits data about the robot between the Gazebo simulator and ROS. <br /> _[ros_gz_bridge/parameter_bridge]_ |
-| ✅  | ❌  | **`rosbot_mcu`**             | Microcontroller unit (MCU) communication node. Default: `micro_ros_agent` (XRCE-DDS). With `backend:=mavlink` it is replaced by the `rosbot_mavlink_bridge` node, which speaks MAVLink to the MCU instead. <br /> _[micro_ros_agent/micro_ros_agent]_                                                                                                                                                                                                                      |
+| ✅  | ❌  | **`rosbot_mcu`**             | Microcontroller unit (MCU) communication node. Default: `rosbot_mavlink_bridge` (MAVLink). With `backend:=microros` it is replaced by the `micro_ros_agent` node, which speaks XRCE-DDS to the MCU instead. <br /> _[rosbot_mavlink_bridge/rosbot_mavlink_bridge]_                                                                                                                                                                                                                      |
 
 ### Available Topics
 
@@ -92,8 +91,8 @@ The main package responsible for running the physical robot.
 
 - `rosbot.yaml` - activates all logic related to the ROSbot's movement and processing of sensory data.
 - `rosbot_xl.yaml` - activates all logic related to the ROSbot XL's movement and processing of sensory data.
-- `microros.launch.py` - establishes connection with the hardware using microROS agent. Selected when `backend:=microros` (default).
-- `mavlink.launch.py` - alternative backend launch that starts the `rosbot_mavlink_bridge` node instead of the microROS agent. Selected when `backend:=mavlink`. Requires a runtime-switch firmware build on the MCU (the boot handshake's `BACKEND:` line picks the MAVLink path) and the `rosbot_mavlink_bridge` package on the ROS overlay.
+- `mavlink.launch.py` - starts the `rosbot_mavlink_bridge` node. Selected when `backend:=mavlink` (default). Requires a runtime-switch firmware build on the MCU (the boot handshake's `BACKEND:` line picks the MAVLink path) and the `rosbot_mavlink_bridge` package on the ROS overlay.
+- `microros.launch.py` - alternative backend that establishes connection with the hardware using the microROS XRCE-DDS agent. Selected when `backend:=microros`.
 
 ### `rosbot_controller`
 

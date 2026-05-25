@@ -19,9 +19,9 @@ launch:
   - arg:
       name: backend
       default: mavlink
-      description: Which MCU<->SBC protocol stack the hardware bridge speaks. 'microros' starts the XRCE-DDS
-        agent. 'mavlink' starts the rosbot_mavlink_bridge node (requires the MAVLink firmware + the rosbot_mavlink_bridge
-        package on the overlay).
+      description: Which MCU<->SBC protocol stack the hardware bridge speaks. 'mavlink' (default) starts
+        the rosbot_mavlink_bridge node; 'microros' starts the XRCE-DDS agent (compatible with the legacy
+        micro-ROS-only firmware). Requires the runtime-switch firmware variant on the MCU.
       choice:
         - value: microros
         - value: mavlink
