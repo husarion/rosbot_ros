@@ -25,6 +25,11 @@ int main(int argc, char **argv) {
     rclcpp::shutdown();
     return 1;
   }
+  if (!mover.WaitForControllers({"manipulator", "gripper"},
+                                std::chrono::seconds(15))) {
+    rclcpp::shutdown();
+    return 1;
+  }
 
   const bool ok = mover.MoveToTargets({
       {"gripper", "Close", std::nullopt, std::nullopt, 3},
