@@ -39,7 +39,7 @@ Running test with
     return (
         make_bringup_launch_description(
             mecanum=mecanum,
-            microros="False",
+            hardware_bridge="False",
             namespace=namespace,
             robot_model=robot_model,
         ),

@@ -14,6 +14,7 @@
 
 #include <rosbot_moveit/arm_pose_mover.hpp>
 
+#include <control_msgs/action/follow_joint_trajectory.hpp>
 #include <moveit_msgs/action/move_group.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 
@@ -40,6 +41,27 @@ bool ArmPoseMover::WaitForMoveGroup(std::chrono::seconds timeout) {
   if (!client->wait_for_action_server(timeout)) {
     RCLCPP_ERROR(node_->get_logger(), "MoveGroup action server not available");
     return false;
+  }
+  return true;
+}
+
+bool ArmPoseMover::WaitForControllers(
+    const std::vector<std::string> &group_names, std::chrono::seconds timeout) {
+  const auto deadline = std::chrono::steady_clock::now() + timeout;
+  for (const auto &group : group_names) {
+    const std::string action_name =
+        group + "_controller/follow_joint_trajectory";
+    auto client = rclcpp_action::create_client<
+        control_msgs::action::FollowJointTrajectory>(node_, action_name);
+    const auto remaining = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        deadline - std::chrono::steady_clock::now());
+    if (remaining <= std::chrono::nanoseconds(0) ||
+        !client->wait_for_action_server(remaining)) {
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Action server '"
+                                                   << action_name
+                                                   << "' not available");
+      return false;
+    }
   }
   return true;
 }

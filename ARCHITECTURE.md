@@ -24,17 +24,18 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
                │            │ rosbot_description    │ — URDF/xacro + robot_state_publisher
                │            └──────┬───────────────┘
                ▼                   ▼ <ros2_control> in URDF
-       ┌─────────────────┐   ┌─────────────────────────────┐
-       │ micro_ros_agent │   │ controller_manager + drivers │
-       │  (serial / udp) │   │  diff/mecanum, imu_broadcaster│
-       └────────┬────────┘   │  joint_state_broadcaster      │
-                │            │  (manipulator_controller XL)  │
-                ▼            └──────────────┬───────────────┘
-       ┌──────────────────┐                 ▼
-       │ STM32 firmware   │       ┌──────────────────────────┐
-       │ (v1.1.0-jazzy)   │       │ rosbot_hardware_interfaces│ (HW only)
-       └──────────────────┘       │  RosbotSystem, RosbotImuSensor │
-                                  └──────────────────────────┘
+       ┌──────────────────────┐   ┌─────────────────────────────┐
+       │ backend (backend=…)  │   │ controller_manager + drivers │
+       │  micro_ros_agent OR  │   │  diff/mecanum, imu_broadcaster│
+       │  rosbot_mavlink_bridge│  │  joint_state_broadcaster      │
+       └─────────┬────────────┘   │  (manipulator_controller XL)  │
+                 │                └──────────────┬───────────────┘
+                 ▼                               ▼
+       ┌──────────────────────────────┐    ┌──────────────────────────┐
+       │ STM32 firmware (runtime-     │    │ rosbot_hardware_interfaces│ (HW only)
+       │  switch — ${FIRMWARE_VERSION})│   │  RosbotSystem, RosbotImuSensor │
+       │  micro-ROS + MAVLink in one  │    └──────────────────────────┘
+       └──────────────────────────────┘
 
        ┌────────────────────────┐    ┌──────────────────────┐
        │ rosbot_localization    │    │ rosbot_utils          │
@@ -47,7 +48,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
        └────────────────────────────────────────┘
 ```
 
-**HW vs sim split:** HW → `microros.launch.py` starts agent + `controller_manager` with `RosbotSystem`/`RosbotImuSensor` plugins. Sim → `rosbot_gazebo/spawn_robot.yaml` skips `controller_manager` (hosted by `gz_ros2_control/GazeboSimSystem` plugin inside Gazebo).
+**HW vs sim split:** HW → the `backend` arg picks `microros.launch.py` (micro-ROS XRCE-DDS agent) or `mavlink.launch.py` (`rosbot_mavlink_bridge`), then `controller_manager` runs with `RosbotSystem`/`RosbotImuSensor` plugins regardless of backend. Sim → `rosbot_gazebo/spawn_robot.yaml` skips `controller_manager` (hosted by `gz_ros2_control/GazeboSimSystem` plugin inside Gazebo).
 
 ---
 
@@ -60,7 +61,8 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 ### `rosbot_bringup` — HW entry point
 
 - [rosbot.yaml](rosbot_bringup/launch/rosbot.yaml) / [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) per model; [bringup.yaml](rosbot_bringup/launch/bringup.yaml) dispatches by `robot_model`.
-- [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — runs `configure_robot` (firmware version check + namespace over serial; rc≠0 → `Shutdown`), then `micro_ros_agent` (serial 921600 / udp4:8888 for XL).
+- [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — selected by `backend:=microros`. Runs `configure_robot --backend microros` (firmware version check against `FIRMWARE_VERSION` + `BACKEND:` and `NS:<ns>` handshake; rc≠0 → `Shutdown`), then `micro_ros_agent` (serial 921600 / udp4:8888 for XL).
+- [mavlink.launch.py](rosbot_bringup/launch/mavlink.launch.py) — selected by `backend:=mavlink` (default). Same pre-comm with `--backend mavlink`, then `rosbot_mavlink_bridge` instead of the XRCE-DDS agent. Requires the runtime-switch firmware on the MCU (one binary that brings up either backend based on the boot `BACKEND:` line) and the `rosbot_mavlink_bridge` package on the ROS overlay.
 - XL extras: `led_strip` arg, `microros_mode=udp`. `config_dir` → `microros_localhost_only.xml` when `ROS_LOCALHOST_ONLY=1`.
 - Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_multirobot.py](rosbot_bringup/test/test_multirobot.py), [test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py). **Skipped in CI** (local only).
 
@@ -115,7 +117,7 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 
 ### `rosbot_utils` — utilities
 
-- Scripts (in `lib/rosbot_utils`): `flash_firmware` (uses [firmware/](rosbot_utils/firmware/) binaries), `configure_robot` (pre-comm), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `led_strip_car_wave`, `led_strip_rainbow`.
+- Scripts (in `lib/rosbot_utils`): `flash_firmware` (flashes `rosbot[_xl]-${FIRMWARE_VERSION}.bin` from [firmware/](rosbot_utils/firmware/) — single runtime-switch binary covers both backends), `configure_robot` (pre-comm: FW string check + `BACKEND:` + `NS:` handshake; `--backend microros|mavlink` selects upstream link), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `led_strip_car_wave`, `led_strip_rainbow`.
 - Python modules: `mcu_manager_ftdi.py`, `mcu_manager_uart.py`, `utils.py`, `firmware_version.py` (single FW version source).
 - Launches: `laser_filter.yaml` (crops scan inside robot bbox), `battery_alert.yaml`.
 - Per-model configs: [config/rosbot/config.yaml](rosbot_utils/config/rosbot/config.yaml), [config/rosbot_xl/config.yaml](rosbot_utils/config/rosbot_xl/config.yaml).
@@ -127,7 +129,7 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 ### 3.1 Real ROSbot (XL)
 
 1. `ros2 launch rosbot_bringup rosbot_xl.yaml`.
-2. `microros.launch.py` → `configure_robot` (FW check + `NS:<ns>` over serial, `ACK` required) → on success `micro_ros_agent udp4 --port 8888`.
+2. `backend:=microros|mavlink` (default `mavlink`) picks `microros.launch.py` or `mavlink.launch.py`. Each runs `configure_robot` (FW check vs `FIRMWARE_VERSION` + `BACKEND:<backend>` ACK + `NS:<ns>` ACK + `END` close) → on success starts the matching upstream node (`micro_ros_agent udp4 --port 8888` or `rosbot_mavlink_bridge`).
 3. `rosbot_controller/controller.yaml` → sed-resolves `controllers.yaml`, `robot_state_publisher` with resolved URDF (`use_sim=False`, `<ros2_control>` uses `RosbotSystem`/`RosbotImuSensor`), after 3 s `controller_manager` + spawners, after 5 s `manipulator.yaml` if `configuration ∈ {manipulation, manipulation_pro}`.
 4. `rosbot_joy/joy.yaml`, `rosbot_localization/ekf.yaml`, `rosbot_utils/laser_filter.yaml`, (XL) `led_strip_car_wave` if `led_strip:=True`.
 
@@ -194,9 +196,9 @@ Full list → [ROS_API.md](ROS_API.md). All namespaced when `ROBOT_NAMESPACE` se
 
 ## 7. Firmware + pre-communication
 
-- Binaries: `rosbot_utils/firmware/{rosbot,rosbot_xl}-v1.1.0-jazzy.bin`. Version pinned in [`rosbot_utils.firmware_version`](rosbot_utils/rosbot_utils/firmware_version.py) (single source).
+- Single runtime-switch binary: `rosbot_utils/firmware/rosbot[_xl]-${FIRMWARE_VERSION}.bin` (covers both micro-ROS and MAVLink; backend chosen at boot via the `BACKEND:` handshake line). Version pinned in [`rosbot_utils.firmware_version`](rosbot_utils/rosbot_utils/firmware_version.py) — `configure_robot` rejects any other FW string.
 - Flash: `ros2 run rosbot_utils flash_firmware --robot-model rosbot[_xl]`. XL → `--usb` auto (FTDI); ROSbot → UART over GPIO (gpiochip reset).
-- Pre-comm serial protocol: MCU emits `FW: v1.1.0-jazzy\n` → host sends `NS:<namespace>\n` → MCU `ACK\n`.
+- Pre-comm serial protocol: MCU emits `FW: ${FIRMWARE_VERSION}\n` → host (optional) `BACKEND:microros|mavlink\n` → MCU `ACK\n` → host `NS:<namespace>\n` → MCU `ACK\n` → host `END\n` (closes pre-comm without waiting on the 2.5 s firmware timeout; older firmware ignores it).
 - USB-B PC development: see [CONTRIBUTING.md](CONTRIBUTING.md) (requires manual `btn1`/`btn2` + reset).
 
 ---

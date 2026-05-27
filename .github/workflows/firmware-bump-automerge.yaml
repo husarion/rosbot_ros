@@ -1,0 +1,83 @@
+---
+# Try to enable GitHub's native auto-merge (squash) on firmware-bump PRs
+# that rosbot-firmware's release workflow opens here. Once enabled,
+# GitHub server-side waits for the required checks (`integration` etc.)
+# to pass and merges the PR. If a check fails, auto-merge stays armed
+# and waits for a green re-run — it never merges over a red check. To
+# block a specific PR from auto-merging, add the `block-automerge` label.
+#
+# Setup prerequisites (manual, one-off, can't be automated from here):
+#   Repo Settings -> General -> "Allow auto-merge" must be ON, and the
+#   target branch (`jazzy-mavlink-v2`) needs branch protection with at
+#   least one required status check.
+#
+# Without those settings, GitHub refuses to enable auto-merge. The job
+# then emits a workflow `::warning::` annotation + writes an actionable
+# checklist to the run's Job Summary, and exits 0 — so the workflow run
+# stays green (yellow warning, not red failure). The PR is still open
+# and reviewable; a human just has to merge it manually. Once an admin
+# flips the settings, future PRs auto-merge on their own.
+name: Firmware bump auto-merge
+
+on:
+  pull_request_target:
+    # `unlabeled` is here so removing `block-automerge` (after a human
+    # finishes the manual edits on a breaking-change PR) re-triggers the
+    # job and enables auto-merge for the remainder of the CI cycle.
+    types: [opened, labeled, unlabeled, reopened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable-automerge:
+    if: >
+      contains(github.event.pull_request.labels.*.name, 'auto-firmware-bump') &&
+      !contains(github.event.pull_request.labels.*.name, 'block-automerge')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Try to enable auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -uo pipefail  # NB: no -e — we handle the failure ourselves.
+
+          OUT=$(mktemp)
+          if gh pr merge --auto --squash --delete-branch \
+                  "$PR_NUMBER" -R "$REPO" >"$OUT" 2>&1; then
+              echo "Auto-merge enabled for PR #$PR_NUMBER."
+              cat "$OUT"
+              exit 0
+          fi
+
+          rc=$?
+          echo "::warning title=Auto-merge could not be enabled::gh pr merge --auto exited with code $rc. PR #$PR_NUMBER is open but a human needs to merge it (or an admin needs to enable the repo settings below)."
+
+          {
+              echo "## :warning: Auto-merge could not be enabled on PR #$PR_NUMBER"
+              echo
+              echo "The PR is open and reviewable — a human needs to merge it for now."
+              echo
+              echo "### One-off admin setup to enable auto-merge for future PRs"
+              echo
+              echo "1. **Settings → General → Pull Requests → Allow auto-merge**: ON"
+              echo "2. **Settings → Branches**: branch protection on \`$BASE_REF\` with at least one required status check (e.g. \`CI / Pre-commit\`, \`CI / ROS Test\`)"
+              echo
+              echo "Both require **Admin** permission on this repo. Once an admin flips them, the next firmware-bump PR will auto-merge on green CI without any code changes."
+              echo
+              echo "### \`gh\` output"
+              echo
+              echo "\`\`\`"
+              cat "$OUT"
+              echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Exit 0 — the workflow run stays green (with a yellow warning
+          # annotation). The signal lives in the warning + Job Summary
+          # rather than a red failure, so we don't clutter the Actions
+          # tab with "broken" runs while the admin settings are pending.
+          exit 0

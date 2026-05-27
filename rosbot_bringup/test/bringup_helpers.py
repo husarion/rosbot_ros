@@ -34,9 +34,9 @@ def make_bringup_launch_description(**launch_arguments):
     """Build a LaunchDescription that launches ``rosbot_bringup/bringup.yaml``.
 
     ``launch_arguments`` are forwarded as launch-argument overrides; tests
-    typically pass ``microros='False'`` to keep the test offline. The returned
-    description bundles ``KeepAliveProc`` + ``ReadyToTest`` so launch_pytest
-    fixtures stay one-liners.
+    typically pass ``hardware_bridge='False'`` to keep the test offline. The
+    returned description bundles ``KeepAliveProc`` + ``ReadyToTest`` so
+    launch_pytest fixtures stay one-liners.
     """
     bringup_launch = IncludeLaunchDescription(
         PathJoinSubstitution([FindPackageShare("rosbot_bringup"), "launch", "bringup.yaml"]),

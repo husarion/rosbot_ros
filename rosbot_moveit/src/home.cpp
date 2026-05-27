@@ -21,14 +21,23 @@ int main(int argc, char **argv) {
   auto node = rclcpp::Node::make_shared("move_to_home_pose", options);
 
   rosbot_moveit::ArmPoseMover mover(node);
-  if (!mover.WaitForMoveGroup(std::chrono::seconds(15))) {
+  // Timeouts cover the full bringup from `ros2 launch` start: move_group
+  // finishes RDF/SRDF/kinematics load in ~5s after manipulator.yaml include,
+  // controllers wait for ros2_control_node which itself depends on the
+  // Dynamixel chain initialisation (~10s for 5 servos at 1 Mbps).
+  if (!mover.WaitForMoveGroup(std::chrono::seconds(30))) {
+    rclcpp::shutdown();
+    return 1;
+  }
+  if (!mover.WaitForControllers({"manipulator", "gripper"},
+                                std::chrono::seconds(60))) {
     rclcpp::shutdown();
     return 1;
   }
 
   const bool ok = mover.MoveToTargets({
       {"manipulator", "Home", 0.2, 0.1, 3},
-      {"gripper", "Open", 0.6, 0.6, 1},
+      {"gripper", "Open", 0.6, 0.6, 3},
   });
 
   rclcpp::shutdown();

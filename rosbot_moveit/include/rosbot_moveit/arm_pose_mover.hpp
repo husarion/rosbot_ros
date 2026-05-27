@@ -46,6 +46,11 @@ public:
   ArmPoseMover &operator=(const ArmPoseMover &) = delete;
 
   bool WaitForMoveGroup(std::chrono::seconds timeout);
+  // Waits for each `<group>_controller/follow_joint_trajectory` action server
+  // to become available. Without this MGI::move() races the controller_manager
+  // spawner on boot and reports spurious "Action client not connected" errors.
+  bool WaitForControllers(const std::vector<std::string> &group_names,
+                          std::chrono::seconds timeout);
   bool MoveToTargets(const std::vector<NamedTarget> &sequence);
 
 private:

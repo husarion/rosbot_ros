@@ -36,9 +36,6 @@ launch:
   - include:
       file: $(find-pkg-share rosbot_moveit)/launch/servo.launch.py
 
-  - timer:
-      period: 10.0
+  - include:
+      file: $(find-pkg-share rosbot_moveit)/launch/home.launch.py
       if: $(var arm_activate)
-      children:
-        - include:
-            file: $(find-pkg-share rosbot_moveit)/launch/home.launch.py

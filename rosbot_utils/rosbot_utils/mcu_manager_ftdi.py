@@ -69,7 +69,7 @@ class McuManagerFTDI:
         sh.usbreset("0403:6015")
         time.sleep(0.3)
 
-    def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
+    def flashing_operation(self, operation_name, binary_file=None, baudrate=460800):
         print(f"\n{operation_name} operation started")
         time.sleep(0.5)
 
@@ -85,7 +85,7 @@ class McuManagerFTDI:
         print("Success")
         time.sleep(0.5)
 
-    def flash_firmware(self, binary_file):
+    def flash_firmware(self, binary_file, max_attempts: int = 3):
 
         print(
             f"""
@@ -93,19 +93,26 @@ USB Flashing:
     File: {binary_file}
     Port: {self.port}"""
         )
-        try:
-            self.enter_bootloader_mode()
-
-            # self.flashing_operation("Read-Protection")
-            # self.flashing_operation("Write-Protection")
-            self.flashing_operation("Flashing", binary_file)
-
-            self.exit_bootloader_mode()
-        except Exception as e:
-            if hasattr(e, "stderr"):
-                error_msg = e.stderr.decode("utf-8").strip()
-                raise RuntimeError(f"{error_msg}") from e
-            raise e
+        last_err = None
+        for attempt in range(1, max_attempts + 1):
+            try:
+                self.enter_bootloader_mode()
+                self.flashing_operation("Flashing", binary_file)
+                self.exit_bootloader_mode()
+                return
+            except Exception as e:
+                # Race between usbreset re-enumeration and STM32 sampling BOOT0
+                # at the RST rising edge can land the MCU in firmware instead of
+                # bootloader; stm32flash then fails to init. Retry the whole
+                # enter_bootloader_mode + stm32flash sequence.
+                last_err = e
+                if attempt < max_attempts:
+                    print(f"Flash attempt {attempt}/{max_attempts} failed; retrying...")
+                    time.sleep(1.0)
+        if hasattr(last_err, "stderr"):
+            error_msg = last_err.stderr.decode("utf-8").strip()
+            raise RuntimeError(error_msg) from last_err
+        raise last_err
 
     def reset_mcu(self):
         self._open_ftdi_with_retry()
