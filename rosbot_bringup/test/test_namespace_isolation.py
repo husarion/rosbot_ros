@@ -37,12 +37,13 @@ ALLOWED_GLOBAL_TOPICS = {
 ALLOWED_GLOBAL_SERVICES: set[str] = set()
 
 # Base-only stack — `hardware_bridge:=False` skips manipulator spawners.
+# `scan` comes from the hardware/sim lidar bridge (disabled here), so it is
+# intentionally absent offline and not listed.
 REQUIRED_NS_TOPICS = {
     f"/{NAMESPACE}/joint_states",
     f"/{NAMESPACE}/odometry/filtered",
     f"/{NAMESPACE}/odometry/wheels",
     f"/{NAMESPACE}/imu/data",
-    f"/{NAMESPACE}/scan",
     f"/{NAMESPACE}/cmd_vel",
     f"/{NAMESPACE}/diagnostics",
 }

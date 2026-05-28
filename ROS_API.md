@@ -36,7 +36,6 @@ Enforced by
 [gz_ros2_control/gz_ros2_control]: https://github.com/ros-controls/gz_ros2_control
 [imu_sensor_broadcaster/imu_sensor_broadcaster]: https://github.com/ros-controls/ros2_controllers/tree/master/imu_sensor_broadcaster
 [joint_state_broadcaster/joint_state_broadcaster]: https://github.com/ros-controls/ros2_controllers/tree/master/joint_state_broadcaster
-[micro_ros_agent/micro_ros_agent]: https://github.com/micro-ROS/micro-ROS-Agent
 [robot_localization/ekf_node]: https://github.com/cra-ros-pkg/robot_localization
 [robot_state_publisher/robot_state_publisher]: https://github.com/ros/robot_state_publisher
 [rosbot_hardware_interfaces/rosbot_imu_sensor]: https://github.com/husarion/rosbot_hardware_interfaces/blob/main/src/rosbot_imu_sensor.cpp
