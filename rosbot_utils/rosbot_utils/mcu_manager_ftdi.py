@@ -91,7 +91,7 @@ class McuManagerFTDI:
         elif operation_name == "Flashing":
             sh.stm32flash("-b", str(baudrate), "-v", "-w", binary_file, self.port, _out=sys.stdout)
         else:
-            raise ("Unknown operation")
+            raise ValueError(f"Unknown operation: {operation_name}")
 
         print("Success")
         time.sleep(0.5)
