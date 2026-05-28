@@ -39,7 +39,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
        ┌────────────────────────┐    ┌──────────────────────┐
        │ rosbot_localization    │    │ rosbot_utils          │
-       │  ekf → odom/filtered   │    │  laser_filter, battery│
+       │  ekf → odom/filtered   │    │  battery_alert        │
        └────────────────────────┘    │  flash_firmware, LED  │
                                      └──────────────────────┘
 
@@ -84,7 +84,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 ### `rosbot_gazebo` — simulation
 
 - [simulation.yaml](rosbot_gazebo/launch/simulation.yaml) → `gz_sim` (via `husarion_gz_worlds`) + `parameter_bridge` (`/clock`) + delegates to [spawn_robot.yaml](rosbot_gazebo/launch/spawn_robot.yaml).
-- `spawn_robot.yaml`: sed-resolves [rosbot_bridge.yaml](rosbot_gazebo/config/rosbot_bridge.yaml) → `push_ros_namespace` group + `use_sim_time:=True` → `tf_namespace_bridge` (if ns≠'') → `cmd_vel` bridge + `ros_gz_sim/create` → `husarion_components_description/gz_components.launch.py` (sensor bridges) → `rosbot_controller/controller.yaml use_sim:=True` (no CM — Gazebo plugin) → `rosbot_joy` / `rosbot_localization` / `rosbot_utils/laser_filter` / optional RViz.
+- `spawn_robot.yaml`: sed-resolves [rosbot_bridge.yaml](rosbot_gazebo/config/rosbot_bridge.yaml) → `push_ros_namespace` group + `use_sim_time:=True` → `tf_namespace_bridge` (if ns≠'') → `cmd_vel` bridge + `ros_gz_sim/create` → `husarion_components_description/gz_components.launch.py` (sensor bridges) → `rosbot_controller/controller.yaml use_sim:=True` (no CM — Gazebo plugin) → `rosbot_joy` / `rosbot_localization` / optional RViz.
 - Tests: [test_sim.py](rosbot_gazebo/test/test_sim.py), [test_multirobot.py](rosbot_gazebo/test/test_multirobot.py) — parametrized `(mecanum, namespace, robot_model)`. **Skipped in CI.**
 
 ### `rosbot_hardware_interfaces` — ros2_control plugins (C++)
@@ -119,8 +119,8 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 
 - Scripts (in `lib/rosbot_utils`): `flash_firmware` (flashes `rosbot[_xl]-${FIRMWARE_VERSION}.bin` from [firmware/](rosbot_utils/firmware/) — single runtime-switch binary covers both backends), `configure_robot` (pre-comm: FW string check + `BACKEND:` + `NS:` handshake; `--backend microros|mavlink` selects upstream link), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `led_strip_car_wave`, `led_strip_rainbow`.
 - Python modules: `mcu_manager_ftdi.py`, `mcu_manager_uart.py`, `utils.py`, `firmware_version.py` (single FW version source).
-- Launches: `laser_filter.yaml` (crops scan inside robot bbox), `battery_alert.yaml`.
-- Per-model configs: [config/rosbot/config.yaml](rosbot_utils/config/rosbot/config.yaml), [config/rosbot_xl/config.yaml](rosbot_utils/config/rosbot_xl/config.yaml).
+- Launches: `battery_alert.yaml`.
+- Per-model configs: [config/rosbot_xl/config.yaml](rosbot_utils/config/rosbot_xl/config.yaml).
 
 ---
 
@@ -131,13 +131,13 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 1. `ros2 launch rosbot_bringup rosbot_xl.yaml`.
 2. `backend:=microros|mavlink` (default `mavlink`) picks `microros.launch.py` or `mavlink.launch.py`. Each runs `configure_robot` (FW check vs `FIRMWARE_VERSION` + `BACKEND:<backend>` ACK + `NS:<ns>` ACK + `END` close) → on success starts the matching upstream node (`micro_ros_agent udp4 --port 8888` or `rosbot_mavlink_bridge`).
 3. `rosbot_controller/controller.yaml` → sed-resolves `controllers.yaml`, `robot_state_publisher` with resolved URDF (`use_sim=False`, `<ros2_control>` uses `RosbotSystem`/`RosbotImuSensor`), after 3 s `controller_manager` + spawners, after 5 s `manipulator.yaml` if `configuration ∈ {manipulation, manipulation_pro}`.
-4. `rosbot_joy/joy.yaml`, `rosbot_localization/ekf.yaml`, `rosbot_utils/laser_filter.yaml`, (XL) `led_strip_car_wave` if `led_strip:=True`.
+4. `rosbot_joy/joy.yaml`, `rosbot_localization/ekf.yaml`, (XL) `led_strip_car_wave` if `led_strip:=True`.
 
 ### 3.2 Simulation (XL)
 
 1. `ros2 launch rosbot_gazebo simulation.yaml robot_model:=rosbot_xl`.
 2. `gz_sim` with `husarion_world.sdf` + `/clock` bridge.
-3. `spawn_robot.yaml` group: resolve `rosbot_bridge.yaml` → cmd_vel bridge → `ros_gz_sim/create -topic robot_description` → `gz_components` sensor bridges → `controller.yaml use_sim:=True` → joy / EKF / laser_filter / RViz.
+3. `spawn_robot.yaml` group: resolve `rosbot_bridge.yaml` → cmd_vel bridge → `ros_gz_sim/create -topic robot_description` → `gz_components` sensor bridges → `controller.yaml use_sim:=True` → joy / EKF / RViz.
 
 ### 3.3 Manipulator (HW XL `configuration:=manipulation`)
 
@@ -188,7 +188,7 @@ Full list → [ROS_API.md](ROS_API.md). All namespaced when `ROBOT_NAMESPACE` se
 | pub | `odometry/filtered` | EKF fusion |
 | pub | `tf`, `tf_static` | rsp + drive (`enable_odom_tf:false`, so mostly EKF) |
 | pub | `joint_states` | joint_state_broadcaster |
-| pub | `scan`, `scan_filtered` | raw lidar / after bbox filter |
+| pub | `scan` | raw lidar |
 | pub/sub | `joy` | manual control |
 | pub | `dynamic_joint_states`, `diagnostics`, `robot_description` | ros2_control standard |
 

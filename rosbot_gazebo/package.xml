@@ -19,7 +19,6 @@
 
   <exec_depend>gz_ros2_control</exec_depend>
   <exec_depend>husarion_gz_worlds</exec_depend>
-  <exec_depend>laser_filters</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>

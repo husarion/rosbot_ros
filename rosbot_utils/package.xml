@@ -20,7 +20,6 @@
   <depend>generate_parameter_library</depend>
 
   <exec_depend>alsa-utils</exec_depend>
-  <exec_depend>laser_filters</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>python3-argcomplete</exec_depend>
   <exec_depend>python3-ftdi</exec_depend>

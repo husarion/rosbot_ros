@@ -42,7 +42,7 @@ REQUIRED_NS_TOPICS = {
     f"/{NAMESPACE}/odometry/filtered",
     f"/{NAMESPACE}/odometry/wheels",
     f"/{NAMESPACE}/imu/data",
-    f"/{NAMESPACE}/scan_filtered",
+    f"/{NAMESPACE}/scan",
     f"/{NAMESPACE}/cmd_vel",
     f"/{NAMESPACE}/diagnostics",
 }

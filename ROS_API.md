@@ -36,7 +36,7 @@ Enforced by
 [gz_ros2_control/gz_ros2_control]: https://github.com/ros-controls/gz_ros2_control
 [imu_sensor_broadcaster/imu_sensor_broadcaster]: https://github.com/ros-controls/ros2_controllers/tree/master/imu_sensor_broadcaster
 [joint_state_broadcaster/joint_state_broadcaster]: https://github.com/ros-controls/ros2_controllers/tree/master/joint_state_broadcaster
-[laser_filters/scan_to_scan_filter_chain]: https://github.com/ros-perception/laser_filters/blob/ros2/src/scan_to_scan_filter_chain.cpp
+[micro_ros_agent/micro_ros_agent]: https://github.com/micro-ROS/micro-ROS-Agent
 [robot_localization/ekf_node]: https://github.com/cra-ros-pkg/robot_localization
 [robot_state_publisher/robot_state_publisher]: https://github.com/ros/robot_state_publisher
 [rosbot_hardware_interfaces/rosbot_imu_sensor]: https://github.com/husarion/rosbot_hardware_interfaces/blob/main/src/rosbot_imu_sensor.cpp
@@ -53,7 +53,6 @@ Enforced by
 | ✅  | ✅  | **`imu_broadcaster`**         | The broadcaster to publish readings of IMU sensors <br /> _[imu_sensor_broadcaster/imu_sensor_broadcaster]_                                                                                                                                                                                                                                         |
 | ✅  | ❌  | **`imu_sensor_node`**         | The node responsible for subscriptions to IMU data from the hardware <br /> _[rosbot_hardware_interfaces/rosbot_imu_sensor]_                                                                                                                                                                                                                        |
 | ✅  | ✅  | **`joint_state_broadcaster`** | The broadcaster reads all state interfaces and reports them on specific topics <br /> _[joint_state_broadcaster/joint_state_broadcaster]_                                                                                                                                                                                                           |
-| ✅  | ✅  | **`laser_filter`**            | This is a filter that removes points in a laser scan inside of a cartesian box <br /> _[laser_filters/scan_to_scan_filter_chain]_                                                                                                                                                                                                                   |
 | ✅  | ✅  | **`robot_state_publisher`**   | Uses the URDF specified by the parameter robot\*description and the joint positions from the topic joint\*states to calculate the forward kinematics of the robot and publish the results using tf <br /> _[robot_state_publisher/robot_state_publisher]_                                                                                             |
 | ✅  | ❌  | **`rosbot_system_node`**      | The node communicating with the hardware responsible for receiving and sending data related to engine control <br /> _[rosbot_hardware_interfaces/rosbot_system]_                                                                                                                                                                                   |
 | ❌  | ✅  | **`rosbot_gz_bridge`**        | Transmits data about the robot between the Gazebo simulator and ROS. <br /> _[ros_gz_bridge/parameter_bridge]_ |
@@ -85,7 +84,6 @@ Enforced by
 | ✅  | ✅  | **`odometry/wheels`**              | Provides odometry data from the base controller of the ROSbot XL. <br /> _[nav_msgs/Odometry]_                                |
 | ✅  | ✅  | **`robot_description`**                        | Publishes the robot's description. <br /> _[std_msgs/String]_                                                                 |
 | ✅  | ✅  | **`scan`**                                     | Publishes raw laser scan data. <br /> _[sensor_msgs/LaserScan]_                                                               |
-| ✅  | ✅  | **`scan_filtered`**                            | Publishes filtered laser scan data. <br /> _[sensor_msgs/LaserScan]_                                                          |
 | ✅  | ✅  | **`set_pose`**                                 | Changes the robot's `odometry/filtered` pose. <br /> _[geometry_msgs/PoseWithCovarianceStamped]_                                     |
 | ✅  | ✅  | **`tf`**                                       | Publishes transformations between coordinate frames over time. <br /> _[tf2_msgs/TFMessage]_                                  |
 | ✅  | ✅  | **`tf_static`**                                | Publishes static transformations between coordinate frames. <br /> _[tf2_msgs/TFMessage]_                                     |
@@ -151,8 +149,8 @@ A package related to the logic responsible for performing sensor fusion.
 
 ### `rosbot_utils`
 
-A package containing auxiliary filters that integrate simple external packages.
+A package containing auxiliary nodes and utilities for the ROSbot Series.
 
 **Available Launch Files:**
 
-- `laser_filter.yaml` - launch laser filter responsible for filtering out the laser scan points located inside the robot base.
+- `battery_alert.yaml` - launch the node that plays an audible alert when the battery level drops below a threshold.
