@@ -101,12 +101,6 @@ launch:
   - include:
       file: $(find-pkg-share rosbot_localization)/launch/ekf.yaml
 
-  - include:
-      file: $(find-pkg-share rosbot_utils)/launch/laser_filter.yaml
-      let:
-        - name: robot_model
-          value: $(var robot_model)
-
 #  Dont work in snap
 #   - include:
 #       file: $(find-pkg-share rosbot_utils)/launch/battery_alert.yaml

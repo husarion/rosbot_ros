@@ -74,7 +74,9 @@ class McuManagerUART:
             boot0_pin_no = 17
             reset_pin_no = 18
         else:
-            raise ("Unknown device. Currently supported: Raspberry Pi 4/5, ThinkerBoard, UpBoard")
+            raise RuntimeError(
+                "Unknown device. Currently supported: Raspberry Pi 4/5, ThinkerBoard, UpBoard"
+            )
 
         try:
             chip = gpiod.Chip(gpio_chip)
@@ -111,7 +113,7 @@ class McuManagerUART:
         elif operation_name == "Flashing":
             sh.stm32flash("-b", str(baudrate), "-v", "-w", binary_file, self.port, _out=sys.stdout)
         else:
-            raise ("Unknown operation")
+            raise ValueError(f"Unknown operation: {operation_name}")
 
         print("Success")
         time.sleep(0.5)

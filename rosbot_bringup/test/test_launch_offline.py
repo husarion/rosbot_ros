@@ -69,14 +69,13 @@ def test_per_model_launch_declares_required_args(model):
 
 @pytest.mark.parametrize("model", ROBOT_MODELS)
 def test_per_model_launch_pulls_in_subsystems(model):
-    """Each bringup must include controller / joy / localization / laser_filter (ROS_API.md contract)."""
+    """Each bringup must include controller / joy / localization (ROS_API.md contract)."""
     doc = _launch(f"{model}.yaml")
     include_files = " ".join(inc.get("file", "") for inc in _includes(doc))
     for needle in (
         "rosbot_controller",
         "rosbot_joy",
         "rosbot_localization",
-        "rosbot_utils",  # laser_filter lives here
     ):
         assert needle in include_files, f"{model}.yaml does not include any launch from {needle}"
 

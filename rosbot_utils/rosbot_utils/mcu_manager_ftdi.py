@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
 import time
 
@@ -30,44 +31,54 @@ class McuManagerFTDI:
         self.device = "ftdi://ftdi:ft-x:/1"
         self.ftdi = Ftdi()
 
-    def _open_ftdi_with_retry(self, max_attempts: int = 3, interval: float = 1.5):
-        # USB re-enumeration after reset or abrupt process kill can take up to ~2s;
-        # device.langids is unavailable during that window causing PyFTDI to fail.
-        # On first failure, usbreset forces the kernel to release a stale device state.
-        for attempt in range(max_attempts):
+    def _open_ftdi(self, timeout: float = 5.0, interval: float = 0.1):
+        # USB re-enumeration after a usbreset can take up to ~2s; until the
+        # device is back, langids is unavailable and open_from_url raises. Poll
+        # for readiness instead of guessing a fixed sleep.
+        deadline = time.monotonic() + timeout
+        while True:
             try:
+                self.ftdi = Ftdi()
                 self.ftdi.open_from_url(url=self.device)
                 return
             except Exception:
-                if attempt == max_attempts - 1:
+                if time.monotonic() >= deadline:
                     raise
-                if attempt == 0:
-                    sh.usbreset("0403:6015")
                 time.sleep(interval)
-                self.ftdi = Ftdi()
+
+    def _wait_for_port(self, timeout: float = 5.0, interval: float = 0.05):
+        # usbreset re-binds ftdi_sio and udev recreates the /dev symlink
+        # asynchronously; wait for the node before handing it to stm32flash.
+        deadline = time.monotonic() + timeout
+        while not os.path.exists(self.port):
+            if time.monotonic() >= deadline:
+                raise RuntimeError(f"Port {self.port} did not reappear after USB reset")
+            time.sleep(interval)
+
+    def _pulse_reset(self, boot0_high: bool):
+        # Drive the RST rising edge ourselves with BOOT0 actively held, so the
+        # MCU latches the intended BOOT0 deterministically. The trailing usbreset
+        # only re-binds the kernel serial driver (libusb detached it) — it must
+        # not be relied on to produce the reset edge, which is the old flaky path.
+        boot0 = 0b01 if boot0_high else 0b00  # CBUS0 = BOOT0
+        self._open_ftdi()
+        self.ftdi.set_cbus_direction(0b11, 0b11)  # BOOT0 and RST as outputs
+        self.ftdi.set_cbus_gpio(0b10 | boot0)  # RST high (idle)
+        time.sleep(0.05)
+        self.ftdi.set_cbus_gpio(0b00 | boot0)  # RST low (assert reset)
+        time.sleep(0.05)
+        self.ftdi.set_cbus_gpio(0b10 | boot0)  # RST high while BOOT0 held -> MCU latches BOOT0
+        time.sleep(0.05)
+        self.ftdi.set_cbus_direction(0b11, 0b00)  # release BOOT0 and RST to inputs
+        self.ftdi.close()
+        sh.usbreset("0403:6015")
+        self._wait_for_port()
 
     def enter_bootloader_mode(self):
-        self._open_ftdi_with_retry()
-        self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
-        self.ftdi.set_cbus_gpio(0b11)  # set BOOT0 to 1 and RST to 1
-        time.sleep(0.1)
-        self.ftdi.set_cbus_gpio(0b01)  # set BOOT0 to 1 and RST to 0
-        time.sleep(0.1)
-        self.ftdi.close()
-        sh.usbreset("0403:6015")
-        time.sleep(0.3)
+        self._pulse_reset(boot0_high=True)
 
     def exit_bootloader_mode(self):
-        self._open_ftdi_with_retry()
-        self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
-        self.ftdi.set_cbus_gpio(0b10)  # set BOOT0 to 1 and RST to 1
-        time.sleep(0.3)
-        self.ftdi.set_cbus_gpio(0b00)  # set BOOT0 to 1 and RST to 0
-        time.sleep(0.1)
-        self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
-        self.ftdi.close()
-        sh.usbreset("0403:6015")
-        time.sleep(0.3)
+        self._pulse_reset(boot0_high=False)
 
     def flashing_operation(self, operation_name, binary_file=None, baudrate=460800):
         print(f"\n{operation_name} operation started")
@@ -80,12 +91,12 @@ class McuManagerFTDI:
         elif operation_name == "Flashing":
             sh.stm32flash("-b", str(baudrate), "-v", "-w", binary_file, self.port, _out=sys.stdout)
         else:
-            raise ("Unknown operation")
+            raise ValueError(f"Unknown operation: {operation_name}")
 
         print("Success")
         time.sleep(0.5)
 
-    def flash_firmware(self, binary_file, max_attempts: int = 3):
+    def flash_firmware(self, binary_file):
 
         print(
             f"""
@@ -93,36 +104,16 @@ USB Flashing:
     File: {binary_file}
     Port: {self.port}"""
         )
-        last_err = None
-        for attempt in range(1, max_attempts + 1):
-            try:
-                self.enter_bootloader_mode()
-                self.flashing_operation("Flashing", binary_file)
-                self.exit_bootloader_mode()
-                return
-            except Exception as e:
-                # Race between usbreset re-enumeration and STM32 sampling BOOT0
-                # at the RST rising edge can land the MCU in firmware instead of
-                # bootloader; stm32flash then fails to init. Retry the whole
-                # enter_bootloader_mode + stm32flash sequence.
-                last_err = e
-                if attempt < max_attempts:
-                    print(f"Flash attempt {attempt}/{max_attempts} failed; retrying...")
-                    time.sleep(1.0)
-        if hasattr(last_err, "stderr"):
-            error_msg = last_err.stderr.decode("utf-8").strip()
-            raise RuntimeError(error_msg) from last_err
-        raise last_err
+        try:
+            self.enter_bootloader_mode()
+            self.flashing_operation("Flashing", binary_file)
+            self.exit_bootloader_mode()
+        except Exception as e:
+            if hasattr(e, "stderr"):
+                error_msg = e.stderr.decode("utf-8").strip()
+                raise RuntimeError(error_msg) from e
+            raise
 
     def reset_mcu(self):
-        self._open_ftdi_with_retry()
-        time.sleep(0.1)
-        self.ftdi.set_cbus_direction(0b11, 0b11)  # set BOOT0 and RST to output
-        self.ftdi.set_cbus_gpio(0b10)  # set BOOT0 to 1 and RST to 1
-        time.sleep(0.1)
-        self.ftdi.set_cbus_gpio(0b00)  # set BOOT0 to 1 and RST to 0
-        time.sleep(0.1)
-        self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
-        self.ftdi.close()
-        sh.usbreset("0403:6015")
-        time.sleep(1.5)
+        self._pulse_reset(boot0_high=False)
+        time.sleep(1.5)  # let the firmware boot before configure_robot's handshake
