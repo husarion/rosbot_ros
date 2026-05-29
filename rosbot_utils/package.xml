@@ -33,8 +33,13 @@
   <exec_depend>usbutils</exec_depend>
 
   <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>launch</test_depend>
+  <test_depend>launch_pytest</test_depend>
+  <test_depend>launch_ros</test_depend>
+  <test_depend>launch_testing</test_depend>
   <test_depend>python3-pytest</test_depend>
   <test_depend>python3-yaml</test_depend>
+  <test_depend>rclpy</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
