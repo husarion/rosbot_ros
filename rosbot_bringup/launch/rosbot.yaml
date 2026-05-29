@@ -51,6 +51,10 @@ launch:
       name: RCUTILS_COLORIZED_OUTPUT
       value: '1'
 
+  - set_env:
+      name: RCUTILS_CONSOLE_OUTPUT_FORMAT
+      value: '[{severity}] [{time}] [{name}]: {message}'
+
   - log:
       message: Bringing up ROSbot, namespace=$(var namespace), configuration=base
 
