@@ -20,4 +20,4 @@ Bumping this constant without also swapping the corresponding ``.bin`` files in
 ``configure_robot`` and is a release-blocking error.
 """
 
-FIRMWARE_VERSION: str = "v2.0.0-jazzy"
+FIRMWARE_VERSION: str = "v2.0.1-jazzy"
