@@ -13,7 +13,7 @@ launch:
 
   - set_env:
       name: RCUTILS_CONSOLE_OUTPUT_FORMAT
-      value: '[{severity}] [{time}] [{name}]: {message}'
+      value: '[{severity}] [{date_time_with_ms}] [{name}]: {message}'
 
   - set_use_sim_time:
       value: true

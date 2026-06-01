@@ -58,7 +58,7 @@ launch:
 
   - set_env:
       name: RCUTILS_CONSOLE_OUTPUT_FORMAT
-      value: '[{severity}] [{time}] [{name}]: {message}'
+      value: '[{severity}] [{date_time_with_ms}] [{name}]: {message}'
 
   - log:
       message: Bringing up ROSbot XL, namespace=$(var namespace), configuration=base, led_strip=$(var
