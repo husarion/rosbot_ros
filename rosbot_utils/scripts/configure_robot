@@ -23,7 +23,6 @@ import serial
 from rosbot_utils.firmware_version import FIRMWARE_VERSION
 from rosbot_utils.mcu_manager_ftdi import McuManagerFTDI
 from rosbot_utils.mcu_manager_uart import McuManagerUART
-from rosbot_utils.utils import find_device_port
 
 RED = "\033[91m"
 RESET = "\033[0m"
@@ -157,7 +156,7 @@ def main(args=None):
 
     try:
         if args.usb:
-            port = find_device_port("0403", "6015", "/dev/rosbot")
+            port = "/dev/rosbot"
             udev_rules = "/etc/udev/rules.d/99-rosbot.rules"
 
             if not os.path.exists(port):

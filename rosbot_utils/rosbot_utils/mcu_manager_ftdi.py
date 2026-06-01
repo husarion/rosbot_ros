@@ -128,4 +128,5 @@ USB Flashing:
         self.ftdi.set_cbus_direction(0b11, 0b00)  # set BOOT0 and RST to input
         self.ftdi.close()
         sh.usbreset("0403:6015")
-        time.sleep(1.5)  # let the firmware boot before configure_robot's handshake
+        time.sleep(1.5)
+        self._wait_for_port()
