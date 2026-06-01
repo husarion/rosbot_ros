@@ -60,20 +60,20 @@ Enforced by
 ### Available Topics
 
 [control_msgs/DynamicJointState]: https://github.com/ros-controls/control_msgs/blob/master/control_msgs/msg/DynamicJointState.msg
-[diagnostic_msgs/DiagnosticArray]: https://docs.ros2.org/foxy/api/diagnostic_msgs/msg/DiagnosticArray.html
-[geometry_msgs/PoseWithCovarianceStamped]: https://docs.ros2.org/foxy/api/geometry_msgs/msg/PoseWithCovarianceStamped.html
-[geometry_msgs/Twist]: https://docs.ros2.org/foxy/api/geometry_msgs/msg/Twist.html
-[nav_msgs/Odometry]: https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html
-[sensor_msgs/Imu]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/Imu.html
-[sensor_msgs/JointState]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/JointState.html
-[sensor_msgs/Joy]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/Joy.html
-[sensor_msgs/LaserScan]: https://docs.ros2.org/foxy/api/sensor_msgs/msg/LaserScan.html
-[std_msgs/String]: https://docs.ros2.org/foxy/api/std_msgs/msg/String.html
-[tf2_msgs/TFMessage]: https://docs.ros2.org/foxy/api/tf2_msgs/msg/TFMessage.html
+[diagnostic_msgs/DiagnosticArray]: https://docs.ros.org/en/jazzy/p/diagnostic_msgs/msg/DiagnosticArray.html
+[geometry_msgs/PoseWithCovarianceStamped]: https://docs.ros.org/en/jazzy/p/geometry_msgs/msg/PoseWithCovarianceStamped.html
+[geometry_msgs/TwistStamped]: https://docs.ros.org/en/jazzy/p/geometry_msgs/msg/TwistStamped.html
+[nav_msgs/Odometry]: https://docs.ros.org/en/jazzy/p/nav_msgs/msg/Odometry.html
+[sensor_msgs/Imu]: https://docs.ros.org/en/jazzy/p/sensor_msgs/msg/Imu.html
+[sensor_msgs/JointState]: https://docs.ros.org/en/jazzy/p/sensor_msgs/msg/JointState.html
+[sensor_msgs/Joy]: https://docs.ros.org/en/jazzy/p/sensor_msgs/msg/Joy.html
+[sensor_msgs/LaserScan]: https://docs.ros.org/en/jazzy/p/sensor_msgs/msg/LaserScan.html
+[std_msgs/String]: https://docs.ros.org/en/jazzy/p/std_msgs/msg/String.html
+[tf2_msgs/TFMessage]: https://docs.ros.org/en/jazzy/p/tf2_msgs/msg/TFMessage.html
 
 | 🤖  | 🖥️  | TOPIC                                          | DESCRIPTION                                                                                                                   |
 | --- | --- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| ✅  | ✅  | **`cmd_vel`**                                  | Sends velocity commands for controlling robot motion. <br /> _[geometry_msgs/Twist]_                                          |
+| ✅  | ✅  | **`cmd_vel`**                                  | Sends velocity commands for controlling robot motion (`use_stamped_vel: true`). <br /> _[geometry_msgs/TwistStamped]_         |
 | ✅  | ✅  | **`diagnostics`**                              | Contains diagnostic information about the robot's systems. <br /> _[diagnostic_msgs/DiagnosticArray]_                         |
 | ✅  | ✅  | **`dynamic_joint_states`**                     | Publishes information about the dynamic state of joints. <br /> _[control_msgs/DynamicJointState]_                            |
 | ✅  | ✅  | **`imu/data`**                      | Broadcasts IMU (Inertial Measurement Unit) data. <br /> _[sensor_msgs/Imu]_                                                   |
