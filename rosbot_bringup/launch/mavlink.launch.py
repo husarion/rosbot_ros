@@ -15,76 +15,31 @@
 # MAVLink sibling of microros.launch.py. Requires the rosbot_mavlink_bridge
 # package on the overlay (shipped with the MAVLink firmware release).
 
-import os
-
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     EmitEvent,
     ExecuteProcess,
     IncludeLaunchDescription,
-    LogInfo,
     OpaqueFunction,
     RegisterEventHandler,
-    SetEnvironmentVariable,
 )
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
-from launch.launch_description_sources import AnyLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
     PathJoinSubstitution,
-    PythonExpression,
 )
 from launch_ros.substitutions import FindPackageShare
 
 
-def _resolve_bridge_launch(robot_model: str) -> str:
-    pkg_dir = FindPackageShare("rosbot_mavlink_bridge").find("rosbot_mavlink_bridge")
-    return os.path.join(pkg_dir, "launch", f"{robot_model}.launch.py")
-
-
 def generate_bridge_launch(context, *args, **kwargs):
-    env_setup_actions = []
 
-    config_dir = LaunchConfiguration("config_dir").perform(context)
     namespace = LaunchConfiguration("namespace").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     serial_port = LaunchConfiguration("serial_port").perform(context)
     serial_baudrate = LaunchConfiguration("serial_baudrate").perform(context)
-
-    config_rosbot_bringup_dir = PythonExpression(
-        [
-            "'",
-            config_dir,
-            "/rosbot_bringup' if '",
-            config_dir,
-            "' else '",
-            FindPackageShare("rosbot_bringup"),
-            "'",
-        ]
-    )
-    fastrtps_profiles = PathJoinSubstitution(
-        [config_rosbot_bringup_dir, "config", "microros_localhost_only.xml"]
-    )
-
-    if os.environ.get("ROS_LOCALHOST_ONLY") == "1":
-        env_setup_actions.extend(
-            [
-                LogInfo(
-                    msg=[
-                        "ROS_LOCALHOST_ONLY set to 1. Using FASTRTPS_DEFAULT_PROFILES_FILE=",
-                        fastrtps_profiles,
-                    ]
-                ),
-                SetEnvironmentVariable(name="RMW_IMPLEMENTATION", value="rmw_fastrtps_cpp"),
-                SetEnvironmentVariable(
-                    name="FASTRTPS_DEFAULT_PROFILES_FILE",
-                    value=fastrtps_profiles,
-                ),
-            ]
-        )
 
     pre_communication_cmd = [
         "ros2",
@@ -117,7 +72,9 @@ def generate_bridge_launch(context, *args, **kwargs):
         )
 
     bridge_launch = IncludeLaunchDescription(
-        AnyLaunchDescriptionSource(_resolve_bridge_launch(robot_model)),
+        PathJoinSubstitution(
+            [FindPackageShare("rosbot_mavlink_bridge"), "launch", f"{robot_model}.launch.py"]
+        ),
         launch_arguments=bridge_launch_args,
     )
 
@@ -130,15 +87,10 @@ def generate_bridge_launch(context, *args, **kwargs):
         OnProcessExit(target_action=pre_communication, on_exit=on_pre_comm_exit)
     )
 
-    return env_setup_actions + [pre_communication, handle_exit]
+    return [pre_communication, handle_exit]
 
 
 def generate_launch_description():
-    declare_config_dir_arg = DeclareLaunchArgument(
-        "config_dir",
-        default_value="",
-        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
-    )
 
     declare_microros_mode_arg = DeclareLaunchArgument(
         "microros_mode",
@@ -180,7 +132,6 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_config_dir_arg,
             declare_namespace_arg,
             declare_port_arg,
             declare_robot_model_arg,
