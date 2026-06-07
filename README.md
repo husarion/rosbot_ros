@@ -63,6 +63,11 @@ colcon build --symlink-install --packages-up-to rosbot --cmake-args -DCMAKE_BUIL
 
 #### Run the Robot
 
+> [!WARNING]
+> **Manipulator arm orientation before startup:** Before launching, manually orient the robotic arm to face the **rear** of the robot. This ensures full clearance during the home sequence. If the arm is facing forward at startup, it may collide with the robot body when moving to the home pose.
+>
+> **Long-term fix:** Update the robot URDF to correctly define the arm's mount orientation so the home pose faces forward without collision risk.
+
 For ROSbot XL, you can specify a particular configuration using the launch `configuration` argument. If you are using the `manipulation` configuration, please refer to [MANIPULATOR.md](MANIPULATOR.md) for detailed instructions.
 
 **Real robot:**
