@@ -102,7 +102,7 @@ class McuManagerUART:
         self.reset_pin.set_value(0)
         time.sleep(0.1)
 
-    def flashing_operation(self, operation_name, binary_file=None, baudrate=460800):
+    def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
         print(f"\n{operation_name} operation started")
         time.sleep(0.5)
 
@@ -133,17 +133,13 @@ UART Flashing:
         )
         try:
             self.enter_bootloader_mode()
-
-            # self.flashing_operation("Read-Protection")
-            # self.flashing_operation("Write-Protection")
             self.flashing_operation("Flashing", binary_file)
-
             self.exit_bootloader_mode()
         except Exception as e:
             if hasattr(e, "stderr"):
                 error_msg = e.stderr.decode("utf-8").strip()
-                raise RuntimeError(f"{error_msg}") from e
-            raise e
+                raise RuntimeError(error_msg) from e
+            raise
 
     def reset_mcu(self):
         self.reset_pin.set_value(1)
