@@ -91,7 +91,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
 `pluginlib` exports:
 
-- `RosbotSystem` (`SystemInterface`) — 4 wheel joints, `velocity` cmd → MCU via `motors_cmd` `Float32MultiArray` (order from `velocity_command_joint_order` param).
+- `RosbotSystem` (`SystemInterface`) — 4 wheel joints, `velocity` cmd → MCU via `motors_cmd` `Float32MultiArray` (order from `velocity_command_joint_order` param). State interfaces per joint: `position`, `velocity`, and optional `effort` (motor torque from `_motors/feedback`; declared in the HW URDF, absent in sim → effort published as `NaN` there).
 - `RosbotImuSensor` (`SensorInterface`) — subscribes `_imu/data` from MCU, exposes 10 state interfaces.
 - Params: `connection_timeout_ms`, `connection_check_period_ms`. Defined in [common/ros2_control.urdf.xacro](rosbot_description/urdf/common/ros2_control.urdf.xacro).
 

@@ -107,6 +107,7 @@ protected:
   std::map<std::string, double> vel_commands_;
   std::map<std::string, double> pos_state_;
   std::map<std::string, double> vel_state_;
+  std::map<std::string, double> eff_state_;
 
   bool subscriber_is_active_ = false;
 

@@ -77,7 +77,7 @@ Enforced by
 | ✅  | ✅  | **`diagnostics`**                              | Contains diagnostic information about the robot's systems. <br /> _[diagnostic_msgs/DiagnosticArray]_                         |
 | ✅  | ✅  | **`dynamic_joint_states`**                     | Publishes information about the dynamic state of joints. <br /> _[control_msgs/DynamicJointState]_                            |
 | ✅  | ✅  | **`imu/data`**                      | Broadcasts IMU (Inertial Measurement Unit) data. <br /> _[sensor_msgs/Imu]_                                                   |
-| ✅  | ✅  | **`joint_states`**                             | Publishes information about the state of robot joints. <br /> _[sensor_msgs/JointState]_                                      |
+| ✅  | ✅  | **`joint_states`**                             | Publishes information about the state of robot joints. On hardware the `effort` field carries wheel motor torque (measured on ROSbot XL rev 1.2, back-EMF estimate otherwise); in simulation `effort` is `NaN`. <br /> _[sensor_msgs/JointState]_                                      |
 | ✅  | ✅  | **`joy`**                             | Publishes joystick input data. <br /> _[sensor_msgs/Joy]_                                      |
 | ✅  | ✅  | **`odometry/filtered`**                        | Publishes filtered odometry data. <br /> _[nav_msgs/Odometry]_                                                                |
 | ✅  | ✅  | **`odometry/wheels`**              | Provides odometry data from the base controller of the ROSbot XL. <br /> _[nav_msgs/Odometry]_                                |

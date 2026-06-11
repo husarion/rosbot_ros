@@ -51,9 +51,10 @@ CallbackReturn RosbotSystem::on_init(
       return CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces.size() != 2) {
+    if (joint.state_interfaces.size() != 2 &&
+        joint.state_interfaces.size() != 3) {
       RCLCPP_FATAL(rclcpp::get_logger("RosbotSystem"),
-                   "Joint '%s' has %zu state interface. 2 expected.",
+                   "Joint '%s' has %zu state interface. 2 or 3 expected.",
                    joint.name.c_str(), joint.state_interfaces.size());
       return CallbackReturn::ERROR;
     }
@@ -75,6 +76,16 @@ CallbackReturn RosbotSystem::on_init(
           hardware_interface::HW_IF_VELOCITY);
       return CallbackReturn::ERROR;
     }
+
+    if (joint.state_interfaces.size() == 3 &&
+        joint.state_interfaces[2].name != hardware_interface::HW_IF_EFFORT) {
+      RCLCPP_FATAL(
+          rclcpp::get_logger("RosbotSystem"),
+          "Joint '%s' have '%s' as third state interface. '%s' expected.",
+          joint.name.c_str(), joint.state_interfaces[2].name.c_str(),
+          hardware_interface::HW_IF_EFFORT);
+      return CallbackReturn::ERROR;
+    }
   }
 
   for (auto &j : info_.joints) {
@@ -84,6 +95,9 @@ CallbackReturn RosbotSystem::on_init(
     pos_state_[j.name] = 0.0;
     vel_state_[j.name] = 0.0;
     vel_commands_[j.name] = 0.0;
+    if (j.state_interfaces.size() == 3) {
+      eff_state_[j.name] = 0.0;
+    }
   }
 
   connection_timeout_ms_ =
@@ -148,6 +162,9 @@ CallbackReturn RosbotSystem::on_activate(const rclcpp_lifecycle::State &) {
     pos_state_[x.first] = 0.0;
     vel_state_[x.first] = 0.0;
     vel_commands_[x.first] = 0.0;
+  }
+  for (auto &x : eff_state_) {
+    x.second = 0.0;
   }
 
   motor_command_publisher_ = node_->create_publisher<Float32MultiArray>(
@@ -218,6 +235,11 @@ std::vector<StateInterface> RosbotSystem::export_state_interfaces() {
     state_interfaces.emplace_back(
         StateInterface(info_.joints[i].name, hardware_interface::HW_IF_VELOCITY,
                        &vel_state_[info_.joints[i].name]));
+    if (eff_state_.count(info_.joints[i].name)) {
+      state_interfaces.emplace_back(
+          StateInterface(info_.joints[i].name, hardware_interface::HW_IF_EFFORT,
+                         &eff_state_[info_.joints[i].name]));
+    }
   }
 
   return state_interfaces;
@@ -270,6 +292,11 @@ return_type RosbotSystem::read(const rclcpp::Time &, const rclcpp::Duration &) {
 
     pos_state_[motor_state->name[i]] = motor_state->position[i];
     vel_state_[motor_state->name[i]] = motor_state->velocity[i];
+
+    auto eff_it = eff_state_.find(motor_state->name[i]);
+    if (eff_it != eff_state_.end() && i < motor_state->effort.size()) {
+      eff_it->second = motor_state->effort[i];
+    }
 
     RCLCPP_DEBUG(rclcpp::get_logger("RosbotSystem"),
                  "Position feedback: %f, velocity feedback: %f",
