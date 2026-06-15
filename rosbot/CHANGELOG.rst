@@ -2,6 +2,16 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump rosbot-firmware to MAVLink serial_port fix
+* Bump firmware to v2.0.1-jazzy
+* Add MAVLink backend alongside micro-ROS (runtime-switch firmware) (`#175 <https://github.com/husarion/rosbot_ros/issues/175>`_)
+* Namespace audit + bringup quieting + docs/test cleanup (`#173 <https://github.com/husarion/rosbot_ros/issues/173>`_)
+* Bump tf_namespace_bridge and clean up gazebo launches
+* Bump tf_namespace_bridge with frame_filters parameters
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.0.0 (2026-04-21)
 ------------------
 * New firmware with microros namespace pre-communication support (`#168 <https://github.com/husarion/rosbot_ros/issues/168>`_)

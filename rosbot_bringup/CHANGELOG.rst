@@ -2,6 +2,21 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump rosbot-firmware to MAVLink serial_port fix
+* Use human date-time with ms in pinned console log format
+* Pin console log format; migrate LED-strip nodes to C++ (`#181 <https://github.com/husarion/rosbot_ros/issues/181>`_)
+* Drop laser_filter; reliable FTDI USB firmware flashing (`#180 <https://github.com/husarion/rosbot_ros/issues/180>`_)
+* Add MAVLink backend alongside micro-ROS (runtime-switch firmware) (`#175 <https://github.com/husarion/rosbot_ros/issues/175>`_)
+* Namespace audit + bringup quieting + docs/test cleanup (`#173 <https://github.com/husarion/rosbot_ros/issues/173>`_)
+* Tests: CI coverage for every rosbot\_* package (`#171 <https://github.com/husarion/rosbot_ros/issues/171>`_)
+* Bump tf_namespace_bridge and clean up gazebo launches
+* Bump tf_namespace_bridge with frame_filters parameters
+* Add led_strip arg
+* Fix pre-communication
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.0.0 (2026-04-21)
 ------------------
 * New firmware with microros namespace pre-communication support (`#168 <https://github.com/husarion/rosbot_ros/issues/168>`_)

@@ -2,6 +2,13 @@
 Changelog for package rosbot_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Tests: CI coverage for every rosbot\_* package (`#171 <https://github.com/husarion/rosbot_ros/issues/171>`_)
+* Refactor rosbot_moveit: joy2servo migration + Cartesian arm control (`#170 <https://github.com/husarion/rosbot_ros/issues/170>`_)
+* Namespace MoveIt topics in joy2servo and servo_node
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.0.0 (2026-04-21)
 ------------------
 * New firmware with microros namespace pre-communication support (`#168 <https://github.com/husarion/rosbot_ros/issues/168>`_)

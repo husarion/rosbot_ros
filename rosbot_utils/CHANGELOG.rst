@@ -2,6 +2,26 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Exit non-zero when firmware flashing fails (`#183 <https://github.com/husarion/rosbot_ros/issues/183>`_)
+* Pin UART flash baudrate to 115200; drop dead flash comments
+* Harden FTDI reset: re-bind ftdi_sio instead of usbreset
+* Bump firmware to v2.0.1-jazzy
+* Fix /dev/rosbot race in FTDI pre-comm reset
+* Fix FTDI flashing broken by `#180 <https://github.com/husarion/rosbot_ros/issues/180>`_; pin baudrate to 115200
+* Add contract test for C++ led_strip nodes (`#182 <https://github.com/husarion/rosbot_ros/issues/182>`_)
+* Pin console log format; migrate LED-strip nodes to C++ (`#181 <https://github.com/husarion/rosbot_ros/issues/181>`_)
+* Drop laser_filter; reliable FTDI USB firmware flashing (`#180 <https://github.com/husarion/rosbot_ros/issues/180>`_)
+* Add MAVLink backend alongside micro-ROS (runtime-switch firmware) (`#175 <https://github.com/husarion/rosbot_ros/issues/175>`_)
+* Namespace audit + bringup quieting + docs/test cleanup (`#173 <https://github.com/husarion/rosbot_ros/issues/173>`_)
+* Tests: CI coverage for every rosbot\_* package (`#171 <https://github.com/husarion/rosbot_ros/issues/171>`_)
+* Deduplicate FIRMWARE_VERSION across rosbot_utils (`#169 <https://github.com/husarion/rosbot_ros/issues/169>`_)
+* Bump firmware to v1.1.0-jazzy
+* Add rosbot firmware 1.0.1
+* Firmware with improved PID
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.0.0 (2026-04-21)
 ------------------
 * New firmware with microros namespace pre-communication support (`#168 <https://github.com/husarion/rosbot_ros/issues/168>`_)
