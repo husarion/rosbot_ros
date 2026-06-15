@@ -1,2 +1,3 @@
 ---
+# Custom components (own URDF + mesh): https://github.com/husarion/husarion_components_description#custom-component
 components: []
