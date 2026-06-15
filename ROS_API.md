@@ -89,67 +89,20 @@ Enforced by
 
 There are also additional topics related with the ROSbot firmware. For more information about them, please refer to the [ROSbot Firmware documentation](https://github.com/husarion/rosbot-firmware/blob/jazzy/ROS_API.md).
 
-## Package Description
+## Packages
 
-### `rosbot`
+One-line purpose per package; full detail (launch flows, internals) in
+[ARCHITECTURE.md](ARCHITECTURE.md#2-packages).
 
-Metapackage that contains dependencies to other repositories.
-
-### `rosbot_bringup`
-
-The main package responsible for running the physical robot.
-
-**Available Launch Files:**
-
-- `rosbot.yaml` - activates all logic related to the ROSbot's movement and processing of sensory data.
-- `rosbot_xl.yaml` - activates all logic related to the ROSbot XL's movement and processing of sensory data.
-- `mavlink.launch.py` - starts the `rosbot_mavlink_bridge` node. Selected when `backend:=mavlink` (default). Requires a runtime-switch firmware build on the MCU (the boot handshake's `BACKEND:` line picks the MAVLink path) and the `rosbot_mavlink_bridge` package on the ROS overlay.
-- `microros.launch.py` - alternative backend that establishes connection with the hardware using the microROS XRCE-DDS agent. Selected when `backend:=microros`.
-
-### `rosbot_controller`
-
-ROS2 hardware controller for ROSbot. It manages inputs and outputs data from ROS2 control, forwarding it via ROS topics to be read by microROS. The controller.yaml file loads the robot model defined in rosbot_description along with ROS2 control dependencies from [rosbot_hardware_interfaces](https://github.com/husarion/rosbot_hardware_interfaces).
-
-**Available Launch Files:**
-
-- `controller.yaml` - starts controllers related to ros2_control responsible for driving, communication with imu and joint_states publications
-
-### `rosbot_description`
-
-URDF model used for both simulation and as a source of transforms on physical robot. It was written to be compatible with ROS Industrial and preconfigured for ROS2 control.
-
-**Available Launch Files:**
-
-- `rosbot.yaml` - Load URDF and starts ros2_control hardware interfaces
-- `rosbot_xl.yaml` - Load URDF and starts ros2_control hardware interfaces
-- `rviz.yaml` - Launches the RViz configuration for specified robot model.
-
-**Main Description Files:**
-
-- `rosbot.urdf.xacro` - Final configuration of ROSbot.
-- `rosbot_xl.urdf.xacro` - Final configuration of ROSbot XL.
-
-### `rosbot_gazebo`
-
-Launch files for Gazebo working with ROS2 control.
-
-**Available Launch Files:**
-
-- `simulations.yaml` - Runs simulations with a defined robot and all sensors on it.
-- `spawn_robot.yaml` - Allow to spawn new robot in already running simulation.
-
-### `rosbot_localization`
-
-A package related to the logic responsible for performing sensor fusion.
-
-**Available Launch Files:**
-
-- `ekf.yaml` - Runs ekf filter which fuse wheel odometry with imu data.
-
-### `rosbot_utils`
-
-A package containing auxiliary nodes and utilities for the ROSbot Series.
-
-**Available Launch Files:**
-
-- `battery_alert.yaml` - launch the node that plays an audible alert when the battery level drops below a threshold.
+| Package | Description |
+| --- | --- |
+| [`rosbot`](rosbot/) | Meta-package — pins sibling repos via `*.repos`, no code. |
+| [`rosbot_bringup`](rosbot_bringup/) | Hardware entry point: per-model bringup + MCU backend (MAVLink default / micro-ROS). _Local-only._ |
+| [`rosbot_controller`](rosbot_controller/) | ros2_control setup — spawns drive, IMU and joint-state controllers (plus the manipulator on XL). |
+| [`rosbot_description`](rosbot_description/) | URDF/xacro for hardware and simulation, robot configurations, `robot_state_publisher`. |
+| [`rosbot_gazebo`](rosbot_gazebo/) | Gazebo simulation launch and robot spawning. _Local-only._ |
+| [`rosbot_hardware_interfaces`](rosbot_hardware_interfaces/) | C++ ros2_control plugins (`RosbotSystem`, `RosbotImuSensor`) — the firmware ABI. |
+| [`rosbot_joy`](rosbot_joy/) | Joystick teleop for driving (`joy_node` + `teleop_twist_joy`). |
+| [`rosbot_localization`](rosbot_localization/) | EKF fusing wheel odometry + IMU → `odometry/filtered`. |
+| [`rosbot_moveit`](rosbot_moveit/) | MoveIt manipulation for the OpenMANIPULATOR-X (XL only) — see [MANIPULATOR.md](MANIPULATOR.md). |
+| [`rosbot_utils`](rosbot_utils/) | Utilities: firmware flashing, robot configuration, udev rules, battery alert, LED strip. |
