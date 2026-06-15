@@ -86,6 +86,9 @@ sim model='rosbot_xl': (build "rosbot_gazebo")
     set -eo pipefail; \
     source /opt/ros/jazzy/setup.bash; \
     source {{ws}}/install/setup.bash; \
+    if [ -e /usr/share/glvnd/egl_vendor.d/10_nvidia.json ] && command -v nvidia-smi >/dev/null 2>&1; then \
+      export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json; \
+    fi; \
     exec ros2 launch rosbot_gazebo simulation.yaml robot_model:={{model}}
 
 # Wipe build + install artefacts for a single package.
