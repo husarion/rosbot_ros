@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2026-06-15)
+------------------
 * Add wheel effort state interface from motors feedback
 * Namespace audit + bringup quieting + docs/test cleanup (`#173 <https://github.com/husarion/rosbot_ros/issues/173>`_)
 * Tests: CI coverage for every rosbot\_* package (`#171 <https://github.com/husarion/rosbot_ros/issues/171>`_)

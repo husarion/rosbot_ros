@@ -2,8 +2,8 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2026-06-15)
+------------------
 * Bump rosbot-firmware to MAVLink serial_port fix
 * Bump firmware to v2.0.1-jazzy
 * Add MAVLink backend alongside micro-ROS (runtime-switch firmware) (`#175 <https://github.com/husarion/rosbot_ros/issues/175>`_)

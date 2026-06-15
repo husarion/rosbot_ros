@@ -2,8 +2,8 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2026-06-15)
+------------------
 * Exit non-zero when firmware flashing fails (`#183 <https://github.com/husarion/rosbot_ros/issues/183>`_)
 * Pin UART flash baudrate to 115200; drop dead flash comments
 * Harden FTDI reset: re-bind ftdi_sio instead of usbreset

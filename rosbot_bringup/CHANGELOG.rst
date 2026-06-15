@@ -2,8 +2,8 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2026-06-15)
+------------------
 * Bump rosbot-firmware to MAVLink serial_port fix
 * Use human date-time with ms in pinned console log format
 * Pin console log format; migrate LED-strip nodes to C++ (`#181 <https://github.com/husarion/rosbot_ros/issues/181>`_)
