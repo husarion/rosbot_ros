@@ -61,6 +61,15 @@ launch:
       default: 'False'
       description: Use simulation
 
+  - arg:
+      name: controller_manager_timeout
+      default: '60'
+      description: >-
+        Seconds the spawner waits for controller_manager to load + activate the
+        controllers. Raised from 20 for slower SBCs (e.g. Raspberry Pi 5 on
+        ROSbot 3): the 100 Hz control loop plus camera/bridge startup contention
+        can exceed 20 s and leave the drive / imu controllers unconfigured.
+
   # =======================
   # Derived values
   # =======================
@@ -141,7 +150,7 @@ launch:
               joint_state_broadcaster
               -c controller_manager
               --activate-as-group
-              --controller-manager-timeout 20
+              --controller-manager-timeout $(var controller_manager_timeout)
               --controller-ros-args
               "--ros-args
               -r ~/cmd_vel:=cmd_vel
@@ -161,3 +170,5 @@ launch:
             let:
               - name: arm_activate
                 value: $(var arm_activate)
+              - name: controller_manager_timeout
+                value: $(var controller_manager_timeout)

@@ -9,6 +9,13 @@ launch:
         - value: 'True'
         - value: 'False'
 
+  - arg:
+      name: controller_manager_timeout
+      default: '60'
+      description: >-
+        Seconds the spawner waits for controller_manager to load + activate the
+        controllers. Raised from 20 for slower SBCs (see controller.yaml).
+
   - node:
       pkg: controller_manager
       exec: spawner
@@ -16,7 +23,7 @@ launch:
         manipulator_controller
         gripper_controller
         -c controller_manager
-        --controller-manager-timeout 20
+        --controller-manager-timeout $(var controller_manager_timeout)
       if: $(var arm_activate)
 
   - node:
@@ -26,7 +33,7 @@ launch:
         manipulator_controller
         gripper_controller
         -c controller_manager
-        --controller-manager-timeout 20
+        --controller-manager-timeout $(var controller_manager_timeout)
         --inactive
       unless: $(var arm_activate)
 
