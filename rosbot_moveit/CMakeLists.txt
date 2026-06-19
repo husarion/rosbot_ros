@@ -5,6 +5,7 @@ set(PACKAGE_INCLUDE_DEPENDS
     ament_cmake
     control_msgs
     geometry_msgs
+    moveit_core
     moveit_msgs
     moveit_ros_planning
     moveit_ros_planning_interface
