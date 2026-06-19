@@ -14,16 +14,10 @@
 
     <link name="body_link">
       <visual>
-        <geometry>
-          <mesh filename="package://rosbot_description/meshes/rosbot/body.stl" scale="0.001 0.001 0.001" />
-        </geometry>
         <origin xyz="0.0 0.0 -0.0173" rpy="${pi/2} 0.0 ${pi/2}" />
-        <material name="Black">
-          <color rgba="0.1 0.1 0.1 1.0" />
-        </material>
-        <gazebo reference="body_link">
-          <material>Gazebo/Black</material>
-        </gazebo>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot/body.glb" scale="0.001 0.001 0.001" />
+        </geometry>
       </visual>
 
       <collision>
@@ -48,20 +42,7 @@
       <child link="cover_link" />
     </joint>
 
-    <link name="cover_link">
-      <visual>
-        <geometry>
-          <mesh filename="package://rosbot_description/meshes/rosbot/cover.stl" scale="0.001 0.001 0.001" />
-        </geometry>
-        <origin xyz="0.0 0.0 -0.002" rpy="${pi/2} 0.0 ${pi/2}" />
-        <material name="Black">
-          <color rgba="0.1 0.1 0.1 1.0" />
-        </material>
-        <gazebo reference="cover_link">
-          <material>Gazebo/Black</material>
-        </gazebo>
-      </visual>
-    </link>
+    <link name="cover_link" />
 
     <joint name="body_to_imu_joint" type="fixed">
       <origin xyz="0.003 -0.0495 0.04332" rpy="0.0 0.0 0.0" />
@@ -72,7 +53,7 @@
     <link name="imu_link" />
 
     <joint name="body_to_camera_joint" type="fixed">
-      <origin xyz="-0.0141 0.0 0.125" rpy="0.0 0.0 0.0" />
+      <origin xyz="0.0179 0.0 0.144" rpy="0.0 0.0 0.0" />
       <parent link="body_link" />
       <child link="camera_mount_link" />
     </joint>
