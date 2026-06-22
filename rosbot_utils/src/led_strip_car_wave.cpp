@@ -22,6 +22,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <std_srvs/srv/set_bool.hpp>
 
 using namespace std::chrono_literals;
 
@@ -32,6 +33,11 @@ public:
     pub_ = create_publisher<sensor_msgs::msg::Image>("led_strip", qos);
     timer_ =
         create_wall_timer(40ms, std::bind(&LEDStripWavePublisher::Tick, this));
+
+    enable_service_ = create_service<std_srvs::srv::SetBool>(
+        "led_strip/enable",
+        std::bind(&LEDStripWavePublisher::SetEnabled, this,
+                  std::placeholders::_1, std::placeholders::_2));
   }
 
 private:
@@ -84,6 +90,21 @@ private:
     pub_->publish(msg);
   }
 
+  // Cancelling the timer halts both wave computation and publishing; the
+  // animation resumes from its current phase when re-enabled.
+  void
+  SetEnabled(const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
+             std::shared_ptr<std_srvs::srv::SetBool::Response> response) {
+    if (request->data) {
+      timer_->reset();
+      response->message = "LED strip enabled";
+    } else {
+      timer_->cancel();
+      response->message = "LED strip disabled";
+    }
+    response->success = true;
+  }
+
   static constexpr int kNumLeds = 18;
   static constexpr double kSpeed = 0.14;
   static constexpr double kWaveWidth = 2.3;
@@ -92,6 +113,7 @@ private:
   double phase_ = -5.0;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_;
   rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr enable_service_;
 };
 
 int main(int argc, char **argv) {

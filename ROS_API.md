@@ -89,6 +89,14 @@ Enforced by
 
 There are also additional topics related with the ROSbot firmware. For more information about them, please refer to the [ROSbot Firmware documentation](https://github.com/husarion/rosbot-firmware/blob/jazzy/ROS_API.md).
 
+### Available Services
+
+[std_srvs/SetBool]: https://docs.ros.org/en/jazzy/p/std_srvs/srv/SetBool.html
+
+| 🤖  | 🖥️  | SERVICE                | DESCRIPTION                                                                                                                                                                |
+| --- | --- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅  | ❌  | **`led_strip/enable`** | ROSbot XL only. Enables (`data: true`) or disables (`data: false`) the LED strip animation. While disabled the `led_strip_manager` node neither computes nor publishes the `led_strip` image. <br /> _[std_srvs/SetBool]_ |
+
 ## Packages
 
 One-line purpose per package; full detail (launch flows, internals) in

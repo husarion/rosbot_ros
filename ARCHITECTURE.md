@@ -117,7 +117,7 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 
 ### `rosbot_utils` — utilities
 
-- Scripts (in `lib/rosbot_utils`): `flash_firmware` (flashes `rosbot[_xl]-${FIRMWARE_VERSION}.bin` from [firmware/](rosbot_utils/firmware/) — single runtime-switch binary covers both backends), `configure_robot` (pre-comm: FW string check + `BACKEND:` + `NS:` handshake; `--backend microros|mavlink` selects upstream link), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `led_strip_car_wave`, `led_strip_rainbow`.
+- Scripts (in `lib/rosbot_utils`): `flash_firmware` (flashes `rosbot[_xl]-${FIRMWARE_VERSION}.bin` from [firmware/](rosbot_utils/firmware/) — single runtime-switch binary covers both backends), `configure_robot` (pre-comm: FW string check + `BACKEND:` + `NS:` handshake; `--backend microros|mavlink` selects upstream link), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `led_strip_car_wave`, `led_strip_rainbow` (both node-named `led_strip_manager`, publish `led_strip`; a `led_strip/enable` `SetBool` service stops/resumes computing + publishing the image at runtime).
 - Python modules: `mcu_manager_ftdi.py`, `mcu_manager_uart.py`, `utils.py`, `firmware_version.py` (single FW version source).
 - Launches: `battery_alert.yaml`.
 - Per-model configs: [config/rosbot_xl/config.yaml](rosbot_utils/config/rosbot_xl/config.yaml).

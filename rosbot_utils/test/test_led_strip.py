@@ -30,6 +30,7 @@ from launch_ros.actions import Node
 from launch_testing.actions import ReadyToTest
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 from sensor_msgs.msg import Image
+from std_srvs.srv import SetBool
 
 NUM_LEDS = 18
 LED_EXECUTABLES = ["led_strip_car_wave", "led_strip_rainbow"]
@@ -71,6 +72,55 @@ def test_led_strip_image_contract(generate_test_description):
         assert (
             len(msg.data) == NUM_LEDS * 3
         ), f"{executable}: data len {len(msg.data)} != {NUM_LEDS * 3}"
+
+        node.destroy_node()
+    finally:
+        rclpy.shutdown()
+
+
+def _count_within(node, received, window):
+    received.clear()
+    deadline = time.time() + window
+    while time.time() < deadline:
+        rclpy.spin_once(node, timeout_sec=0.05)
+    return len(received)
+
+
+def _call_enable(node, client, enabled):
+    request = SetBool.Request()
+    request.data = enabled
+    future = client.call_async(request)
+    rclpy.spin_until_future_complete(node, future, timeout_sec=5.0)
+    assert future.done(), "led_strip/enable did not respond within timeout"
+    assert future.result().success
+
+
+@pytest.mark.parametrize("generate_test_description", LED_EXECUTABLES, indirect=True)
+@pytest.mark.launch(fixture=generate_test_description)
+def test_led_strip_enable_service(generate_test_description):
+    _, executable = generate_test_description
+
+    rclpy.init()
+    try:
+        node = rclpy.create_node("test_led_strip_enable")
+        qos = QoSProfile(depth=1, reliability=QoSReliabilityPolicy.BEST_EFFORT)
+        received = []
+        node.create_subscription(Image, "led_strip", received.append, qos)
+
+        client = node.create_client(SetBool, "led_strip/enable")
+        assert client.wait_for_service(
+            timeout_sec=15.0
+        ), f"{executable}: led_strip/enable service unavailable"
+
+        assert _count_within(node, received, 1.0) > 0, f"{executable}: not publishing"
+
+        _call_enable(node, client, False)
+        assert (
+            _count_within(node, received, 1.0) == 0
+        ), f"{executable}: still publishing after disable"
+
+        _call_enable(node, client, True)
+        assert _count_within(node, received, 1.0) > 0, f"{executable}: did not resume after enable"
 
         node.destroy_node()
     finally:

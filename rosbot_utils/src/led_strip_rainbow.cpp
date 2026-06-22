@@ -21,6 +21,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <std_srvs/srv/set_bool.hpp>
 
 using namespace std::chrono_literals;
 
@@ -34,6 +35,11 @@ public:
 
     timer_ = create_wall_timer(
         40ms, std::bind(&LEDStripPublisher::TimerCallback, this));
+
+    enable_service_ = create_service<std_srvs::srv::SetBool>(
+        "led_strip/enable",
+        std::bind(&LEDStripPublisher::SetEnabled, this, std::placeholders::_1,
+                  std::placeholders::_2));
   }
 
 private:
@@ -119,6 +125,21 @@ private:
     position_ = std::fmod(position_ + speed_, gradient_resolution_);
   }
 
+  // Cancelling the timer halts both gradient computation and publishing; the
+  // animation resumes from its current position when re-enabled.
+  void
+  SetEnabled(const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
+             std::shared_ptr<std_srvs::srv::SetBool::Response> response) {
+    if (request->data) {
+      timer_->reset();
+      response->message = "LED strip enabled";
+    } else {
+      timer_->cancel();
+      response->message = "LED strip disabled";
+    }
+    response->success = true;
+  }
+
   static constexpr int num_leds_ = 18;
   static constexpr int gradient_resolution_ = 180;
   static constexpr double speed_ = 1.5;
@@ -127,6 +148,7 @@ private:
   std::vector<Rgb> rainbow_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr enable_service_;
 };
 
 int main(int argc, char **argv) {

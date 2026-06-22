@@ -6,6 +6,7 @@ find_package(ament_cmake_python REQUIRED)
 find_package(generate_parameter_library REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
 
@@ -18,7 +19,7 @@ install(PROGRAMS scripts/battery_alert scripts/configure_robot
 
 foreach(node led_strip_car_wave led_strip_rainbow)
   add_executable(${node} src/${node}.cpp)
-  ament_target_dependencies(${node} rclcpp sensor_msgs)
+  ament_target_dependencies(${node} rclcpp sensor_msgs std_srvs)
   install(TARGETS ${node} DESTINATION lib/${PROJECT_NAME})
 endforeach()
 

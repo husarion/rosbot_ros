@@ -50,7 +50,7 @@ jobs:
             repo_name: rosbot
             ros_distro: jazzy
           - dockerfile: ./docker/Dockerfile.simulation
-            platforms: linux/amd64
+            platforms: linux/amd64, linux/arm64
             repo_name: rosbot-gazebo
             ros_distro: jazzy
 
