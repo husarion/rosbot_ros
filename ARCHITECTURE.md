@@ -64,7 +64,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 - [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — selected by `backend:=microros`. Runs `configure_robot --backend microros` (firmware version check against `FIRMWARE_VERSION` + `BACKEND:` and `NS:<ns>` handshake; rc≠0 → `Shutdown`), then `micro_ros_agent` (serial 921600 / udp4:8888 for XL).
 - [mavlink.launch.py](rosbot_bringup/launch/mavlink.launch.py) — selected by `backend:=mavlink` (default). Same pre-comm with `--backend mavlink`, then `rosbot_mavlink_bridge` instead of the XRCE-DDS agent. Requires the runtime-switch firmware on the MCU (one binary that brings up either backend based on the boot `BACKEND:` line) and the `rosbot_mavlink_bridge` package on the ROS overlay.
 - XL extras: `led_strip` arg, `microros_mode=udp`. `config_dir` → `microros_localhost_only.xml` when `ROS_LOCALHOST_ONLY=1`.
-- Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_multirobot.py](rosbot_bringup/test/test_multirobot.py), [test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py). **Skipped in CI** (local only).
+- Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_launch_offline.py](rosbot_bringup/test/test_launch_offline.py), [test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py) (shared helpers in [bringup_helpers.py](rosbot_bringup/test/bringup_helpers.py)). Driven with `hardware_bridge:=False` + fake HW topics, so they run in CI.
 
 ### `rosbot_controller` — ros2_control + manipulator
 
@@ -85,7 +85,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
 - [simulation.yaml](rosbot_gazebo/launch/simulation.yaml) → `gz_sim` (via `husarion_gz_worlds`) + `parameter_bridge` (`/clock`) + delegates to [spawn_robot.yaml](rosbot_gazebo/launch/spawn_robot.yaml).
 - `spawn_robot.yaml`: sed-resolves [rosbot_bridge.yaml](rosbot_gazebo/config/rosbot_bridge.yaml) → `push_ros_namespace` group + `use_sim_time:=True` → `tf_namespace_bridge` (if ns≠'') → `cmd_vel` bridge + `ros_gz_sim/create` → `husarion_components_description/gz_components.launch.py` (sensor bridges) → `rosbot_controller/controller.yaml use_sim:=True` (no CM — Gazebo plugin) → `rosbot_joy` / `rosbot_localization` / optional RViz.
-- Tests: [test_sim.py](rosbot_gazebo/test/test_sim.py), [test_multirobot.py](rosbot_gazebo/test/test_multirobot.py) — parametrized `(mecanum, namespace, robot_model)`. **Skipped in CI.**
+- Tests: [test_launch_offline.py](rosbot_gazebo/test/test_launch_offline.py) — offline launch/schema checks. Real-Gazebo tests were removed; this runs in CI.
 
 ### `rosbot_hardware_interfaces` — ros2_control plugins (C++)
 
@@ -164,7 +164,7 @@ Creates: `rosbot_bringup/config/`, `rosbot_controller/config/`, `rosbot_descript
 
 - `ROBOT_NAMESPACE` env → `namespace` arg. Inside launch: `push_ros_namespace` prefixes every node with `/<ns>/`.
 - TF namespaced via `set_remap /tf → tf` and `/tf_static → tf_static` in every launch. Global `/tf` (for nav2 / multirobot RViz) bridged by [tf_namespace_bridge](https://github.com/husarion/tf_namespace_bridge) — `tf_namespace_bridge:=True` + `namespace≠''`. `frame_filters` (glob on `child_frame_id`) controls which frames bridge; default empty = pass-through. Configs: [rosbot_bringup/config/tf_namespace_bridge.yaml](rosbot_bringup/config/tf_namespace_bridge.yaml), [rosbot_gazebo/config/tf_namespace_bridge.yaml](rosbot_gazebo/config/tf_namespace_bridge.yaml).
-- Multirobot sim: `spawn_robot.yaml` per robot with distinct `namespace` + `(x,y,z)`. See `test_multirobot.py`.
+- Multirobot sim: `spawn_robot.yaml` per robot with distinct `namespace` + `(x,y,z)`.
 - IMU `sensor_name: <namespace>/imu` (placeholder sed-replaced) — Gazebo needs unique sensor names.
 
 ### Sim vs HW divergence (intentional, upstream constraint)
@@ -219,7 +219,7 @@ Full list → [ROS_API.md](ROS_API.md). All namespaced when `ROBOT_NAMESPACE` se
 | HW plugins | `rosbot_hardware_interfaces/src/*.cpp`, `rosbot_hardware_interfaces.xml` |
 | firmware + protocol | `rosbot_utils/firmware/`, `rosbot_utils/scripts/configure_robot` |
 | Docker | `docker/Dockerfile.{hardware,simulation}`, `docker/compose.*.yaml` |
-| CI | `.github/workflows/{integration,run-tests,build-docker,backport}.yaml` |
+| CI | `.github/workflows/{ci,tests,build-docker,backport}.yaml` |
 
 ---
 

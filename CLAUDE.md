@@ -82,7 +82,7 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=rosbot_xl
 
 - **Devcontainer:** `.devcontainer/compose.yaml` mounts repo at `/home/husarion/ros2_ws/src/rosbot_ros`. `runtime: nvidia` (needs NVIDIA Container Toolkit).
 - **Production images:** `docker/Dockerfile.{hardware,simulation}`, built by `build-docker.yaml` on push to `jazzy`. HW drops `rosbot_gazebo`, sim drops `rosbot_bringup`.
-- **CI:** `integration.yaml` → `pre-commit` → `run-tests.yaml` (`colcon test --packages-skip rosbot_bringup rosbot_gazebo`) → (on `jazzy`) `build-docker.yaml`. **`rosbot_bringup`/`rosbot_gazebo` are local-only.**
+- **CI:** `ci.yaml` orchestrates `pre-commit` → `tests.yaml` (`colcon test` over `packages-select-regex: rosbot*`) → (on `jazzy`) `build-docker.yaml`. `rosbot_bringup` tests run with fake HW topics (`hardware_bridge:=False`); `rosbot_gazebo` keeps only offline launch/schema tests (real-Gazebo tests removed).
 - **VS Code tasks:** inherited from `panther` repo, `build.sh` uses `--packages-up-to panther` — prefer manual `colcon build` from §3.2.
 
 ---
@@ -121,7 +121,7 @@ Knowledge-base updates required for any public change:
 - [ ] [ROS_API.md](ROS_API.md) — public topic / node / launch.
 - [ ] [README.md](README.md) — launch arg added/changed.
 - [ ] [MANIPULATOR.md](MANIPULATOR.md) — arm-related.
-- [ ] Tests (`test_xacro.py`, `test_bringup.py`, `test_sim.py`).
+- [ ] Tests (`test_xacro.py`, `test_bringup.py`, `test_launch_offline.py`).
 - [ ] `pre-commit run -a`, `colcon build`, `colcon test`.
 - [ ] [§9](#9-decision-history) — one bullet, one sentence, PR link.
 
@@ -136,7 +136,7 @@ Knowledge-base updates required for any public change:
 - **Sim vs HW ros2_control:** same URDF, different `<plugin>` — `rosbot_hardware_interfaces/RosbotSystem` (HW) vs `gz_ros2_control/GazeboSimSystem` (sim). See [ros2_control.urdf.xacro](rosbot_description/urdf/common/ros2_control.urdf.xacro).
 - **EKF** fuses `odometry/wheels` + `imu/data` → `odometry/filtered`. `enable_odom_tf: false` on drives — EKF publishes `odom→base_link` TF.
 - **Laser filter** crops points inside robot body. Per-model: [rosbot_utils/config/{rosbot,rosbot_xl}/config.yaml](rosbot_utils/config/).
-- **CI skips `rosbot_bringup`/`rosbot_gazebo`** — local-only validation after non-trivial launch changes.
+- **`rosbot_bringup`/`rosbot_gazebo` CI tests run offline** (fake HW topics / launch-schema only) — still do a real sim/HW run after non-trivial launch changes.
 
 ---
 
