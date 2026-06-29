@@ -2,6 +2,9 @@
 Changelog for package rosbot_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.0 (2026-06-15)
 ------------------
 * Tests: CI coverage for every rosbot\_* package (`#171 <https://github.com/husarion/rosbot_ros/issues/171>`_)

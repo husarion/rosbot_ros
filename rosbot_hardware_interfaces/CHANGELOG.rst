@@ -2,6 +2,9 @@
 Changelog for package rosbot_hardware_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.0 (2026-06-15)
 ------------------
 * Add wheel effort state interface from motors feedback

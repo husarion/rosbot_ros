@@ -2,6 +2,14 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update rosbot body mesh; retune camera mount; bump husarion_components_description
+* Merge pull request `#185 <https://github.com/husarion/rosbot_ros/issues/185>`_ from husarion/tidy-ros-api
+  Tidy ROS_API package list + rosbot_mavlink_bridge dep
+* Declare rosbot_mavlink_bridge exec_depend in rosbot_bringup
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.1.0 (2026-06-15)
 ------------------
 * Bump rosbot-firmware to MAVLink serial_port fix

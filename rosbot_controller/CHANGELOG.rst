@@ -2,6 +2,19 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* controller: make controller_manager spawn timeout a launch arg (default 60s)
+  The controller spawner hardcoded --controller-manager-timeout 20. On slower
+  SBCs — e.g. Raspberry Pi 5 on ROSbot 3 — the 100 Hz control loop plus
+  camera/bridge startup contention can exceed 20 s, so the spawner times out and
+  leaves the drive / imu controllers unconfigured (robot won't drive until they
+  are activated manually). The NUC-based ROSbot XL has enough headroom to hit 20 s.
+  Expose controller_manager_timeout as a launch arg (default 60) in
+  controller.yaml + manipulator.yaml and thread it through the manipulator
+  include, so slow hosts get more time and it stays tunable per deployment.
+* Contributors: dominikn
+
 1.1.0 (2026-06-15)
 ------------------
 * Add MAVLink backend alongside micro-ROS (runtime-switch firmware) (`#175 <https://github.com/husarion/rosbot_ros/issues/175>`_)

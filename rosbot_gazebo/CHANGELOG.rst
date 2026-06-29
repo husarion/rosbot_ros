@@ -2,6 +2,9 @@
 Changelog for package rosbot_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.0 (2026-06-15)
 ------------------
 * Use human date-time with ms in pinned console log format

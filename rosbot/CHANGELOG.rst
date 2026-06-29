@@ -2,6 +2,16 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump husarion_components_description
+* Update rosbot body mesh; retune camera mount; bump husarion_components_description
+* Adopt custom component: bump dep + link docs in configs (`#184 <https://github.com/husarion/rosbot_ros/issues/184>`_)
+  * Bump husarion_components_description (custom component)
+  * Link custom component docs in description configs
+  * just sim: force NVIDIA EGL vendor to silence Mesa warnings
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.1.0 (2026-06-15)
 ------------------
 * Bump rosbot-firmware to MAVLink serial_port fix

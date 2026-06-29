@@ -2,6 +2,11 @@
 Changelog for package rosbot_moveit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Declare moveit_core dependency in rosbot_moveit
+* Contributors: rafal-gorecki
+
 1.1.0 (2026-06-15)
 ------------------
 * Add MAVLink backend alongside micro-ROS (runtime-switch firmware) (`#175 <https://github.com/husarion/rosbot_ros/issues/175>`_)

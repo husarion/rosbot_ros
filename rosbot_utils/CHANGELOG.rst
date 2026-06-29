@@ -2,6 +2,12 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add led_strip/enable service + arm64 simulation image
+* Bump firmware to v2.0.2-jazzy
+* Contributors: rafal-gorecki
+
 1.1.0 (2026-06-15)
 ------------------
 * Exit non-zero when firmware flashing fails (`#183 <https://github.com/husarion/rosbot_ros/issues/183>`_)
