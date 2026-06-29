@@ -2,8 +2,8 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2026-06-29)
+------------------
 * Add led_strip/enable service + arm64 simulation image
 * Bump firmware to v2.0.2-jazzy
 * Contributors: rafal-gorecki

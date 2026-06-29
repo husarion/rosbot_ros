@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2026-06-29)
+------------------
 * Update rosbot body mesh; retune camera mount; bump husarion_components_description
 * Adopt custom component: bump dep + link docs in configs (`#184 <https://github.com/husarion/rosbot_ros/issues/184>`_)
   * Bump husarion_components_description (custom component)

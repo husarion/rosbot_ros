@@ -2,8 +2,8 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2026-06-29)
+------------------
 * Update rosbot body mesh; retune camera mount; bump husarion_components_description
 * Merge pull request `#185 <https://github.com/husarion/rosbot_ros/issues/185>`_ from husarion/tidy-ros-api
   Tidy ROS_API package list + rosbot_mavlink_bridge dep

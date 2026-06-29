@@ -2,8 +2,8 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2026-06-29)
+------------------
 * controller: make controller_manager spawn timeout a launch arg (default 60s)
   The controller spawner hardcoded --controller-manager-timeout 20. On slower
   SBCs — e.g. Raspberry Pi 5 on ROSbot 3 — the 100 Hz control loop plus
