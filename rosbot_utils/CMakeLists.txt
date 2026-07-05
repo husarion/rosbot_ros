@@ -3,6 +3,7 @@ project(rosbot_utils)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(generate_parameter_library REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -17,13 +18,16 @@ install(PROGRAMS scripts/battery_alert scripts/configure_robot
                  scripts/create_config_dir scripts/flash_firmware
                  scripts/install_udev_rules DESTINATION lib/${PROJECT_NAME})
 
-foreach(node led_strip_car_wave led_strip_rainbow)
-  add_executable(${node} src/${node}.cpp)
-  ament_target_dependencies(${node} rclcpp sensor_msgs std_srvs)
-  install(TARGETS ${node} DESTINATION lib/${PROJECT_NAME})
-endforeach()
+# Parameter-selectable LED animation publisher (supersedes the retired
+# led_strip_car_wave / led_strip_rainbow nodes). PNGs are decoded with the
+# vendored header-only stb_image (third_party/).
+add_executable(animation_publisher src/animation_publisher.cpp)
+target_include_directories(animation_publisher PRIVATE third_party)
+ament_target_dependencies(animation_publisher rclcpp sensor_msgs ament_index_cpp)
+install(TARGETS animation_publisher DESTINATION lib/${PROJECT_NAME})
 
-install(DIRECTORY config firmware launch udev DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY animations config firmware launch udev
+        DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)

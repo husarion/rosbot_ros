@@ -1,0 +1,4 @@
+# car_wave — red/white outward sweep (pre-rendered from the retired
+# led_strip_car_wave node); the default animation. 25 Hz = the original cadence.
+frequency: 25.0
+brightness: 1.0

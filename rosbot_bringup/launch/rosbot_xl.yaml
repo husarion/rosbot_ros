@@ -16,6 +16,21 @@ launch:
         - value: 'False'
 
   - arg:
+      name: led_animation
+      default: 'car_wave'
+      description: ROSbot XL only. LED animation published by default. 'none'
+        publishes nothing (the firmware idle animation shows); any other value
+        is an animation discovered under rosbot_utils/animations (or the user
+        dir). Switch live with
+        `ros2 param set /<ns>/animation_publisher current_animation <name>`.
+
+  - arg:
+      name: led_animation_user_dir
+      default: ''
+      description: ROSbot XL only. Extra directory scanned for user
+        <name>.png + <name>.yaml animations (overrides shipped ones by name).
+
+  - arg:
       name: hardware_bridge
       default: 'True'
       description: Launch the SBC<->MCU bridge (selected by backend). Set to 'False' to skip it entirely
@@ -114,5 +129,10 @@ launch:
 
   - node:
       pkg: rosbot_utils
-      exec: led_strip_car_wave
+      exec: animation_publisher
       if: $(eval '"$(var led_strip)" == "True"')
+      param:
+        - name: current_animation
+          value: $(var led_animation)
+        - name: user_animations_dir
+          value: $(var led_animation_user_dir)
