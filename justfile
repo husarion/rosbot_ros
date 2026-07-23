@@ -36,7 +36,8 @@ _setup-ws:
     mkdir -p {{ws}}/src; \
     for p in rosbot rosbot_bringup rosbot_controller rosbot_description \
              rosbot_gazebo rosbot_hardware_interfaces rosbot_joy \
-             rosbot_localization rosbot_moveit rosbot_utils; do \
+             rosbot_localization rosbot_moveit rosbot_utils \
+             husarion_asset_server; do \
         if [ -d "$(pwd)/$p" ] && [ ! -e "{{ws}}/src/$p" ]; then \
             ln -sfn "$(pwd)/$p" "{{ws}}/src/$p"; \
         fi; \

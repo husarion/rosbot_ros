@@ -39,6 +39,10 @@ def _includes(doc):
     return [item["include"] for item in doc["launch"] if "include" in item]
 
 
+def _nodes(doc):
+    return [item["node"] for item in doc["launch"] if "node" in item]
+
+
 def test_bringup_yaml_dispatches_on_robot_model():
     doc = _launch("bringup.yaml")
     args = _args(doc)
@@ -62,6 +66,7 @@ def test_per_model_launch_declares_required_args(model):
         "backend",
         "tf_namespace_bridge",
         "robot_model",
+        "asset_server",
     }
     missing = required - set(args)
     assert not missing, f"{model}.yaml missing args: {missing}"
@@ -78,6 +83,18 @@ def test_per_model_launch_pulls_in_subsystems(model):
         "rosbot_localization",
     ):
         assert needle in include_files, f"{model}.yaml does not include any launch from {needle}"
+
+
+@pytest.mark.parametrize("model", ROBOT_MODELS)
+def test_per_model_launch_has_asset_server_node(model):
+    """husarion_asset_server runs inside the driver launch, gated by the
+    `asset_server` arg — no separate snap daemon (ARCHITECTURE.md)."""
+    nodes = [
+        n for n in _nodes(_launch(f"{model}.yaml")) if n.get("pkg") == "husarion_asset_server"
+    ]
+    assert len(nodes) == 1, f"{model}.yaml must have exactly one husarion_asset_server node"
+    assert nodes[0].get("exec") == "asset_server"
+    assert nodes[0].get("if") == "$(var asset_server)"
 
 
 def test_rosbot_xl_has_led_strip_arg():

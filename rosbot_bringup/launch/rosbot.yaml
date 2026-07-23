@@ -47,6 +47,15 @@ launch:
         - value: rosbot
         - value: rosbot_xl
 
+  - arg:
+      name: asset_server
+      default: 'True'
+      description: Launch husarion_asset_server, serving this robot's package:// meshes/URDF resources
+        to the bridge's get_asset service.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
   - set_env:
       name: RCUTILS_COLORIZED_OUTPUT
       value: '1'
@@ -98,3 +107,8 @@ launch:
 
   - include:
       file: $(find-pkg-share rosbot_localization)/launch/ekf.yaml
+
+  - node:
+      pkg: husarion_asset_server
+      exec: asset_server
+      if: $(var asset_server)

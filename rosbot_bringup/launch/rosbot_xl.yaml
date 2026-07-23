@@ -17,18 +17,17 @@ launch:
 
   - arg:
       name: led_animation
-      default: 'car_wave'
-      description: ROSbot XL only. LED animation published by default. 'none'
-        publishes nothing (the firmware idle animation shows); any other value
-        is an animation discovered under rosbot_utils/animations (or the user
-        dir). Switch live with
-        `ros2 param set /<ns>/animation_publisher current_animation <name>`.
+      default: car_wave
+      description: ROSbot XL only. LED animation published by default. 'none' publishes nothing (the firmware
+        idle animation shows); any other value is an animation discovered under rosbot_utils/animations
+        (or the user dir). Switch live with `ros2 param set /<ns>/animation_publisher current_animation
+        <name>`.
 
   - arg:
       name: led_animation_user_dir
       default: ''
-      description: ROSbot XL only. Extra directory scanned for user
-        <name>.png + <name>.yaml animations (overrides shipped ones by name).
+      description: ROSbot XL only. Extra directory scanned for user <name>.png + <name>.yaml animations
+        (overrides shipped ones by name).
 
   - arg:
       name: hardware_bridge
@@ -66,6 +65,15 @@ launch:
       name: robot_model
       default: rosbot_xl
       description: Specify robot model
+
+  - arg:
+      name: asset_server
+      default: 'True'
+      description: Launch husarion_asset_server, serving this robot's package:// meshes/URDF resources
+        to the bridge's get_asset service.
+      choice:
+        - value: 'True'
+        - value: 'False'
 
   - set_env:
       name: RCUTILS_COLORIZED_OUTPUT
@@ -119,6 +127,11 @@ launch:
 
   - include:
       file: $(find-pkg-share rosbot_localization)/launch/ekf.yaml
+
+  - node:
+      pkg: husarion_asset_server
+      exec: asset_server
+      if: $(var asset_server)
 
 #  Dont work in snap
 #   - include:

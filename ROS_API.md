@@ -22,6 +22,7 @@ launch arg (or `ROBOT_NAMESPACE` env) is set. Intentional globals:
 - `/tf`, `/tf_static` — bridged via [tf_namespace_bridge](https://github.com/husarion/tf_namespace_bridge).
 - `/parameter_events`, `/rosout` — ROS 2 infra.
 - `/clock` — sim only.
+- `/asset_providers` — `husarion_asset_server`'s `AssetProviderInfo` announcement; global by design so a router/bridge discovers every provider across every robot namespace on one topic.
 
 Hard-coded, no runtime opt-out. HW uses `push_ros_namespace`, sim uses URDF
 `<remapping>` for the `controller_manager` surface — see
@@ -34,6 +35,7 @@ Enforced by
 [controller_manager/controller_manager]: https://github.com/ros-controls/ros2_control/blob/master/controller_manager
 [diff_drive_controller/diff_drive_controller]: https://github.com/ros-controls/ros2_controllers/tree/master/diff_drive_controller
 [gz_ros2_control/gz_ros2_control]: https://github.com/ros-controls/gz_ros2_control
+[husarion_asset_server/asset_server]: https://github.com/husarion/husarion_asset_server
 [imu_sensor_broadcaster/imu_sensor_broadcaster]: https://github.com/ros-controls/ros2_controllers/tree/master/imu_sensor_broadcaster
 [joint_state_broadcaster/joint_state_broadcaster]: https://github.com/ros-controls/ros2_controllers/tree/master/joint_state_broadcaster
 [robot_localization/ekf_node]: https://github.com/cra-ros-pkg/robot_localization
@@ -49,6 +51,7 @@ Enforced by
 | ✅  | ✅  | **`ekf_node`**                | Used to fuse wheel odometry and IMU data. Parameters are defined in `rosbot_localization/config/config.yaml` <br /> _[robot_localization/ekf_node]_                                                                                                                                                                                                         |
 | ❌  | ✅  | **`/gz_bridge`**              | Transmits Gazebo simulation data to the ROS layer <br /> _[ros_gz_bridge/parameter_bridge]_                                                                                                                                                                                                                                         |
 | ❌  | ✅  | **`gz_ros_control`**         | Responsible for integrating the ros2_control controller architecture with the Gazebo simulator. <br /> _[gz_ros2_control/gz_ros2_control]_                                                                                                                                                                                                                                         |
+| ✅  | ❌  | **`husarion_asset_server`**  | Serves this robot's `package://` meshes/URDF resources over a `get_asset` service; auto-derives owned packages from the co-located `robot_description`. Toggle with the `asset_server` launch arg. <br /> _[husarion_asset_server/asset_server]_                                                                                                                                  |
 | ✅  | ✅  | **`imu_broadcaster`**         | The broadcaster to publish readings of IMU sensors <br /> _[imu_sensor_broadcaster/imu_sensor_broadcaster]_                                                                                                                                                                                                                                         |
 | ✅  | ❌  | **`imu_sensor_node`**         | The node responsible for subscriptions to IMU data from the hardware <br /> _[rosbot_hardware_interfaces/rosbot_imu_sensor]_                                                                                                                                                                                                                        |
 | ✅  | ✅  | **`joint_state_broadcaster`** | The broadcaster reads all state interfaces and reports them on specific topics <br /> _[joint_state_broadcaster/joint_state_broadcaster]_                                                                                                                                                                                                           |
@@ -92,9 +95,11 @@ There are also additional topics related with the ROSbot firmware. For more info
 ### Available Services
 
 [std_srvs/SetBool]: https://docs.ros.org/en/jazzy/p/std_srvs/srv/SetBool.html
+[husarion_asset_msgs/srv/GetAsset]: https://github.com/husarion/husarion_asset_msgs
 
 | 🤖  | 🖥️  | SERVICE                | DESCRIPTION                                                                                                                                                                |
 | --- | --- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅  | ❌  | **`husarion_asset_server/get_asset`** | Resolves a `package://PKG/REL` URI to bytes (ranged fetch) for the description packages `husarion_asset_server` owns. <br /> _[husarion_asset_msgs/srv/GetAsset]_ |
 | ✅  | ❌  | **`led_strip/enable`** | ROSbot XL only. Enables (`data: true`) or disables (`data: false`) the LED strip animation. While disabled the `led_strip_manager` node neither computes nor publishes the `led_strip` image. <br /> _[std_srvs/SetBool]_ |
 
 ## Packages

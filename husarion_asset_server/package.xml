@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<!--
+  Vendor package: installs a PREBUILT release binary of
+  https://github.com/husarion/husarion_asset_server instead of building it
+  from source. Upstream ships its own `ament_cargo` package.xml (colcon-ros-cargo
+  + cargo-ament-build + a Rust/clang toolchain), but that toolchain isn't part
+  of this workspace's build environment (dev machines, CI, the rosbot-snap
+  build) — see CMakeLists.txt for the fetch + sha256-verify.
+
+  The <name> below MUST stay `husarion_asset_server` (not `rosbot_*`) — that's
+  the ament package name `ros2 launch`/`ros2 run` resolve against, and it must
+  match what rosbot_bringup's launch files reference as `pkg: husarion_asset_server`.
+-->
+<package format="3">
+  <name>husarion_asset_server</name>
+  <version>0.3.0</version>
+  <description>
+    Vendored husarion_asset_server (Rust/r2r) — the GetAsset provider that
+    serves this robot's package:// meshes/URDF resources to the bridge.
+    Installs the prebuilt release binary; see CMakeLists.txt.
+  </description>
+  <maintainer email="support@husarion.com">Husarion</maintainer>
+  <license>Apache-2.0</license>
+  <url type="repository">https://github.com/husarion/husarion_asset_server</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- r2r-generated typed bindings need this on AMENT_PREFIX_PATH at runtime. -->
+  <depend>husarion_asset_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
