@@ -40,6 +40,7 @@ Running test with
         make_bringup_launch_description(
             mecanum=mecanum,
             hardware_bridge="False",
+            asset_server="False",
             namespace=namespace,
             robot_model=robot_model,
         ),

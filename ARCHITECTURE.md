@@ -56,15 +56,20 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
 ### `rosbot` — meta
 
-`ament_cmake`, no code. Ships [rosbot/rosbot_hardware.repos](rosbot/rosbot_hardware.repos) + [rosbot/rosbot_simulation.repos](rosbot/rosbot_simulation.repos) — pin commits of `husarion_components_description`, `husarion_controllers`, `husarion_gz_worlds`, `tf_namespace_bridge`, `micro-ROS-Agent` (HW only). `dynamixel_hardware_interface` / `open_manipulator` commented out (apt-installed; pinned for reference).
+`ament_cmake`, no code. Ships [rosbot/rosbot_hardware.repos](rosbot/rosbot_hardware.repos) + [rosbot/rosbot_simulation.repos](rosbot/rosbot_simulation.repos) — pin commits of `husarion_components_description`, `husarion_controllers`, `husarion_gz_worlds`, `tf_namespace_bridge`, `micro-ROS-Agent` (HW only), `husarion_asset_msgs` (HW only — message contract for `husarion_asset_server`). `dynamixel_hardware_interface` / `open_manipulator` commented out (apt-installed; pinned for reference).
 
 ### `rosbot_bringup` — HW entry point
 
 - [rosbot.yaml](rosbot_bringup/launch/rosbot.yaml) / [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) per model; [bringup.yaml](rosbot_bringup/launch/bringup.yaml) dispatches by `robot_model`.
 - [microros.launch.py](rosbot_bringup/launch/microros.launch.py) — selected by `backend:=microros`. Runs `configure_robot --backend microros` (firmware version check against `FIRMWARE_VERSION` + `BACKEND:` and `NS:<ns>` handshake; rc≠0 → `Shutdown`), then `micro_ros_agent` (serial 921600 / udp4:8888 for XL).
 - [mavlink.launch.py](rosbot_bringup/launch/mavlink.launch.py) — selected by `backend:=mavlink` (default). Same pre-comm with `--backend mavlink`, then `rosbot_mavlink_bridge` instead of the XRCE-DDS agent. Requires the runtime-switch firmware on the MCU (one binary that brings up either backend based on the boot `BACKEND:` line) and the `rosbot_mavlink_bridge` package on the ROS overlay.
+- `husarion_asset_server` node (`pkg: husarion_asset_server`, `exec: asset_server`), toggled by the `asset_server` arg (default `True`). Runs inside the driver's own `push_ros_namespace` group, so it gets the right namespace at startup — no separate re-announce-on-restart step needed. Auto-derives its owned `package://` set from the co-located `robot_description`.
 - XL extras: `led_strip` arg, `microros_mode=udp`. `config_dir` → `microros_localhost_only.xml` when `ROS_LOCALHOST_ONLY=1`.
-- Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_launch_offline.py](rosbot_bringup/test/test_launch_offline.py), [test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py) (shared helpers in [bringup_helpers.py](rosbot_bringup/test/bringup_helpers.py)). Driven with `hardware_bridge:=False` + fake HW topics, so they run in CI.
+- Tests: [test_bringup.py](rosbot_bringup/test/test_bringup.py), [test_launch_offline.py](rosbot_bringup/test/test_launch_offline.py), [test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py) (shared helpers in [bringup_helpers.py](rosbot_bringup/test/bringup_helpers.py)). Driven with `hardware_bridge:=False` + `asset_server:=False` + fake HW topics, so they run in CI without a network fetch.
+
+### `husarion_asset_server` — vendored asset provider (external binary)
+
+[husarion_asset_server/CMakeLists.txt](husarion_asset_server/CMakeLists.txt) fetches + sha256-verifies the prebuilt release binary from [husarion/husarion_asset_server](https://github.com/husarion/husarion_asset_server) and installs it as an ordinary ament package (`lib/husarion_asset_server/asset_server`) — same package name upstream's own `ament_cargo` manifest would produce, so `ros2 launch`/`ros2 run` resolve it identically. Not built from source: the Rust/r2r + `colcon-ros-cargo`/`cargo-ament-build` toolchain isn't part of this workspace's build environment (dev machines, CI, the `rosbot-snap` build). Bump `ASSET_SERVER_VERSION` (CMakeLists.txt) + `<version>` (package.xml) together to pull a newer release. Runtime depends on `husarion_asset_msgs` (message contract, vcs-imported via `rosbot_hardware.repos`).
 
 ### `rosbot_controller` — ros2_control + manipulator
 
@@ -229,6 +234,8 @@ Full list → [ROS_API.md](ROS_API.md). All namespaced when `ROBOT_NAMESPACE` se
 - `husarion_controllers/husarion_mecanum_drive_controller` — mecanum controller.
 - `husarion_gz_worlds` — SDF world + plugins. Default: `husarion_world.sdf`.
 - `tf_namespace_bridge` — TF bridge code.
+- `husarion_asset_msgs` — `GetAsset`/`AssetProviderInfo` message contract; spec-by-README for third-party providers/clients.
+- `husarion_asset_server` — the `asset_server` binary itself; vendored (not built from source), see the package section above.
 - `rosbot-firmware` (<https://github.com/husarion/rosbot-firmware>) — STM32 firmware. MCU topics documented in its own `ROS_API.md`.
 
 All pinned in `rosbot/rosbot_*.repos`. Bump = check `test_xacro` + `controllers.yaml` collisions.

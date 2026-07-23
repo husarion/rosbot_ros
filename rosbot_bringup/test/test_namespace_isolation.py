@@ -32,6 +32,10 @@ ALLOWED_GLOBAL_TOPICS = {
     "/tf_static",
     "/parameter_events",
     "/rosout",
+    # husarion_asset_server announces AssetProviderInfo on this well-known
+    # global topic by design (husarion_asset_msgs spec) — a router/bridge
+    # discovers every provider across every robot namespace on one topic.
+    "/asset_providers",
 }
 
 ALLOWED_GLOBAL_SERVICES: set[str] = set()

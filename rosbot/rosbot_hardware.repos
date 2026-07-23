@@ -7,6 +7,12 @@ repositories:
     type: git
     url: https://github.com/husarion/husarion_controllers
     version: 2b2b37a1579ae3968693a368ca7a7aaa351a41f4
+  # GetAsset/AssetProviderInfo message contract husarion_asset_server (see
+  # husarion_asset_server/package.xml in this repo) binds against at runtime.
+  husarion_asset_msgs:
+    type: git
+    url: https://github.com/husarion/husarion_asset_msgs.git
+    version: 45e1d686c761431e6cbb7fae066f2eb516b091da
   micro-ROS-Agent:
     type: git
     url: https://github.com/micro-ROS/micro-ROS-Agent
