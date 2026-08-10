@@ -9,7 +9,7 @@ repositories:
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
-    version: 6181d6d472cc384b7389cc8f7befcee211e9f251
+    version: 724f4273b637a938ffb3171ebc0e5c96d020f98d
   # GetAsset/AssetProviderInfo message contract husarion_asset_server (see
   # husarion_asset_server/package.xml in this repo) binds against at runtime.
   husarion_asset_msgs:
