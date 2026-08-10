@@ -3,10 +3,13 @@ repositories:
     type: git
     url: https://github.com/husarion/husarion_components_description.git
     version: b24fc165257bf3c076ba2cb824679cb88693f3a2
+  # Needs the twist_mux_controller `drive_controller` parameter — controllers.yaml
+  # sets it, and an older revision leaves the mux unable to claim the drive
+  # controller's reference interfaces (activation fails).
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
-    version: 2b2b37a1579ae3968693a368ca7a7aaa351a41f4
+    version: 6181d6d472cc384b7389cc8f7befcee211e9f251
   # GetAsset/AssetProviderInfo message contract husarion_asset_server (see
   # husarion_asset_server/package.xml in this repo) binds against at runtime.
   husarion_asset_msgs:

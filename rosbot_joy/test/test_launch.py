@@ -42,11 +42,12 @@ def test_config_dir_arg_declared(launch_doc):
     assert "config_dir" in _args(launch_doc)
 
 
-def test_joy_vel_defaults_to_cmd_vel(launch_doc):
-    # Cross-package contract: drive controller listens on cmd_vel.
+def test_joy_vel_defaults_to_manual_cmd_vel(launch_doc):
+    # Cross-package contract: highest-priority twist_mux_controller input, so a held
+    # gamepad always wins over nav2 publishing on autonomous/cmd_vel.
     args = _args(launch_doc)
     assert "joy_vel" in args
-    assert args["joy_vel"]["default"] == "cmd_vel"
+    assert args["joy_vel"]["default"] == "manual/cmd_vel"
 
 
 def test_starts_joy_node_and_teleop_twist_joy(launch_doc):

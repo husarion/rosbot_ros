@@ -49,6 +49,9 @@ REQUIRED_NS_TOPICS = {
     f"/{NAMESPACE}/odometry/wheels",
     f"/{NAMESPACE}/imu/data",
     f"/{NAMESPACE}/cmd_vel",
+    f"/{NAMESPACE}/manual/cmd_vel",
+    f"/{NAMESPACE}/autonomous/cmd_vel",
+    f"/{NAMESPACE}/twist_mux_controller/source",
     f"/{NAMESPACE}/diagnostics",
 }
 

@@ -18,6 +18,8 @@
       # stair-step motion when joy2servo pushes targets at 20 Hz.
       gripper_controller:
         type: joint_trajectory_controller/JointTrajectoryController
+      twist_mux_controller:
+        type: twist_mux_controller/TwistMuxController
 
       hardware_components_initial_state:
         <manipulator_state>:
@@ -146,6 +148,25 @@
           max_deceleration_reverse: 3.0 # rad/s^2
           max_jerk: .nan # rad/s^3
           min_jerk: .nan # rad/s^3
+
+
+  twist_mux_controller:
+    ros__parameters:
+      holonomic: <mecanum>
+      drive_controller: <drive_controller>
+      cmd_vel_inputs:
+        manual:
+          topic: manual/cmd_vel
+          timeout: 0.2
+          priority: 100
+        autonomous:
+          topic: autonomous/cmd_vel
+          timeout: 0.2
+          priority: 10
+        unknown:
+          topic: cmd_vel
+          timeout: 0.2
+          priority: 1
 
 
   # Based on: https://github.com/ROBOTIS-GIT/open_manipulator/blob/humble/open_manipulator_x_bringup/config/hardware_controller_manager.yaml

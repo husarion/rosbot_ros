@@ -73,9 +73,10 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
 ### `rosbot_controller` — ros2_control + manipulator
 
-- [controller.yaml](rosbot_controller/launch/controller.yaml) — sed-resolves `controllers.yaml` → `/tmp/rosbot_controller_<ns>.yaml` (substitutes `<namespace>/`, `<manipulator_state>`), starts `controller_manager` (HW only), spawns `{differential,mecanum}_drive_controller` + `imu_broadcaster` + `joint_state_broadcaster` after 3 s. If `configuration` starts with `manipulation` → `manipulator.yaml` after 5 s.
+- [controller.yaml](rosbot_controller/launch/controller.yaml) — sed-resolves `controllers.yaml` → `/tmp/rosbot_controller_<ns>.yaml` (substitutes `<namespace>/`, `<manipulator_state>`, `<mecanum>`, `<drive_controller>`), starts `controller_manager` (HW only), spawns `{differential,mecanum}_drive_controller` + `imu_broadcaster` + `joint_state_broadcaster` + `twist_mux_controller` after 3 s. If `configuration` starts with `manipulation` → `manipulator.yaml` after 5 s.
 - [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — `manipulator_controller` + `gripper_controller` (both JTC), `move_group.launch.py`, `servo.launch.py`, `home.launch.py` (after 10 s, with MoveIt config injection).
-- Spawner remaps drive controller's `~/cmd_vel:=cmd_vel`, `~/odom:=odometry/wheels`, `~/imu:=imu/data` — canonical public names.
+- Spawner remaps drive controller's `~/cmd_vel:=cmd_vel`, `~/odom:=odometry/wheels`, `~/imu:=imu/data` — canonical public names. The `~/cmd_vel` remap is inert while `twist_mux_controller` is active (chained mode) and only takes over if the mux fails to spawn.
+- **Velocity arbitration** — `twist_mux_controller` (from `husarion_controllers`) claims the drive controller's reference interfaces and forwards the highest-priority input that published within 0.2 s: `manual/cmd_vel` (100) > `autonomous/cmd_vel` (10) > `cmd_vel` (1). Arbitration runs in the 100 Hz control loop, not over topics. It is pointed at the right controller by `drive_controller` + `holonomic`, both sed-substituted from the `mecanum` arg; the mux derives the interface names itself, because the two drive controllers name them differently (`diff_drive`: `linear|angular/velocity`; husarion mecanum: `linear/{x,y}` + `angular/z`). Contract guarded by [test_controllers_yaml.py](rosbot_controller/test/test_controllers_yaml.py).
 - `scripts/arm_control active|inactive` — toggles `OpenManipulatorXSystem` + arm controllers.
 
 ### `rosbot_description` — URDF, configurations
@@ -104,7 +105,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
 ### `rosbot_joy` — joystick (drive only)
 
-Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleop_node` (mapped to `cmd_vel`). Arm control (`joy2servo`) moved to `rosbot_moveit` in 2026-05-15. Pad layout: `.docs/gamepad_*.drawio.png`.
+Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleop_node` (mapped to `manual/cmd_vel` via the `joy_vel` arg — the top-priority arbitration input, so the pad beats nav2). Arm control (`joy2servo`) moved to `rosbot_moveit` in 2026-05-15. Pad layout: `.docs/gamepad_*.drawio.png`.
 
 ### `rosbot_localization` — EKF
 
@@ -187,7 +188,10 @@ Full list → [ROS_API.md](ROS_API.md). All namespaced when `ROBOT_NAMESPACE` se
 
 | Direction | Topic | Comment |
 |---|---|---|
-| sub | `cmd_vel` (TwistStamped) | drive controller; XL=mecanum, ROSbot=diff |
+| sub | `manual/cmd_vel` (TwistStamped) | twist_mux input, priority 100 — gamepad / teleop |
+| sub | `autonomous/cmd_vel` (TwistStamped) | twist_mux input, priority 10 — nav2 |
+| sub | `cmd_vel` (TwistStamped) | twist_mux input, priority 1 — unclassified |
+| pub | `twist_mux_controller/source` | which input currently drives the robot |
 | pub | `odometry/wheels` | drive controller, covariances tuned empirically |
 | pub | `imu/data` | imu_broadcaster (HW: rosbot_imu_sensor → broadcaster) |
 | pub | `odometry/filtered` | EKF fusion |

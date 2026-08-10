@@ -9,8 +9,9 @@ launch:
 
   - arg:
       name: joy_vel
-      default: cmd_vel
-      description: The topic name to which velocity commands will be published.
+      default: manual/cmd_vel
+      description: The topic name to which velocity commands will be published. Defaults to the highest-priority
+        twist_mux_controller input, so the gamepad overrides autonomy.
 
   - let:
       name: joy_config
