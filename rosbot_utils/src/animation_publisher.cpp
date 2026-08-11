@@ -23,11 +23,14 @@
 // (or the reserved `none`, which publishes nothing so the firmware idle
 // animation shows). `led_strip/enable` (std_srvs/SetBool) gates publishing
 // without disturbing that selection, so a caller can silence the strip and
-// later restore whatever animation was running. Frames are published as
+// later restore whatever animation was running. Unless
+// `follow_cmd_vel_source` is turned off, the selection tracks the driver's
+// `twist_mux_controller/source`: nav2 driving shows `navigation_animation`,
+// a human or nobody shows `ready_animation`. Frames are published as
 // sensor_msgs/Image (1 x led_count, rgb8, BEST_EFFORT) at the animation's
 // frequency; a PNG row wider than led_count is cropped to the first led_count
 // columns, narrower rows are padded black. Supersedes the retired
-// led_strip_rainbow / led_strip_ready nodes.
+// led_strip_rainbow / led_strip_car_wave nodes.
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -44,12 +47,17 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <std_msgs/msg/string.hpp>
 #include <std_srvs/srv/set_bool.hpp>
 
 namespace {
 constexpr char kReservedNone[] = "none";
 constexpr double kDefaultFrequency = 25.0;
 constexpr double kDefaultBrightness = 1.0;
+// The one `twist_mux_controller/source` value that means nav2 is driving. Its
+// siblings — `manual`, `unknown`, `not_published` — all mean a human is at the
+// controls or nobody is.
+constexpr char kSourceAutonomous[] = "autonomous";
 } // namespace
 
 class AnimationPublisher : public rclcpp::Node {
@@ -120,6 +128,19 @@ public:
     } else {
       Activate(initial);
     }
+
+    declare_parameter<bool>("follow_cmd_vel_source", true);
+    declare_parameter<std::string>("navigation_animation", "navigation");
+    declare_parameter<std::string>("ready_animation", "ready");
+
+    // The driver's twist_mux_controller latches the winning velocity source and
+    // republishes only on change, so a transient_local + reliable subscription
+    // gets the current state on connect and one message per handover after
+    // that.
+    source_sub_ = create_subscription<std_msgs::msg::String>(
+        "twist_mux_controller/source",
+        rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
+        [this](const std_msgs::msg::String &msg) { OnCmdVelSource(msg.data); });
   }
 
 private:
@@ -313,6 +334,32 @@ private:
     return out;
   }
 
+  // Show what is driving the robot: nav2 gets `navigation_animation`, a human
+  // (or nobody) gets `ready_animation`. Routed through the `current_animation`
+  // parameter rather than straight into Activate(), so `ros2 param get` keeps
+  // reporting what is actually on the strip. All three parameters are read live
+  // — `follow_cmd_vel_source:=false` hands the strip back at runtime.
+  void OnCmdVelSource(const std::string &source) {
+    if (!get_parameter("follow_cmd_vel_source").as_bool()) {
+      return;
+    }
+    const auto wanted =
+        get_parameter(source == kSourceAutonomous ? "navigation_animation"
+                                                  : "ready_animation")
+            .as_string();
+    if (wanted.empty() || wanted == active_) {
+      return;
+    }
+    const auto result =
+        set_parameter(rclcpp::Parameter("current_animation", wanted));
+    if (!result.successful) {
+      RCLCPP_WARN(get_logger(),
+                  "cmd_vel source '%s' maps to animation '%s', which was "
+                  "rejected: %s",
+                  source.c_str(), wanted.c_str(), result.reason.c_str());
+    }
+  }
+
   std::string SearchDirs() const {
     std::string out;
     for (const auto &dir : search_dirs_) {
@@ -380,6 +427,7 @@ private:
   std::size_t frame_index_ = 0;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_;
   rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr enable_srv_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr source_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_cb_;
 };

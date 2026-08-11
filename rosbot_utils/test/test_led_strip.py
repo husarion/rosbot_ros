@@ -37,8 +37,9 @@ from launch_ros.actions import Node
 from launch_testing.actions import ReadyToTest
 from rclpy.parameter import Parameter
 from rclpy.parameter_client import AsyncParameterClient
-from rclpy.qos import QoSProfile, QoSReliabilityPolicy
+from rclpy.qos import QoSDurabilityPolicy, QoSProfile, QoSReliabilityPolicy
 from sensor_msgs.msg import Image
+from std_msgs.msg import String
 from std_srvs.srv import SetBool
 
 NUM_LEDS = 18
@@ -94,11 +95,17 @@ def _count_within(node, received, window):
     return len(received)
 
 
-def _set_animation(node, client, value):
-    future = client.set_parameters([Parameter("current_animation", Parameter.Type.STRING, value)])
+def _set_parameters(node, client, parameters):
+    future = client.set_parameters(parameters)
     rclpy.spin_until_future_complete(node, future, timeout_sec=5.0)
-    assert future.done(), f"set current_animation={value!r} did not respond"
+    assert future.done(), f"setting {parameters} did not respond"
     return future.result().results[0]
+
+
+def _set_animation(node, client, value):
+    return _set_parameters(
+        node, client, [Parameter("current_animation", Parameter.Type.STRING, value)]
+    )
 
 
 @pytest.mark.launch(fixture=generate_test_description)
@@ -203,6 +210,64 @@ def test_animation_loaded_from_user_dir_at_runtime():
         assert _set_animation(node, client, name).successful
         count = _count_within(node, received, 2.0)
         assert 4 <= count <= 12, f"expected ~8 frames at 4 Hz over 2 s, got {count}"
+
+        node.destroy_node()
+    finally:
+        rclpy.shutdown()
+
+
+@pytest.mark.launch(fixture=generate_test_description)
+def test_animation_follows_cmd_vel_source():
+    """The strip shows who is driving, and hands back on request.
+
+    ``twist_mux_controller`` latches the winning velocity source, so the
+    subscription has to be transient_local + reliable to match it.
+    """
+    rclpy.init()
+    try:
+        node = rclpy.create_node("test_cmd_vel_source")
+        latched = QoSProfile(
+            depth=1,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=QoSReliabilityPolicy.RELIABLE,
+        )
+        source_pub = node.create_publisher(String, "twist_mux_controller/source", latched)
+
+        client = AsyncParameterClient(node, NODE_NAME)
+        assert client.wait_for_services(timeout_sec=15.0), "parameter services unavailable"
+
+        def publish_source(value):
+            source_pub.publish(String(data=value))
+            deadline = time.time() + 5.0
+            while time.time() < deadline:
+                rclpy.spin_once(node, timeout_sec=0.05)
+
+        def current():
+            future = client.get_parameters(["current_animation"])
+            rclpy.spin_until_future_complete(node, future, timeout_sec=5.0)
+            assert future.done(), "get current_animation did not respond"
+            return future.result().values[0].string_value
+
+        # nav2 driving -> navigation; a human or nobody -> ready.
+        publish_source("autonomous")
+        assert current() == "navigation", "autonomous source did not select 'navigation'"
+        for human in ("manual", "unknown", "not_published"):
+            publish_source(human)
+            assert current() == "ready", f"source '{human}' did not select 'ready'"
+
+        # Opting out at runtime leaves a hand-picked animation alone.
+        assert _set_parameters(
+            node, client, [Parameter("follow_cmd_vel_source", Parameter.Type.BOOL, False)]
+        ).successful
+        assert _set_animation(node, client, "rainbow").successful
+        publish_source("autonomous")
+        assert current() == "rainbow", "follow_cmd_vel_source=False was not honoured"
+
+        assert _set_parameters(
+            node, client, [Parameter("follow_cmd_vel_source", Parameter.Type.BOOL, True)]
+        ).successful
+        publish_source("autonomous")
+        assert current() == "navigation", "did not resume following after opting back in"
 
         node.destroy_node()
     finally:

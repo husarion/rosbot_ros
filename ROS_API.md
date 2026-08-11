@@ -48,7 +48,11 @@ it goes quiet control falls through to the next one down. So holding the
 gamepad overrides navigation, and releasing it hands control back automatically
 — no service call, no mode switch.
 
-`twist_mux_controller/source` reports which input is currently in charge.
+`twist_mux_controller/source` reports which input is currently in charge. On
+ROSbot XL the LED strip follows it: `autonomous` shows the `navigation`
+animation, `manual` / `unknown` / `not_published` show `ready`. Set
+`follow_cmd_vel_source:=False` on `animation_publisher` to drive the strip by
+hand instead.
 
 Because the mux claims the drive controller's reference interfaces, the drive
 controller runs in *chained mode* and no longer subscribes to its own
@@ -118,7 +122,7 @@ lowest-priority input now. Priorities and timeouts live in
 | ✅  | ✅  | **`set_pose`**                                 | Changes the robot's `odometry/filtered` pose. <br /> *[geometry_msgs/PoseWithCovarianceStamped]*                                     |
 | ✅  | ✅  | **`tf`**                                       | Publishes transformations between coordinate frames over time. <br /> *[tf2_msgs/TFMessage]*                                  |
 | ✅  | ✅  | **`tf_static`**                                | Publishes static transformations between coordinate frames. <br /> *[tf2_msgs/TFMessage]*                                     |
-| ✅  | ✅  | **`twist_mux_controller/source`**              | Name of the input currently driving the robot: `manual`, `autonomous`, `unknown` or `not_published`. <br /> *[std_msgs/String]* |
+| ✅  | ✅  | **`twist_mux_controller/source`**              | Name of the input currently driving the robot: `manual`, `autonomous`, `unknown` or `not_published`. Latched (`transient_local`), republished only on handover. On ROSbot XL `animation_publisher` follows it, so the LED strip shows who is driving. <br /> *[std_msgs/String]* |
 
 There are also additional topics related with the ROSbot firmware. For more information about them, please refer to the [ROSbot Firmware documentation](https://github.com/husarion/rosbot-firmware/blob/jazzy/ROS_API.md).
 
