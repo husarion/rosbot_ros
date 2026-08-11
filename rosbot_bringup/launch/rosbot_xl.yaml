@@ -17,7 +17,7 @@ launch:
 
   - arg:
       name: led_animation
-      default: car_wave
+      default: ready
       description: ROSbot XL only. LED animation published by default. 'none' publishes nothing (the firmware
         idle animation shows); any other value is an animation discovered under rosbot_utils/animations
         (or the user dir). Switch live with `ros2 param set /<ns>/animation_publisher current_animation
@@ -88,6 +88,10 @@ launch:
       name: tf_namespace_bridge_config
       value: $(eval "('$(var config_dir)/rosbot_bringup' if '$(var config_dir)' else '$(find-pkg-share
         rosbot_bringup)') + '/config/tf_namespace_bridge.yaml'")
+
+  - let:
+      name: animations_dir
+      value: $(eval "('$(var config_dir)/rosbot_utils/animations' if '$(var config_dir)' else '')")
 
   - node:
       pkg: tf_namespace_bridge

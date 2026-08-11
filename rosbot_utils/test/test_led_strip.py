@@ -152,9 +152,9 @@ def test_current_animation_parameter():
         assert _count_within(node, received, 1.0) == 0, "still publishing after 'none'"
 
         # A valid animation resumes publishing.
-        result = _set_animation(node, client, "car_wave")
-        assert result.successful, f"'car_wave' rejected: {result.reason}"
-        assert _count_within(node, received, 1.0) > 0, "did not resume after 'car_wave'"
+        result = _set_animation(node, client, "ready")
+        assert result.successful, f"'ready' rejected: {result.reason}"
+        assert _count_within(node, received, 1.0) > 0, "did not resume after 'ready'"
 
         # An unknown name is rejected by the on-set validation callback.
         result = _set_animation(node, client, "does-not-exist")
@@ -236,7 +236,7 @@ def test_led_strip_enable_service():
         # resume publishing, and enabling must bring back the new animation.
         param_client = AsyncParameterClient(node, NODE_NAME)
         assert param_client.wait_for_services(timeout_sec=15.0)
-        assert _set_animation(node, param_client, "car_wave").successful
+        assert _set_animation(node, param_client, "ready").successful
         assert _count_within(node, received, 1.0) == 0, "disable overridden by parameter set"
 
         assert call(True).success

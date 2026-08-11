@@ -27,7 +27,7 @@
 // sensor_msgs/Image (1 x led_count, rgb8, BEST_EFFORT) at the animation's
 // frequency; a PNG row wider than led_count is cropped to the first led_count
 // columns, narrower rows are padded black. Supersedes the retired
-// led_strip_rainbow / led_strip_car_wave nodes.
+// led_strip_rainbow / led_strip_ready nodes.
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -109,7 +109,7 @@ public:
         });
 
     const auto initial =
-        declare_parameter<std::string>("current_animation", "car_wave");
+        declare_parameter<std::string>("current_animation", "ready");
     if (initial != kReservedNone &&
         animations_.find(initial) == animations_.end()) {
       RCLCPP_WARN(get_logger(),

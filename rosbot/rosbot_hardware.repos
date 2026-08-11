@@ -3,15 +3,10 @@ repositories:
     type: git
     url: https://github.com/husarion/husarion_components_description.git
     version: b24fc165257bf3c076ba2cb824679cb88693f3a2
-  # Needs the twist_mux_controller `drive_controller` parameter — controllers.yaml
-  # sets it, and an older revision leaves the mux unable to claim the drive
-  # controller's reference interfaces (activation fails).
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
     version: 724f4273b637a938ffb3171ebc0e5c96d020f98d
-  # GetAsset/AssetProviderInfo message contract husarion_asset_server (see
-  # husarion_asset_server/package.xml in this repo) binds against at runtime.
   husarion_asset_msgs:
     type: git
     url: https://github.com/husarion/husarion_asset_msgs.git
@@ -20,13 +15,6 @@ repositories:
     type: git
     url: https://github.com/micro-ROS/micro-ROS-Agent
     version: af007872b034d1ed31de4815377031350ab0034b
-  # Source mirror of the rosbot-firmware repo. The only ROS package inside
-  # the tree (`bridge/rosbot_mavlink_bridge`) is picked up by colcon and
-  # builds the bridge — runtime dependency of mavlink.launch.py. Bundled
-  # .bin files in rosbot_utils/firmware/ stay the source of truth for
-  # flashing; this entry is for getting bridge + firmware sources into
-  # the workspace. `version` is auto-bumped by rosbot-firmware's release
-  # workflow.
   rosbot-firmware:
     type: git
     url: https://github.com/husarion/rosbot-firmware.git
