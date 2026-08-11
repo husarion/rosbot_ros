@@ -82,11 +82,11 @@ public:
               continue;
             }
             const std::string name = p.as_string();
-            if (name != kReservedNone &&
+            if (name != kReservedNone && !TryLoadFromDisk(name) &&
                 animations_.find(name) == animations_.end()) {
               result.successful = false;
-              result.reason = "unknown animation '" + name +
-                              "'; available: " + AvailableNames();
+              result.reason = "no '" + name + ".png' in " + SearchDirs() +
+                              "; available: " + AvailableNames();
               return result;
             }
             Activate(name);
@@ -232,9 +232,8 @@ private:
   }
 
   void LoadAnimations(const std::string &user_dir) {
-    std::vector<std::filesystem::path> dirs;
     try {
-      dirs.emplace_back(
+      search_dirs_.emplace_back(
           std::filesystem::path(
               ament_index_cpp::get_package_share_directory("rosbot_utils")) /
           "animations");
@@ -243,10 +242,13 @@ private:
                    e.what());
     }
     if (!user_dir.empty()) {
-      dirs.emplace_back(user_dir); // scanned second → overrides shipped by name
+      // Scanned second → overrides shipped by name. In the snap this is
+      // $SNAP_DATA/config_dir/rosbot_utils/animations, so an operator can drop
+      // a PNG there and select it without rebuilding or reinstalling anything.
+      search_dirs_.emplace_back(user_dir);
     }
 
-    for (const auto &dir : dirs) {
+    for (const auto &dir : search_dirs_) {
       std::error_code ec;
       if (!std::filesystem::is_directory(dir, ec)) {
         continue;
@@ -262,25 +264,45 @@ private:
                       name.c_str());
           continue;
         }
-        const Sidecar sc =
-            ReadSidecar(entry.path().parent_path() / (name + ".yaml"));
-        Animation anim;
-        anim.frequency =
-            (sc.frequency > 0.0) ? sc.frequency : kDefaultFrequency;
-        if (anim.frequency <= 1.0) {
-          RCLCPP_WARN(get_logger(),
-                      "animation '%s' frequency %.2f Hz <= 1 Hz — the firmware "
-                      "idle animation may flicker through",
-                      name.c_str(), anim.frequency);
-        }
-        if (!LoadPng(entry.path(), sc, anim) || anim.frames.empty()) {
-          continue;
-        }
-        animations_[name] = std::move(anim); // user dir overrides shipped
+        LoadFromPng(entry.path(), name); // user dir overrides shipped
       }
     }
     RCLCPP_INFO(get_logger(), "loaded %zu animation(s): %s", animations_.size(),
                 AvailableNames().c_str());
+  }
+
+  // Decode <name>.png plus its sidecar into animations_[name].
+  bool LoadFromPng(const std::filesystem::path &png, const std::string &name) {
+    const Sidecar sc = ReadSidecar(png.parent_path() / (name + ".yaml"));
+    Animation anim;
+    anim.frequency = (sc.frequency > 0.0) ? sc.frequency : kDefaultFrequency;
+    if (anim.frequency <= 1.0) {
+      RCLCPP_WARN(get_logger(),
+                  "animation '%s' frequency %.2f Hz <= 1 Hz — the firmware "
+                  "idle animation may flicker through",
+                  name.c_str(), anim.frequency);
+    }
+    if (!LoadPng(png, sc, anim) || anim.frames.empty()) {
+      return false;
+    }
+    animations_[name] = std::move(anim);
+    return true;
+  }
+
+  // Re-read <name>.png/.yaml from disk, latest search dir first. Selecting an
+  // animation goes through here rather than trusting the startup scan, so a PNG
+  // dropped into (or edited in) the user dir takes effect on the next select —
+  // no driver restart. Returns false when the name is on no disk at all; a
+  // cached copy from the startup scan then still counts as available.
+  bool TryLoadFromDisk(const std::string &name) {
+    for (auto dir = search_dirs_.rbegin(); dir != search_dirs_.rend(); ++dir) {
+      const auto png = *dir / (name + ".png");
+      std::error_code ec;
+      if (std::filesystem::is_regular_file(png, ec) && LoadFromPng(png, name)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   std::string AvailableNames() const {
@@ -289,6 +311,14 @@ private:
       out += ", " + name;
     }
     return out;
+  }
+
+  std::string SearchDirs() const {
+    std::string out;
+    for (const auto &dir : search_dirs_) {
+      out += (out.empty() ? "" : ", ") + dir.string();
+    }
+    return out.empty() ? "(no animation directory)" : out;
   }
 
   // Switch the active animation. `none` cancels publishing (firmware idle);
@@ -344,6 +374,7 @@ private:
 
   int led_count_ = 18;
   bool enabled_ = true;
+  std::vector<std::filesystem::path> search_dirs_;
   std::map<std::string, Animation> animations_;
   std::string active_ = kReservedNone;
   std::size_t frame_index_ = 0;

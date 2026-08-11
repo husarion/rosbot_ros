@@ -22,7 +22,12 @@ name is rejected by the on-set validation callback. ``led_strip/enable`` gates
 publishing independently of that selection.
 """
 
+import os
+import shutil
+import struct
+import tempfile
 import time
+import zlib
 
 import launch_pytest
 import pytest
@@ -39,17 +44,46 @@ from std_srvs.srv import SetBool
 NUM_LEDS = 18
 NODE_NAME = "animation_publisher"
 
+# Stands in for <config_dir>/rosbot_utils/animations, which is where the snap
+# lets an operator drop their own animations.
+USER_DIR = os.path.join(tempfile.gettempdir(), "rosbot_test_animations")
+
 
 @launch_pytest.fixture
 def generate_test_description():
+    # Start from an empty user dir: a leftover PNG would be picked up by the
+    # node's startup scan and cached, so the "not on disk yet" case below would
+    # no longer be reachable.
+    shutil.rmtree(USER_DIR, ignore_errors=True)
+    os.makedirs(USER_DIR, exist_ok=True)
     led_node = Node(
         package="rosbot_utils",
         executable="animation_publisher",
         name=NODE_NAME,
-        parameters=[{"current_animation": "rainbow"}],
+        parameters=[{"current_animation": "rainbow", "user_animations_dir": USER_DIR}],
         output="screen",
     )
     return LaunchDescription([led_node, ReadyToTest()])
+
+
+def _write_animation(directory, name, frequency):
+    """Write a minimal <name>.png (4 frames x NUM_LEDS, rgb8) plus its sidecar."""
+    rows = b"".join(b"\x00" + bytes([255, 0, 255]) * NUM_LEDS for _ in range(4))
+
+    def chunk(tag, data):
+        body = tag + data
+        return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body))
+
+    png = (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">IIBBBBB", NUM_LEDS, 4, 8, 2, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress(rows))
+        + chunk(b"IEND", b"")
+    )
+    with open(os.path.join(directory, f"{name}.png"), "wb") as f:
+        f.write(png)
+    with open(os.path.join(directory, f"{name}.yaml"), "w") as f:
+        f.write(f"frequency: {frequency}\nbrightness: 1.0\n")
 
 
 def _count_within(node, received, window):
@@ -126,6 +160,49 @@ def test_current_animation_parameter():
         result = _set_animation(node, client, "does-not-exist")
         assert not result.successful, "unknown animation should be rejected"
         assert "does-not-exist" in result.reason
+
+        node.destroy_node()
+    finally:
+        rclpy.shutdown()
+
+
+@pytest.mark.launch(fixture=generate_test_description)
+def test_animation_loaded_from_user_dir_at_runtime():
+    """An animation dropped in after startup is selectable without a restart.
+
+    This is the snap path: `create_config_dir` copies rosbot_utils/animations
+    into config_dir, the operator adds a PNG there, and selecting it must not
+    require restarting the driver.
+    """
+    rclpy.init()
+    try:
+        node = rclpy.create_node("test_animation_user_dir")
+        qos = QoSProfile(depth=1, reliability=QoSReliabilityPolicy.BEST_EFFORT)
+        received = []
+        node.create_subscription(Image, "led_strip", received.append, qos)
+
+        client = AsyncParameterClient(node, NODE_NAME)
+        assert client.wait_for_services(timeout_sec=15.0), "parameter services unavailable"
+
+        name = "test_runtime_anim"
+
+        # Not on disk yet, so the name must be refused and the reason must point
+        # at the directories that were searched.
+        result = _set_animation(node, client, name)
+        assert not result.successful, "animation that is on no disk should be rejected"
+        assert USER_DIR in result.reason, f"reason does not name the user dir: {result.reason}"
+
+        _write_animation(USER_DIR, name, frequency=10.0)
+        assert _set_animation(node, client, name).successful, "PNG on disk was not picked up"
+        assert _count_within(node, received, 1.0) > 0, "not publishing the new animation"
+
+        # The sidecar is re-read on select, so editing it and reselecting takes
+        # effect too — 4 Hz must be clearly distinguishable from 10 Hz.
+        _write_animation(USER_DIR, name, frequency=4.0)
+        assert _set_animation(node, client, "none").successful
+        assert _set_animation(node, client, name).successful
+        count = _count_within(node, received, 2.0)
+        assert 4 <= count <= 12, f"expected ~8 frames at 4 Hz over 2 s, got {count}"
 
         node.destroy_node()
     finally:

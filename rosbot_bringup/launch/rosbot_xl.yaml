@@ -27,7 +27,9 @@ launch:
       name: led_animation_user_dir
       default: ''
       description: ROSbot XL only. Extra directory scanned for user <name>.png + <name>.yaml animations
-        (overrides shipped ones by name).
+        (overrides shipped ones by name). Defaults to <config_dir>/rosbot_utils/animations when config_dir
+        is set, which is where `create_config_dir` puts them — so in the snap dropping a PNG into /var/snap/rosbot/current/config_dir/rosbot_utils/animations
+        is enough.
 
   - arg:
       name: hardware_bridge
@@ -95,6 +97,14 @@ launch:
       value: $(eval "('$(var config_dir)/rosbot_bringup' if '$(var config_dir)' else '$(find-pkg-share
         rosbot_bringup)') + '/config/tf_namespace_bridge.yaml'")
 
+  # An explicit led_animation_user_dir wins; otherwise follow config_dir, which is
+  # where create_config_dir already copies rosbot_utils/animations. Empty when
+  # neither is set — the node then only sees the shipped animations.
+  - let:
+      name: animations_dir
+      value: $(eval "'$(var led_animation_user_dir)' or ('$(var config_dir)/rosbot_utils/animations' if
+        '$(var config_dir)' else '')")
+
   - node:
       pkg: tf_namespace_bridge
       exec: tf_namespace_bridge
@@ -148,4 +158,4 @@ launch:
         - name: current_animation
           value: $(var led_animation)
         - name: user_animations_dir
-          value: $(var led_animation_user_dir)
+          value: $(var animations_dir)
