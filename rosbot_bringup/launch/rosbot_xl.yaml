@@ -90,6 +90,11 @@ launch:
         rosbot_bringup)') + '/config/tf_namespace_bridge.yaml'")
 
   - let:
+      name: animation_publisher_config
+      value: $(eval "('$(var config_dir)/rosbot_utils' if '$(var config_dir)' else '$(find-pkg-share rosbot_utils)')
+        + '/config/' + '$(var robot_model)' + '/config.yaml'")
+
+  - let:
       name: animations_dir
       value: $(eval "('$(var config_dir)/rosbot_utils/animations' if '$(var config_dir)' else '')")
 
@@ -141,8 +146,12 @@ launch:
   - node:
       pkg: rosbot_utils
       exec: animation_publisher
+      name: animation_publisher
       if: $(eval '"$(var led_strip)" == "True"')
       param:
+        # Config first, launch args second: led_animation and config_dir are
+        # explicit choices at launch time and must win over the file.
+        - from: $(var animation_publisher_config)
         - name: current_animation
           value: $(var led_animation)
         - name: user_animations_dir

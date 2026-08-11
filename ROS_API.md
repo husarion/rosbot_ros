@@ -51,8 +51,10 @@ gamepad overrides navigation, and releasing it hands control back automatically
 `twist_mux_controller/source` reports which input is currently in charge. On
 ROSbot XL the LED strip follows it: `autonomous` shows the `navigation`
 animation, `manual` / `unknown` / `not_published` show `ready`. Set
-`follow_cmd_vel_source:=False` on `animation_publisher` to drive the strip by
-hand instead.
+`follow_cmd_vel_source: false` in `rosbot_utils/config/<robot_model>/config.yaml`
+to drive the strip by hand instead — that file also carries `led_count`,
+`navigation_animation` and `ready_animation`, and is picked up from `config_dir`
+when one is set.
 
 Because the mux claims the drive controller's reference interfaces, the drive
 controller runs in *chained mode* and no longer subscribes to its own
