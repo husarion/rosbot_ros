@@ -23,7 +23,8 @@ install(PROGRAMS scripts/battery_alert scripts/configure_robot
 # vendored header-only stb_image (third_party/).
 add_executable(animation_publisher src/animation_publisher.cpp)
 target_include_directories(animation_publisher PRIVATE third_party)
-ament_target_dependencies(animation_publisher rclcpp sensor_msgs ament_index_cpp)
+ament_target_dependencies(animation_publisher rclcpp sensor_msgs std_srvs
+                          ament_index_cpp)
 install(TARGETS animation_publisher DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY animations config firmware launch udev

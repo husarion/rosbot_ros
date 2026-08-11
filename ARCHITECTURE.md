@@ -123,7 +123,7 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 
 ### `rosbot_utils` — utilities
 
-- Scripts (in `lib/rosbot_utils`): `flash_firmware` (flashes `rosbot[_xl]-${FIRMWARE_VERSION}.bin` from [firmware/](rosbot_utils/firmware/) — single runtime-switch binary covers both backends), `configure_robot` (pre-comm: FW string check + `BACKEND:` + `NS:` handshake; `--backend microros|mavlink` selects upstream link), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `led_strip_car_wave`, `led_strip_rainbow` (both node-named `led_strip_manager`, publish `led_strip`; a `led_strip/enable` `SetBool` service stops/resumes computing + publishing the image at runtime).
+- Scripts (in `lib/rosbot_utils`): `flash_firmware` (flashes `rosbot[_xl]-${FIRMWARE_VERSION}.bin` from [firmware/](rosbot_utils/firmware/) — single runtime-switch binary covers both backends), `configure_robot` (pre-comm: FW string check + `BACKEND:` + `NS:` handshake; `--backend microros|mavlink` selects upstream link), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `animation_publisher` (C++ node publishing `led_strip`; animation picked by the `current_animation` parameter from PNGs auto-discovered in `share/rosbot_utils/animations` plus an optional user dir, the reserved `none` publishes nothing; a `led_strip/enable` `SetBool` service stops/resumes computing + publishing the image at runtime without losing the selection). Supersedes the retired `led_strip_car_wave` / `led_strip_rainbow` nodes.
 - Python modules: `mcu_manager_ftdi.py`, `mcu_manager_uart.py`, `utils.py`, `firmware_version.py` (single FW version source).
 - Launches: `battery_alert.yaml`.
 - Per-model configs: [config/rosbot_xl/config.yaml](rosbot_utils/config/rosbot_xl/config.yaml).
@@ -137,7 +137,7 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 1. `ros2 launch rosbot_bringup rosbot_xl.yaml`.
 2. `backend:=microros|mavlink` (default `mavlink`) picks `microros.launch.py` or `mavlink.launch.py`. Each runs `configure_robot` (FW check vs `FIRMWARE_VERSION` + `BACKEND:<backend>` ACK + `NS:<ns>` ACK + `END` close) → on success starts the matching upstream node (`micro_ros_agent udp4 --port 8888` or `rosbot_mavlink_bridge`).
 3. `rosbot_controller/controller.yaml` → sed-resolves `controllers.yaml`, `robot_state_publisher` with resolved URDF (`use_sim=False`, `<ros2_control>` uses `RosbotSystem`/`RosbotImuSensor`), after 3 s `controller_manager` + spawners, after 5 s `manipulator.yaml` if `configuration ∈ {manipulation, manipulation_pro}`.
-4. `rosbot_joy/joy.yaml`, `rosbot_localization/ekf.yaml`, (XL) `led_strip_car_wave` if `led_strip:=True`.
+4. `rosbot_joy/joy.yaml`, `rosbot_localization/ekf.yaml`, (XL) `animation_publisher` if `led_strip:=True`.
 
 ### 3.2 Simulation (XL)
 

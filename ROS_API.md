@@ -130,7 +130,7 @@ There are also additional topics related with the ROSbot firmware. For more info
 | 🤖  | 🖥️  | SERVICE                | DESCRIPTION                                                                                                                                                                |
 | --- | --- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ✅  | ❌  | **`husarion_asset_server/get_asset`** | Resolves a `package://PKG/REL` URI to bytes (ranged fetch) for the description packages `husarion_asset_server` owns. <br /> *[husarion_asset_msgs/srv/GetAsset]* |
-| ✅  | ❌  | **`led_strip/enable`** | ROSbot XL only. Enables (`data: true`) or disables (`data: false`) the LED strip animation. While disabled the `led_strip_manager` node neither computes nor publishes the `led_strip` image. <br /> *[std_srvs/SetBool]* |
+| ✅  | ❌  | **`led_strip/enable`** | ROSbot XL only. Enables (`data: true`) or disables (`data: false`) the LED strip animation. While disabled the `animation_publisher` node neither computes nor publishes the `led_strip` image, and the firmware idle animation shows instead. The `current_animation` parameter is remembered across the gate, so enabling resumes whatever was selected. <br /> *[std_srvs/SetBool]* |
 
 ## Packages
 
