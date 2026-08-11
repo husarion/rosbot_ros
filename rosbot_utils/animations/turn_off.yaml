@@ -1,0 +1,5 @@
+---
+# turn-off-lights — hold the strip dark. A single black 18x1 frame; a low
+# frequency is enough to suppress the firmware idle animation.
+frequency: 2.0
+brightness: 1.0

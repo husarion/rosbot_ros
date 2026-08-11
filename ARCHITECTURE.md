@@ -73,9 +73,10 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
 ### `rosbot_controller` — ros2_control + manipulator
 
-- [controller.yaml](rosbot_controller/launch/controller.yaml) — sed-resolves `controllers.yaml` → `/tmp/rosbot_controller_<ns>.yaml` (substitutes `<namespace>/`, `<manipulator_state>`), starts `controller_manager` (HW only), spawns `{differential,mecanum}_drive_controller` + `imu_broadcaster` + `joint_state_broadcaster` after 3 s. If `configuration` starts with `manipulation` → `manipulator.yaml` after 5 s.
+- [controller.yaml](rosbot_controller/launch/controller.yaml) — sed-resolves `controllers.yaml` → `/tmp/rosbot_controller_<ns>.yaml` (substitutes `<namespace>/`, `<manipulator_state>`, `<mecanum>`, `<drive_controller>`), starts `controller_manager` (HW only), spawns `{differential,mecanum}_drive_controller` + `imu_broadcaster` + `joint_state_broadcaster` + `twist_mux_controller` after 3 s. If `configuration` starts with `manipulation` → `manipulator.yaml` after 5 s.
 - [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — `manipulator_controller` + `gripper_controller` (both JTC), `move_group.launch.py`, `servo.launch.py`, `home.launch.py` (after 10 s, with MoveIt config injection).
-- Spawner remaps drive controller's `~/cmd_vel:=cmd_vel`, `~/odom:=odometry/wheels`, `~/imu:=imu/data` — canonical public names.
+- Spawner remaps drive controller's `~/cmd_vel:=cmd_vel`, `~/odom:=odometry/wheels`, `~/imu:=imu/data` — canonical public names. The `~/cmd_vel` remap is inert while `twist_mux_controller` is active (chained mode) and only takes over if the mux fails to spawn.
+- **Velocity arbitration** — `twist_mux_controller` (from `husarion_controllers`) claims the drive controller's reference interfaces and forwards the highest-priority input that published within 0.2 s: `manual/cmd_vel` (100) > `autonomous/cmd_vel` (10) > `cmd_vel` (1). Arbitration runs in the 100 Hz control loop, not over topics. It is pointed at the right controller by `drive_controller` + `holonomic`, both sed-substituted from the `mecanum` arg; the mux derives the interface names itself, because the two drive controllers name them differently (`diff_drive`: `linear|angular/velocity`; husarion mecanum: `linear/{x,y}` + `angular/z`). Contract guarded by [test_controllers_yaml.py](rosbot_controller/test/test_controllers_yaml.py).
 - `scripts/arm_control active|inactive` — toggles `OpenManipulatorXSystem` + arm controllers.
 
 ### `rosbot_description` — URDF, configurations
@@ -104,7 +105,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
 ### `rosbot_joy` — joystick (drive only)
 
-Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleop_node` (mapped to `cmd_vel`). Arm control (`joy2servo`) moved to `rosbot_moveit` in 2026-05-15. Pad layout: `.docs/gamepad_*.drawio.png`.
+Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleop_node` (mapped to `manual/cmd_vel` via the `joy_vel` arg — the top-priority arbitration input, so the pad beats nav2). Arm control (`joy2servo`) moved to `rosbot_moveit` in 2026-05-15. Pad layout: `.docs/gamepad_*.drawio.png`.
 
 ### `rosbot_localization` — EKF
 
@@ -122,10 +123,10 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 
 ### `rosbot_utils` — utilities
 
-- Scripts (in `lib/rosbot_utils`): `flash_firmware` (flashes `rosbot[_xl]-${FIRMWARE_VERSION}.bin` from [firmware/](rosbot_utils/firmware/) — single runtime-switch binary covers both backends), `configure_robot` (pre-comm: FW string check + `BACKEND:` + `NS:` handshake; `--backend microros|mavlink` selects upstream link), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `led_strip_car_wave`, `led_strip_rainbow` (both node-named `led_strip_manager`, publish `led_strip`; a `led_strip/enable` `SetBool` service stops/resumes computing + publishing the image at runtime).
+- Scripts (in `lib/rosbot_utils`): `flash_firmware` (flashes `rosbot[_xl]-${FIRMWARE_VERSION}.bin` from [firmware/](rosbot_utils/firmware/) — single runtime-switch binary covers both backends), `configure_robot` (pre-comm: FW string check + `BACKEND:` + `NS:` handshake; `--backend microros|mavlink` selects upstream link), `create_config_dir <dst>` (snap config), `install_udev_rules` (FTDI 0403:6015 → `/dev/rosbot`, 0403:6014 → `/dev/manipulator`), `battery_alert` (Python node with `generate_parameter_library` schema), `animation_publisher` (C++ node publishing `led_strip`; animation picked by the `current_animation` parameter from PNGs auto-discovered in `share/rosbot_utils/animations` plus an optional user dir, the reserved `none` publishes nothing; a `led_strip/enable` `SetBool` service stops/resumes computing + publishing the image at runtime without losing the selection). Supersedes the retired `led_strip_car_wave` / `led_strip_rainbow` nodes.
 - Python modules: `mcu_manager_ftdi.py`, `mcu_manager_uart.py`, `utils.py`, `firmware_version.py` (single FW version source).
 - Launches: `battery_alert.yaml`.
-- Per-model configs: [config/rosbot_xl/config.yaml](rosbot_utils/config/rosbot_xl/config.yaml).
+- Per-model configs: [config/rosbot_xl/config.yaml](rosbot_utils/config/rosbot_xl/config.yaml) — `battery_alert` thresholds plus `animation_publisher`'s `led_count` and its `twist_mux_controller/source` following (`follow_cmd_vel_source`, `navigation_animation`, `ready_animation`). Loaded by `rosbot_xl.yaml` ahead of the launch-arg parameters, so `led_animation` / `config_dir` still win.
 
 ---
 
@@ -136,7 +137,7 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 1. `ros2 launch rosbot_bringup rosbot_xl.yaml`.
 2. `backend:=microros|mavlink` (default `mavlink`) picks `microros.launch.py` or `mavlink.launch.py`. Each runs `configure_robot` (FW check vs `FIRMWARE_VERSION` + `BACKEND:<backend>` ACK + `NS:<ns>` ACK + `END` close) → on success starts the matching upstream node (`micro_ros_agent udp4 --port 8888` or `rosbot_mavlink_bridge`).
 3. `rosbot_controller/controller.yaml` → sed-resolves `controllers.yaml`, `robot_state_publisher` with resolved URDF (`use_sim=False`, `<ros2_control>` uses `RosbotSystem`/`RosbotImuSensor`), after 3 s `controller_manager` + spawners, after 5 s `manipulator.yaml` if `configuration ∈ {manipulation, manipulation_pro}`.
-4. `rosbot_joy/joy.yaml`, `rosbot_localization/ekf.yaml`, (XL) `led_strip_car_wave` if `led_strip:=True`.
+4. `rosbot_joy/joy.yaml`, `rosbot_localization/ekf.yaml`, (XL) `animation_publisher` if `led_strip:=True`.
 
 ### 3.2 Simulation (XL)
 
@@ -187,7 +188,10 @@ Full list → [ROS_API.md](ROS_API.md). All namespaced when `ROBOT_NAMESPACE` se
 
 | Direction | Topic | Comment |
 |---|---|---|
-| sub | `cmd_vel` (TwistStamped) | drive controller; XL=mecanum, ROSbot=diff |
+| sub | `manual/cmd_vel` (TwistStamped) | twist_mux input, priority 100 — gamepad / teleop |
+| sub | `autonomous/cmd_vel` (TwistStamped) | twist_mux input, priority 10 — nav2 |
+| sub | `cmd_vel` (TwistStamped) | twist_mux input, priority 1 — unclassified |
+| pub | `twist_mux_controller/source` | which input currently drives the robot |
 | pub | `odometry/wheels` | drive controller, covariances tuned empirically |
 | pub | `imu/data` | imu_broadcaster (HW: rosbot_imu_sensor → broadcaster) |
 | pub | `odometry/filtered` | EKF fusion |

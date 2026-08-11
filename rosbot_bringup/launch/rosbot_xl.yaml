@@ -17,17 +17,11 @@ launch:
 
   - arg:
       name: led_animation
-      default: car_wave
+      default: ready
       description: ROSbot XL only. LED animation published by default. 'none' publishes nothing (the firmware
         idle animation shows); any other value is an animation discovered under rosbot_utils/animations
         (or the user dir). Switch live with `ros2 param set /<ns>/animation_publisher current_animation
         <name>`.
-
-  - arg:
-      name: led_animation_user_dir
-      default: ''
-      description: ROSbot XL only. Extra directory scanned for user <name>.png + <name>.yaml animations
-        (overrides shipped ones by name).
 
   - arg:
       name: hardware_bridge
@@ -95,6 +89,15 @@ launch:
       value: $(eval "('$(var config_dir)/rosbot_bringup' if '$(var config_dir)' else '$(find-pkg-share
         rosbot_bringup)') + '/config/tf_namespace_bridge.yaml'")
 
+  - let:
+      name: animation_publisher_config
+      value: $(eval "('$(var config_dir)/rosbot_utils' if '$(var config_dir)' else '$(find-pkg-share rosbot_utils)')
+        + '/config/' + '$(var robot_model)' + '/config.yaml'")
+
+  - let:
+      name: animations_dir
+      value: $(eval "('$(var config_dir)/rosbot_utils/animations' if '$(var config_dir)' else '')")
+
   - node:
       pkg: tf_namespace_bridge
       exec: tf_namespace_bridge
@@ -143,9 +146,13 @@ launch:
   - node:
       pkg: rosbot_utils
       exec: animation_publisher
+      name: animation_publisher
       if: $(eval '"$(var led_strip)" == "True"')
       param:
+        # Config first, launch args second: led_animation and config_dir are
+        # explicit choices at launch time and must win over the file.
+        - from: $(var animation_publisher_config)
         - name: current_animation
           value: $(var led_animation)
         - name: user_animations_dir
-          value: $(var led_animation_user_dir)
+          value: $(var animations_dir)

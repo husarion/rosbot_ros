@@ -5,3 +5,13 @@
       audio_device: ''
       interval_sec: 300
       percentage_threshold: 0.12
+
+  animation_publisher:
+    ros__parameters:
+      led_count: 18
+      # Mirror who is driving on the strip, following the driver's
+      # twist_mux_controller/source. Set follow_cmd_vel_source to false to drive
+      # the strip by hand with `ros2 param set … current_animation <name>`.
+      follow_cmd_vel_source: true
+      navigation_animation: navigation
+      ready_animation: ready

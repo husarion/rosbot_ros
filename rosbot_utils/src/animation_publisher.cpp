@@ -21,10 +21,16 @@
 // filename stem is the animation name. The active animation is the
 // `current_animation` node parameter — validated on set against the loaded set
 // (or the reserved `none`, which publishes nothing so the firmware idle
-// animation shows). Frames are published as sensor_msgs/Image (1 x led_count,
-// rgb8, BEST_EFFORT) at the animation's frequency; a PNG row wider than
-// led_count is cropped to the first led_count columns, narrower rows are padded
-// black. Supersedes the retired led_strip_rainbow / led_strip_car_wave nodes.
+// animation shows). `led_strip/enable` (std_srvs/SetBool) gates publishing
+// without disturbing that selection, so a caller can silence the strip and
+// later restore whatever animation was running. Unless
+// `follow_cmd_vel_source` is turned off, the selection tracks the driver's
+// `twist_mux_controller/source`: nav2 driving shows `navigation_animation`,
+// a human or nobody shows `ready_animation`. Frames are published as
+// sensor_msgs/Image (1 x led_count, rgb8, BEST_EFFORT) at the animation's
+// frequency; a PNG row wider than led_count is cropped to the first led_count
+// columns, narrower rows are padded black. Supersedes the retired
+// led_strip_rainbow / led_strip_car_wave nodes.
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -41,11 +47,17 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <std_msgs/msg/string.hpp>
+#include <std_srvs/srv/set_bool.hpp>
 
 namespace {
 constexpr char kReservedNone[] = "none";
 constexpr double kDefaultFrequency = 25.0;
 constexpr double kDefaultBrightness = 1.0;
+// The one `twist_mux_controller/source` value that means nav2 is driving. Its
+// siblings — `manual`, `unknown`, `not_published` — all mean a human is at the
+// controls or nobody is.
+constexpr char kSourceAutonomous[] = "autonomous";
 } // namespace
 
 class AnimationPublisher : public rclcpp::Node {
@@ -58,7 +70,8 @@ public:
                   led_count_);
       led_count_ = std::clamp(led_count_, 1, 18);
     }
-    const auto user_dir = declare_parameter<std::string>("user_animations_dir", "");
+    const auto user_dir =
+        declare_parameter<std::string>("user_animations_dir", "");
 
     LoadAnimations(user_dir);
 
@@ -77,10 +90,11 @@ public:
               continue;
             }
             const std::string name = p.as_string();
-            if (name != kReservedNone && animations_.find(name) == animations_.end()) {
+            if (name != kReservedNone && !TryLoadFromDisk(name) &&
+                animations_.find(name) == animations_.end()) {
               result.successful = false;
-              result.reason = "unknown animation '" + name + "'; available: " +
-                              AvailableNames();
+              result.reason = "no '" + name + ".png' in " + SearchDirs() +
+                              "; available: " + AvailableNames();
               return result;
             }
             Activate(name);
@@ -88,9 +102,24 @@ public:
           return result;
         });
 
+    enable_srv_ = create_service<std_srvs::srv::SetBool>(
+        "led_strip/enable",
+        [this](const std_srvs::srv::SetBool::Request::SharedPtr request,
+               std_srvs::srv::SetBool::Response::SharedPtr response) {
+          enabled_ = request->data;
+          RestartTimer();
+          response->success = true;
+          response->message = enabled_
+                                  ? "publishing animation '" + active_ + "'"
+                                  : "publishing stopped, animation '" +
+                                        active_ + "' kept for the next enable";
+          RCLCPP_INFO(get_logger(), "%s", response->message.c_str());
+        });
+
     const auto initial =
-        declare_parameter<std::string>("current_animation", "car_wave");
-    if (initial != kReservedNone && animations_.find(initial) == animations_.end()) {
+        declare_parameter<std::string>("current_animation", "ready");
+    if (initial != kReservedNone &&
+        animations_.find(initial) == animations_.end()) {
       RCLCPP_WARN(get_logger(),
                   "current_animation '%s' not found; falling back to '%s'. "
                   "Available: %s",
@@ -99,6 +128,19 @@ public:
     } else {
       Activate(initial);
     }
+
+    declare_parameter<bool>("follow_cmd_vel_source", true);
+    declare_parameter<std::string>("navigation_animation", "navigation");
+    declare_parameter<std::string>("ready_animation", "ready");
+
+    // The driver's twist_mux_controller latches the winning velocity source and
+    // republishes only on change, so a transient_local + reliable subscription
+    // gets the current state on connect and one message per handover after
+    // that.
+    source_sub_ = create_subscription<std_msgs::msg::String>(
+        "twist_mux_controller/source",
+        rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
+        [this](const std_msgs::msg::String &msg) { OnCmdVelSource(msg.data); });
   }
 
 private:
@@ -156,9 +198,12 @@ private:
         } else if (key == "brightness") {
           s.brightness = std::clamp(std::stod(val), 0.0, 1.0);
         } else if (key == "color" && val.size() == 7 && val[0] == '#') {
-          s.color[0] = static_cast<std::uint8_t>(std::stoi(val.substr(1, 2), nullptr, 16));
-          s.color[1] = static_cast<std::uint8_t>(std::stoi(val.substr(3, 2), nullptr, 16));
-          s.color[2] = static_cast<std::uint8_t>(std::stoi(val.substr(5, 2), nullptr, 16));
+          s.color[0] = static_cast<std::uint8_t>(
+              std::stoi(val.substr(1, 2), nullptr, 16));
+          s.color[1] = static_cast<std::uint8_t>(
+              std::stoi(val.substr(3, 2), nullptr, 16));
+          s.color[2] = static_cast<std::uint8_t>(
+              std::stoi(val.substr(5, 2), nullptr, 16));
           s.has_color = true;
         }
       } catch (const std::exception &e) {
@@ -175,7 +220,8 @@ private:
   bool LoadPng(const std::filesystem::path &png_path, const Sidecar &s,
                Animation &out) const {
     int w = 0, h = 0, channels = 0;
-    unsigned char *data = stbi_load(png_path.string().c_str(), &w, &h, &channels, 3);
+    unsigned char *data =
+        stbi_load(png_path.string().c_str(), &w, &h, &channels, 3);
     if (data == nullptr) {
       RCLCPP_WARN(get_logger(), "failed to decode '%s': %s",
                   png_path.filename().c_str(), stbi_failure_reason());
@@ -184,12 +230,14 @@ private:
     out.frames.assign(h, std::vector<std::uint8_t>(led_count_ * 3, 0));
     for (int y = 0; y < h; ++y) {
       for (int x = 0; x < led_count_ && x < w; ++x) {
-        const unsigned char *src = data + (static_cast<std::size_t>(y) * w + x) * 3;
+        const unsigned char *src =
+            data + (static_cast<std::size_t>(y) * w + x) * 3;
         std::uint8_t rgb[3] = {src[0], src[1], src[2]};
         if (s.has_color) {
           // Grayscale (luma) then tint, mirroring the UGV ImageAnimation
           // color pipeline, so a white-on-black PNG can be recoloured.
-          const double luma = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255.0;
+          const double luma =
+              (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255.0;
           for (int c = 0; c < 3; ++c) {
             rgb[c] = static_cast<std::uint8_t>(luma * s.color[c]);
           }
@@ -205,20 +253,23 @@ private:
   }
 
   void LoadAnimations(const std::string &user_dir) {
-    std::vector<std::filesystem::path> dirs;
     try {
-      dirs.emplace_back(
+      search_dirs_.emplace_back(
           std::filesystem::path(
               ament_index_cpp::get_package_share_directory("rosbot_utils")) /
           "animations");
     } catch (const std::exception &e) {
-      RCLCPP_ERROR(get_logger(), "cannot locate shipped animations: %s", e.what());
+      RCLCPP_ERROR(get_logger(), "cannot locate shipped animations: %s",
+                   e.what());
     }
     if (!user_dir.empty()) {
-      dirs.emplace_back(user_dir); // scanned second → overrides shipped by name
+      // Scanned second → overrides shipped by name. In the snap this is
+      // $SNAP_DATA/config_dir/rosbot_utils/animations, so an operator can drop
+      // a PNG there and select it without rebuilding or reinstalling anything.
+      search_dirs_.emplace_back(user_dir);
     }
 
-    for (const auto &dir : dirs) {
+    for (const auto &dir : search_dirs_) {
       std::error_code ec;
       if (!std::filesystem::is_directory(dir, ec)) {
         continue;
@@ -230,26 +281,49 @@ private:
         const std::string name = entry.path().stem().string();
         if (name == kReservedNone) {
           RCLCPP_WARN(get_logger(),
-                      "ignoring '%s.png' — 'none' is a reserved name", name.c_str());
+                      "ignoring '%s.png' — 'none' is a reserved name",
+                      name.c_str());
           continue;
         }
-        const Sidecar sc = ReadSidecar(entry.path().parent_path() / (name + ".yaml"));
-        Animation anim;
-        anim.frequency = (sc.frequency > 0.0) ? sc.frequency : kDefaultFrequency;
-        if (anim.frequency <= 1.0) {
-          RCLCPP_WARN(get_logger(),
-                      "animation '%s' frequency %.2f Hz <= 1 Hz — the firmware "
-                      "idle animation may flicker through",
-                      name.c_str(), anim.frequency);
-        }
-        if (!LoadPng(entry.path(), sc, anim) || anim.frames.empty()) {
-          continue;
-        }
-        animations_[name] = std::move(anim); // user dir overrides shipped
+        LoadFromPng(entry.path(), name); // user dir overrides shipped
       }
     }
     RCLCPP_INFO(get_logger(), "loaded %zu animation(s): %s", animations_.size(),
                 AvailableNames().c_str());
+  }
+
+  // Decode <name>.png plus its sidecar into animations_[name].
+  bool LoadFromPng(const std::filesystem::path &png, const std::string &name) {
+    const Sidecar sc = ReadSidecar(png.parent_path() / (name + ".yaml"));
+    Animation anim;
+    anim.frequency = (sc.frequency > 0.0) ? sc.frequency : kDefaultFrequency;
+    if (anim.frequency <= 1.0) {
+      RCLCPP_WARN(get_logger(),
+                  "animation '%s' frequency %.2f Hz <= 1 Hz — the firmware "
+                  "idle animation may flicker through",
+                  name.c_str(), anim.frequency);
+    }
+    if (!LoadPng(png, sc, anim) || anim.frames.empty()) {
+      return false;
+    }
+    animations_[name] = std::move(anim);
+    return true;
+  }
+
+  // Re-read <name>.png/.yaml from disk, latest search dir first. Selecting an
+  // animation goes through here rather than trusting the startup scan, so a PNG
+  // dropped into (or edited in) the user dir takes effect on the next select —
+  // no driver restart. Returns false when the name is on no disk at all; a
+  // cached copy from the startup scan then still counts as available.
+  bool TryLoadFromDisk(const std::string &name) {
+    for (auto dir = search_dirs_.rbegin(); dir != search_dirs_.rend(); ++dir) {
+      const auto png = *dir / (name + ".png");
+      std::error_code ec;
+      if (std::filesystem::is_regular_file(png, ec) && LoadFromPng(png, name)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   std::string AvailableNames() const {
@@ -260,26 +334,71 @@ private:
     return out;
   }
 
+  // Show what is driving the robot: nav2 gets `navigation_animation`, a human
+  // (or nobody) gets `ready_animation`. Routed through the `current_animation`
+  // parameter rather than straight into Activate(), so `ros2 param get` keeps
+  // reporting what is actually on the strip. All three parameters are read live
+  // — `follow_cmd_vel_source:=false` hands the strip back at runtime.
+  void OnCmdVelSource(const std::string &source) {
+    if (!get_parameter("follow_cmd_vel_source").as_bool()) {
+      return;
+    }
+    const auto wanted =
+        get_parameter(source == kSourceAutonomous ? "navigation_animation"
+                                                  : "ready_animation")
+            .as_string();
+    if (wanted.empty() || wanted == active_) {
+      return;
+    }
+    const auto result =
+        set_parameter(rclcpp::Parameter("current_animation", wanted));
+    if (!result.successful) {
+      RCLCPP_WARN(get_logger(),
+                  "cmd_vel source '%s' maps to animation '%s', which was "
+                  "rejected: %s",
+                  source.c_str(), wanted.c_str(), result.reason.c_str());
+    }
+  }
+
+  std::string SearchDirs() const {
+    std::string out;
+    for (const auto &dir : search_dirs_) {
+      out += (out.empty() ? "" : ", ") + dir.string();
+    }
+    return out.empty() ? "(no animation directory)" : out;
+  }
+
   // Switch the active animation. `none` cancels publishing (firmware idle);
   // any loaded name (re)starts a timer at that animation's frequency.
   void Activate(const std::string &name) {
     active_ = name;
     frame_index_ = 0;
-    if (timer_) {
-      timer_->cancel();
-      timer_.reset();
-    }
+    RestartTimer();
     if (name == kReservedNone) {
       RCLCPP_INFO(get_logger(), "animation: none (publishing stopped)");
       return;
     }
     const auto &anim = animations_.at(name);
-    const auto period = std::chrono::duration<double>(1.0 / anim.frequency);
+    RCLCPP_INFO(get_logger(), "animation: %s (%.1f Hz, %zu frame(s))%s",
+                name.c_str(), anim.frequency, anim.frames.size(),
+                enabled_ ? "" : " — held, led_strip/enable is false");
+  }
+
+  // The single place that decides whether frames flow: an animation must be
+  // selected *and* the strip enabled. Called from both control surfaces.
+  void RestartTimer() {
+    if (timer_) {
+      timer_->cancel();
+      timer_.reset();
+    }
+    if (!enabled_ || active_ == kReservedNone) {
+      return;
+    }
+    const auto period =
+        std::chrono::duration<double>(1.0 / animations_.at(active_).frequency);
     timer_ = create_wall_timer(
         std::chrono::duration_cast<std::chrono::nanoseconds>(period),
         [this]() { Tick(); });
-    RCLCPP_INFO(get_logger(), "animation: %s (%.1f Hz, %zu frame(s))",
-                name.c_str(), anim.frequency, anim.frames.size());
   }
 
   void Tick() {
@@ -301,10 +420,14 @@ private:
   }
 
   int led_count_ = 18;
+  bool enabled_ = true;
+  std::vector<std::filesystem::path> search_dirs_;
   std::map<std::string, Animation> animations_;
   std::string active_ = kReservedNone;
   std::size_t frame_index_ = 0;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_;
+  rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr enable_srv_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr source_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_cb_;
 };

@@ -40,7 +40,14 @@ def copy_package_folder(pkg_name, folder_name, dest_base):
         print(f"[WARN] '{pkg_name}' has no '{folder_name}' folder at {src}")
         return
 
-    shutil.copytree(src, dst)
+    # A --symlink-install share/ is all symlinks into the source tree, so any
+    # file deleted since the last build leaves a dangling one. Skip those rather
+    # than abort — one stale link must not leave a half-populated config_dir.
+    try:
+        shutil.copytree(src, dst, ignore_dangling_symlinks=True)
+    except shutil.Error as e:
+        print(f"[WARN] {pkg_name}/{folder_name} copied with errors: {e}")
+        return
     print(f"  [OK] {pkg_name}/{folder_name}")
 
 
@@ -68,7 +75,7 @@ def main(args=None):
         "rosbot_joy": ["config"],
         "rosbot_localization": ["config"],
         "rosbot_moveit": ["config"],
-        "rosbot_utils": ["config", "firmware"],  # example: copy both
+        "rosbot_utils": ["animations", "config", "firmware"],  # example: copy both
     }
 
     # Allow adding folders from CLI without editing code

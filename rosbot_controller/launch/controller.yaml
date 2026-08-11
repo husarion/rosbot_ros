@@ -91,6 +91,11 @@ launch:
       name: manipulator_state
       value: $(eval "('active' if $(var arm_activate) else 'inactive')")
 
+  # Spawned drive controller, and the one twist_mux_controller chains onto.
+  - let:
+      name: drive_controller
+      value: $(eval "('mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller')")
+
   - let:
       name: resolved_controller_config
       value: /tmp/rosbot_controller_$(var namespace).yaml
@@ -105,6 +110,8 @@ launch:
           sed \
             -e 's|<namespace>/|"$(var ns)"|g' \
             -e 's|<manipulator_state>|"$(var manipulator_state)"|g' \
+            -e 's|<mecanum>|"$(var mecanum)"|g' \
+            -e 's|<drive_controller>|"$(var drive_controller)"|g' \
             "$(var controller_config)" \
             > "$(var resolved_controller_config)"
         "
@@ -145,9 +152,10 @@ launch:
             pkg: controller_manager
             exec: spawner
             args: >
-              $(eval "'mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller'")
+              $(var drive_controller)
               imu_broadcaster
               joint_state_broadcaster
+              twist_mux_controller
               -c controller_manager
               --activate-as-group
               --controller-manager-timeout $(var controller_manager_timeout)

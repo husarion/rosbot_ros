@@ -36,6 +36,7 @@ repos:
     rev: v19.1.7
     hooks:
       - id: clang-format
+        exclude: ^rosbot_utils/third_party/
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
@@ -45,7 +46,11 @@ repos:
         description: Checks for common misspellings in text files.
         entry: codespell
         exclude_types: [rst, svg]
-        exclude: ^\.claude/
+        exclude: |
+          (?x)^(
+            \.claude/.*|
+            rosbot_utils/third_party/.*
+          )$
         language: python
         types: [text]
 
@@ -82,7 +87,11 @@ repos:
         stages: [pre-commit]
         entry: bash -c 'source /opt/ros/jazzy/setup.bash && ament_copyright "$@"' --
         language: system
-        exclude: ^.*\.md$
+        exclude: |
+          (?x)^(
+            .*\.md|
+            rosbot_utils/third_party/.*
+          )$
 
   - repo: https://github.com/PyCQA/doc8
     rev: v1.1.2

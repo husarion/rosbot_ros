@@ -21,6 +21,7 @@
   <depend>generate_parameter_library</depend>
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
   <depend>std_srvs</depend>
 
   <exec_depend>alsa-utils</exec_depend>
