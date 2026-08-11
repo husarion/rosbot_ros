@@ -1,3 +1,4 @@
+---
 # rainbow — scrolling full-spectrum sweep (pre-rendered from the retired
 # led_strip_rainbow node). 25 Hz matches the original 40 ms cadence.
 frequency: 25.0
