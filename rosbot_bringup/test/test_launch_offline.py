@@ -141,9 +141,13 @@ def test_microros_agent_node_has_no_explicit_namespace():
 
 
 def test_tf_namespace_bridge_default_is_pass_through():
-    """frame_filters=['*'] = pass-through (no filtering). CLAUDE.md §9 2026-05-04."""
+    """frame_filters=['*'] = pass-through (no filtering). CLAUDE.md §9 2026-05-04.
+
+    Config now lives in rosbot_description (single owner — see CLAUDE.md §9
+    2026-08-12, was duplicated identically across 3 packages).
+    """
     path = os.path.join(
-        get_package_share_directory("rosbot_bringup"), "config", "tf_namespace_bridge.yaml"
+        get_package_share_directory("rosbot_description"), "config", "tf_namespace_bridge.yaml"
     )
     with open(path) as f:
         cfg = yaml.safe_load(f)
