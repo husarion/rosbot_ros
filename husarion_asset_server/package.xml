@@ -14,7 +14,7 @@
 -->
 <package format="3">
   <name>husarion_asset_server</name>
-  <version>0.3.0</version>
+  <version>1.1.1</version>
   <description>
     Vendored husarion_asset_server (Rust/r2r) — the GetAsset provider that
     serves this robot's package:// meshes/URDF resources to the bridge.
