@@ -3,6 +3,10 @@ repositories:
     type: git
     url: https://github.com/husarion/husarion_components_description.git
     version: b24fc165257bf3c076ba2cb824679cb88693f3a2
+  # Pin needs the twist_mux_controller `drive_controller` parameter: an older
+  # revision leaves the mux unable to claim the drive controller's reference
+  # interfaces and controller activation fails. Move it back only together with
+  # controllers.yaml.
   husarion_controllers:
     type: git
     url: https://github.com/husarion/husarion_controllers
