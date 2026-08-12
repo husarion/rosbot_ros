@@ -2,6 +2,75 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Compose tf_namespace_bridge with robot_state_publisher (`#190 <https://github.com/husarion/rosbot_ros/issues/190>`_)
+  * Compose tf_namespace_bridge with robot_state_publisher
+  RSP is the highest-frequency /tf publisher in the stack and
+  tf_namespace_bridge is its direct subscriber, so loading both into
+  one rclcpp_components container skips a serialize/DDS hop per
+  transform. Also dedupes the tf_namespace_bridge standalone-node
+  launch block, previously copy-pasted across rosbot_bringup (x2) and
+  rosbot_gazebo, into rosbot_description's node_container — including
+  the config file, identical in all three copies.
+  * Bump tf_namespace_bridge
+  * Revert composing tf_namespace_bridge with robot_state_publisher
+  LoadComposableNodes lazily creates a shared launch_ros ROSAdapter and
+  registers an OnShutdown handler. rosbot_controller/controller.yaml's
+  ros2_control_node has on_exit: shutdown (deliberate fail-fast), so
+  every exit of it -- including a completely normal shutdown -- fires
+  an extra Shutdown that races the planned one, double-calling
+  ros_adapter.shutdown() and raising "Cannot shutdown a ROS adapter
+  that is not running". That exception interrupts the SIGINT->SIGTERM
+  escalation for the remaining processes, so unrelated ones die via
+  raw signal instead of exiting cleanly. 100% reproducible in CI, and
+  the same symptom shows up independently in navigation2`#4722 <https://github.com/husarion/rosbot_ros/issues/4722>`_ -- a
+  launch_ros framework interaction, not fixable from our launch files.
+  Keeps the config dedup (rosbot_description is now the sole owner of
+  tf_namespace_bridge.yaml, previously duplicated identically across
+  rosbot_bringup/rosbot_gazebo/rosbot_description) since that part
+  never touched node composition and stayed green throughout.
+* Restore vendored stb_image.h and the controllers pin rationale (`#189 <https://github.com/husarion/rosbot_ros/issues/189>`_)
+  clang-format rewrote 6.3k lines of upstream stb_image v2.30 before the
+  third_party exclusion landed, so the file could no longer be resynced
+  against upstream.
+* Merge pull request `#188 <https://github.com/husarion/rosbot_ros/issues/188>`_ from husarion/feature/twist-mux-controller
+  Feature/twist mux controller
+* Fix vcs
+* Add navigation animation and rename car_wave to ready
+* Bump husarion_controllers to merged drive_controller param
+* Add twist_mux_controller for cmd_vel priority arbitration
+  Gamepad and nav2 both published to /cmd_vel with nothing arbitrating between
+  them. The mux chains onto the drive controller's reference interfaces, so the
+  choice is resolved inside the 100 Hz control loop instead of over topics:
+  manual (100) > autonomous (10) > cmd_vel (1), with 0.2 s fallthrough.
+  Needs the husarion_controllers revision that adds twist_mux_controller's
+  drive_controller parameter (pin bumped) — the two drive controllers name their
+  reference interfaces differently and an older revision leaves the mux unable to
+  claim them, so the robot comes up unresponsive. Jazzy only: humble's
+  diff_drive_controller is not chainable.
+* Merge pull request `#187 <https://github.com/husarion/rosbot_ros/issues/187>`_ from husarion/feature/asset-server-bringup
+  Run husarion_asset_server in the driver launch, not a separate daemon
+* Run husarion_asset_server in the driver launch, not a separate daemon
+  Vendors it as a new husarion_asset_server package that fetches +
+  sha256-verifies the prebuilt release binary instead of building via
+  colcon-ros-cargo (avoids a Rust/clang toolchain in dev/CI/rosbot-snap).
+  Runs as a node in rosbot_bringup's own launch under push_ros_namespace,
+  gated by a new asset_server arg (default True) - gets the correct
+  namespace at startup instead of needing a restart-to-re-announce hack.
+* Rework wheel meshes to GLB, add camera collision geometry
+  wheel/mecanum meshes converted dae->glb; wheel_l/wheel_r are re-extracted
+  from the ROSbot-3-PRO reference CAD (real rim+tire geometry, metallic rim
+  / rubber tire materials) replacing the old low-poly placeholder, while
+  mecanum_l/mecanum_r are a decimated conversion of the existing mesh
+  (original ~5MB exceeded the repo's 3MB pre-commit limit).
+  camera_mount_link gets a collision (previously none) - a simplified STL
+  of the CAD camera holder bracket, since its shape (two tapering legs)
+  doesn't reduce well to box/cylinder primitives.
+  Bump husarion_components_description: depthai_descriptions ships OAK
+  camera models with visual-only meshes, no collision geometry.
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.1.1 (2026-06-29)
 ------------------
 * Bump husarion_components_description

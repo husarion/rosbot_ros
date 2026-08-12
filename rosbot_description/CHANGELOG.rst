@@ -2,6 +2,47 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Compose tf_namespace_bridge with robot_state_publisher (`#190 <https://github.com/husarion/rosbot_ros/issues/190>`_)
+  * Compose tf_namespace_bridge with robot_state_publisher
+  RSP is the highest-frequency /tf publisher in the stack and
+  tf_namespace_bridge is its direct subscriber, so loading both into
+  one rclcpp_components container skips a serialize/DDS hop per
+  transform. Also dedupes the tf_namespace_bridge standalone-node
+  launch block, previously copy-pasted across rosbot_bringup (x2) and
+  rosbot_gazebo, into rosbot_description's node_container — including
+  the config file, identical in all three copies.
+  * Bump tf_namespace_bridge
+  * Revert composing tf_namespace_bridge with robot_state_publisher
+  LoadComposableNodes lazily creates a shared launch_ros ROSAdapter and
+  registers an OnShutdown handler. rosbot_controller/controller.yaml's
+  ros2_control_node has on_exit: shutdown (deliberate fail-fast), so
+  every exit of it -- including a completely normal shutdown -- fires
+  an extra Shutdown that races the planned one, double-calling
+  ros_adapter.shutdown() and raising "Cannot shutdown a ROS adapter
+  that is not running". That exception interrupts the SIGINT->SIGTERM
+  escalation for the remaining processes, so unrelated ones die via
+  raw signal instead of exiting cleanly. 100% reproducible in CI, and
+  the same symptom shows up independently in navigation2`#4722 <https://github.com/husarion/rosbot_ros/issues/4722>`_ -- a
+  launch_ros framework interaction, not fixable from our launch files.
+  Keeps the config dedup (rosbot_description is now the sole owner of
+  tf_namespace_bridge.yaml, previously duplicated identically across
+  rosbot_bringup/rosbot_gazebo/rosbot_description) since that part
+  never touched node composition and stayed green throughout.
+* Rework wheel meshes to GLB, add camera collision geometry
+  wheel/mecanum meshes converted dae->glb; wheel_l/wheel_r are re-extracted
+  from the ROSbot-3-PRO reference CAD (real rim+tire geometry, metallic rim
+  / rubber tire materials) replacing the old low-poly placeholder, while
+  mecanum_l/mecanum_r are a decimated conversion of the existing mesh
+  (original ~5MB exceeded the repo's 3MB pre-commit limit).
+  camera_mount_link gets a collision (previously none) - a simplified STL
+  of the CAD camera holder bracket, since its shape (two tapering legs)
+  doesn't reduce well to box/cylinder primitives.
+  Bump husarion_components_description: depthai_descriptions ships OAK
+  camera models with visual-only meshes, no collision geometry.
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.1.1 (2026-06-29)
 ------------------
 * Update rosbot body mesh; retune camera mount; bump husarion_components_description

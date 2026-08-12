@@ -1,0 +1,16 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package husarion_asset_server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+* Merge pull request `#187 <https://github.com/husarion/rosbot_ros/issues/187>`_ from husarion/feature/asset-server-bringup
+  Run husarion_asset_server in the driver launch, not a separate daemon
+* Run husarion_asset_server in the driver launch, not a separate daemon
+  Vendors it as a new husarion_asset_server package that fetches +
+  sha256-verifies the prebuilt release binary instead of building via
+  colcon-ros-cargo (avoids a Rust/clang toolchain in dev/CI/rosbot-snap).
+  Runs as a node in rosbot_bringup's own launch under push_ros_namespace,
+  gated by a new asset_server arg (default True) - gets the correct
+  namespace at startup instead of needing a restart-to-re-announce hack.
+* Contributors: Rafal Gorecki, rafal-gorecki

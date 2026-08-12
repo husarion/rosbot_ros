@@ -2,6 +2,49 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Restore vendored stb_image.h and the controllers pin rationale (`#189 <https://github.com/husarion/rosbot_ros/issues/189>`_)
+  clang-format rewrote 6.3k lines of upstream stb_image v2.30 before the
+  third_party exclusion landed, so the file could no longer be resynced
+  against upstream.
+* Merge pull request `#188 <https://github.com/husarion/rosbot_ros/issues/188>`_ from husarion/feature/twist-mux-controller
+  Feature/twist mux controller
+* Move animation_publisher parameters into the model config
+* Follow cmd_vel source on the LED strip
+  nav2 driving shows the navigation animation, a human or nobody shows
+  ready. The controller latches the source, so the subscription has to be
+  transient_local + reliable.
+* Add navigation animation and rename car_wave to ready
+* Rename animation and add choices
+* pre-commit fix
+* Clean up
+* Select LED animations from config_dir without a restart
+  current_animation now re-reads <name>.png/.yaml from disk on every set,
+  so a PNG dropped into config_dir needs no driver restart. create_config_dir
+  no longer aborts the whole copy on a dangling symlink.
+* Restore led_strip/enable service on animation_publisher
+  The service is documented in ROS_API.md but was lost when the
+  led_strip_car_wave/rainbow nodes were retired.
+* feat(rosbot_utils): parameter-selectable LED animation publisher
+  Replace the two hard-coded LED nodes (led_strip_rainbow / led_strip_car_wave)
+  with a single animation_publisher that plays user-definable PNG animations
+  (row = frame, column = LED) selected by the current_animation node parameter.
+  - Animations are auto-discovered from rosbot_utils/animations (shipped) and an
+  optional user dir; each is a <name>.png + <name>.yaml sidecar (frequency,
+  brightness, optional color tint). Filename stem = animation name.
+  - Publishes the firmware contract unchanged: sensor_msgs/Image 1x18 rgb8,
+  BEST_EFFORT, at the animation's frequency. Wider PNG rows are cropped to the
+  first 18 columns, narrower rows padded black.
+  - current_animation is validated on set (on-set-parameters callback); the
+  reserved 'none' publishes nothing so the firmware idle animation shows.
+  - Ships turn-off-lights, rainbow, car_wave (rainbow/car_wave pre-rendered from
+  the retired procedural nodes; car_wave stays the default, so behaviour is
+  preserved). PNGs decoded with vendored stb_image (no new system dep).
+  - rosbot_xl.yaml gains led_animation / led_animation_user_dir args feeding the
+  node; test_led_strip.py covers the frame contract + parameter validation.
+* Contributors: Rafal Gorecki, dominikn, rafal-gorecki
+
 1.1.1 (2026-06-29)
 ------------------
 * Add led_strip/enable service + arm64 simulation image

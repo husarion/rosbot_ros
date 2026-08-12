@@ -2,6 +2,9 @@
 Changelog for package rosbot_moveit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.1 (2026-06-29)
 ------------------
 * Declare moveit_core dependency in rosbot_moveit

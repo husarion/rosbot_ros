@@ -2,6 +2,22 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#188 <https://github.com/husarion/rosbot_ros/issues/188>`_ from husarion/feature/twist-mux-controller
+  Feature/twist mux controller
+* Add twist_mux_controller for cmd_vel priority arbitration
+  Gamepad and nav2 both published to /cmd_vel with nothing arbitrating between
+  them. The mux chains onto the drive controller's reference interfaces, so the
+  choice is resolved inside the 100 Hz control loop instead of over topics:
+  manual (100) > autonomous (10) > cmd_vel (1), with 0.2 s fallthrough.
+  Needs the husarion_controllers revision that adds twist_mux_controller's
+  drive_controller parameter (pin bumped) — the two drive controllers name their
+  reference interfaces differently and an older revision leaves the mux unable to
+  claim them, so the robot comes up unresponsive. Jazzy only: humble's
+  diff_drive_controller is not chainable.
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.1.1 (2026-06-29)
 ------------------
 * controller: make controller_manager spawn timeout a launch arg (default 60s)

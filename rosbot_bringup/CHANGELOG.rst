@@ -2,6 +2,81 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Compose tf_namespace_bridge with robot_state_publisher (`#190 <https://github.com/husarion/rosbot_ros/issues/190>`_)
+  * Compose tf_namespace_bridge with robot_state_publisher
+  RSP is the highest-frequency /tf publisher in the stack and
+  tf_namespace_bridge is its direct subscriber, so loading both into
+  one rclcpp_components container skips a serialize/DDS hop per
+  transform. Also dedupes the tf_namespace_bridge standalone-node
+  launch block, previously copy-pasted across rosbot_bringup (x2) and
+  rosbot_gazebo, into rosbot_description's node_container — including
+  the config file, identical in all three copies.
+  * Bump tf_namespace_bridge
+  * Revert composing tf_namespace_bridge with robot_state_publisher
+  LoadComposableNodes lazily creates a shared launch_ros ROSAdapter and
+  registers an OnShutdown handler. rosbot_controller/controller.yaml's
+  ros2_control_node has on_exit: shutdown (deliberate fail-fast), so
+  every exit of it -- including a completely normal shutdown -- fires
+  an extra Shutdown that races the planned one, double-calling
+  ros_adapter.shutdown() and raising "Cannot shutdown a ROS adapter
+  that is not running". That exception interrupts the SIGINT->SIGTERM
+  escalation for the remaining processes, so unrelated ones die via
+  raw signal instead of exiting cleanly. 100% reproducible in CI, and
+  the same symptom shows up independently in navigation2`#4722 <https://github.com/husarion/rosbot_ros/issues/4722>`_ -- a
+  launch_ros framework interaction, not fixable from our launch files.
+  Keeps the config dedup (rosbot_description is now the sole owner of
+  tf_namespace_bridge.yaml, previously duplicated identically across
+  rosbot_bringup/rosbot_gazebo/rosbot_description) since that part
+  never touched node composition and stayed green throughout.
+* Merge pull request `#188 <https://github.com/husarion/rosbot_ros/issues/188>`_ from husarion/feature/twist-mux-controller
+  Feature/twist mux controller
+* Move animation_publisher parameters into the model config
+* Add navigation animation and rename car_wave to ready
+* Clean up
+* Select LED animations from config_dir without a restart
+  current_animation now re-reads <name>.png/.yaml from disk on every set,
+  so a PNG dropped into config_dir needs no driver restart. create_config_dir
+  no longer aborts the whole copy on a dangling symlink.
+* Add twist_mux_controller for cmd_vel priority arbitration
+  Gamepad and nav2 both published to /cmd_vel with nothing arbitrating between
+  them. The mux chains onto the drive controller's reference interfaces, so the
+  choice is resolved inside the 100 Hz control loop instead of over topics:
+  manual (100) > autonomous (10) > cmd_vel (1), with 0.2 s fallthrough.
+  Needs the husarion_controllers revision that adds twist_mux_controller's
+  drive_controller parameter (pin bumped) — the two drive controllers name their
+  reference interfaces differently and an older revision leaves the mux unable to
+  claim them, so the robot comes up unresponsive. Jazzy only: humble's
+  diff_drive_controller is not chainable.
+* Merge pull request `#187 <https://github.com/husarion/rosbot_ros/issues/187>`_ from husarion/feature/asset-server-bringup
+  Run husarion_asset_server in the driver launch, not a separate daemon
+* Run husarion_asset_server in the driver launch, not a separate daemon
+  Vendors it as a new husarion_asset_server package that fetches +
+  sha256-verifies the prebuilt release binary instead of building via
+  colcon-ros-cargo (avoids a Rust/clang toolchain in dev/CI/rosbot-snap).
+  Runs as a node in rosbot_bringup's own launch under push_ros_namespace,
+  gated by a new asset_server arg (default True) - gets the correct
+  namespace at startup instead of needing a restart-to-re-announce hack.
+* feat(rosbot_utils): parameter-selectable LED animation publisher
+  Replace the two hard-coded LED nodes (led_strip_rainbow / led_strip_car_wave)
+  with a single animation_publisher that plays user-definable PNG animations
+  (row = frame, column = LED) selected by the current_animation node parameter.
+  - Animations are auto-discovered from rosbot_utils/animations (shipped) and an
+  optional user dir; each is a <name>.png + <name>.yaml sidecar (frequency,
+  brightness, optional color tint). Filename stem = animation name.
+  - Publishes the firmware contract unchanged: sensor_msgs/Image 1x18 rgb8,
+  BEST_EFFORT, at the animation's frequency. Wider PNG rows are cropped to the
+  first 18 columns, narrower rows padded black.
+  - current_animation is validated on set (on-set-parameters callback); the
+  reserved 'none' publishes nothing so the firmware idle animation shows.
+  - Ships turn-off-lights, rainbow, car_wave (rainbow/car_wave pre-rendered from
+  the retired procedural nodes; car_wave stays the default, so behaviour is
+  preserved). PNGs decoded with vendored stb_image (no new system dep).
+  - rosbot_xl.yaml gains led_animation / led_animation_user_dir args feeding the
+  node; test_led_strip.py covers the frame contract + parameter validation.
+* Contributors: Rafal Gorecki, dominikn, rafal-gorecki
+
 1.1.1 (2026-06-29)
 ------------------
 * Update rosbot body mesh; retune camera mount; bump husarion_components_description
