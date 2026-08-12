@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbot_moveit</name>
-  <version>1.1.1</version>
+  <version>1.2.0</version>
   <description>An automatically generated package with all the configuration and launch files for using the rosbot_xl with the MoveIt Motion Planning Framework</description>
   <maintainer email="support@husarion.com">Husarion</maintainer>
   <license>BSD-3-Clause</license>

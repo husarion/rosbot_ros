@@ -2,8 +2,8 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2026-08-12)
+------------------
 * Restore vendored stb_image.h and the controllers pin rationale (`#189 <https://github.com/husarion/rosbot_ros/issues/189>`_)
   clang-format rewrote 6.3k lines of upstream stb_image v2.30 before the
   third_party exclusion landed, so the file could no longer be resynced

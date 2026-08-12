@@ -2,8 +2,8 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2026-08-12)
+------------------
 * Compose tf_namespace_bridge with robot_state_publisher (`#190 <https://github.com/husarion/rosbot_ros/issues/190>`_)
   * Compose tf_namespace_bridge with robot_state_publisher
   RSP is the highest-frequency /tf publisher in the stack and

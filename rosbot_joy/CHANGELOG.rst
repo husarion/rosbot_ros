@@ -2,8 +2,8 @@
 Changelog for package rosbot_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2026-08-12)
+------------------
 * Merge pull request `#188 <https://github.com/husarion/rosbot_ros/issues/188>`_ from husarion/feature/twist-mux-controller
   Feature/twist mux controller
 * Add twist_mux_controller for cmd_vel priority arbitration

@@ -2,8 +2,8 @@
 Changelog for package husarion_asset_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2026-08-12)
+------------------
 * Merge pull request `#187 <https://github.com/husarion/rosbot_ros/issues/187>`_ from husarion/feature/asset-server-bringup
   Run husarion_asset_server in the driver launch, not a separate daemon
 * Run husarion_asset_server in the driver launch, not a separate daemon
