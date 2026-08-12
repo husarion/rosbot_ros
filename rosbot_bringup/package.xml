@@ -24,7 +24,6 @@
   <exec_depend>rosbot_localization</exec_depend>
   <exec_depend>rosbot_mavlink_bridge</exec_depend>
   <exec_depend>rosbot_utils</exec_depend>
-  <exec_depend>tf_namespace_bridge</exec_depend>
   <!-- <exec_depend>micro_ros_agent</exec_depend> — not available in rosdistro -->
 
   <test_depend>ament_cmake_pytest</test_depend>

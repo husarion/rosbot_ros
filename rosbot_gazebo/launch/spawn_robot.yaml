@@ -92,9 +92,6 @@ launch:
   - let:
       name: rosbot_bridge_config
       value: /tmp/rosbot_bridge_$(var namespace).yaml
-  - let:
-      name: tf_namespace_bridge_config
-      value: $(var rosbot_gazebo_config)/tf_namespace_bridge.yaml
 
   - executable:
       cmd: |
@@ -117,13 +114,7 @@ launch:
       - push_ros_namespace:
           namespace: $(var namespace)
 
-      - node:
-          pkg: tf_namespace_bridge
-          exec: tf_namespace_bridge
-          if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
-          param:
-            - from: $(var tf_namespace_bridge_config)
-
+      # tf_namespace_bridge runs composed in rosbot_description's node_container.
       - set_remap:
           from: /diagnostics
           to: diagnostics

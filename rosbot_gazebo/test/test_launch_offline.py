@@ -110,8 +110,15 @@ def test_rosbot_bridge_has_namespace_placeholder():
 
 
 def test_tf_namespace_bridge_default_is_pass_through():
-    """frame_filters=['*'] = pass-through. CLAUDE.md §9 2026-05-04."""
-    with open(_share("config", "tf_namespace_bridge.yaml")) as f:
+    """frame_filters=['*'] = pass-through. CLAUDE.md §9 2026-05-04.
+
+    Config now lives in rosbot_description (hosts the node_container that
+    composes tf_namespace_bridge with robot_state_publisher).
+    """
+    path = os.path.join(
+        get_package_share_directory("rosbot_description"), "config", "tf_namespace_bridge.yaml"
+    )
+    with open(path) as f:
         cfg = yaml.safe_load(f)
     filters = cfg["/**"]["tf_namespace_bridge"]["ros__parameters"]["frame_filters"]
     assert filters == ["*"]

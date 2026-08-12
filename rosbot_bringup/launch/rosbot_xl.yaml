@@ -85,11 +85,6 @@ launch:
       namespace: $(var namespace)
 
   - let:
-      name: tf_namespace_bridge_config
-      value: $(eval "('$(var config_dir)/rosbot_bringup' if '$(var config_dir)' else '$(find-pkg-share
-        rosbot_bringup)') + '/config/tf_namespace_bridge.yaml'")
-
-  - let:
       name: animation_publisher_config
       value: $(eval "('$(var config_dir)/rosbot_utils' if '$(var config_dir)' else '$(find-pkg-share rosbot_utils)')
         + '/config/' + '$(var robot_model)' + '/config.yaml'")
@@ -98,13 +93,7 @@ launch:
       name: animations_dir
       value: $(eval "('$(var config_dir)/rosbot_utils/animations' if '$(var config_dir)' else '')")
 
-  - node:
-      pkg: tf_namespace_bridge
-      exec: tf_namespace_bridge
-      if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
-      param:
-        - from: $(var tf_namespace_bridge_config)
-
+  # tf_namespace_bridge runs composed in rosbot_description's node_container.
   - set_remap:
       from: /diagnostics
       to: diagnostics

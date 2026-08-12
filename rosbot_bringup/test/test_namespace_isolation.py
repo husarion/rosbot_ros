@@ -40,6 +40,17 @@ ALLOWED_GLOBAL_TOPICS = {
 
 ALLOWED_GLOBAL_SERVICES: set[str] = set()
 
+# launch_ros creates one unnamespaced helper node ('launch_ros_<pid>', hardcoded
+# in launch_ros/ros_adapters.py:ROSAdapter, no YAML/namespace hook) the first
+# time anything in the launch tree needs a service client — for us, the
+# node_container/composable_node calls used to compose robot_state_publisher +
+# tf_namespace_bridge (rosbot_description). It only exposes the standard
+# rclpy parameter services (no declared parameters, nothing robot-facing) and
+# lives only for the launch process's lifetime. Not fixable from our launch
+# files; no upstream issue tracks it as of 2026-08 (checked ros2/launch_ros,
+# ros2/launch). Prefix, not exact match, because the PID varies per run.
+ALLOWED_GLOBAL_SERVICE_PREFIXES: tuple[str, ...] = ("/launch_ros_",)
+
 # Base-only stack — `hardware_bridge:=False` skips manipulator spawners.
 # `scan` comes from the hardware/sim lidar bridge (disabled here), so it is
 # intentionally absent offline and not listed.
@@ -72,13 +83,13 @@ def generate_test_description():
     )
 
 
-def _classify(names, ns_prefix, allowed_globals):
+def _classify(names, ns_prefix, allowed_globals, allowed_global_prefixes=()):
     leaks = []
     namespaced = []
     for name in names:
         if name.startswith(ns_prefix):
             namespaced.append(name)
-        elif name in allowed_globals:
+        elif name in allowed_globals or name.startswith(allowed_global_prefixes):
             continue
         else:
             leaks.append(name)
@@ -102,7 +113,9 @@ def test_namespace_isolation():
         ns_prefix = f"/{NAMESPACE}/"
 
         topic_leaks, ns_topics = _classify(topic_names, ns_prefix, ALLOWED_GLOBAL_TOPICS)
-        service_leaks, ns_services = _classify(service_names, ns_prefix, ALLOWED_GLOBAL_SERVICES)
+        service_leaks, ns_services = _classify(
+            service_names, ns_prefix, ALLOWED_GLOBAL_SERVICES, ALLOWED_GLOBAL_SERVICE_PREFIXES
+        )
 
         assert not topic_leaks, (
             "Topic leaks to /: "
