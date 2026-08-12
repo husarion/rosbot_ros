@@ -93,7 +93,7 @@ launch:
       name: animations_dir
       value: $(eval "('$(var config_dir)/rosbot_utils/animations' if '$(var config_dir)' else '')")
 
-  # tf_namespace_bridge runs composed in rosbot_description's node_container.
+  # tf_namespace_bridge now launched from rosbot_description (config dedup).
   - set_remap:
       from: /diagnostics
       to: diagnostics

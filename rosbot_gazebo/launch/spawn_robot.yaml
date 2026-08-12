@@ -114,7 +114,7 @@ launch:
       - push_ros_namespace:
           namespace: $(var namespace)
 
-      # tf_namespace_bridge runs composed in rosbot_description's node_container.
+      # tf_namespace_bridge now launched from rosbot_description (config dedup).
       - set_remap:
           from: /diagnostics
           to: diagnostics

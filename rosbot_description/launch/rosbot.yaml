@@ -82,35 +82,29 @@ launch:
       value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
         rosbot_description)') + '/config/tf_namespace_bridge.yaml'")
 
-  # RSP + tf_namespace_bridge composed: skips a serialize/DDS hop on every /tf.
-  - node_container:
-      pkg: rclcpp_components
-      exec: component_container_mt
-      name: description_container
-      namespace: ''
-      composable_node:
-        - pkg: robot_state_publisher
-          plugin: robot_state_publisher::RobotStatePublisher
-          name: robot_state_publisher
-          param:
-            - name: robot_description
-              value: |
-                $(command "bash -c '
-                  xacro $(var xacro_file) \
-                    components_config:=$(var components_config) \
-                    configuration:=$(var configuration) \
-                    controller_config:=$(var controller_config) \
-                    mecanum:=$(var mecanum) \
-                    namespace:=$(var namespace) \
-                    use_sim:=$(var use_sim) \
-                  | tee $(var urdf_file)
-                '")
-        - pkg: tf_namespace_bridge
-          plugin: tf_namespace_bridge::TfNamespaceBridge
-          name: tf_namespace_bridge
-          if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
-          param:
-            - from: $(var tf_namespace_bridge_config)
+  - node:
+      pkg: robot_state_publisher
+      exec: robot_state_publisher
+      param:
+        - name: robot_description
+          value: |
+            $(command "bash -c '
+              xacro $(var xacro_file) \
+                components_config:=$(var components_config) \
+                configuration:=$(var configuration) \
+                controller_config:=$(var controller_config) \
+                mecanum:=$(var mecanum) \
+                namespace:=$(var namespace) \
+                use_sim:=$(var use_sim) \
+              | tee $(var urdf_file)
+            '")
+
+  - node:
+      pkg: tf_namespace_bridge
+      exec: tf_namespace_bridge
+      if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
+      param:
+        - from: $(var tf_namespace_bridge_config)
 
   - node:
       pkg: joint_state_publisher
