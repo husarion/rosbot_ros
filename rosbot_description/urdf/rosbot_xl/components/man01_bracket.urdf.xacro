@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="man01_bracket"
+               params="parent_link
+                       xyz:='0.0 0.0 0.0'
+                       rpy:='0.0 0.0 0.0'
+                       robot_namespace:=''
+                       component_name:=''
+                       use_tf_prefix:=False">
+
+    <xacro:if value="${component_name == ''}">
+      <xacro:property name="component_name" value="man01_bracket" />
+    </xacro:if>
+
+    <xacro:property name="component_name_underscore" value="${component_name + '_' if component_name != '' else ''}" />
+
+    <joint name="${parent_link.rstrip('_link')}_to_${component_name_underscore}joint" type="fixed">
+      <origin xyz="${xyz}" rpy="${rpy}" />
+      <parent link="${parent_link}" />
+      <child link="${component_name_underscore}mount_link" />
+    </joint>
+
+    <link name="${component_name_underscore}mount_link">
+      <visual>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/components/man01_bracket.glb" />
+        </geometry>
+      </visual>
+
+      <!-- Simplified collision - convex hull, 182 faces vs 9228 in the visual mesh -->
+      <collision>
+        <geometry>
+          <mesh filename="package://rosbot_description/meshes/rosbot_xl/components/man01_bracket_collision.stl" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${component_name_underscore}mount_link_to_${component_name_underscore}camera_mount_link" type="fixed">
+      <origin xyz="-0.022 0.0 0.056" rpy="0.0 0.2 0.0" />
+      <parent link="${component_name_underscore}mount_link" />
+      <child link="${component_name_underscore}camera_mount_link" />
+    </joint>
+
+    <link name="${component_name_underscore}camera_mount_link" />
+
+  </xacro:macro>
+</robot>
