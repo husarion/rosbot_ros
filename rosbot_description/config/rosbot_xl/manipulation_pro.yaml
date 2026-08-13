@@ -6,6 +6,15 @@ components:
     xyz: -0.01 0.0 0.0
     rpy: 0.0 0.0 0.0
 
+  - type: custom
+    package: rosbot_description
+    file: urdf/rosbot_xl/components/zed_mini_man01_bracket.urdf.xacro
+    macro_name: zed_mini_man01_bracket
+    name: zed_mini
+    parent_link: link5
+    xyz: 0.02 0.0 0.07
+    rpy: -1.5708 0.0 -1.5708
+
   - type: CAM05
     parent_link: link5
     xyz: 0.02 0.0 0.07
