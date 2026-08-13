@@ -6,7 +6,14 @@ components:
     xyz: -0.01 0.0 0.0
     rpy: 0.0 0.0 0.0
 
-  - type: CAM05
+  - type: custom
+    package: rosbot_description
+    file: urdf/rosbot_xl/components/man01_bracket.urdf.xacro
+    macro_name: man01_bracket
+    name: man01_bracket
     parent_link: link5
-    xyz: 0.02 0.0 0.07
-    rpy: 0.0 0.2 0.0
+    xyz: 0.026 0.0 0.01
+    rpy: 0.0 0.0 0.0
+
+  - type: CAM05
+    parent_link: man01_bracket_camera_mount_link
