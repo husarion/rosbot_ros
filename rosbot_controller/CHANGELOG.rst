@@ -2,6 +2,9 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.2.0 (2026-08-12)
 ------------------
 * Merge pull request `#188 <https://github.com/husarion/rosbot_ros/issues/188>`_ from husarion/feature/twist-mux-controller

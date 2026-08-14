@@ -2,6 +2,22 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add ZED Mini + MAN01 bracket mount to manipulation_pro (`#192 <https://github.com/husarion/rosbot_ros/issues/192>`_)
+  * Add ZED Mini + MAN01 bracket to manipulation_pro
+  Custom component (own mesh) mounted on link5, oriented so the widest
+  mounting plate faces up with its long edge along Y. Collision uses 4
+  boxes fitted to the mesh cross-sections instead of the visual mesh.
+  * Consistent man01_bracket naming, convex-hull STL for collision
+  Renames the bracket macro/mesh/component/links to man01_bracket
+  throughout (was a zed_mini_man01_bracket/bracket mix). CAM05 attaches
+  to a dedicated camera_mount_link on the bracket instead of duplicating
+  xyz/rpy on both components. Collision switches from 4 hand-fitted
+  boxes to a single convex-hull STL (182 faces vs 9228 in the visual
+  mesh) - simpler to maintain and still fully encloses the mesh.
+* Contributors: Rafal Gorecki
+
 1.2.0 (2026-08-12)
 ------------------
 * Compose tf_namespace_bridge with robot_state_publisher (`#190 <https://github.com/husarion/rosbot_ros/issues/190>`_)

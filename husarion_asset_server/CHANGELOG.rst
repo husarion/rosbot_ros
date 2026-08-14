@@ -2,6 +2,11 @@
 Changelog for package husarion_asset_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump asset_server + retry download (`#191 <https://github.com/husarion/rosbot_ros/issues/191>`_)
+* Contributors: Rafal Gorecki
+
 1.2.0 (2026-08-12)
 ------------------
 * Merge pull request `#187 <https://github.com/husarion/rosbot_ros/issues/187>`_ from husarion/feature/asset-server-bringup

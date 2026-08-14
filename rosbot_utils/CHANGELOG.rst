@@ -2,6 +2,9 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.2.0 (2026-08-12)
 ------------------
 * Restore vendored stb_image.h and the controllers pin rationale (`#189 <https://github.com/husarion/rosbot_ros/issues/189>`_)

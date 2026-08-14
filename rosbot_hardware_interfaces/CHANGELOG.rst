@@ -2,6 +2,11 @@
 Changelog for package rosbot_hardware_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump asset_server + retry download (`#191 <https://github.com/husarion/rosbot_ros/issues/191>`_)
+* Contributors: Rafal Gorecki
+
 1.2.0 (2026-08-12)
 ------------------
 
