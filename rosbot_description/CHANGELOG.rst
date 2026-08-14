@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2026-08-14)
+------------------
 * Add ZED Mini + MAN01 bracket mount to manipulation_pro (`#192 <https://github.com/husarion/rosbot_ros/issues/192>`_)
   * Add ZED Mini + MAN01 bracket to manipulation_pro
   Custom component (own mesh) mounted on link5, oriented so the widest
