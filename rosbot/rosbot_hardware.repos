@@ -1,4 +1,8 @@
 repositories:
+  husarion_asset_msgs:
+    type: git
+    url: https://github.com/husarion/husarion_asset_msgs.git
+    version: 45e1d686c761431e6cbb7fae066f2eb516b091da
   husarion_components_description:
     type: git
     url: https://github.com/husarion/husarion_components_description.git
@@ -11,10 +15,6 @@ repositories:
     type: git
     url: https://github.com/husarion/husarion_controllers
     version: 724f4273b637a938ffb3171ebc0e5c96d020f98d
-  husarion_asset_msgs:
-    type: git
-    url: https://github.com/husarion/husarion_asset_msgs.git
-    version: 45e1d686c761431e6cbb7fae066f2eb516b091da
   micro-ROS-Agent:
     type: git
     url: https://github.com/micro-ROS/micro-ROS-Agent

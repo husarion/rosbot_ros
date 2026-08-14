@@ -1,4 +1,8 @@
 repositories:
+  husarion_asset_msgs:
+    type: git
+    url: https://github.com/husarion/husarion_asset_msgs.git
+    version: 45e1d686c761431e6cbb7fae066f2eb516b091da
   husarion_components_description:
     type: git
     url: https://github.com/husarion/husarion_components_description.git
