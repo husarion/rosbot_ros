@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import (
     Command,
     FindExecutable,
+    LaunchConfiguration,
     PathJoinSubstitution,
 )
 from launch_ros.actions import Node
@@ -23,10 +27,34 @@ from launch_ros.substitutions import FindPackageShare
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
-def generate_launch_description():
+def _apply_config_dir_overrides(builder, config_dir):
+    """Route the SRDF/kinematics/joint_limits/moveit_controllers configs
+    through config_dir when set, mirroring moveit_servo.yaml's handling in
+    servo.launch.py -- otherwise MoveItConfigsBuilder always reads them from
+    rosbot_moveit's installed package share, config_dir or not.
 
-    moveit_config = MoveItConfigsBuilder(
-        "rosbot_xl", package_name="rosbot_moveit"
+    ompl_planning.yaml can't be included here: MoveItConfigsBuilder's
+    planning_pipelines() has no file_path override, it always scans
+    <package_share>/config/*_planning.yaml with no way to redirect that scan
+    directory -- a moveit_configs_utils limitation, not something to route
+    around with a manual post-hoc dict merge.
+    """
+    if not config_dir:
+        return builder
+    base = os.path.join(config_dir, "rosbot_moveit", "config")
+    return (
+        builder.robot_description_semantic(file_path=os.path.join(base, "rosbot_xl.srdf"))
+        .robot_description_kinematics(file_path=os.path.join(base, "kinematics.yaml"))
+        .joint_limits(file_path=os.path.join(base, "joint_limits.yaml"))
+        .trajectory_execution(file_path=os.path.join(base, "moveit_controllers.yaml"))
+    )
+
+
+def _launch_setup(context):
+    config_dir = LaunchConfiguration("config_dir").perform(context)
+
+    moveit_config = _apply_config_dir_overrides(
+        MoveItConfigsBuilder("rosbot_xl", package_name="rosbot_moveit"), config_dir
     ).to_moveit_configs()
 
     components_config = PathJoinSubstitution(
@@ -83,4 +111,14 @@ def generate_launch_description():
         parameters=move_group_params,
     )
 
-    return LaunchDescription([move_group_node])
+    return [move_group_node]
+
+
+def generate_launch_description():
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    )
+
+    return LaunchDescription([declare_config_dir_arg, OpaqueFunction(function=_launch_setup)])

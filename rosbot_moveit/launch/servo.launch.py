@@ -30,6 +30,21 @@ from launch_ros.substitutions import FindPackageShare
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
+def _apply_config_dir_overrides(builder, config_dir):
+    """See move_group.launch.py's copy of this helper for the full rationale
+    (including why ompl_planning.yaml can't be routed this way) -- this one
+    only overrides what servo_node/joy2servo actually take as parameters
+    below."""
+    if not config_dir:
+        return builder
+    base = os.path.join(config_dir, "rosbot_moveit", "config")
+    return (
+        builder.robot_description_semantic(file_path=os.path.join(base, "rosbot_xl.srdf"))
+        .robot_description_kinematics(file_path=os.path.join(base, "kinematics.yaml"))
+        .joint_limits(file_path=os.path.join(base, "joint_limits.yaml"))
+    )
+
+
 def _launch_setup(context):
     config_dir = LaunchConfiguration("config_dir").perform(context)
 
@@ -77,8 +92,8 @@ def _launch_setup(context):
         ]
     )
 
-    moveit_config = MoveItConfigsBuilder(
-        "rosbot_xl", package_name="rosbot_moveit"
+    moveit_config = _apply_config_dir_overrides(
+        MoveItConfigsBuilder("rosbot_xl", package_name="rosbot_moveit"), config_dir
     ).to_moveit_configs()
     moveit_config.robot_description = {"robot_description": robot_description_content}
 
