@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
+import yaml
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -21,20 +25,23 @@ from launch.substitutions import (
     PathJoinSubstitution,
     PythonExpression,
 )
-from launch_param_builder import ParameterBuilder
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
-def generate_launch_description():
-    config_dir = LaunchConfiguration("config_dir")
+def _launch_setup(context):
+    config_dir = LaunchConfiguration("config_dir").perform(context)
 
-    declare_config_dir_arg = DeclareLaunchArgument(
-        "config_dir",
-        default_value="",
-        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    servo_yaml_path = (
+        os.path.join(config_dir, "rosbot_moveit", "config", "moveit_servo.yaml")
+        if config_dir
+        else os.path.join(
+            get_package_share_directory("rosbot_moveit"), "config", "moveit_servo.yaml"
+        )
     )
+    with open(servo_yaml_path) as f:
+        servo_params = {"moveit_servo": yaml.safe_load(f)}
 
     pkg_config_dir = PythonExpression(
         [
@@ -75,12 +82,6 @@ def generate_launch_description():
     ).to_moveit_configs()
     moveit_config.robot_description = {"robot_description": robot_description_content}
 
-    servo_params = {
-        "moveit_servo": ParameterBuilder("rosbot_moveit")
-        .yaml("config/moveit_servo.yaml")
-        .to_dict()
-    }
-
     servo_node = Node(
         package="moveit_servo",
         executable="servo_node",
@@ -116,4 +117,14 @@ def generate_launch_description():
         ],
     )
 
-    return LaunchDescription([declare_config_dir_arg, servo_node, joy2servo])
+    return [servo_node, joy2servo]
+
+
+def generate_launch_description():
+    declare_config_dir_arg = DeclareLaunchArgument(
+        "config_dir",
+        default_value="",
+        description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
+    )
+
+    return LaunchDescription([declare_config_dir_arg, OpaqueFunction(function=_launch_setup)])
