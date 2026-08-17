@@ -31,7 +31,10 @@ smoothing_filter_plugin_name: online_signal_smoothing::ButterworthFilterPlugin
 # which other nodes can use as a source for information about the planning environment.
 # NOTE: If a different node in your system is responsible for the "primary" planning scene instance (e.g. the MoveGroup node),
 # then is_primary_planning_scene_monitor needs to be set to false.
-is_primary_planning_scene_monitor: true
+# move_group.launch.py already runs move_group (see manipulator.yaml), which is the
+# canonical primary PSM — servo requests scene state from it instead of running its
+# own duplicate world/scene monitor. CPU-cost analysis 2026-08-17.
+is_primary_planning_scene_monitor: false
 
 # Relative name keeps it inside the robot namespace (default "/planning_scene" leaks to root).
 monitored_planning_scene_topic: planning_scene
@@ -67,9 +70,18 @@ command_out_topic: manipulator_controller/joint_trajectory # Publish outgoing co
 
 ## Collision checking for the entire robot body
 check_collisions: true
-# 30 Hz (upstream default 10 Hz): @1 rad/s Cartesian clamp, 100 ms tick covers
-# 30 mm > 20 mm threshold (no ramp); 33 ms @ 30 Hz drops it to 10 mm.
-collision_check_rate: 30.0 # [Hz]
+# 20 Hz (upstream default 10 Hz, was 30 Hz): @1 rad/s Cartesian clamp
+# (joy2servo's cartesian_max_joint_velocity default), distance covered per
+# tick is ~300/rate_hz mm. 10 Hz -> 30 mm > 20 mm threshold (no ramp, unsafe);
+# 20 Hz -> 15 mm, still a real 1.33x margin under the threshold; 30 Hz -> 10 mm.
+# collision_monitor.cpp runs this as its own always-on loop independent of
+# publish_period, doing two full FCL checks (self + scene) every tick — the
+# single highest CPU-cost loop in the manipulator stack (measured ~91% of one
+# core on the Jetson). Dropped from 30->20 Hz for a ~33% cut on that loop
+# while keeping real margin. CPU-cost analysis 2026-08-17 — re-verify on HW
+# (fast jog toward self-collision/an obstacle, confirm it still stops before
+# contact) before trusting this in the field.
+collision_check_rate: 20.0 # [Hz]
 # 0.02 m: raising it triggers false positives because some non-SRDF-disabled
 # link pairs rest within 5 cm and would clamp velocity to ~0 at startup.
 self_collision_proximity_threshold: 0.02 # [m]

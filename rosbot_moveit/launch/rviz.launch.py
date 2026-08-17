@@ -23,10 +23,23 @@ from launch_ros.actions import Node, SetParameter
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
+def _apply_config_dir_overrides(builder, config_dir):
+    """See move_group.launch.py's copy of this helper for the full rationale
+    (including why ompl_planning.yaml can't be routed this way) -- this one
+    only overrides kinematics.yaml, the one config actually passed to rviz2's
+    parameters below (SRDF/joint_limits get computed internally by
+    to_moveit_configs() but are never included in that parameter list)."""
+    if not config_dir:
+        return builder
+    base = os.path.join(config_dir, "rosbot_moveit", "config")
+    return builder.robot_description_kinematics(file_path=os.path.join(base, "kinematics.yaml"))
+
+
 def _resolve_rviz_config_and_spawn(context):
     """Patch moveit.rviz's hardcoded `Move Group Namespace: ""` so the panel
     reaches /<ns>/move_group. Mirrors the /tmp/rosbot_*_<ns> pattern."""
     namespace = LaunchConfiguration("namespace").perform(context).strip("/")
+    config_dir = LaunchConfiguration("config_dir").perform(context)
     move_group_ns = "/" + namespace if namespace else ""
     resolved_path = (
         f"/tmp/rosbot_moveit_{namespace}.rviz" if namespace else "/tmp/rosbot_moveit.rviz"
@@ -42,8 +55,8 @@ def _resolve_rviz_config_and_spawn(context):
     with open(resolved_path, "w") as f:
         f.write(content)
 
-    moveit_config = MoveItConfigsBuilder(
-        "rosbot_xl", package_name="rosbot_moveit"
+    moveit_config = _apply_config_dir_overrides(
+        MoveItConfigsBuilder("rosbot_xl", package_name="rosbot_moveit"), config_dir
     ).to_moveit_configs()
 
     return [
@@ -78,6 +91,11 @@ def generate_launch_description():
                 "namespace",
                 default_value="",
                 description="Robot namespace; matches the bringup so RViz reaches the namespaced move_group.",
+            ),
+            DeclareLaunchArgument(
+                "config_dir",
+                default_value="",
+                description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
             ),
             SetParameter(name="use_sim_time", value=LaunchConfiguration("use_sim")),
             OpaqueFunction(function=_resolve_rviz_config_and_spawn),
