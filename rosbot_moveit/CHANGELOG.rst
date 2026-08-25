@@ -2,8 +2,8 @@
 Changelog for package rosbot_moveit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.2 (2026-08-25)
+------------------
 * moveit_servo: cut collision-check CPU cost, fix config_dir gap (`#193 <https://github.com/husarion/rosbot_ros/issues/193>`_)
   * moveit_servo: fix duplicate PSM + cut collision_check_rate 30->20Hz
   move_group.launch.py already runs move_group, the canonical primary

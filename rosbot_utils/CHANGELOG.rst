@@ -2,8 +2,8 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.2 (2026-08-25)
+------------------
 * Fix flash_firmware NACK on read-protected STM32 MCUs
 * Contributors: rafal-gorecki
 
