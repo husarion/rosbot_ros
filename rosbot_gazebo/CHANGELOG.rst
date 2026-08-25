@@ -2,6 +2,11 @@
 Changelog for package rosbot_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix tf_bridge remap tf topic bug
+* Contributors: rafal-gorecki
+
 1.2.1 (2026-08-14)
 ------------------
 

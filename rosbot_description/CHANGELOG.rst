@@ -2,6 +2,11 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix tf_bridge remap tf topic bug
+* Contributors: rafal-gorecki
+
 1.2.1 (2026-08-14)
 ------------------
 * Add ZED Mini + MAN01 bracket mount to manipulation_pro (`#192 <https://github.com/husarion/rosbot_ros/issues/192>`_)

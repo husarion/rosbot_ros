@@ -2,6 +2,12 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix tf_bridge remap tf topic bug
+* Add husarion_asset_msgs to rosbot_simulation.repos
+* Contributors: rafal-gorecki
+
 1.2.1 (2026-08-14)
 ------------------
 
