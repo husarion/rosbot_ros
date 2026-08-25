@@ -133,13 +133,44 @@ UART Flashing:
         )
         try:
             self.enter_bootloader_mode()
-            self.flashing_operation("Flashing", binary_file)
+            # boot0_pin stays driven high by gpiod across the whole session, so the
+            # MCU self-reset triggered by -k/-u always re-enters the bootloader.
+            self._disable_write_protection()
+            self._flash_with_read_protection_recovery(binary_file)
             self.exit_bootloader_mode()
         except Exception as e:
             if hasattr(e, "stderr"):
                 error_msg = e.stderr.decode("utf-8").strip()
                 raise RuntimeError(error_msg) from e
             raise
+
+    def _disable_write_protection(self):
+        # AN3155: Write Unprotect only clears the WRP option bits and resets
+        # the device -- no erase side effect -- so it's cheap and safe to
+        # always run. (Readout Unprotect is the opposite: it mass-erases the
+        # whole chip unconditionally, so that one stays reactive -- see
+        # _flash_with_read_protection_recovery -- instead of running on every
+        # flash regardless of whether the chip was ever protected.)
+        try:
+            self.flashing_operation("Write-Protection")
+        except Exception as e:
+            print(f"WARNING: Write-Protection step failed, continuing anyway: {e}")
+
+    def _flash_with_read_protection_recovery(self, binary_file):
+        try:
+            self.flashing_operation("Flashing", binary_file)
+        except Exception as e:
+            error_msg = (
+                e.stderr.decode("utf-8", errors="replace") if hasattr(e, "stderr") else str(e)
+            )
+            if "0x44" not in error_msg and "erase" not in error_msg.lower():
+                raise
+            print(
+                "WARNING: erase was NACK'd (chip likely read-protected) -- "
+                "disabling read-protection and retrying the flash once"
+            )
+            self.flashing_operation("Read-Protection")
+            self.flashing_operation("Flashing", binary_file)
 
     def reset_mcu(self):
         self.reset_pin.set_value(1)

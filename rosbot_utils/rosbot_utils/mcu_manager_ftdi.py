@@ -27,6 +27,12 @@ from pyftdi.ftdi import Ftdi
 # CBUS1 - RST
 
 
+def _error_text(exc):
+    if hasattr(exc, "stderr"):
+        return exc.stderr.decode("utf-8", errors="replace")
+    return str(exc)
+
+
 class McuManagerFTDI:
     def __init__(self, port: str):
         self.port = port
@@ -111,19 +117,27 @@ class McuManagerFTDI:
         # into the bootloader, and the gentle re-bind resets it into firmware.
         # So the bootloader path is the one place usbreset is unavoidable.
         sh.usbreset("0403:6015")
-        time.sleep(0.3)  # let the stale /dev node disappear before polling for the new one
+        time.sleep(0.6)  # let the stale /dev node disappear before polling for the new one
         if not self._wait_for_port(raise_on_timeout=False) or not self._ftdi_on_bus():
             raise RuntimeError(
                 "FTDI did not re-enumerate after USB reset (dropped off the bus). "
                 "Physically replug the robot's USB cable and retry."
             )
+        # The tty node can appear slightly before the MCU's ROM bootloader is
+        # actually listening/ready for the auto-baud sync byte -- root cause
+        # of the occasional "Failed to init device, timeout." from stm32flash
+        # (see flash_firmware's connect-retry for the backstop; this is just
+        # cutting down how often that retry is needed).
+        time.sleep(0.3)
 
     def exit_bootloader_mode(self):
         self._reset_via_rebind()
 
     def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
         print(f"\n{operation_name} operation started")
-        time.sleep(0.5)
+        # Extra settle time before talking to the bootloader -- see the sleep
+        # after usbreset in enter_bootloader_mode() for why.
+        time.sleep(1.0)
 
         if operation_name == "Read-Protection":
             sh.stm32flash("-b", str(baudrate), "-k", self.port)
@@ -137,23 +151,64 @@ class McuManagerFTDI:
         print("Success")
         time.sleep(0.5)
 
-    def flash_firmware(self, binary_file):
-
+    def flash_firmware(self, binary_file, connect_attempts=3):
         print(
             f"""
 USB Flashing:
     File: {binary_file}
     Port: {self.port}"""
         )
+        for attempt in range(1, connect_attempts + 1):
+            try:
+                self.enter_bootloader_mode()
+                self._disable_write_protection()
+                self._flash_with_read_protection_recovery(binary_file)
+                self.exit_bootloader_mode()
+                return
+            except Exception as e:
+                error_msg = _error_text(e)
+                # This exact race (port node exists, but the bootloader isn't
+                # listening yet right after usbreset re-enumeration) resolved
+                # on a bare re-run in HW testing every time it was hit -- so
+                # retry the whole entry here instead of making the user do it.
+                if attempt < connect_attempts and "Failed to init device" in error_msg:
+                    print(
+                        f"WARNING: bootloader did not respond after USB reset "
+                        f"(attempt {attempt}/{connect_attempts}), retrying entry..."
+                    )
+                    time.sleep(1.0)
+                    continue
+                if hasattr(e, "stderr"):
+                    raise RuntimeError(error_msg) from e
+                raise
+
+    def _disable_write_protection(self):
+        # AN3155: Write Unprotect only clears the WRP option bits and resets
+        # the device -- no erase side effect -- so it's cheap and safe to
+        # always run. (Readout Unprotect is the opposite: it mass-erases the
+        # whole chip unconditionally, so that one stays reactive -- see
+        # _flash_with_read_protection_recovery -- instead of running on every
+        # flash regardless of whether the chip was ever protected.)
         try:
-            self.enter_bootloader_mode()
-            self.flashing_operation("Flashing", binary_file)
-            self.exit_bootloader_mode()
+            self.flashing_operation("Write-Protection")
+            self.enter_bootloader_mode()  # re-latch BOOT0 after the MCU's own reset
         except Exception as e:
-            if hasattr(e, "stderr"):
-                error_msg = e.stderr.decode("utf-8").strip()
-                raise RuntimeError(error_msg) from e
-            raise
+            print(f"WARNING: Write-Protection step failed, continuing anyway: {e}")
+
+    def _flash_with_read_protection_recovery(self, binary_file):
+        try:
+            self.flashing_operation("Flashing", binary_file)
+        except Exception as e:
+            error_msg = _error_text(e)
+            if "0x44" not in error_msg and "erase" not in error_msg.lower():
+                raise
+            print(
+                "WARNING: erase was NACK'd (chip likely read-protected) -- "
+                "disabling read-protection and retrying the flash once"
+            )
+            self.flashing_operation("Read-Protection")
+            self.enter_bootloader_mode()  # RDP clear mass-erases + resets; re-latch BOOT0
+            self.flashing_operation("Flashing", binary_file)
 
     def reset_mcu(self):
         self._reset_via_rebind()
