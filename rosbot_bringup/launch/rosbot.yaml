@@ -2,6 +2,15 @@
 launch:
 
   - arg:
+      name: asset_server
+      default: 'True'
+      description: Launch husarion_asset_server, serving this robot's package:// meshes/URDF resources
+        to the bridge's get_asset service.
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
       name: config_dir
       default: ''
       description: Path to the common configuration directory. You can create such common configuration
@@ -47,15 +56,6 @@ launch:
         - value: rosbot
         - value: rosbot_xl
 
-  - arg:
-      name: asset_server
-      default: 'True'
-      description: Launch husarion_asset_server, serving this robot's package:// meshes/URDF resources
-        to the bridge's get_asset service.
-      choice:
-        - value: 'True'
-        - value: 'False'
-
   - set_env:
       name: RCUTILS_COLORIZED_OUTPUT
       value: '1'
@@ -70,7 +70,23 @@ launch:
   - push_ros_namespace:
       namespace: $(var namespace)
 
-  # tf_namespace_bridge now launched from rosbot_description (config dedup).
+  - let:
+      name: tf_namespace_bridge_config
+      value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_description)') + '/config/tf_namespace_bridge.yaml'")
+
+  - node:
+      pkg: tf_namespace_bridge
+      exec: tf_namespace_bridge
+      if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
+      param:
+        - from: $(var tf_namespace_bridge_config)
+
+  # tf_namespace_bridge publishes the true global /tf; it must be launched
+  # BEFORE these remaps, otherwise its own "/tf" publisher gets folded onto
+  # the same resolved topic as its "tf" subscriber, creating a feedback loop
+  # (regression in a5fc4b5, which moved the node into rosbot_description's
+  # launch file — downstream of this remap in the include chain).
   - set_remap:
       from: /diagnostics
       to: diagnostics

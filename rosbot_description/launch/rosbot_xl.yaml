@@ -58,14 +58,6 @@ launch:
         - value: 'True'
         - value: 'False'
 
-  - arg:
-      name: tf_namespace_bridge
-      default: 'True'
-      description: Bridge robot's namespaced TF to the global /tf and /tf_static.
-      choice:
-        - value: 'True'
-        - value: 'False'
-
   - set_parameter:
       name: use_sim_time
       value: $(var use_sim)
@@ -90,11 +82,6 @@ launch:
   - let:
       name: urdf_file
       value: /tmp/rosbot_xl_description_$(var namespace).urdf
-  - let:
-      name: tf_namespace_bridge_config
-      value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
-        rosbot_description)') + '/config/tf_namespace_bridge.yaml'")
-
   - node:
       pkg: robot_state_publisher
       exec: robot_state_publisher
@@ -113,13 +100,6 @@ launch:
                 use_sim:=$(var use_sim) \
               | tee $(var urdf_file)
             '")
-
-  - node:
-      pkg: tf_namespace_bridge
-      exec: tf_namespace_bridge
-      if: $(eval '"$(var tf_namespace_bridge)" == "True" and "$(var namespace)" != ""')
-      param:
-        - from: $(var tf_namespace_bridge_config)
 
   - node:
       pkg: joint_state_publisher
