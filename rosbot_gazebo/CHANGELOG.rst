@@ -2,8 +2,8 @@
 Changelog for package rosbot_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.3 (2026-08-26)
+------------------
 * Add ROSbot 3 pro config + move camera_mount to custom yaml component (`#194 <https://github.com/husarion/rosbot_ros/issues/194>`_)
   * Add ROSbot 3 pro configuration (OAK-D Pro + RPLIDAR S2)
   basic stays OAK-D Lite + RPLIDAR C1; pro is the ROSbot 3 PRO sensor
