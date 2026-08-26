@@ -4,11 +4,21 @@
                params="parent_link
                        xyz:='0.0 0.0 0.0'
                        rpy:='0.0 0.0 0.0'
-                       tf_prefix:=''
-                       camera_mount_angle_1:=0.0
-                       camera_mount_angle_2:=0.0">
+                       robot_namespace:=''
+                       component_name:=''
+                       use_tf_prefix:=False
+                       component:={}">
 
-    <xacro:property name="prefix" value="${tf_prefix + '_' if tf_prefix != '' else ''}" />
+    <!-- default component_name left empty on purpose: this macro's own link
+         names (camera_mount_bot/mid/top/_link) are already fully qualified,
+         so a non-empty default here would double-prefix them. -->
+    <xacro:property name="prefix" value="${component_name + '_' if component_name != '' else ''}" />
+
+    <!-- camera_mount_angle_1/2 (rad) tune the bracket's pan/tilt joints - set them
+         directly on this component's yaml entry when a configuration needs a
+         different tilt than the physical bracket's own default. -->
+    <xacro:property name="camera_mount_angle_1" value="${component.get('camera_mount_angle_1', 0.0)}" />
+    <xacro:property name="camera_mount_angle_2" value="${component.get('camera_mount_angle_2', 0.0)}" />
 
     <joint name="${parent_link.rstrip('_link')}_to_${prefix}camera_mount_bot_joint"
       type="fixed">
