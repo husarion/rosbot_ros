@@ -10,9 +10,11 @@ launch:
   - arg:
       name: configuration
       default: basic
-      description: Specify configuration packages. Currently only ROSbot XL has available packages
+      description: Specify configuration packages. `basic` = OAK-D Lite + RPLIDAR C1 (ROSbot 3), `pro`
+        = OAK-D Pro + RPLIDAR S2 (ROSbot 3 PRO).
       choice:
         - value: basic
+        - value: pro
         - value: custom
 
   - arg:

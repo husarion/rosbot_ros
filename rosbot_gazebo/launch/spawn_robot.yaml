@@ -16,9 +16,11 @@ launch:
   - arg:
       name: configuration
       default: basic
-      description: Specify configuration packages. Currently only ROSbot XL has available packages
+      description: Specify configuration packages. ROSbot XL has the full set; ROSbot 2/3 only
+        `basic`/`pro`/`custom`.
       choice:
         - value: basic
+        - value: pro
         - value: telepresence
         - value: autonomy
         - value: manipulation

@@ -1,12 +1,12 @@
 ---
 # Custom components (own URDF + mesh): https://github.com/husarion/husarion_components_description#custom-component
 components:
-  - type: rplidar_c1
+  - type: rplidar_s2
     parent_link: cover_link
     xyz: 0.02 0.0 0.0
     rpy: 0.0 0.0 0.0
 
-  - type: oak_d_lite
+  - type: oak_d_pro
     parent_link: camera_mount_link
-    xyz: -0.008 0.0 -0.004
+    xyz: 0.0 0.0 0.0
     rpy: 0.0 0.0 0.0

@@ -77,9 +77,6 @@ launch:
       value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
         rosbot_description)') + '/config/rosbot_xl/$(var configuration).yaml'")
   - let:
-      name: include_camera_mount
-      value: $(eval "'True' if '$(var configuration)' in ['autonomy', 'telepresence'] else 'False'")
-  - let:
       name: urdf_file
       value: /tmp/rosbot_xl_description_$(var namespace).urdf
   - node:
@@ -93,7 +90,6 @@ launch:
                 components_config:=$(var components_config) \
                 configuration:=$(var configuration) \
                 controller_config:=$(var controller_config) \
-                include_camera_mount:=$(var include_camera_mount) \
                 manipulator_serial_port:=$(var manipulator_serial_port) \
                 mecanum:=$(var mecanum) \
                 namespace:=$(var namespace) \

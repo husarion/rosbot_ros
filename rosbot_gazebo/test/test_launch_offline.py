@@ -63,16 +63,21 @@ def test_spawn_robot_args_cover_pose_and_config():
 
 
 def test_spawn_robot_configuration_choices_match_rosbot_description():
-    """configuration arg must match rosbot_description/config/rosbot_xl/*.yaml."""
+    """configuration arg is shared by both models — it must match the union of
+    rosbot_description/config/{rosbot,rosbot_xl}/*.yaml. rosbot only has a
+    subset (basic/pro/custom); rosbot_xl has the full set."""
     args = _args(_launch("spawn_robot.yaml"))
     spawn_choices = {c["value"] for c in args["configuration"].get("choice", [])}
-    yaml_dir = os.path.join(
-        get_package_share_directory("rosbot_description"), "config", "rosbot_xl"
-    )
-    yaml_choices = {os.path.splitext(f)[0] for f in os.listdir(yaml_dir) if f.endswith(".yaml")}
+    config_root = os.path.join(get_package_share_directory("rosbot_description"), "config")
+    yaml_choices = set()
+    for model_dir in ("rosbot", "rosbot_xl"):
+        yaml_dir = os.path.join(config_root, model_dir)
+        yaml_choices |= {
+            os.path.splitext(f)[0] for f in os.listdir(yaml_dir) if f.endswith(".yaml")
+        }
     assert spawn_choices == yaml_choices, (
         f"configuration choices ({spawn_choices}) drifted from "
-        f"rosbot_description/config/rosbot_xl/ ({yaml_choices})"
+        f"rosbot_description/config/{{rosbot,rosbot_xl}}/ ({yaml_choices})"
     )
 
 

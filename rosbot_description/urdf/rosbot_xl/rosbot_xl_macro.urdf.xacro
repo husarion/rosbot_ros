@@ -2,7 +2,6 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
   <xacro:macro name="rosbot_xl"
     params="controller_config
-            include_camera_mount
             mecanum
             namespace
             use_sim">
@@ -17,14 +16,10 @@
     <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/body.urdf.xacro" ns="body" />
     <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/components/antenna.urdf.xacro" ns="antenna" />
     <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/wheel.urdf.xacro" ns="wheel" />
-    <xacro:include filename="$(find rosbot_description)/urdf/rosbot_xl/components/camera_mount.urdf.xacro" ns="camera_mount" />
 
     <!-- BODY -->
     <xacro:body.body wheel_radius="${wheel_radius}" />
     <xacro:antenna.antenna parent_link="cover_link" xyz="-0.155 -0.055 -0.02" rpy="-0.4 0.0 0.0" antenna_angle="0.3" />
-    <xacro:if value="${include_camera_mount}">
-      <xacro:camera_mount.camera_mount parent_link="cover_link" xyz="-0.1 0.0 0.0" />
-    </xacro:if>
 
     <!-- WHEEL -->
     <xacro:wheel.wheel wheel_radius="${wheel_radius}" side="fl" mecanum="${mecanum}" />

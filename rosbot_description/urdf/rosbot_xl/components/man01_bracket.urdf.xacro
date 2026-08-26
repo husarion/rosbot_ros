@@ -7,7 +7,8 @@
                        rpy:='0.0 0.0 0.0'
                        robot_namespace:=''
                        component_name:=''
-                       use_tf_prefix:=False">
+                       use_tf_prefix:=False
+                       component:={}">
 
     <xacro:if value="${component_name == ''}">
       <xacro:property name="component_name" value="man01_bracket" />
