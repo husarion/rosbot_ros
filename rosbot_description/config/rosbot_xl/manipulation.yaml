@@ -1,7 +1,7 @@
 ---
 # Custom components (own URDF + mesh): https://github.com/husarion/husarion_components_description#custom-component
 components:
-  - type: LDR06
+  - type: rplidar_s3
     parent_link: cover_link
     xyz: -0.01 0.0 0.0
     rpy: 0.0 0.0 0.0
