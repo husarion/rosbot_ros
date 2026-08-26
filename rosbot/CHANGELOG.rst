@@ -2,6 +2,29 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add ROSbot 3 pro config + move camera_mount to custom yaml component (`#194 <https://github.com/husarion/rosbot_ros/issues/194>`_)
+  * Add ROSbot 3 pro configuration (OAK-D Pro + RPLIDAR S2)
+  basic stays OAK-D Lite + RPLIDAR C1; pro is the ROSbot 3 PRO sensor
+  set, mirroring the existing basic/telepresence/autonomy split for
+  rosbot_xl.
+  * Move camera_mount to a custom yaml component for ROSbot XL
+  Was built into rosbot_xl_macro.urdf.xacro behind an internal
+  include_camera_mount toggle; now telepresence.yaml/autonomy.yaml add
+  it as a `type: custom` component (like man01_bracket), with
+  camera_mount_angle_1/2 read straight off that yaml entry via the
+  new husarion_components_description `component` passthrough (bumped
+  pin: f059bb6 -> 5f783f8).
+  * Use canonical component names instead of SKU codes in manipulation configs
+  * Bump firmware
+  * Fix test_spawn_robot_configuration_choices to cover both models
+  configuration is now a shared arg (rosbot: basic/pro/custom, rosbot_xl:
+  full set) since the ROSbot 3 pro config landed, but the test still only
+  diffed spawn_robot.yaml's choices against rosbot_xl/*.yaml, so adding
+  `pro` (which lives under config/rosbot/) tripped it as drift.
+* Contributors: Rafal Gorecki
+
 1.2.2 (2026-08-25)
 ------------------
 * Fix tf_bridge remap tf topic bug
