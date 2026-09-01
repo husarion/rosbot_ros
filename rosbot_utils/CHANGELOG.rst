@@ -2,6 +2,11 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump dependencies
+* Contributors: rafal-gorecki
+
 1.2.3 (2026-08-26)
 ------------------
 * Add ROSbot 3 pro config + move camera_mount to custom yaml component (`#194 <https://github.com/husarion/rosbot_ros/issues/194>`_)
