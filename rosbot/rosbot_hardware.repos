@@ -22,7 +22,7 @@ repositories:
   rosbot-firmware:
     type: git
     url: https://github.com/husarion/rosbot-firmware.git
-    version: e86dd794d36d6c04c17598032dd5a26bb5960cdf
+    version: 7a41f7e53b516c52eca9c697ee6aa2ffb75f2edc
   tf_namespace_bridge:
     type: git
     url: https://github.com/husarion/tf_namespace_bridge
