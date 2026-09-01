@@ -2,8 +2,8 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.4 (2026-09-01)
+------------------
 * Bump dependencies
 * Contributors: rafal-gorecki
 
