@@ -121,7 +121,7 @@ To do it, first you will have to disable the torque of the manipulator, for exam
 On your ROSbot XL execute. **Hold the manipulator** while doing it, as it disables the torque and the manipulator can fall.
 
 ```bash
-sudo rosbot.arm-disactivate # if you are using snap
+sudo rosbot.arm-deactivate # if you are using snap
 ros2 run rosbot_controller arm_control inactive # if you are using local build
 ```
 
