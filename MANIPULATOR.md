@@ -20,11 +20,11 @@ sudo rosbot.arm-activate # if you are using snap
 ros2 run rosbot_controller arm_control active # if you are using local build
 ```
 
-You can change the driver's default behavior using the `arm_activate` argument.
+> You can change the driver's default behavior using the `arm_activate` argument.
 
 ## Control
 
-After starting, the manipulator should be in the Home position after a few seconds. Now you can control ROSbot XL and OpenMANIPULATOR-X using a gamepad or RViz.
+Once the arm is activated, the manipulator should engage the torque on the joints, locking them in place. You can now control OpenMANIPULATOR-X using a gamepad or RViz.
 
 > [!NOTE]
 > The instructions presented are for the Jazzy version. You can check the difference in versions by changing the branch in the [rosbot_ros/MANIPULATOR.MD](https://github.com/husarion/rosbot_ros/blob/jazzy/MANIPULATOR.md) repository.
