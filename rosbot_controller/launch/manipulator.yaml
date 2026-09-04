@@ -16,6 +16,16 @@ launch:
         Seconds the spawner waits for controller_manager to load + activate the
         controllers. Raised from 20 for slower SBCs (see controller.yaml).
 
+  - arg:
+      name: servo_enabled
+      default: $(var arm_activate)
+      description: >-
+        Whether to start servo_node + joy2servo (joystick teleop backend for the
+        manipulator). Defaults to arm_activate, but can be set independently --
+        e.g. to keep the arm active while skipping servo_node's always-on
+        collision-checking loop (~91% of one CPU core, see MANIPULATOR.md) when
+        the joystick won't be used this session.
+
   - node:
       pkg: controller_manager
       exec: spawner
@@ -42,6 +52,9 @@ launch:
 
   - include:
       file: $(find-pkg-share rosbot_moveit)/launch/servo.launch.py
+      arg:
+        - name: servo_enabled
+          value: $(var servo_enabled)
 
   - include:
       file: $(find-pkg-share rosbot_moveit)/launch/home.launch.py

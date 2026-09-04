@@ -22,6 +22,16 @@ ros2 run rosbot_controller arm_control active # if you are using local build
 
 > You can change the driver's default behavior using the `arm_activate` argument.
 
+`servo_node` (the joystick teleop backend, see [Control](#control) below) is a plain
+`rclcpp::Node`, not a lifecycle node -- once started its collision-checking loop runs
+continuously and cannot be paused, measured at ~91% of one CPU core on a Jetson Orin
+Nano even while idle. `servo.launch.py`'s `servo_enabled` argument (default inherited
+from `arm_activate`) skips starting `servo_node`/`joy2servo` altogether when you know
+the arm won't be used this session, e.g. `ros2 launch rosbot_xl.yaml configuration:=manipulation
+arm_activate:=False`. This is a **launch-time** switch only -- toggling the arm at
+runtime with `arm_control inactive`/`sudo rosbot.arm-activate` does not stop an
+already-running `servo_node`.
+
 ## Control
 
 Once the arm is activated, the manipulator should engage the torque on the joints, locking them in place. You can now control OpenMANIPULATOR-X using a gamepad or RViz.

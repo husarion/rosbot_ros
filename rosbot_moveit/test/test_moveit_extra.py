@@ -14,7 +14,7 @@
 
 """Extra invariants: MoveItConfigsBuilder smoke + servo<->SRDF group link + joint coverage."""
 
-from conftest import load_yaml, srdf_root
+from conftest import load_yaml, share, srdf_root
 
 
 def test_moveit_configs_builder_loads():
@@ -47,6 +47,28 @@ def test_servo_command_in_type_is_speed_units():
     """joy2servo publishes JointJog in rad/s; 'unitless' silently rescales and arm crawls."""
     servo = load_yaml("config/moveit_servo.yaml")
     assert servo["command_in_type"] == "speed_units"
+
+
+def test_servo_launch_declares_servo_enabled_arg():
+    """servo_enabled gates servo_node/joy2servo so the always-on collision-checking
+    loop (~91% of one CPU core, see MANIPULATOR.md) can be skipped when the arm
+    isn't used. Default must stay 'true' so existing bringups are unaffected."""
+    import importlib.util
+
+    from launch.actions import DeclareLaunchArgument
+
+    spec = importlib.util.spec_from_file_location("servo_launch", share("launch/servo.launch.py"))
+    servo_launch = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(servo_launch)
+
+    launch_description = servo_launch.generate_launch_description()
+    declares = {
+        entity.name: entity
+        for entity in launch_description.entities
+        if isinstance(entity, DeclareLaunchArgument)
+    }
+    assert "servo_enabled" in declares
+    assert declares["servo_enabled"].default_value[0].text == "true"
 
 
 def test_initial_positions_covers_actuated_srdf_joints():

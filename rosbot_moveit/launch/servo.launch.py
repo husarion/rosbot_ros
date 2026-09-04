@@ -18,6 +18,7 @@ import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.conditions import IfCondition
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -97,6 +98,8 @@ def _launch_setup(context):
     ).to_moveit_configs()
     moveit_config.robot_description = {"robot_description": robot_description_content}
 
+    servo_enabled_condition = IfCondition(LaunchConfiguration("servo_enabled"))
+
     servo_node = Node(
         package="moveit_servo",
         executable="servo_node",
@@ -108,6 +111,7 @@ def _launch_setup(context):
             moveit_config.joint_limits,
         ],
         output="screen",
+        condition=servo_enabled_condition,
     )
 
     joy2servo = Node(
@@ -130,6 +134,10 @@ def _launch_setup(context):
             "--log-level",
             "joy2servo:=info",
         ],
+        # joy2servo only publishes into servo_node's command topics -- with
+        # servo_node off it has no effect, so gate it the same way instead of
+        # leaving a dead process running.
+        condition=servo_enabled_condition,
     )
 
     return [servo_node, joy2servo]
@@ -142,4 +150,18 @@ def generate_launch_description():
         description="Path to the common configuration directory. You can create such common configuration directory with `ros2 run rosbot_utils create_config_dir {directory}`.",
     )
 
-    return LaunchDescription([declare_config_dir_arg, OpaqueFunction(function=_launch_setup)])
+    declare_servo_enabled_arg = DeclareLaunchArgument(
+        "servo_enabled",
+        default_value="true",
+        description=(
+            "Whether to start servo_node + joy2servo (joystick teleop backend for the "
+            "manipulator). servo_node's collision-checking loop runs continuously once "
+            "started and measured ~91% of one CPU core on a Jetson Orin Nano even while "
+            "idle (2026-08-17 profiling) -- set to false to skip it entirely when the arm "
+            "is not in use, e.g. together with arm_activate:=false."
+        ),
+    )
+
+    return LaunchDescription(
+        [declare_config_dir_arg, declare_servo_enabled_arg, OpaqueFunction(function=_launch_setup)]
+    )
