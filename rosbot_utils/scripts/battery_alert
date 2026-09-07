@@ -18,10 +18,16 @@ import subprocess
 
 import rclpy
 from ament_index_python.packages import get_package_share_directory
+from rclpy.duration import Duration
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
+from rosbot_utils.audio_device import find_playback_device
 from rosbot_utils.battery_alert_parameters import battery_alert
 from sensor_msgs.msg import BatteryState
+
+CONNECT_ALSA_HINT = "if running from the snap, run: sudo snap connect rosbot:alsa"
+PLAY_TIMEOUT_SEC = 5.0
 
 
 class BatteryMonitor(Node):
@@ -45,6 +51,87 @@ class BatteryMonitor(Node):
         self.last_play_time = None
         self.sounds_path = get_package_share_directory("rosbot_utils") + "/config/low_battery.wav"
 
+        # The constructor must not touch the sound card: a USB sound card can be
+        # plugged in after boot, and a node that gave up at startup would stay
+        # silent forever. Detection is lazy, cached, and dropped again whenever a
+        # playback attempt fails.
+        self._device = None
+        self._warned_no_device = False
+        self._proc = None
+        self._proc_deadline = None
+        self._reaper = self.create_timer(1.0, self._reap)
+
+    def _resolve_device(self) -> str | None:
+        if self._device:
+            return self._device
+
+        # An explicit parameter is an operator decision — cache it permanently
+        # and never second-guess it.
+        if self.params.audio_device:
+            self._device = self.params.audio_device
+            self.get_logger().info(f"Using configured audio device '{self._device}'")
+            return self._device
+
+        device = find_playback_device()
+        if device is None:
+            if not self._warned_no_device:
+                self._warned_no_device = True
+                self.get_logger().warn(
+                    "No ALSA playback device found, the low-battery alert will be silent "
+                    f"(plug in the USB sound card; {CONNECT_ALSA_HINT})"
+                )
+            return None
+
+        self._device = device
+        self._warned_no_device = False
+        self.get_logger().info(f"Using auto-detected audio device '{device}'")
+        return device
+
+    def _reap(self):
+        if self._proc is None:
+            return
+
+        if self._proc.poll() is None:
+            # aplay blocks for as long as the card is busy; a wedged one would
+            # otherwise never be collected and never be retried.
+            if self.get_clock().now() > self._proc_deadline:
+                self.get_logger().warn("aplay timed out, killing it")
+                self._proc.kill()
+            return
+
+        proc, self._proc = self._proc, None
+        stderr = proc.stderr.read() if proc.stderr else b""
+        if proc.returncode != 0:
+            self.get_logger().warn(
+                f"aplay failed (exit {proc.returncode}): {stderr.decode(errors='replace').strip()}"
+            )
+            # The card may have been unplugged; re-detect on the next alert
+            # unless the device was pinned by the operator.
+            if not self.params.audio_device:
+                self._device = None
+
+    def _play(self):
+        if self._proc is not None:
+            self.get_logger().debug("previous aplay still running, skipping this alert")
+            return
+
+        device = self._resolve_device()
+        if device is None:
+            return
+
+        # Fire and forget, reaped by the timer: blocking here would stall the
+        # single-threaded executor for the length of the sample and drop
+        # BEST_EFFORT battery messages.
+        try:
+            self._proc = subprocess.Popen(
+                ["aplay", "-q", "-D", device, self.sounds_path],
+                stderr=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+            )
+            self._proc_deadline = self.get_clock().now() + Duration(seconds=PLAY_TIMEOUT_SEC)
+        except FileNotFoundError:
+            self.get_logger().error("aplay not found, install alsa-utils")
+
     def battery_callback(self, msg: BatteryState):
         percentage = msg.percentage
         now = self.get_clock().now()
@@ -56,24 +143,7 @@ class BatteryMonitor(Node):
             ):
 
                 self.get_logger().warn(f"Low battery: {100 * percentage:.1f}%")
-
-                cmd = ["aplay", "-q"]
-                if self.params.audio_device:
-                    cmd += ["-D", self.params.audio_device]
-                cmd.append(self.sounds_path)
-                try:
-                    proc = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
-                    _, stderr = proc.communicate(timeout=5.0)
-                    if proc.returncode != 0:
-                        self.get_logger().warn(
-                            f"aplay failed (exit {proc.returncode}): "
-                            f"{stderr.decode(errors='replace').strip()}"
-                        )
-                except FileNotFoundError:
-                    self.get_logger().error("aplay not found, install alsa-utils")
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-
+                self._play()
                 self.last_play_time = now
         else:
             # reset when battery is OK again
@@ -83,9 +153,16 @@ class BatteryMonitor(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = BatteryMonitor()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    # The snap stops the driver with SIGTERM, which rclpy surfaces as
+    # ExternalShutdownException — unhandled it prints a traceback into the
+    # journal on every single `snap stop`.
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.try_shutdown()
 
 
 if __name__ == "__main__":

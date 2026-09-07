@@ -3,7 +3,8 @@ battery_alert:
   audio_device:
     type: string
     default_value: ''
-    description: ALSA device name for alert sound (e.g. plughw:0,0), empty string means default device
+    description: ALSA device for the alert sound (e.g. plughw:CARD=Device,DEV=0). Empty means auto-detect
+      the USB sound card from /proc/asound.
 
   interval_sec:
     type: int

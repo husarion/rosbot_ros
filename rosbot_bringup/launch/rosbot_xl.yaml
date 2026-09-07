@@ -33,6 +33,15 @@ launch:
         <name>`.
 
   - arg:
+      name: battery_alert
+      default: 'True'
+      description: ROSbot XL only. Play the low-battery alert on the on-board speaker. Requires a USB
+        sound card (the speaker PCB is wired behind one on every SBC).
+      choice:
+        - value: 'True'
+        - value: 'False'
+
+  - arg:
       name: hardware_bridge
       default: 'True'
       description: Launch the SBC<->MCU bridge (selected by backend). Set to 'False' to skip it entirely
@@ -78,8 +87,7 @@ launch:
       value: '[{severity}] [{date_time_with_ms}] [{name}]: {message}'
 
   - log:
-      message: Bringing up ROSbot XL, namespace=$(var namespace), configuration=base, led_strip=$(var
-        led_strip)
+      message: Bringing up ROSbot XL, namespace=$(var namespace)
 
   - push_ros_namespace:
       namespace: $(var namespace)
@@ -141,12 +149,14 @@ launch:
       exec: asset_server
       if: $(var asset_server)
 
-#  Dont work in snap
-#   - include:
-#       file: $(find-pkg-share rosbot_utils)/launch/battery_alert.yaml
-#       let:
-#         - name: robot_model
-#           value: $(var robot_model)
+  # Needs an ALSA playback device: the snap therefore stages alsa-utils, binds
+  # /usr/share/alsa via a layout and connects the `alsa` plug in post_install.sh.
+  - include:
+      file: $(find-pkg-share rosbot_utils)/launch/battery_alert.yaml
+      if: $(eval '"$(var battery_alert)" == "True"')
+      let:
+        - name: robot_model
+          value: $(var robot_model)
 
   - node:
       pkg: rosbot_utils

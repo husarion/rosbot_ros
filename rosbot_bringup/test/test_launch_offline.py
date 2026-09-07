@@ -105,6 +105,32 @@ def test_rosbot_xl_has_led_strip_arg():
     assert "led_strip" not in rosbot_args
 
 
+def test_rosbot_xl_battery_alert_is_gated_and_xl_only():
+    """The alert drives the XL's on-board speaker, so it must stay off rosbot.yaml
+    and stay switchable — the snap maps driver.battery-alert onto this arg."""
+    xl_doc = _launch("rosbot_xl.yaml")
+    xl_args = _args(xl_doc)
+    assert "battery_alert" in xl_args
+    assert xl_args["battery_alert"]["default"] == "True"
+    assert "battery_alert" not in _args(_launch("rosbot.yaml"))
+
+    includes = [inc for inc in _includes(xl_doc) if "battery_alert.yaml" in inc.get("file", "")]
+    assert len(includes) == 1, "rosbot_xl.yaml must include battery_alert.yaml exactly once"
+    assert includes[0].get("if") == '$(eval \'"$(var battery_alert)" == "True"\')'
+
+
+def test_battery_alert_launch_defaults_to_a_real_config_dir():
+    """battery_alert.yaml builds its config path from robot_model; an empty value
+    resolves to config//config.yaml and kills the launch, and only rosbot_xl has
+    a config directory at all."""
+    path = os.path.join(
+        get_package_share_directory("rosbot_utils"), "launch", "battery_alert.yaml"
+    )
+    with open(path) as f:
+        args = _args(yaml.safe_load(f))
+    assert args["robot_model"]["default"] == "rosbot_xl"
+
+
 def test_microros_agent_node_has_no_explicit_namespace():
     """push_ros_namespace reaches OnProcessExit-spawned Node too; explicit
     namespace= double-stacks /<ns>/<ns> (HW retest 2026-05-21)."""

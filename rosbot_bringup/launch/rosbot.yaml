@@ -65,7 +65,7 @@ launch:
       value: '[{severity}] [{date_time_with_ms}] [{name}]: {message}'
 
   - log:
-      message: Bringing up ROSbot, namespace=$(var namespace), configuration=base
+      message: Bringing up ROSbot, namespace=$(var namespace)
 
   - push_ros_namespace:
       namespace: $(var namespace)
