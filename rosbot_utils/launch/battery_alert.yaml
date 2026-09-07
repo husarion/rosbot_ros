@@ -7,12 +7,15 @@ launch:
       description: Path to the common configuration directory. You can create such common configuration
         directory with `ros2 run rosbot_utils create_config_dir {directory}`.
 
+  # ROSbot XL only — it is the model with the on-board speaker, and the only one
+  # with a config/<model>/ directory. `rosbot` is deliberately not a choice, so a
+  # standalone launch fails with a clear rejection instead of hunting for a
+  # config/rosbot/config.yaml that does not exist.
   - arg:
       name: robot_model
       default: rosbot_xl
       description: Specify robot model
       choice:
-        - value: rosbot
         - value: rosbot_xl
 
   - let:

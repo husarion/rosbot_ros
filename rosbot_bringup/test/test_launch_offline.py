@@ -119,16 +119,22 @@ def test_rosbot_xl_battery_alert_is_gated_and_xl_only():
     assert includes[0].get("if") == '$(eval \'"$(var battery_alert)" == "True"\')'
 
 
-def test_battery_alert_launch_defaults_to_a_real_config_dir():
-    """battery_alert.yaml builds its config path from robot_model; an empty value
-    resolves to config//config.yaml and kills the launch, and only rosbot_xl has
-    a config directory at all."""
-    path = os.path.join(
-        get_package_share_directory("rosbot_utils"), "launch", "battery_alert.yaml"
-    )
-    with open(path) as f:
+def test_battery_alert_launch_is_rosbot_xl_only():
+    """battery_alert.yaml builds its config path from robot_model, and only
+    rosbot_xl has a config directory (it is the model with the speaker). An empty
+    default resolved to config//config.yaml, and offering `rosbot` as a choice
+    would resolve to a config/rosbot/config.yaml that does not exist."""
+    share = get_package_share_directory("rosbot_utils")
+    with open(os.path.join(share, "launch", "battery_alert.yaml")) as f:
         args = _args(yaml.safe_load(f))
+
     assert args["robot_model"]["default"] == "rosbot_xl"
+    choices = {c["value"] for c in args["robot_model"].get("choice", [])}
+    assert choices == {"rosbot_xl"}, f"battery_alert must stay XL-only, got {choices}"
+
+    for model in choices:
+        config = os.path.join(share, "config", model, "config.yaml")
+        assert os.path.isfile(config), f"Missing {config} for allowed robot_model {model}"
 
 
 def test_microros_agent_node_has_no_explicit_namespace():
