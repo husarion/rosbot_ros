@@ -5,7 +5,7 @@
 >
 > 1. **Before starting driver!** Make sure the manipulator is **undock**, manipulator is **away from a collision** (does not rest on robot objects) and **joints are away from its position limits** (e.g. one of the joints is started from extreme position).
 > 2. Controlling MoveIt and via the joystick are two independent processes. You should not send commands to both of these services at the same time.
-> 3. When the power supply is lost, the robot loses momentum and falls by inertia. Therefore, you should hold the manipulator when the power is cut off, or call the docking node `ros2 launch rosbot_moveit dock.launch.py` (pass `namespace:=$ROBOT_NAMESPACE` when the robot was launched in a namespace so `dock` reaches the namespaced `move_group`) or press `RT` + `Back` buttons on gamepad. The launch wrapper injects `robot_description_kinematics` etc. so the `MoveGroupInterface` inside `dock` does not log `No kinematics plugins defined`; the executable can still be run bare with `ros2 run rosbot_moveit dock --ros-args -r __ns:=/$ROBOT_NAMESPACE` if you only need a quick test.
+> 3. When the power supply is lost, the robot loses momentum and falls by inertia. Therefore, you should hold the manipulator when the power is cut off, or call the docking node `ros2 launch rosbot_moveit dock.launch.py` (pass `namespace:=$ROBOT_NAMESPACE` when the robot was launched in a namespace so `dock` reaches the namespaced `move_group`) or press `RT` + `Back` buttons on gamepad.
 > 4. The manipulator does not analyze collisions with the antenna, to improve the range of the manipulator's movements. It's good practice to position the antenna horizontally on the physical robot.
 > 5. In the event of overload, loss of communication or sudden stopping of the manipulator process (e.g. during reboot), some joints may not receive the command to stop operation. This may prevent re-establishing communication. In such a case, it will be necessary to **reset the power supply**.
 
@@ -22,15 +22,14 @@ ros2 run rosbot_controller arm_control active # if you are using local build
 
 > You can change the driver's default behavior using the `arm_activate` argument.
 
-`servo_node` (the joystick teleop backend, see [Control](#control) below) is a plain
-`rclcpp::Node`, not a lifecycle node -- once started its collision-checking loop runs
-continuously and cannot be paused, measured at ~91% of one CPU core on a Jetson Orin
-Nano even while idle. `servo.launch.py`'s `servo_enabled` argument (default inherited
-from `arm_activate`) skips starting `servo_node`/`joy2servo` altogether when you know
-the arm won't be used this session, e.g. `ros2 launch rosbot_xl.yaml configuration:=manipulation
-arm_activate:=False`. This is a **launch-time** switch only -- toggling the arm at
-runtime with `arm_control inactive`/`sudo rosbot.arm-activate` does not stop an
-already-running `servo_node`.
+`servo_node` (the joystick teleop backend, see [Control](#control) below) keeps one CPU
+core busy for as long as it runs, even with the arm idle. If you know you will not use the
+gamepad this session, skip starting it with `servo.launch.py`'s `servo_enabled` argument
+(default inherited from `arm_activate`), e.g.
+`ros2 launch rosbot_xl.yaml configuration:=manipulation arm_activate:=False`.
+This is a **launch-time** switch only: toggling the arm at runtime with
+`arm_control inactive` / `sudo rosbot.arm-activate` does not stop an already-running
+`servo_node`.
 
 ## Control
 
@@ -53,7 +52,7 @@ Everything below runs **only while the dead-man trigger `RT` is held** (right tr
 
 | Button | Mode | Behaviour |
 |---|---|---|
-| **Y** | `Cartesian` **(default)** — XYZ in EE frame | `joy2servo` integrates stick velocity (`cartesian_linear_velocity` param, default `0.1 m/s`) into a target EE pose, runs KDL position-only IK in-process, and publishes the resulting joint velocities as **JointJog**. The IK is done in joy2servo because `moveit_servo`'s POSE/TWIST paths run a singularity guard on the full 6×N Jacobian which trips on any 4-DoF pose (see [moveit_msgs#185](https://github.com/moveit/moveit_msgs/issues/185)); the JointJog path does not run that guard. |
+| **Y** | `Cartesian` **(default)** — XYZ in EE frame | `joy2servo` integrates stick velocity (`cartesian_linear_velocity` param, default `0.1 m/s`) into a target EE pose, runs KDL position-only IK in-process, and publishes the resulting joint velocities as **JointJog**. |
 | **X** | `JointSpace` — per-joint | Each stick axis drives one joint directly. No IK. Useful as a low-level fallback for joints unreachable in Cartesian (e.g. joint4 wrist when EE is at limit). |
 
 Both modes publish on `servo_node/delta_joint_cmds`. X / Y are XOR-ed — pressing both at once is a no-op.
@@ -99,7 +98,7 @@ ros2 run rosbot_moveit joy2servo --ros-args \
 
 - `cartesian_linear_velocity` (m/s, default `0.1`) — EE linear speed when a stick is at full deflection
 - `cartesian_step_dt` (seconds, default `0.05`) — per-tick integration step; should be ≥ servo's `publish_period` and ≈ joy autorepeat period (default `1/20 Hz = 0.05`)
-- `cartesian_max_joint_velocity` (rad/s, default `1.0`) — uniform cap on the joint velocities produced by Cartesian-mode IK. Applied as a single scaling factor so the EE direction is preserved (just slower). Bounds how far the arm can travel per `collision_check_rate` tick — without it, KDL IK "branch jumps" near singularities can produce multi-rad/s spikes that overshoot `self_collision_proximity_threshold` before the collision check updates.
+- `cartesian_max_joint_velocity` (rad/s, default `1.0`) — uniform cap on the joint velocities produced by Cartesian-mode IK. Applied as a single scaling factor so the end-effector keeps its direction and only moves slower. Raise it with care: it is what keeps the collision checker ahead of the arm.
 
 You may have noticed that the movement of the manipulator is slow, and the full capabilities of the manipulator are not fully utilized. This is a safety precaution to ensure that the collision checker effectively prevents the manipulator from bumping into the robot.
 The dynamic limits of the manipulator have been tuned in order to provide a reliable collision prevention mechanism. While this setup should cover most situations, there is still a possibility of accidental contact with the robot or its sensors. Therefore, we advise you to remain aware of this potential risk when operating the manipulator.
@@ -121,6 +120,13 @@ It is also possible to control the manipulator in the RViz using the *MotionPlan
 > [!TIP]
 > If you're not able to move the end effector in the Rviz, make sure that you have enabled the *Approx IK Solutions* option.
 > If the manipulator moves too slowly, you can increase *Velocity Scaling* and *Accel. Scaling* up to `1.0`.
+
+## Dynamixel communication errors
+
+If the arm briefly freezes and then snaps to its target, or the logs show
+`FastSyncRead Rx Fail` / `Dynamixel Read Fail`, this is a driver/timing issue, not a fault of
+your servos or cabling. The cause and the fix already applied in this repo are documented in
+[ARCHITECTURE.md, section 10](ARCHITECTURE.md#10-dynamixel-communication).
 
 ## Helpful Resources
 

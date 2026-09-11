@@ -220,6 +220,8 @@ Full list → [ROS_API.md](ROS_API.md). All namespaced when `ROBOT_NAMESPACE` se
 | launch arguments | [README.md](README.md), `ros2 launch <p> <f> -s` |
 | build / commit | [CLAUDE.md](CLAUDE.md), [CONTRIBUTING.md](CONTRIBUTING.md) |
 | XL arm behavior / restart | [MANIPULATOR.md](MANIPULATOR.md) |
+| Dynamixel comm errors / arm jumps | section 10 below |
+| why the arm is tuned the way it is | section 11 below |
 | drive parameters | `rosbot_controller/config/<model>/controllers.yaml` |
 | EKF parameters | `rosbot_localization/config/config.yaml` |
 | YAML launch example | any `*.yaml` under `*/launch/` |
@@ -242,4 +244,83 @@ Full list → [ROS_API.md](ROS_API.md). All namespaced when `ROBOT_NAMESPACE` se
 - `husarion_asset_server` — the `asset_server` binary itself; vendored (not built from source), see the package section above.
 - `rosbot-firmware` (<https://github.com/husarion/rosbot-firmware>) — STM32 firmware. MCU topics documented in its own `ROS_API.md`.
 
+- `open_manipulator_description` — upstream OpenMANIPULATOR-X description. Its ros2_control xacro is vendored locally, see section 10.
+
 All pinned in `rosbot/rosbot_*.repos`. Bump = check `test_xacro` + `controllers.yaml` collisions.
+
+---
+
+## 10. Dynamixel communication
+
+At `update_rate: 100` Hz the controller_manager loop has a 10 ms budget. Under realistic load
+(`servo_node` running, i.e. `arm_activate:=True`) the Dynamixel `read()` intermittently blocks
+for **13-20 ms**, overrunning that budget. `joint_trajectory_controller` then advances
+`traj_time_` by the whole elapsed period and samples the trajectory with no interpolation over
+the skipped span, so the arm visibly freezes for a fraction of a second and then jumps.
+
+**The bus is not at fault.** HW-measured 2026-09-11 with the driver stopped: 20 000
+back-to-back `FastSyncRead` transactions over the same U2D2, hubs and cabling produced zero
+errors; all five XM430-W350 report `Hardware Error Status` 0x00, `Return Delay Time` 0, baud
+1 Mbps consistent. Same result with all six CPU cores saturated.
+
+**Nor is it the protocol.** Normal `SyncRead` issues one USB round-trip per servo and
+`FastSyncRead` only one in total, yet both show the same 13-25 ms spikes. The RT thread also
+already holds `SCHED_FIFO` (the `realtime` group grants rtprio 98), so plain preemption does
+not explain it either. The blocking most likely comes from USB contention -- the U2D2 shares
+the USB 2.0 controller with the RPLidar and the STM32's FTDI -- but this was **not** confirmed.
+
+**Fix.** `rosbot_description/urdf/open_manipulator/open_manipulator_x_position.ros2_control.xacro`
+is a local copy of the upstream xacro whose only deviation is `is_async="true"` on the
+`<ros2_control>` tag. The hardware component then runs its read/write in its own FIFO thread,
+so a slow read no longer stalls the control loop -- including the drive controllers, which
+share the same controller_manager. Keep the file in sync with `open_manipulator_description`.
+
+HW-measured over ~8 min each, 100 Hz, `servo_node` active:
+
+| | overruns | comm errors | hardware deactivations |
+|---|---|---|---|
+| without `is_async` | **7** | 0 | 0 |
+| with `is_async` | **0** | 2 | 0 |
+
+The handful of comm errors that appear with async self-recover and never deactivate
+`OpenManipulatorXSystem`; without async the loop instead met its deadline but skipped
+trajectory. Trading a logged, recovered read for a missed control cycle is the better deal.
+
+**Known upstream trap.** `dynamixel_hardware_interface` probes Fast Sync Read at startup and
+sets `fast_read_permanent_` on the **first success**, which makes its fallback-to-normal-
+`SyncRead` branch unreachable for the rest of the process lifetime. A bus that is healthy at
+startup but degrades later can therefore never fall back. Not hit here, but it is why a
+degrading bus produces an unbounded error stream rather than a protocol downgrade. Upstream
+reports of the same symptom: ROBOTIS-GIT/dynamixel_hardware_interface#83, #84, #79.
+
+**Gotcha.** An XML comment inside the `ros2_control` macro must not contain `": "` -- the
+launch passes `robot_description` through `yaml.safe_load()`, where colon-space is a mapping
+indicator. `xacro` renders such a file happily; the failure only shows at launch. Validate
+generated URDFs with `yaml.safe_load`, not just a successful xacro run.
+
+## 11. Manipulator control internals
+
+The "why" behind choices that [MANIPULATOR.md](MANIPULATOR.md) only states as instructions.
+
+**`joy2servo` runs its own IK instead of using `moveit_servo`'s Cartesian path.**
+`moveit_servo`'s POSE/TWIST paths run a singularity guard on the full 6xN Jacobian, which
+trips on any 4-DoF pose (see [moveit_msgs#185](https://github.com/moveit/moveit_msgs/issues/185)).
+The JointJog path does not run that guard, so `joy2servo` integrates stick velocity into a
+target EE pose, solves position-only IK with KDL in-process, and publishes joint velocities
+as JointJog.
+
+**`cartesian_max_joint_velocity` is a safety bound, not a comfort setting.**
+KDL IK "branch jumps" near singularities can produce multi-rad/s spikes. Without the cap
+those overshoot `self_collision_proximity_threshold` within a single `collision_check_rate`
+tick, i.e. the arm moves further than the collision checker can react to. The cap is applied
+as one scaling factor across all joints so the EE direction is preserved.
+
+**`servo_node` cannot be paused at runtime.** It is a plain `rclcpp::Node`, not a lifecycle
+node, so once started its collision-checking loop runs continuously: measured at ~91% of one
+CPU core on a Jetson Orin Nano with the arm idle. Hence `servo_enabled` is a launch-time
+switch only; `arm_control inactive` does not stop it.
+
+**`dock.launch.py` exists to inject kinematics parameters.** The wrapper passes
+`robot_description_kinematics` etc. so the `MoveGroupInterface` inside `dock` does not log
+`No kinematics plugins defined`. The executable still runs bare for a quick test:
+`ros2 run rosbot_moveit dock --ros-args -r __ns:=/$ROBOT_NAMESPACE`.
