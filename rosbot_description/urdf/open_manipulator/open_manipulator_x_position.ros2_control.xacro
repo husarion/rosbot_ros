@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+<!-- Local copy of open_manipulator_description's ros2_control xacro.
+
+     Sole deviation from upstream is is_async on the <ros2_control> tag. The Dynamixel read
+     blocks for 13-20 ms under load, which overran the 10 ms budget of the 100 Hz
+     controller_manager loop and skipped trajectory. Running the component asynchronously
+     moves that read off the control loop. HW-measured 7 overruns in 8 min without it,
+     0 with it. Keep this file in sync with open_manipulator_description. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="open_manipulator_x_system" params="name prefix port_name:=^|/dev/ttyUSB0 use_sim:=^|false use_mock_hardware:=^|false mock_sensor_commands:=^|false">
+    <ros2_control name="${name}" type="system"
+                  is_async="${'false' if use_sim else 'true'}" thread_priority="50">
+      <xacro:if value="$(arg use_sim)">
+        <hardware>
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </hardware>
+      </xacro:if>
+      <xacro:unless value="$(arg use_sim)">
+        <hardware>
+          <xacro:if value="${use_mock_hardware}">
+            <plugin>mock_components/GenericSystem</plugin>
+            <param name="mock_sensor_commands">${mock_sensor_commands}</param>
+            <param name="state_following_offset">0.0</param>
+          </xacro:if>
+          <xacro:unless value="${use_mock_hardware}">
+            <plugin>dynamixel_hardware_interface/DynamixelHardware</plugin>
+            <param name="port_name">${port_name}</param>
+            <param name="baud_rate">1000000</param>
+            <param name="error_timeout_ms">500</param>
+            <param name="dynamixel_model_folder">/param/dxl_model</param>
+            <param name="number_of_joints">5</param>
+            <param name="number_of_transmissions">5</param>
+            <param name="disable_torque_at_init">true</param>
+            <param name="dynamixel_state_pub_msg_name">dynamixel_hardware_interface/dxl_state</param>
+            <param name="get_dynamixel_data_srv_name">dynamixel_hardware_interface/get_dxl_data</param>
+            <param name="set_dynamixel_data_srv_name">dynamixel_hardware_interface/set_dxl_data</param>
+            <param name="reboot_dxl_srv_name">dynamixel_hardware_interface/reboot_dxl</param>
+            <param name="set_dxl_torque_srv_name">dynamixel_hardware_interface/set_dxl_torque</param>
+          </xacro:unless>
+        </hardware>
+      </xacro:unless>
+
+      <joint name="${prefix}joint1">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <joint name="${prefix}joint2">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <joint name="${prefix}joint3">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <joint name="${prefix}joint4">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <joint name="${prefix}gripper_left_joint">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <xacro:if value="$(arg use_sim)">
+        <joint name="${prefix}gripper_right_joint">
+          <param name="mimic">${prefix}gripper_left_joint</param>
+          <param name="multiplier">1</param>
+          <state_interface name="position"/>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+      </xacro:if>
+
+      <gpio name="dxl1">
+        <param name="type">dxl</param>
+        <param name="ID">11</param>
+        <command_interface name="Goal Position"/>
+        <state_interface name="Present Position"/>
+        <state_interface name="Present Velocity"/>
+        <state_interface name="Present Current"/>
+        <param name="Operating Mode">3</param>
+        <param name="Position P Gain">800</param>
+        <param name="Position I Gain">100</param>
+        <param name="Position D Gain">100</param>
+        <param name="Profile Velocity">20</param>
+        <param name="Profile Acceleration">10</param>
+        <param name="Drive Mode">4</param>
+        <param name="Return Delay Time">0</param>
+      </gpio>
+      <gpio name="dxl2">
+        <param name="type">dxl</param>
+        <param name="ID">12</param>
+        <command_interface name="Goal Position"/>
+        <state_interface name="Present Position"/>
+        <state_interface name="Present Velocity"/>
+        <state_interface name="Present Current"/>
+        <param name="Operating Mode">3</param>
+        <param name="Position P Gain">800</param>
+        <param name="Position I Gain">100</param>
+        <param name="Position D Gain">100</param>
+        <param name="Profile Velocity">20</param>
+        <param name="Profile Acceleration">10</param>
+        <param name="Drive Mode">4</param>
+        <param name="Return Delay Time">0</param>
+      </gpio>
+      <gpio name="dxl3">
+        <param name="type">dxl</param>
+        <param name="ID">13</param>
+        <command_interface name="Goal Position"/>
+        <state_interface name="Present Position"/>
+        <state_interface name="Present Velocity"/>
+        <state_interface name="Present Current"/>
+        <param name="Operating Mode">3</param>
+        <param name="Position P Gain">800</param>
+        <param name="Position I Gain">100</param>
+        <param name="Position D Gain">100</param>
+        <param name="Profile Velocity">20</param>
+        <param name="Profile Acceleration">10</param>
+        <param name="Drive Mode">4</param>
+        <param name="Return Delay Time">0</param>
+      </gpio>
+      <gpio name="dxl4">
+        <param name="type">dxl</param>
+        <param name="ID">14</param>
+        <command_interface name="Goal Position"/>
+        <state_interface name="Present Position"/>
+        <state_interface name="Present Velocity"/>
+        <state_interface name="Present Current"/>
+        <param name="Operating Mode">3</param>
+        <param name="Position P Gain">800</param>
+        <param name="Position I Gain">100</param>
+        <param name="Position D Gain">100</param>
+        <param name="Profile Velocity">20</param>
+        <param name="Profile Acceleration">10</param>
+        <param name="Drive Mode">4</param>
+        <param name="Return Delay Time">0</param>
+      </gpio>
+      <gpio name="dxl5">
+        <param name="type">dxl</param>
+        <param name="ID">15</param>
+        <command_interface name="Goal Position"/>
+        <state_interface name="Present Position"/>
+        <state_interface name="Present Velocity"/>
+        <state_interface name="Present Current"/>
+        <param name="Operating Mode">5</param>
+        <param name="Profile Velocity">20</param>
+        <param name="Profile Acceleration">10</param>
+        <param name="Drive Mode">5</param>
+        <param name="Return Delay Time">0</param>
+        <param name="Goal Current">200</param>
+        <param name="[unit info]">
+          Present Position,0.000017626621790,m,signed,-0.036099321;
+          Goal Position,0.000017626621790,m,signed,-0.036099321;
+          Present Velocity,0.000275558153557,rad/s,signed,0.0;
+          Goal Velocity,0.000275558153557,rad/s,signed,0.0;
+        </param>
+      </gpio>
+
+    </ros2_control>
+  </xacro:macro>
+</robot>

@@ -183,7 +183,6 @@
       state_interfaces:
         - position
         - velocity
-      state_publish_rate: 200.0
       action_monitor_rate: 20.0
       allow_nonzero_velocity_at_trajectory_end: true
       allow_partial_joints_goal: false
@@ -208,7 +207,6 @@
         - position
       state_interfaces:
         - position
-      state_publish_rate: 200.0
       action_monitor_rate: 20.0
       allow_nonzero_velocity_at_trajectory_end: true
       allow_partial_joints_goal: false
