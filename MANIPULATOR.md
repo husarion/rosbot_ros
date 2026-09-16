@@ -64,7 +64,7 @@ Both modes publish on `servo_node/delta_joint_cmds`. X / Y are XOR-ed — pressi
 | Left stick X | `joint1` |
 | Left stick Y | `joint2` |
 | Right stick X | `joint3` |
-| Right stick Y | `joint4` (inverted: stick up = joint up) |
+| Right stick Y | `joint4` |
 
 #### Cartesian axis map (delta interpreted in EE frame)
 
@@ -120,13 +120,6 @@ It is also possible to control the manipulator in the RViz using the *MotionPlan
 > [!TIP]
 > If you're not able to move the end effector in the Rviz, make sure that you have enabled the *Approx IK Solutions* option.
 > If the manipulator moves too slowly, you can increase *Velocity Scaling* and *Accel. Scaling* up to `1.0`.
-
-## Dynamixel communication errors
-
-If the arm briefly freezes and then snaps to its target, or the logs show
-`FastSyncRead Rx Fail` / `Dynamixel Read Fail`, this is a driver/timing issue, not a fault of
-your servos or cabling. The cause and the fix already applied in this repo are documented in
-[ARCHITECTURE.md, section 10](ARCHITECTURE.md#10-dynamixel-communication).
 
 ## Helpful Resources
 
