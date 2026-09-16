@@ -16,50 +16,42 @@ Drive controls are defined in [`rosbot_joy/config/config.yaml`](rosbot_joy/confi
 
 ### Namespace policy
 
-Everything below is published under `/<namespace>/` when the `namespace`
-launch arg (or `ROBOT_NAMESPACE` env) is set. Intentional globals:
+Set the `namespace` launch arg (or the `ROBOT_NAMESPACE` env variable) and
+every topic below moves under `/<namespace>/` — that is how you run several
+robots on one network without them talking over each other.
+
+A few topics stay global on purpose:
 
 - `/tf`, `/tf_static` — bridged via [tf_namespace_bridge](https://github.com/husarion/tf_namespace_bridge).
-- `/parameter_events`, `/rosout` — ROS 2 infra.
-- `/clock` — sim only.
-- `/asset_providers` — `husarion_asset_server`'s `AssetProviderInfo` announcement; global by design so a router/bridge discovers every provider across every robot namespace on one topic.
+- `/parameter_events`, `/rosout` — ROS 2 infrastructure.
+- `/clock` — simulation only.
+- `/asset_providers` — so one router can find every robot on a single topic.
 
-Hard-coded, no runtime opt-out. HW uses `push_ros_namespace`, sim uses URDF
-`<remapping>` for the `controller_manager` surface — see
+This is hard-coded; there is no runtime switch. Details in
 [Namespacing and multirobot](ARCHITECTURE.md#5-namespacing-and-multirobot).
-Enforced by
-[test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py).
 
 ### Velocity command arbitration
 
-Several sources may want to drive the robot at once — a gamepad, a navigation
-stack, an ad-hoc script. `twist_mux_controller` picks one by priority and feeds
-it into the drive controller through ros2_control reference interfaces, so the
-arbitration happens inside the 100 Hz control loop rather than over topics.
+Several things may try to drive the robot at once — you with a gamepad, a
+navigation stack, your own script. `twist_mux_controller` decides who wins:
+**the highest-priority source that sent a command in the last 0.2 s.**
 
-| Input | Topic | Priority | Typical publisher |
+| Input | Topic | Priority | Who usually publishes it |
 | --- | --- | --- | --- |
 | `manual` | `manual/cmd_vel` | 100 | gamepad (`rosbot_joy`), keyboard teleop |
 | `autonomous` | `autonomous/cmd_vel` | 10 | nav2 |
 | `unknown` | `cmd_vel` | 1 | anything else |
 
-The highest-priority input that published within the last **0.2 s** wins; once
-it goes quiet control falls through to the next one down. So holding the
-gamepad overrides navigation, and releasing it hands control back automatically
-— no service call, no mode switch.
+So grabbing the gamepad overrides navigation, and letting go hands control
+back automatically — no button, no mode switch. Plain `cmd_vel` still works,
+it is just the lowest priority now.
 
-`twist_mux_controller/source` reports which input is currently in charge. On
-ROSbot XL the LED strip follows it: `autonomous` shows the `navigation`
-animation, `manual` / `unknown` / `not_published` show `ready`. Set
-`follow_cmd_vel_source: false` in `rosbot_utils/config/<robot_model>/config.yaml`
-to drive the strip by hand instead — that file also carries `led_count`,
-`navigation_animation` and `ready_animation`, and is picked up from `config_dir`
-when one is set.
+`twist_mux_controller/source` tells you who is driving. On ROSbot XL the LED
+strip follows it: `autonomous` plays the `navigation` animation, everything
+else plays `ready` (turn this off with `follow_cmd_vel_source: false` in
+`rosbot_utils/config/<robot_model>/config.yaml`).
 
-Because the mux claims the drive controller's reference interfaces, the drive
-controller runs in *chained mode* and no longer subscribes to its own
-`~/cmd_vel`. Publishing to `cmd_vel` still works — it is simply the
-lowest-priority input now. Priorities and timeouts live in
+Priorities and the 0.2 s timeout live in
 [`rosbot_controller/config/<model>/controllers.yaml`](rosbot_controller/config/).
 
 ### Available Nodes
