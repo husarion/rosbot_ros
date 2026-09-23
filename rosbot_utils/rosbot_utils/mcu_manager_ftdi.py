@@ -161,8 +161,7 @@ USB Flashing:
         for attempt in range(1, connect_attempts + 1):
             try:
                 self.enter_bootloader_mode()
-                self._disable_write_protection()
-                self._flash_with_read_protection_recovery(binary_file)
+                self._flash_with_protection_recovery(binary_file)
                 self.exit_bootloader_mode()
                 return
             except Exception as e:
@@ -184,16 +183,29 @@ USB Flashing:
 
     def _disable_write_protection(self):
         # AN3155: Write Unprotect only clears the WRP option bits and resets
-        # the device -- no erase side effect -- so it's cheap and safe to
-        # always run. (Readout Unprotect is the opposite: it mass-erases the
-        # whole chip unconditionally, so that one stays reactive -- see
-        # _flash_with_read_protection_recovery -- instead of running on every
-        # flash regardless of whether the chip was ever protected.)
+        # the device -- no erase side effect. The reset drops the MCU out of
+        # the bootloader, so re-entering costs a second usbreset.
         try:
             self.flashing_operation("Write-Protection")
             self.enter_bootloader_mode()  # re-latch BOOT0 after the MCU's own reset
         except Exception as e:
             print(f"WARNING: Write-Protection step failed, continuing anyway: {e}")
+
+    def _flash_with_protection_recovery(self, binary_file):
+        # Protection is cleared only after a failed flash. Clearing WRP up
+        # front cost a second usbreset on every flash, and each usbreset can
+        # drop the FTDI off the bus until a physical replug (4 of 8 flashes on
+        # a ROSbot XL, 2026-09-23). WRP goes first because it is harmless;
+        # Readout Unprotect mass-erases the whole chip, so it stays last.
+        try:
+            self.flashing_operation("Flashing", binary_file)
+            return
+        except Exception as e:
+            if "Failed to init device" in _error_text(e):
+                raise  # bootloader not listening yet: flash_firmware retries entry
+        print("WARNING: flashing failed -- clearing write protection and retrying once")
+        self._disable_write_protection()
+        self._flash_with_read_protection_recovery(binary_file)
 
     def _flash_with_read_protection_recovery(self, binary_file):
         try:
