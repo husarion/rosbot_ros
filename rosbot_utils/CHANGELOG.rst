@@ -2,6 +2,32 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump firmware to v2.2.0-jazzy and drop micro-ROS
+* Enter the STM32 bootloader over CBUS, without usbreset
+  CBUS1 drives the MCU reset through an inverting stage (high holds it in reset), the opposite of what the code assumed. That is why the CBUS pulse never seemed to reach the bootloader and usbreset looked unavoidable; a port reset is also what leaves this FTDI unresponsive until a physical replug. Entering via CBUS with BOOT0 held keeps the FTDI on the bus; usbreset remains only as the second-attempt fallback, and a failed open now flushes pyftdi's device cache instead of resetting the port.
+  ROSbot XL, 2026-09-23: 6 flashes (one through the read-protection recovery), 0 port resets, 0 drops, ~38 s instead of ~70 s per flash.
+* Clear STM32 write protection only after a failed flash
+  Clearing it up front cost a second usbreset on every USB flash, and each usbreset can drop the FTDI off the bus until a physical replug. ROSbot XL, 2026-09-23: old flow 2 resets per flash, FTDI lost in ~5 of 10 flashes; new flow 1 reset, 0 of 5.
+* Bump firmware to v2.1.0-jazzy
+* Auto-detect ALSA device and re-enable battery_alert (`#195 <https://github.com/husarion/rosbot_ros/issues/195>`_)
+  * Auto-detect ALSA device and re-enable battery_alert
+  The node played to ALSA `default` (card 0), which is the speaker on none
+  of the SBCs: the Jetson's card 0 is the APE with no playback PCM, the
+  NUC's is the internal HD-Audio codec, the RPi5's is HDMI. The speaker PCB
+  sits behind a USB sound card everywhere, so the device is now resolved
+  from /proc/asound as plughw:CARD=<id> (stable across boots, unlike the
+  card index) and detection is lazy so a card plugged in after boot works.
+  * Auto-detect ALSA device and re-enable battery_alert
+  The node played to ALSA `default` (card 0), which is the speaker on none
+  of the SBCs: the Jetson's card 0 is the APE with no playback PCM, the
+  NUC's is the internal HD-Audio codec, the RPi5's is HDMI. The speaker PCB
+  sits behind a USB sound card everywhere, so the device is now resolved
+  from /proc/asound as plughw:CARD=<id> (stable across boots, unlike the
+  card index) and detection is lazy so a card plugged in after boot works.
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.2.4 (2026-09-01)
 ------------------
 * Bump dependencies

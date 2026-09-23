@@ -2,6 +2,15 @@
 Changelog for package rosbot_moveit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add servo_enabled arg to skip servo_node when arm is idle
+  servo_node isn't a lifecycle node -- its collision-checking loop
+  runs continuously once started (~91% of one CPU core, measured
+  2026-08-17) and can't be paused. Defaults to arm_activate but is
+  independently overridable.
+* Contributors: rafal-gorecki
+
 1.2.4 (2026-09-01)
 ------------------
 

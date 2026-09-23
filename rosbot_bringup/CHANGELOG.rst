@@ -2,6 +2,26 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump firmware to v2.2.0-jazzy and drop micro-ROS
+* Auto-detect ALSA device and re-enable battery_alert (`#195 <https://github.com/husarion/rosbot_ros/issues/195>`_)
+  * Auto-detect ALSA device and re-enable battery_alert
+  The node played to ALSA `default` (card 0), which is the speaker on none
+  of the SBCs: the Jetson's card 0 is the APE with no playback PCM, the
+  NUC's is the internal HD-Audio codec, the RPi5's is HDMI. The speaker PCB
+  sits behind a USB sound card everywhere, so the device is now resolved
+  from /proc/asound as plughw:CARD=<id> (stable across boots, unlike the
+  card index) and detection is lazy so a card plugged in after boot works.
+  * Auto-detect ALSA device and re-enable battery_alert
+  The node played to ALSA `default` (card 0), which is the speaker on none
+  of the SBCs: the Jetson's card 0 is the APE with no playback PCM, the
+  NUC's is the internal HD-Audio codec, the RPi5's is HDMI. The speaker PCB
+  sits behind a USB sound card everywhere, so the device is now resolved
+  from /proc/asound as plughw:CARD=<id> (stable across boots, unlike the
+  card index) and detection is lazy so a card plugged in after boot works.
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.2.4 (2026-09-01)
 ------------------
 

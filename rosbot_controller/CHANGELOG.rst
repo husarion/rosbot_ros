@@ -2,6 +2,23 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Publish odometry at 50 Hz, run EKF at 50 Hz
+* Run the Dynamixel hardware component asynchronously (`#196 <https://github.com/husarion/rosbot_ros/issues/196>`_)
+  Under load the Dynamixel read blocks 13-20 ms, overrunning the 10 ms budget of the
+  100 Hz controller_manager loop; JTC then skips trajectory and the arm jumps. Neither
+  the bus nor the protocol is at fault. is_async moves the read off the control loop:
+  HW-measured 7 overruns in 8 min without it, 0 with it.
+  Needs a local copy of the upstream ros2_control xacro differing by that attribute
+  alone. Also drops state_publish_rate, gone from Jazzy's joint_trajectory_controller.
+* Add servo_enabled arg to skip servo_node when arm is idle
+  servo_node isn't a lifecycle node -- its collision-checking loop
+  runs continuously once started (~91% of one CPU core, measured
+  2026-08-17) and can't be paused. Defaults to arm_activate but is
+  independently overridable.
+* Contributors: Rafal Gorecki, rafal-gorecki
+
 1.2.4 (2026-09-01)
 ------------------
 
