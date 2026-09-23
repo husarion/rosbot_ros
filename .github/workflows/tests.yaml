@@ -26,7 +26,7 @@ jobs:
             rosbot/rosbot_simulation.repos
           target-ros2-distro: jazzy
           # rosbot_bringup/test/test_bringup.py drives the launch with
-          # microros:=False and publishes fake HW topics itself, so it runs
+          # hardware_bridge:=False and publishes fake HW topics itself, so it runs
           # here. Real-Gazebo tests were removed from rosbot_gazebo — only
           # offline schema tests remain.
           colcon-defaults: |

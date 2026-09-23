@@ -67,7 +67,6 @@ def main(args=None):
     args = parser.parse_args()
 
     packages_to_copy = {
-        "rosbot_bringup": ["config"],
         "rosbot_controller": ["config"],
         "rosbot_description": ["config"],
         # "rosbot_gazebo": ["config"],  # not used in snap

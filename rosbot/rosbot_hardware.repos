@@ -15,14 +15,10 @@ repositories:
     type: git
     url: https://github.com/husarion/husarion_controllers
     version: 724f4273b637a938ffb3171ebc0e5c96d020f98d
-  micro-ROS-Agent:
-    type: git
-    url: https://github.com/micro-ROS/micro-ROS-Agent
-    version: af007872b034d1ed31de4815377031350ab0034b
   rosbot-firmware:
     type: git
     url: https://github.com/husarion/rosbot-firmware.git
-    version: f10b864d0a4736fa5b015398e04f5c1fa8d72de2
+    version: d6134d9c0a7fc15dd8adb1fcd09d0f451a16d7a4
   tf_namespace_bridge:
     type: git
     url: https://github.com/husarion/tf_namespace_bridge

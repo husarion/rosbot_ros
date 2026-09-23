@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# MAVLink sibling of microros.launch.py. Requires the rosbot_mavlink_bridge
-# package on the overlay (shipped with the MAVLink firmware release).
-
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -48,8 +45,6 @@ def generate_bridge_launch(context, *args, **kwargs):
         "configure_robot",
         "--robot-model",
         robot_model,
-        "--backend",
-        "mavlink",
     ]
     if namespace:
         pre_communication_cmd.extend(["--namespace", namespace])
@@ -92,23 +87,10 @@ def generate_bridge_launch(context, *args, **kwargs):
 
 def generate_launch_description():
 
-    declare_microros_mode_arg = DeclareLaunchArgument(
-        "microros_mode",
-        default_value="default",
-        description="Compatibility-only placeholder. Ignored by the MAVLink launch — the bridge uses a fixed transport per robot model.",
-        choices=["default", "udp", "serial"],
-    )
-
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value=EnvironmentVariable("ROBOT_NAMESPACE", default_value=""),
         description="Add namespace to all launched nodes.",
-    )
-
-    declare_port_arg = DeclareLaunchArgument(
-        "port",
-        default_value="8888",
-        description="Compatibility-only placeholder. The MAVLink bridge uses mavros default ports (14550/14555).",
     )
 
     declare_robot_model_arg = DeclareLaunchArgument(
@@ -133,11 +115,9 @@ def generate_launch_description():
     return LaunchDescription(
         [
             declare_namespace_arg,
-            declare_port_arg,
             declare_robot_model_arg,
             declare_serial_baudrate_arg,
             declare_serial_port_arg,
-            declare_microros_mode_arg,
             OpaqueFunction(function=generate_bridge_launch),
         ]
     )

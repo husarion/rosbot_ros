@@ -3,14 +3,14 @@ project(rosbot_bringup)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
 
-  # test_bringup spins up the full bringup launch with microros:=False and
-  # publishes fake _motors/feedback + _imu/data itself, so it needs neither HW
-  # nor a micro-ROS agent — only the full vcstool dependency set
+  # test_bringup spins up the full bringup launch with hardware_bridge:=False
+  # and publishes fake _motors/feedback + _imu/data itself, so it needs neither
+  # HW nor the MAVLink bridge — only the full vcstool dependency set
   # (husarion_controllers, ...).
   set(_pytest_tests test/test_launch_offline.py test/test_bringup.py
                     test/test_namespace_isolation.py)

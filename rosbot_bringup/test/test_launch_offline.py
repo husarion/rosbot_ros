@@ -14,7 +14,6 @@
 
 """Offline schema tests (arg declarations, include targets, config_dir convention)."""
 
-import ast
 import os
 
 import pytest
@@ -56,14 +55,12 @@ def test_per_model_launch_declares_required_args(model):
     doc = _launch(f"{model}.yaml")
     args = _args(doc)
     # config_dir (snap convention), namespace (multi-robot),
-    # hardware_bridge (HW switch — renamed from `microros` when the MAVLink
-    # backend landed, CLAUDE.md §9 2026-05-21), backend (microros|mavlink
-    # picker), tf_namespace_bridge (multirobot TF), robot_model (sanity).
+    # hardware_bridge (HW switch), tf_namespace_bridge (multirobot TF),
+    # robot_model (sanity).
     required = {
         "config_dir",
         "namespace",
         "hardware_bridge",
-        "backend",
         "tf_namespace_bridge",
         "robot_model",
         "asset_server",
@@ -135,41 +132,6 @@ def test_battery_alert_launch_is_rosbot_xl_only():
     for model in choices:
         config = os.path.join(share, "config", model, "config.yaml")
         assert os.path.isfile(config), f"Missing {config} for allowed robot_model {model}"
-
-
-def test_microros_agent_node_has_no_explicit_namespace():
-    """push_ros_namespace reaches OnProcessExit-spawned Node too; explicit
-    namespace= double-stacks /<ns>/<ns> (HW retest 2026-05-21)."""
-    path = os.path.join(
-        get_package_share_directory("rosbot_bringup"), "launch", "microros.launch.py"
-    )
-    with open(path) as f:
-        tree = ast.parse(f.read())
-
-    matched = False
-    for call in ast.walk(tree):
-        if not isinstance(call, ast.Call):
-            continue
-        func = call.func
-        is_node_ctor = (isinstance(func, ast.Name) and func.id == "Node") or (
-            isinstance(func, ast.Attribute) and func.attr == "Node"
-        )
-        if not is_node_ctor:
-            continue
-        kwargs = {kw.arg: kw.value for kw in call.keywords if kw.arg}
-        package = kwargs.get("package")
-        if not (isinstance(package, ast.Constant) and package.value == "micro_ros_agent"):
-            continue
-        assert "namespace" not in kwargs, (
-            "micro_ros_agent Node() must NOT pass `namespace=` — double-stack "
-            "with bringup push_ros_namespace. Empirically verified 2026-05-21."
-        )
-        matched = True
-        break
-
-    assert (
-        matched
-    ), "Did not find a Node(package='micro_ros_agent', ...) call in microros.launch.py"
 
 
 def test_tf_namespace_bridge_default_is_pass_through():

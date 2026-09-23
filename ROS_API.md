@@ -84,7 +84,7 @@ Priorities and the 0.2 s timeout live in
 | ✅  | ✅  | **`robot_state_publisher`**   | Uses the URDF specified by the parameter robot\*description and the joint positions from the topic joint\*states to calculate the forward kinematics of the robot and publish the results using tf <br /> *[robot_state_publisher/robot_state_publisher]*                                                                                             |
 | ✅  | ❌  | **`rosbot_system_node`**      | The node communicating with the hardware responsible for receiving and sending data related to engine control <br /> *[rosbot_hardware_interfaces/rosbot_system]*                                                                                                                                                                                   |
 | ❌  | ✅  | **`rosbot_gz_bridge`**        | Transmits data about the robot between the Gazebo simulator and ROS. <br /> *[ros_gz_bridge/parameter_bridge]* |
-| ✅  | ❌  | **`rosbot_mcu`**             | Microcontroller unit (MCU) communication node. Default: `rosbot_mavlink_bridge` (MAVLink). With `backend:=microros` it is replaced by the `micro_ros_agent` node, which speaks XRCE-DDS to the MCU instead. <br /> *[rosbot_mavlink_bridge/rosbot_mavlink_bridge]*                                                                                                                                                                                                                      |
+| ✅  | ❌  | **`rosbot_mcu`**             | Microcontroller unit (MCU) communication node: `rosbot_mavlink_bridge`, translating the MCU's MAVLink link to ROS 2. <br /> *[rosbot_mavlink_bridge/rosbot_mavlink_bridge]*                                                                                                                                                                                                                      |
 | ✅  | ✅  | **`twist_mux_controller`**   | Chainable controller arbitrating velocity commands from several sources by priority and forwarding the winner straight into the drive controller's reference interfaces — the arbitration runs inside the 100 Hz control loop, not over topics. See [Velocity command arbitration](#velocity-command-arbitration). <br /> *[twist_mux_controller/TwistMuxController]* |
 
 ### Available Topics
@@ -140,7 +140,7 @@ One-line purpose per package; full detail (launch flows, internals) in
 | Package | Description |
 | --- | --- |
 | [`rosbot`](rosbot/) | Meta-package — pins sibling repos via `*.repos`, no code. |
-| [`rosbot_bringup`](rosbot_bringup/) | Hardware entry point: per-model bringup + MCU backend (MAVLink default / micro-ROS). *Local-only.* |
+| [`rosbot_bringup`](rosbot_bringup/) | Hardware entry point: per-model bringup + MCU MAVLink bridge. *Local-only.* |
 | [`rosbot_controller`](rosbot_controller/) | ros2_control setup — spawns drive, IMU and joint-state controllers (plus the manipulator on XL). |
 | [`rosbot_description`](rosbot_description/) | URDF/xacro for hardware and simulation, robot configurations, `robot_state_publisher`. |
 | [`rosbot_gazebo`](rosbot_gazebo/) | Gazebo simulation launch and robot spawning. *Local-only.* |

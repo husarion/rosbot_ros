@@ -28,7 +28,7 @@ default:
 #      directory (so a feature branch's edits flow into the worktree build
 #      without copying);
 #   2. vcstool-imported sibling repos (`husarion_components_description`,
-#      `husarion_controllers`, `tf_namespace_bridge`, `micro-ROS-Agent`) —
+#      `husarion_controllers`, `tf_namespace_bridge`, `rosbot-firmware`) —
 #      same flow as README §"First-time setup", but scoped to {{ws}}/src.
 # Both steps are idempotent.
 _setup-ws:

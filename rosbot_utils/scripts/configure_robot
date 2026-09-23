@@ -32,23 +32,16 @@ def print_error(msg: str):
     print(f"{RED}[ERROR] {msg}{RESET}")
 
 
-VALID_BACKENDS = ("microros", "mavlink")
-
-
 def configure_robot(
     port: str,
     namespace: str,
     baudrate: int,
     timeout: float = 5.0,
-    backend: str = "",
 ) -> bool:
     if namespace and not re.match(r"^[a-zA-Z0-9_/]+$", namespace):
         print_error(
             f"Invalid namespace: '{namespace}'. Use only alphanumeric characters, underscores and slashes."
         )
-        return False
-    if backend and backend not in VALID_BACKENDS:
-        print_error(f"Invalid backend: '{backend}'. Use one of {VALID_BACKENDS}.")
         return False
     try:
         print(f"Pre-communication with MCU on {port}...")
@@ -78,22 +71,6 @@ def configure_robot(
             return False
 
         print(f"✓ Firmware version detected: {current_fw}")
-
-        # BACKEND: emitted before NS:. No-ACK is fatal — older firmware
-        # silently falls out of the handshake on an unknown line.
-        if backend:
-            serial_port.write(f"BACKEND:{backend}\n".encode("utf-8"))
-            serial_port.flush()
-            backend_ack = serial_port.readline().decode("utf-8", errors="ignore").strip()
-            if backend_ack != "ACK":
-                print_error(
-                    f"BACKEND configuration failed (got '{backend_ack}'). "
-                    f"Firmware likely predates the runtime-switch handshake — "
-                    f"flash a build with the BACKEND: parser before running this launch."
-                )
-                serial_port.close()
-                return False
-            print(f"✓ Backend selected: {backend}")
 
         serial_port.write(f"NS:{namespace}\n".encode("utf-8"))
         serial_port.flush()
@@ -141,13 +118,6 @@ def main(args=None):
     )
     parser.add_argument("-n", "--namespace", default="", help="Specify the robot namespace")
     parser.add_argument("-b", "--baudrate", type=int, default=921600, help="Serial baudrate")
-    parser.add_argument(
-        "--backend",
-        default="",
-        choices=("", *VALID_BACKENDS),
-        help="Upstream-link backend to enable on the MCU via the BACKEND: handshake line. "
-        "Empty (default) leaves the firmware's own default in place (MICRO_ROS).",
-    )
     args = parser.parse_args(args)
 
     robot_model = args.robot_model
@@ -174,7 +144,6 @@ def main(args=None):
                 port,
                 args.namespace,
                 args.baudrate,
-                backend=args.backend,
             )
             sys.exit(0 if success else 1)
         else:
@@ -185,7 +154,6 @@ def main(args=None):
                 port,
                 args.namespace,
                 args.baudrate,
-                backend=args.backend,
             )
             sys.exit(0 if success else 1)
 

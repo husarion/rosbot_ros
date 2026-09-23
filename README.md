@@ -71,7 +71,7 @@ ros2 launch rosbot_bringup <rosbot/rosbot_xl>.yaml
 > ros2 run rosbot_utils flash_firmware --robot-model <rosbot/rosbot_xl>
 > ```
 >
-> The runtime-switch firmware variant covers both backends; flash it the usual way and pick the link at boot via `backend:=microros` (default `mavlink`).
+> The MCU talks MAVLink to `rosbot_mavlink_bridge`. micro-ROS was supported up to firmware `v2.1.0-jazzy`; firmware `v2.2.0-jazzy` and this driver no longer ship it.
 
 **Simulation:**
 
@@ -112,12 +112,10 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=<rosbot/rosbot_xl>
 | ✅  | ✅  | `mecanum`           | Whether to use mecanum drive controller, otherwise use diff drive. <br/> **_bool:_** `True` for `rosbot_xl`, `False` otherwise                                                                                       |
 | ✅  | ✅  | `namespace`         | Add namespace to all launched nodes. <br/> **_string:_** `env(ROBOT_NAMESPACE)`                                                                                                                       |
 | ✅  | ✅  | `robot_model`       | Specify robot model. <br/> **_string:_** `env(ROBOT_MODEL)` (choices: `rosbot`, `rosbot_xl`)                                                                                                                       |
-| ✅  | ❌  | `backend`           | MCU↔SBC upstream-link backend the hardware bridge drives. `microros` starts the XRCE-DDS agent (`micro_ros_agent`); `mavlink` starts the `rosbot_mavlink_bridge` node. The matching `BACKEND:` line is emitted to the MCU during the pre-comm handshake; runtime-switch firmware brings up the chosen path. <br/> **_string:_** `mavlink` (choices: `microros`, `mavlink`)                                                                                                                          |
-| ✅  | ❌  | `hardware_bridge`   | Whether to launch the SBC↔MCU bridge (selected by `backend`). Set to `False` to skip it entirely (e.g. when running the bridge/agent in a separate container). <br/> **_bool:_** `True`                                                                                                                       |
+| ✅  | ❌  | `hardware_bridge`   | Whether to launch the SBC↔MCU MAVLink bridge (`rosbot_mavlink_bridge`). Set to `False` to skip it entirely (e.g. when running the bridge in a separate container). <br/> **_bool:_** `True`                                                                                                                       |
 | ✅  | ❌  | `manipulator_serial_port`  | Port to connect to the manipulator. <br/> **_string:_** `/dev/manipulator`                                                                                                                                  |
-| ✅  | ❌  | `port`              | **ROSbot XL only.** UDP4 port for micro-ROS agent. <br/> **_string:_** `8888`                                                                                                                         |
 | ✅  | ❌  | `serial_baudrate`   | ROSbot only. Baud rate for serial communication. <br/> **_string:_** `921600`                                                                                                                                  |
-| ✅  | ❌  | `serial_port`       | ROSbot only. Serial port for micro-ROS agent. <br/> **_string:_** `/dev/ttySERIAL`                                                                                                           |
+| ✅  | ❌  | `serial_port`       | ROSbot only. Serial port the MAVLink bridge opens to the MCU. <br/> **_string:_** `/dev/ttySERIAL`                                                                                                           |
 | ✅  | ✅  | `servo_enabled`   | **ROSbot XL manipulation only.** Whether to start `servo_node` + `joy2servo` (joystick teleop backend for the arm). `servo_node` is not a lifecycle node — its collision-checking loop runs continuously once started (~91% of one CPU core, measured on a Jetson Orin Nano) and cannot be paused. Defaults to `arm_activate`, but can be set independently to keep the arm active while skipping the joystick backend. <br/> **_bool:_** `arm_activate` |
 | ✅  | ✅  | `tf_namespace_bridge` | Bridge robot's namespaced TF to the global /tf and /tf_static. Only active when `namespace` is set. <br/> **_bool:_** `True`                                                              |
 | ❌  | ✅  | `gz_gui`            | Run simulation with specific GUI layout. <br/> **_string:_** [`teleop.config`](https://github.com/husarion/husarion_gz_worlds/blob/main/config/teleop.config)                                      |
