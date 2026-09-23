@@ -22,9 +22,13 @@ import sh
 import usb.core
 import usb.util
 from pyftdi.ftdi import Ftdi
+from pyftdi.usbtools import UsbTools
 
-# CBUS0 - BOOT0
-# CBUS1 - RST
+# CBUS0 drives BOOT0. CBUS1 drives the MCU reset through an inverting stage:
+# high holds the MCU in reset, low releases it (HW-verified on ROSbot XL,
+# 2026-09-23 -- the MAVLink link dropped only once CBUS1 went high).
+CBUS_BOOT0 = 0b01
+CBUS_RESET = 0b10
 
 
 def _error_text(exc):
@@ -42,7 +46,9 @@ class McuManagerFTDI:
     def _open_ftdi_with_retry(self, max_attempts: int = 3, interval: float = 1.5):
         # USB re-enumeration after reset or abrupt process kill can take up to ~2s;
         # device.langids is unavailable during that window causing PyFTDI to fail.
-        # On first failure, usbreset forces the kernel to release a stale device state.
+        # pyftdi also caches the device it found; after a re-enumeration that
+        # entry is stale, so flush it instead of resetting the port -- a port
+        # reset is what leaves this FTDI unresponsive until a physical replug.
         for attempt in range(max_attempts):
             try:
                 self.ftdi.open_from_url(url=self.device)
@@ -50,8 +56,7 @@ class McuManagerFTDI:
             except Exception:
                 if attempt == max_attempts - 1:
                     raise
-                if attempt == 0:
-                    sh.usbreset("0403:6015")
+                UsbTools.flush_cache()
                 time.sleep(interval)
                 self.ftdi = Ftdi()
 
@@ -70,7 +75,7 @@ class McuManagerFTDI:
     def _ftdi_on_bus(self):
         return usb.core.find(idVendor=0x0403, idProduct=0x6015) is not None
 
-    def _restore_serial_driver(self):
+    def _restore_serial_driver(self, keep_cbus=False):
         # pyftdi detached ftdi_sio to drive CBUS over libusb, so /dev/rosbot
         # vanished. Re-bind the kernel driver directly instead of usbreset: a
         # full USB port reset occasionally fails to re-enumerate and drops the
@@ -78,8 +83,11 @@ class McuManagerFTDI:
         # bus the whole time. The set_bitmode(RESET) also pulses RST with BOOT0
         # released, so the MCU comes up in firmware -- which is exactly what the
         # reset/exit paths want.
+        # keep_cbus skips that: the bootloader entry needs BOOT0 held high
+        # until the ROM has sampled it, and the UART works in CBUS bitbang.
         usb_dev = self.ftdi.usb_dev
-        self.ftdi.set_bitmode(0x00, Ftdi.BitMode.RESET)  # leave bitbang -> UART mode
+        if not keep_cbus:
+            self.ftdi.set_bitmode(0x00, Ftdi.BitMode.RESET)  # leave bitbang -> UART mode
         try:
             usb.util.release_interface(usb_dev, 0)
             if not usb_dev.is_kernel_driver_active(0):
@@ -93,36 +101,21 @@ class McuManagerFTDI:
         self._open_ftdi_with_retry()
         time.sleep(0.1)
         self.ftdi.set_cbus_direction(0b11, 0b11)  # BOOT0 and RST as outputs
-        self.ftdi.set_cbus_gpio(0b10)  # BOOT0 low, RST high
+        self.ftdi.set_cbus_gpio(CBUS_RESET)  # hold in reset, BOOT0 low
         time.sleep(0.1)
-        self.ftdi.set_cbus_gpio(0b00)  # BOOT0 low, RST low (assert reset)
+        self.ftdi.set_cbus_gpio(0)  # release reset -> MCU runs firmware
         time.sleep(0.1)
-        self.ftdi.set_cbus_direction(0b11, 0b00)  # release -> RST floats high, MCU runs firmware
+        self.ftdi.set_cbus_direction(0b11, 0b00)  # release both lines
         self._restore_serial_driver()
         if not self._wait_for_port(raise_on_timeout=False):
             sh.usbreset("0403:6015")  # fallback only if the gentle re-bind didn't restore the tty
             self._wait_for_port()
 
-    def enter_bootloader_mode(self):
-        self._open_ftdi_with_retry()
-        self.ftdi.set_cbus_direction(0b11, 0b11)  # BOOT0 and RST as outputs
-        self.ftdi.set_cbus_gpio(0b11)  # BOOT0 high, RST high
-        time.sleep(0.1)
-        self.ftdi.set_cbus_gpio(0b01)  # BOOT0 high, RST low (assert reset)
-        time.sleep(0.1)
-        self.ftdi.close()
-        # usbreset's re-enumeration is the RST rising edge that latches BOOT0
-        # (held high above) into the bootloader. This is the only entry that
-        # works on this board: a self-driven CBUS pulse does not reset this MCU
-        # into the bootloader, and the gentle re-bind resets it into firmware.
-        # So the bootloader path is the one place usbreset is unavoidable.
-        sh.usbreset("0403:6015")
-        time.sleep(0.6)  # let the stale /dev node disappear before polling for the new one
-        if not self._wait_for_port(raise_on_timeout=False) or not self._ftdi_on_bus():
-            raise RuntimeError(
-                "FTDI did not re-enumerate after USB reset (dropped off the bus). "
-                "Physically replug the robot's USB cable and retry."
-            )
+    def enter_bootloader_mode(self, via_usb_reset=False):
+        if via_usb_reset:
+            self._enter_bootloader_via_usb_reset()
+        else:
+            self._enter_bootloader_via_cbus()
         # The tty node can appear slightly before the MCU's ROM bootloader is
         # actually listening/ready for the auto-baud sync byte -- root cause
         # of the occasional "Failed to init device, timeout." from stm32flash
@@ -130,13 +123,44 @@ class McuManagerFTDI:
         # cutting down how often that retry is needed).
         time.sleep(0.3)
 
+    def _enter_bootloader_via_cbus(self):
+        # Reset released with BOOT0 still high starts the ROM bootloader. No
+        # USB port reset, so the FTDI never leaves the bus.
+        self._open_ftdi_with_retry()
+        self.ftdi.set_cbus_direction(0b11, 0b11)  # BOOT0 and RST as outputs
+        self.ftdi.set_cbus_gpio(CBUS_BOOT0 | CBUS_RESET)
+        time.sleep(0.1)
+        self.ftdi.set_cbus_gpio(CBUS_BOOT0)
+        time.sleep(0.3)
+        self._restore_serial_driver(keep_cbus=True)
+        self._wait_for_port()
+
+    def _enter_bootloader_via_usb_reset(self):
+        # The pre-2026-09 sequence, kept as a fallback for a board the CBUS entry
+        # does not reach. Each usbreset risks the FTDI dropping off the bus
+        # until a physical replug.
+        self._open_ftdi_with_retry()
+        self.ftdi.set_cbus_direction(0b11, 0b11)
+        self.ftdi.set_cbus_gpio(CBUS_BOOT0 | CBUS_RESET)
+        time.sleep(0.1)
+        self.ftdi.set_cbus_gpio(CBUS_BOOT0)
+        time.sleep(0.1)
+        self.ftdi.close()
+        sh.usbreset("0403:6015")
+        time.sleep(0.6)  # let the stale /dev node disappear before polling for the new one
+        if not self._wait_for_port(raise_on_timeout=False) or not self._ftdi_on_bus():
+            raise RuntimeError(
+                "FTDI did not re-enumerate after USB reset (dropped off the bus). "
+                "Physically replug the robot's USB cable and retry."
+            )
+
     def exit_bootloader_mode(self):
         self._reset_via_rebind()
 
     def flashing_operation(self, operation_name, binary_file=None, baudrate=115200):
         print(f"\n{operation_name} operation started")
         # Extra settle time before talking to the bootloader -- see the sleep
-        # after usbreset in enter_bootloader_mode() for why.
+        # at the end of enter_bootloader_mode() for why.
         time.sleep(1.0)
 
         if operation_name == "Read-Protection":
@@ -160,19 +184,17 @@ USB Flashing:
         )
         for attempt in range(1, connect_attempts + 1):
             try:
-                self.enter_bootloader_mode()
+                self.enter_bootloader_mode(via_usb_reset=attempt > 1)
                 self._flash_with_protection_recovery(binary_file)
                 self.exit_bootloader_mode()
                 return
             except Exception as e:
                 error_msg = _error_text(e)
-                # This exact race (port node exists, but the bootloader isn't
-                # listening yet right after usbreset re-enumeration) resolved
-                # on a bare re-run in HW testing every time it was hit -- so
-                # retry the whole entry here instead of making the user do it.
+                # Bootloader not listening: retry the whole entry, from the
+                # second attempt on through the usbreset fallback.
                 if attempt < connect_attempts and "Failed to init device" in error_msg:
                     print(
-                        f"WARNING: bootloader did not respond after USB reset "
+                        f"WARNING: bootloader did not respond "
                         f"(attempt {attempt}/{connect_attempts}), retrying entry..."
                     )
                     time.sleep(1.0)
@@ -184,7 +206,7 @@ USB Flashing:
     def _disable_write_protection(self):
         # AN3155: Write Unprotect only clears the WRP option bits and resets
         # the device -- no erase side effect. The reset drops the MCU out of
-        # the bootloader, so re-entering costs a second usbreset.
+        # the bootloader, so it has to be entered again.
         try:
             self.flashing_operation("Write-Protection")
             self.enter_bootloader_mode()  # re-latch BOOT0 after the MCU's own reset
@@ -192,11 +214,10 @@ USB Flashing:
             print(f"WARNING: Write-Protection step failed, continuing anyway: {e}")
 
     def _flash_with_protection_recovery(self, binary_file):
-        # Protection is cleared only after a failed flash. Clearing WRP up
-        # front cost a second usbreset on every flash, and each usbreset can
-        # drop the FTDI off the bus until a physical replug (4 of 8 flashes on
-        # a ROSbot XL, 2026-09-23). WRP goes first because it is harmless;
-        # Readout Unprotect mass-erases the whole chip, so it stays last.
+        # Protection is cleared only after a failed flash: clearing WRP up
+        # front resets the MCU and forces a second bootloader entry on every
+        # flash. WRP goes first because it is harmless; Readout Unprotect
+        # mass-erases the whole chip, so it stays last.
         try:
             self.flashing_operation("Flashing", binary_file)
             return
