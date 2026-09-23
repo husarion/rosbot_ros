@@ -2,8 +2,8 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2026-09-24)
+------------------
 * Bump firmware to v2.2.0-jazzy and drop micro-ROS
 * Auto-detect ALSA device and re-enable battery_alert (`#195 <https://github.com/husarion/rosbot_ros/issues/195>`_)
   * Auto-detect ALSA device and re-enable battery_alert

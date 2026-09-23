@@ -2,8 +2,8 @@
 Changelog for package rosbot_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2026-09-24)
+------------------
 * Run the Dynamixel hardware component asynchronously (`#196 <https://github.com/husarion/rosbot_ros/issues/196>`_)
   Under load the Dynamixel read blocks 13-20 ms, overrunning the 10 ms budget of the
   100 Hz controller_manager loop; JTC then skips trajectory and the arm jumps. Neither

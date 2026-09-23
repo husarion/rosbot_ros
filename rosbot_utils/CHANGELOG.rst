@@ -2,8 +2,8 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2026-09-24)
+------------------
 * Bump firmware to v2.2.0-jazzy and drop micro-ROS
 * Enter the STM32 bootloader over CBUS, without usbreset
   CBUS1 drives the MCU reset through an inverting stage (high holds it in reset), the opposite of what the code assumed. That is why the CBUS pulse never seemed to reach the bootloader and usbreset looked unavoidable; a port reset is also what leaves this FTDI unresponsive until a physical replug. Entering via CBUS with BOOT0 held keeps the FTDI on the bus; usbreset remains only as the second-attempt fallback, and a failed open now flushes pyftdi's device cache instead of resetting the port.
