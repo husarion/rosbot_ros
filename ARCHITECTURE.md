@@ -108,7 +108,7 @@ Config-only. `joy.yaml` starts standard `joy/joy_node` + `teleop_twist_joy/teleo
 
 ### `rosbot_localization` — EKF
 
-[ekf.yaml](rosbot_localization/launch/ekf.yaml) → `robot_localization/ekf_node` fusing `odometry/wheels` (vx, vy, vyaw) + `imu/data` (yaw, dyaw) → `odometry/filtered` @ 25 Hz, `two_d_mode: true`. EKF publishes `odom→base_link` TF (drive controllers have `enable_odom_tf: false`). Covariances **empirically tuned** — "values measured experimentally" comments are NOT placeholders.
+[ekf.yaml](rosbot_localization/launch/ekf.yaml) → `robot_localization/ekf_node` fusing `odometry/wheels` (vx, vy, vyaw) + `imu/data` (yaw, dyaw) → `odometry/filtered` @ 50 Hz, `two_d_mode: true`. EKF publishes `odom→base_link` TF (drive controllers have `enable_odom_tf: false`). Covariances **empirically tuned** — "values measured experimentally" comments are NOT placeholders.
 
 ### `rosbot_moveit` — manipulation (XL only)
 
