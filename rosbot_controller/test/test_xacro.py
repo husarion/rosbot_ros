@@ -61,3 +61,22 @@ def test_xacro_with_controller_config(robot_model, mecanum, use_sim, configurati
     assert (
         "<joint" in urdf
     ), f"No <joint> for ({robot_model}, mecanum={mecanum}, use_sim={use_sim}, {configuration})"
+
+
+def _ros2_control_names(**mappings):
+    rosbot_description = get_package_share_directory("rosbot_description")
+    xacro_path = os.path.join(rosbot_description, "urdf", "rosbot_xl.urdf.xacro")
+    doc = xacro.process_file(xacro_path, mappings=mappings)
+    return {el.getAttribute("name") for el in doc.getElementsByTagName("ros2_control")}
+
+
+def test_hardware_descriptions_split_arm_from_drive():
+    """On hardware the drive and arm controller_managers each load only their own
+    components, so a missing arm cannot clear the drive's hardware (all-or-nothing load)."""
+    common = {"configuration": "manipulation_pro", "use_sim": "False"}
+    drive = _ros2_control_names(manipulator_ros2_control="False", **common)
+    arm = _ros2_control_names(robot_ros2_control="False", **common)
+
+    assert drive == {"imu", "rosbot_system"}
+    assert arm == {"OpenManipulatorXSystem"}
+    assert _ros2_control_names(**common) == drive | arm

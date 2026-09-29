@@ -16,20 +16,26 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>ament_index_python</exec_depend>
   <exec_depend>controller_manager</exec_depend>
+  <exec_depend>controller_manager_msgs</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
+  <exec_depend>dynamixel_sdk</exec_depend>
   <exec_depend>husarion_mecanum_drive_controller</exec_depend>
   <exec_depend>imu_sensor_broadcaster</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
+  <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>nav2_common</exec_depend>
   <exec_depend>position_controllers</exec_depend>
+  <exec_depend>rclpy</exec_depend>
   <exec_depend>ros2controlcli</exec_depend>
   <exec_depend>rosbot_description</exec_depend>
   <exec_depend>rosbot_hardware_interfaces</exec_depend>
   <exec_depend>rosbot_moveit</exec_depend>
   <exec_depend>rosbot_utils</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
   <exec_depend>twist_mux_controller</exec_depend>
   <exec_depend>udev</exec_depend>
   <exec_depend>xacro</exec_depend>

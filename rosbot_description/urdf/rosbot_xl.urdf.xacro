@@ -7,6 +7,10 @@
   <xacro:arg name="manipulator_serial_port" default="/dev/ttyUSB0" />
   <xacro:arg name="mecanum" default="False" />
   <xacro:arg name="namespace" default="" />
+  <!-- On hardware the arm runs under its own controller_manager (see MANIPULATOR.md), so each
+       controller_manager gets a description with only its own <ros2_control> blocks. -->
+  <xacro:arg name="manipulator_ros2_control" default="True" />
+  <xacro:arg name="robot_ros2_control" default="True" />
   <xacro:arg name="use_sim" default="False" />
 
   <!-- Soft compat: if components_config is not given explicitly, derive it
@@ -21,6 +25,7 @@
     controller_config="$(arg controller_config)"
     mecanum="$(arg mecanum)"
     namespace="$(arg namespace)"
+    ros2_control_enabled="$(arg robot_ros2_control)"
     use_sim="$(arg use_sim)" />
 
   <xacro:components.create_components
@@ -37,7 +42,8 @@
       xyz="-0.11 0.0 0.0"
       device_namespace="''"
       use_sim="$(arg use_sim)"
-      port_name="$(arg manipulator_serial_port)"/>
+      port_name="$(arg manipulator_serial_port)"
+      ros2_control_enabled="$(arg manipulator_ros2_control)"/>
   </xacro:if>
 
 </robot>

@@ -100,6 +100,21 @@ launch:
       name: resolved_controller_config
       value: /tmp/rosbot_controller_$(var namespace).yaml
 
+  # On hardware the arm gets its own controller_manager, so a missing arm cannot take the
+  # drive down (see MANIPULATOR.md). gz_ros2_control runs a single controller_manager.
+  - let:
+      name: manipulator_separate_cm
+      value: $(eval "'$(var configuration)'.startswith('manipulation') and not $(var use_sim)")
+
+  - let:
+      name: main_cm_manipulator_component
+      value: $(eval "'' if $(var manipulator_separate_cm) else 'OpenManipulatorXSystem'")
+
+  - let:
+      name: components_config
+      value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_description)') + '/config/$(var robot_model)/$(var configuration).yaml'")
+
   # =======================
   # Resolve controller config (ReplaceString)
   # =======================
@@ -112,6 +127,7 @@ launch:
             -e 's|<manipulator_state>|"$(var manipulator_state)"|g' \
             -e 's|<mecanum>|"$(var mecanum)"|g' \
             -e 's|<drive_controller>|"$(var drive_controller)"|g' \
+            -e 's|@main_cm_manipulator_component|"$(var main_cm_manipulator_component)"|g' \
             "$(var controller_config)" \
             > "$(var resolved_controller_config)"
         "
@@ -127,6 +143,8 @@ launch:
           value: $(var configuration)
         - name: controller_config
           value: $(var resolved_controller_config)
+        - name: manipulator_ros2_control
+          value: $(eval "not $(var manipulator_separate_cm)")
         - name: manipulator_serial_port
           value: $(var manipulator_serial_port)
         - name: mock_joints
@@ -165,6 +183,34 @@ launch:
               -r ~/odom:=odometry/wheels
               -r ~/imu:=imu/data"
 
+        - node:
+            if: $(var manipulator_separate_cm)
+            pkg: rosbot_controller
+            exec: manipulator_supervisor
+            respawn: 'true'
+            respawn_delay: 5.0
+            param:
+              - name: arm_activate
+                value: $(var arm_activate)
+              - name: controller_manager_timeout
+                value: $(var controller_manager_timeout)
+              - name: params_file
+                value: $(var resolved_controller_config)
+              - name: port
+                value: $(var manipulator_serial_port)
+              - name: robot_description
+                value: |
+                  $(command "bash -c '
+                    xacro $(find-pkg-share rosbot_description)/urdf/$(var robot_model).urdf.xacro \
+                      components_config:=$(var components_config) \
+                      configuration:=$(var configuration) \
+                      manipulator_serial_port:=$(var manipulator_serial_port) \
+                      mecanum:=$(var mecanum) \
+                      namespace:=$(var namespace) \
+                      robot_ros2_control:=False \
+                      use_sim:=False
+                  '")
+
   # =======================
   # Manipulator (delayed)
   # =======================
@@ -180,3 +226,5 @@ launch:
                 value: $(var arm_activate)
               - name: controller_manager_timeout
                 value: $(var controller_manager_timeout)
+              - name: spawn_controllers
+                value: $(eval "not $(var manipulator_separate_cm)")

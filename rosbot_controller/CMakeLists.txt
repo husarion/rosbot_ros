@@ -5,7 +5,8 @@ find_package(ament_cmake REQUIRED)
 
 install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 
-install(PROGRAMS scripts/arm_control DESTINATION lib/${PROJECT_NAME})
+install(PROGRAMS scripts/arm_control scripts/manipulator_supervisor
+        DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)

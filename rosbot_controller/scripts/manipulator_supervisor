@@ -1,0 +1,242 @@
+#!/usr/bin/env python3
+
+# Copyright 2026 Husarion sp. z o.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Runs the OpenMANIPULATOR-X under its own controller_manager, so a missing or unplugged
+# arm never takes the drive down. ros2_control loads hardware all-or-nothing: one component
+# failing on_init clears every component of that controller_manager (and in Jazzy 4.48 the
+# node then segfaults in pal_statistics). The supervisor starts the arm controller_manager
+# only once the servos answer a ping, and restarts it whenever it dies or the hardware drops
+# out of active/inactive.
+
+import ctypes
+import signal
+import subprocess
+import time
+
+import rclpy
+from ament_index_python.packages import get_package_prefix
+from controller_manager import list_hardware_components
+from controller_manager_msgs.srv import ListHardwareComponents
+from dynamixel_sdk import COMM_SUCCESS, PacketHandler, PortHandler
+from lifecycle_msgs.msg import State
+from rclpy.executors import ExternalShutdownException
+from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile
+from std_msgs.msg import String
+
+CONTROLLER_MANAGER = "manipulator_controller_manager"
+HARDWARE_COMPONENT = "OpenManipulatorXSystem"
+HEALTHY_STATES = (State.PRIMARY_STATE_ACTIVE, State.PRIMARY_STATE_INACTIVE)
+DYNAMIXEL_PROTOCOL = 2.0
+STOP_TIMEOUT_SEC = 10.0
+PR_SET_PDEATHSIG = 1
+
+
+def ping_arm(port: str, baudrate: int, dxl_id: int) -> bool:
+    handler = PortHandler(port)
+    try:
+        if not handler.openPort() or not handler.setBaudRate(baudrate):
+            return False
+        _, result, _ = PacketHandler(DYNAMIXEL_PROTOCOL).ping(handler, dxl_id)
+        return result == COMM_SUCCESS
+    except Exception:
+        return False
+    finally:
+        if handler.is_open:
+            handler.closePort()
+
+
+def _die_with_parent():
+    # A SIGKILLed supervisor must not leave an orphaned controller_manager holding the port.
+    ctypes.CDLL("libc.so.6").prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
+
+
+class ManipulatorSupervisor(Node):
+
+    def __init__(self):
+        super().__init__("manipulator_supervisor")
+        self.port = self.declare_parameter("port", "/dev/manipulator").value
+        self.baudrate = self.declare_parameter("baudrate", 1000000).value
+        self.dxl_id = self.declare_parameter("dxl_id", 11).value
+        self.params_file = self.declare_parameter("params_file", "").value
+        self.arm_activate = self.declare_parameter("arm_activate", False).value
+        self.retry_period = self.declare_parameter("retry_period", 5.0).value
+        self.controller_manager_timeout = self.declare_parameter(
+            "controller_manager_timeout", 30
+        ).value
+        self.hardware_init_timeout = self.declare_parameter("hardware_init_timeout", 30.0).value
+        self.robot_description = String(data=self.declare_parameter("robot_description", "").value)
+
+        self.namespace = self.get_namespace()
+        self.cm_fqn = f"{self.namespace.rstrip('/')}/{CONTROLLER_MANAGER}"
+        self.description_topic = f"{CONTROLLER_MANAGER}/robot_description"
+
+        latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        self.description_pub = self.create_publisher(String, self.description_topic, latched)
+
+    def run(self):
+        while rclpy.ok():
+            if not self._wait_for_arm():
+                return
+            cm = self._start_controller_manager()
+            try:
+                if not self._wait_for_hardware(cm):
+                    self.get_logger().error(
+                        f"{HARDWARE_COMPONENT} did not initialize within "
+                        f"{self.hardware_init_timeout:.0f} s"
+                    )
+                elif self._spawn_controllers():
+                    self.get_logger().info("Manipulator ready")
+                    self._monitor(cm)
+                else:
+                    self.get_logger().error("Failed to spawn manipulator controllers")
+            finally:
+                self._stop(cm)
+            self.get_logger().warn(f"Restarting manipulator in {self.retry_period:.0f} s")
+            self._sleep(self.retry_period)
+
+    def _wait_for_arm(self) -> bool:
+        reported = False
+        while rclpy.ok():
+            if ping_arm(self.port, self.baudrate, self.dxl_id):
+                if reported:
+                    self.get_logger().info("Manipulator connected")
+                return True
+            if not reported:
+                reported = True
+                self.get_logger().error(
+                    f"Manipulator not responding on {self.port} (Dynamixel ID {self.dxl_id}). "
+                    "The rest of the driver keeps running; waiting for the arm to be connected."
+                )
+            self._sleep(self.retry_period)
+        return False
+
+    def _start_controller_manager(self) -> subprocess.Popen:
+        executable = get_package_prefix("controller_manager") + "/lib/controller_manager/"
+        cmd = [
+            executable + "ros2_control_node",
+            "--ros-args",
+            "-r", f"controller_manager:__node:={CONTROLLER_MANAGER}",
+            "-r", f"__ns:={self.namespace}",
+            "-r", f"robot_description:={self.description_topic}",
+            "-r", "/tf:=tf",
+            "-r", "/tf_static:=tf_static",
+            "-r", "/diagnostics:=diagnostics",
+            "-p", "use_sim_time:=false",
+            "--params-file", self.params_file,
+        ]  # fmt: skip
+        return subprocess.Popen(cmd, preexec_fn=_die_with_parent)
+
+    def _wait_for_hardware(self, cm: subprocess.Popen) -> bool:
+        # controller_manager creates its services only after the hardware initialized, and
+        # waits forever for a new robot_description after a failed init. Republishing covers
+        # a latched sample that did not reach the fresh subscriber.
+        client = self.create_client(
+            ListHardwareComponents, f"{self.cm_fqn}/list_hardware_components"
+        )
+        deadline = time.monotonic() + self.hardware_init_timeout
+        try:
+            while rclpy.ok() and time.monotonic() < deadline and cm.poll() is None:
+                self.description_pub.publish(self.robot_description)
+                if client.wait_for_service(timeout_sec=2.0):
+                    return True
+            return False
+        finally:
+            self.destroy_client(client)
+
+    def _spawner(self, *args: str) -> bool:
+        executable = get_package_prefix("controller_manager") + "/lib/controller_manager/spawner"
+        cmd = [
+            executable,
+            *args,
+            "-c", CONTROLLER_MANAGER,
+            "--controller-manager-timeout", str(self.controller_manager_timeout),
+            "--ros-args", "-r", f"__ns:={self.namespace}",
+        ]  # fmt: skip
+        try:
+            return (
+                subprocess.run(
+                    cmd, timeout=3 * self.controller_manager_timeout, preexec_fn=_die_with_parent
+                ).returncode
+                == 0
+            )
+        except subprocess.TimeoutExpired:
+            return False
+
+    def _spawn_controllers(self) -> bool:
+        if not self._spawner("manipulator_joint_state_broadcaster"):
+            return False
+        arm_controllers = ["manipulator_controller", "gripper_controller"]
+        if not self.arm_activate:
+            arm_controllers.append("--inactive")
+        return self._spawner(*arm_controllers)
+
+    def _monitor(self, cm: subprocess.Popen):
+        while rclpy.ok():
+            self._sleep(self.retry_period)
+            if cm.poll() is not None:
+                self.get_logger().error(
+                    f"Manipulator controller_manager exited with code {cm.returncode}"
+                )
+                return
+            state = self._hardware_state()
+            if state is not None and state.id not in HEALTHY_STATES:
+                self.get_logger().error(
+                    f"{HARDWARE_COMPONENT} is '{state.label}', the arm was probably disconnected"
+                )
+                return
+
+    def _hardware_state(self) -> State | None:
+        try:
+            response = list_hardware_components(self, self.cm_fqn, call_timeout=5.0)
+        except Exception as e:
+            self.get_logger().warn(f"Could not query {self.cm_fqn}: {e}")
+            return None
+        for component in response.component:
+            if component.name == HARDWARE_COMPONENT:
+                return component.state
+        return None
+
+    def _stop(self, cm: subprocess.Popen):
+        if cm.poll() is not None:
+            return
+        cm.send_signal(signal.SIGINT)
+        try:
+            cm.wait(timeout=STOP_TIMEOUT_SEC)
+        except subprocess.TimeoutExpired:
+            cm.kill()
+            cm.wait()
+
+    def _sleep(self, seconds: float):
+        deadline = time.monotonic() + seconds
+        while rclpy.ok() and time.monotonic() < deadline:
+            time.sleep(0.2)
+
+
+def main():
+    rclpy.init()
+    node = ManipulatorSupervisor()
+    try:
+        node.run()
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.try_shutdown()
+
+
+if __name__ == "__main__":
+    main()
