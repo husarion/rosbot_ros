@@ -9,6 +9,7 @@ set(PACKAGE_INCLUDE_DEPENDS
     moveit_msgs
     moveit_ros_planning
     moveit_ros_planning_interface
+    pluginlib
     rclcpp
     rclcpp_action
     sensor_msgs
@@ -24,6 +25,11 @@ target_include_directories(
                         $<INSTALL_INTERFACE:include>)
 ament_target_dependencies(arm_pose_mover ${PACKAGE_INCLUDE_DEPENDS})
 
+add_library(clamp_start_state_bounds SHARED src/clamp_start_state_bounds.cpp)
+ament_target_dependencies(clamp_start_state_bounds ${PACKAGE_INCLUDE_DEPENDS})
+pluginlib_export_plugin_description_file(moveit_core
+                                         planning_request_adapters.xml)
+
 add_executable(dock src/dock.cpp)
 target_link_libraries(dock arm_pose_mover)
 ament_target_dependencies(dock ${PACKAGE_INCLUDE_DEPENDS})
@@ -38,7 +44,7 @@ target_include_directories(
 ament_target_dependencies(joy2servo ${PACKAGE_INCLUDE_DEPENDS})
 
 install(
-  TARGETS arm_pose_mover
+  TARGETS arm_pose_mover clamp_start_state_bounds
   EXPORT export_${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
@@ -51,6 +57,14 @@ install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 install(FILES .setup_assistant DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_clamp_start_state_bounds
+                  test/test_clamp_start_state_bounds.cpp)
+  target_link_libraries(test_clamp_start_state_bounds
+                        moveit_core::moveit_test_utils)
+  ament_target_dependencies(test_clamp_start_state_bounds
+                            ${PACKAGE_INCLUDE_DEPENDS})
+
   find_package(ament_cmake_pytest REQUIRED)
   ament_add_pytest_test(test_moveit_config test/test_moveit_config.py TIMEOUT
                         60 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -69,24 +69,20 @@ def test_ompl_manipulator_planner_configured():
     assert "RRTConnectkConfigDefault" in planners
 
 
-def test_joint_limits_cover_arm_joints():
+def test_joint_limits_drops_passive_joint():
+    """gripper_right_joint is <passive_joint>; stale limits caused confusion before."""
     cfg = load_yaml("config/joint_limits.yaml")
+    assert "gripper_right_joint" not in cfg["joint_limits"]
     for joint in ["gripper_left_joint", "joint1", "joint2", "joint3", "joint4"]:
         assert joint in cfg["joint_limits"], f"Missing joint limits for {joint}"
 
 
-def test_gripper_position_bounds_reach_mechanical_stops():
-    """CheckStartStateBounds has no tolerance for prismatic joints (MoveIt 2.12.4) and checks
-    the passive mimic joint too, so both fingers need the widened bounds or a gripper resting
-    at a stop rejects every gripper plan. The mimic joint carries position bounds only."""
-    limits = load_yaml("config/joint_limits.yaml")["joint_limits"]
-    left, right = limits["gripper_left_joint"], limits["gripper_right_joint"]
-    for finger in (left, right):
-        assert finger["has_position_limits"] is True
-        assert finger["min_position"] <= -0.011263
-        assert finger["max_position"] >= 0.019195
-    assert (right["min_position"], right["max_position"]) == (
-        left["min_position"],
-        left["max_position"],
-    )
-    assert set(right) == {"has_position_limits", "min_position", "max_position"}
+def test_ompl_clamps_start_state_before_bounds_check():
+    """A gripper resting a hair past its URDF limit fails CheckStartStateBounds (no tolerance
+    for prismatic joints in MoveIt 2.12.4); ClampStartStateBounds must run first. The limits
+    themselves stay at the URDF values so goals cannot drive the gripper into its stops."""
+    cfg = load_yaml("config/ompl_planning.yaml")
+    adapters = cfg["request_adapters"]
+    clamp = adapters.index("rosbot_moveit/ClampStartStateBounds")
+    assert clamp < adapters.index("default_planning_request_adapters/CheckStartStateBounds")
+    assert 0.0 < cfg["start_state_max_bounds_error"] <= 0.005

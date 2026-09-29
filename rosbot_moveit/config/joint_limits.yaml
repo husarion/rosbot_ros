@@ -16,19 +16,8 @@ joint_limits:
     has_acceleration_limits: true
     max_acceleration: 2.0  # m/s²
     has_position_limits: true
-    # Based on real measurements: mechanical stops at -0.011263 / +0.019195 m (HW 2026-09-29,
-    # torque off, pushed by hand), past the URDF -0.010 / 0.019. A gripper resting at a stop
-    # (e.g. after Close + torque off, seen at -0.0100119) otherwise fails CheckStartStateBounds,
-    # which has no tolerance for prismatic joints in MoveIt 2.12.4, and every gripper plan aborts.
-    min_position: -0.0115  # m
-    max_position: 0.0195  # m
 
-  # <passive_joint> in SRDF (mimic), not planned, but its bounds are still start-state checked.
-  gripper_right_joint:
-    has_position_limits: true
-    min_position: -0.0115  # m
-    max_position: 0.0195  # m
-
+  # gripper_right_joint is <passive_joint> in SRDF (mimic); not planned.
   joint1:
     has_velocity_limits: true
     max_velocity: 4.796164779

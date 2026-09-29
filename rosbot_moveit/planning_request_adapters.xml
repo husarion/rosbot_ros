@@ -1,0 +1,10 @@
+<library path="clamp_start_state_bounds">
+  <class name="rosbot_moveit/ClampStartStateBounds"
+         type="rosbot_moveit::ClampStartStateBounds"
+         base_class_type="planning_interface::PlanningRequestAdapter">
+    <description>
+      Clamps start state joint positions that exceed their limits by at most
+      start_state_max_bounds_error onto the limit, before CheckStartStateBounds.
+    </description>
+  </class>
+</library>
