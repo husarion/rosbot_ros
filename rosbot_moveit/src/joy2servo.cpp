@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <memory>
@@ -52,6 +53,17 @@ Joy2Servo::Joy2Servo() : Node("joy2servo") {
 
 void Joy2Servo::JointStateCb(
     const sensor_msgs::msg::JointState::SharedPtr msg) {
+  // joint_states has two publishers on hardware (drive and arm
+  // controller_managers). A wheels-only message would seed Cartesian IK with
+  // default (zero) arm joints.
+  const bool has_arm_joints = std::all_of(
+      JOINT_NAMES.begin(), JOINT_NAMES.end(), [&msg](const std::string &name) {
+        return std::find(msg->name.begin(), msg->name.end(), name) !=
+               msg->name.end();
+      });
+  if (!has_arm_joints) {
+    return;
+  }
   std::lock_guard<std::mutex> lock(joint_state_mutex_);
   latest_joint_state_ = msg;
 }

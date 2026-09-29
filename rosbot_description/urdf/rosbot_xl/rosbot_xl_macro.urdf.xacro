@@ -4,6 +4,7 @@
     params="controller_config
             mecanum
             namespace
+            ros2_control_enabled:=True
             use_sim">
 
     <!-- PROPERTIES -->
@@ -29,15 +30,19 @@
 
     <!-- HARDWARE PLUGINS -->
     <xacro:unless value="${use_sim}">
-      <xacro:ros2_control.imu namespace="${namespace}" />
-      <xacro:ros2_control.rosbot_system namespace="${namespace}" />
+      <xacro:if value="${ros2_control_enabled}">
+        <xacro:ros2_control.imu namespace="${namespace}" />
+        <xacro:ros2_control.rosbot_system namespace="${namespace}" />
+      </xacro:if>
     </xacro:unless>
 
     <!-- GAZEBO PLUGINS -->
     <xacro:if value="${use_sim}">
-      <xacro:ros2_control.gz_rosbot_system namespace="${namespace}" />
-      <xacro:gazebo.controller config_file="${controller_config}" namespace="${namespace}" />
-      <xacro:gazebo.imu reference_frame="imu_link" namespace="${namespace}" />
+      <xacro:if value="${ros2_control_enabled}">
+        <xacro:ros2_control.gz_rosbot_system namespace="${namespace}" />
+        <xacro:gazebo.controller config_file="${controller_config}" namespace="${namespace}" />
+        <xacro:gazebo.imu reference_frame="imu_link" namespace="${namespace}" />
+      </xacro:if>
       <!-- <xacro:if value="${simulation_engine == 'webots'}">
         <xacro:webots.controller />
       </xacro:if> -->

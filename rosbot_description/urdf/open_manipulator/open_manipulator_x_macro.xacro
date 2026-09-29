@@ -11,6 +11,7 @@
                     use_mock_hardware:=false
                     mock_sensor_commands:=false
                     use_sim:=false
+                    ros2_control_enabled:=true
                     port_name:='/dev/ttyUSB0'">
 
     <!-- PROPERTIES -->
@@ -29,13 +30,15 @@
       rpy="${rpy}" />
 
     <!-- ROS2 CONTROL PLUGINS -->
-    <xacro:ros2_control.open_manipulator_x_system
-      name="OpenManipulatorXSystem"
-      prefix="${prefix}"
-      use_sim="${use_sim}"
-      use_mock_hardware="${use_mock_hardware}"
-      mock_sensor_commands="${mock_sensor_commands}"
-      port_name="${port_name}" />
+    <xacro:if value="${ros2_control_enabled}">
+      <xacro:ros2_control.open_manipulator_x_system
+        name="OpenManipulatorXSystem"
+        prefix="${prefix}"
+        use_sim="${use_sim}"
+        use_mock_hardware="${use_mock_hardware}"
+        mock_sensor_commands="${mock_sensor_commands}"
+        port_name="${port_name}" />
+    </xacro:if>
 
     <!-- GAZEBO PLUGINS -->
     <xacro:if value="${use_sim}">

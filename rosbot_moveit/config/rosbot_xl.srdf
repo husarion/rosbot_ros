@@ -111,6 +111,12 @@
     <disable_collisions link1="link3" link2="rr_wheel_link" reason="Never"/>
     <disable_collisions link1="link3" link2="rplidar_link" reason="Never"/>
     <disable_collisions link1="link4" link2="link5" reason="Adjacent"/>
+    <!-- manipulation_pro bracket + ZED (not in the Setup Assistant model). Only the pairs in
+         contact in 100% of 2000 random arm states (check_state_validity, 2026-09-29) are
+         disabled; every pair with the platform stays checked. -->
+    <disable_collisions link1="link4" link2="man01_bracket_mount_link" reason="Default"/>
+    <disable_collisions link1="link5" link2="man01_bracket_mount_link" reason="Adjacent"/>
+    <disable_collisions link1="man01_bracket_mount_link" link2="zed_camera_center" reason="Adjacent"/>
     <disable_collisions link1="rl_wheel_link" link2="rr_wheel_link" reason="Never"/>
     <disable_collisions link1="rl_wheel_link" link2="rplidar_link" reason="Never"/>
     <disable_collisions link1="rr_wheel_link" link2="rplidar_link" reason="Never"/>

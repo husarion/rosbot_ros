@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
 
-  <xacro:macro name="controller" params="config_file namespace:=''">
+  <!-- One plugin instance per controller_manager: the drive's controller_manager and the
+       arm's manipulator_controller_manager (which reads its arm-only description from
+       robot_description_topic, published by rosbot_controller/manipulator_supervisor). -->
+  <xacro:macro name="controller"
+    params="config_file namespace:='' controller_manager_name:=controller_manager robot_description_topic:=''">
+    <xacro:property name="cm" value="${controller_manager_name}" />
     <gazebo>
       <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-        <controller_manager_name>controller_manager</controller_manager_name>
+        <controller_manager_name>${cm}</controller_manager_name>
         <parameters>${config_file}</parameters>
         <ros>
           <namespace>${namespace}</namespace>
@@ -14,20 +19,23 @@
           <remapping>/diagnostics:=diagnostics</remapping>
           <remapping>/tf:=tf</remapping>
           <remapping>/tf_static:=tf_static</remapping>
-          <remapping>/controller_manager/cleanup_controller:=controller_manager/cleanup_controller</remapping>
-          <remapping>/controller_manager/configure_controller:=controller_manager/configure_controller</remapping>
-          <remapping>/controller_manager/list_controllers:=controller_manager/list_controllers</remapping>
-          <remapping>/controller_manager/list_controller_types:=controller_manager/list_controller_types</remapping>
-          <remapping>/controller_manager/list_hardware_components:=controller_manager/list_hardware_components</remapping>
-          <remapping>/controller_manager/list_hardware_interfaces:=controller_manager/list_hardware_interfaces</remapping>
-          <remapping>/controller_manager/load_controller:=controller_manager/load_controller</remapping>
-          <remapping>/controller_manager/reload_controller_libraries:=controller_manager/reload_controller_libraries</remapping>
-          <remapping>/controller_manager/set_hardware_component_state:=controller_manager/set_hardware_component_state</remapping>
-          <remapping>/controller_manager/switch_controller:=controller_manager/switch_controller</remapping>
-          <remapping>/controller_manager/unload_controller:=controller_manager/unload_controller</remapping>
-          <remapping>/controller_manager/activity:=controller_manager/activity</remapping>
-          <remapping>/controller_manager/statistics:=controller_manager/statistics</remapping>
-          <remapping>/controller_manager/introspection_data:=controller_manager/introspection_data</remapping>
+          <remapping>/${cm}/cleanup_controller:=${cm}/cleanup_controller</remapping>
+          <remapping>/${cm}/configure_controller:=${cm}/configure_controller</remapping>
+          <remapping>/${cm}/list_controllers:=${cm}/list_controllers</remapping>
+          <remapping>/${cm}/list_controller_types:=${cm}/list_controller_types</remapping>
+          <remapping>/${cm}/list_hardware_components:=${cm}/list_hardware_components</remapping>
+          <remapping>/${cm}/list_hardware_interfaces:=${cm}/list_hardware_interfaces</remapping>
+          <remapping>/${cm}/load_controller:=${cm}/load_controller</remapping>
+          <remapping>/${cm}/reload_controller_libraries:=${cm}/reload_controller_libraries</remapping>
+          <remapping>/${cm}/set_hardware_component_state:=${cm}/set_hardware_component_state</remapping>
+          <remapping>/${cm}/switch_controller:=${cm}/switch_controller</remapping>
+          <remapping>/${cm}/unload_controller:=${cm}/unload_controller</remapping>
+          <remapping>/${cm}/activity:=${cm}/activity</remapping>
+          <remapping>/${cm}/statistics:=${cm}/statistics</remapping>
+          <remapping>/${cm}/introspection_data:=${cm}/introspection_data</remapping>
+          <xacro:if value="${robot_description_topic != ''}">
+            <remapping>robot_description:=${robot_description_topic}</remapping>
+          </xacro:if>
         </ros>
       </plugin>
     </gazebo>

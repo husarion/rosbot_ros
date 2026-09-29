@@ -100,6 +100,15 @@ launch:
       name: resolved_controller_config
       value: /tmp/rosbot_controller_$(var namespace).yaml
 
+  - let:
+      name: manipulation
+      value: $(eval "'$(var configuration)'.startswith('manipulation')")
+
+  - let:
+      name: components_config
+      value: $(eval "('$(var config_dir)/rosbot_description' if '$(var config_dir)' else '$(find-pkg-share
+        rosbot_description)') + '/config/$(var robot_model)/$(var configuration).yaml'")
+
   # =======================
   # Resolve controller config (ReplaceString)
   # =======================
@@ -165,18 +174,49 @@ launch:
               -r ~/odom:=odometry/wheels
               -r ~/imu:=imu/data"
 
+        # The arm runs under its own manipulator_controller_manager so a missing arm cannot
+        # take the drive down (see MANIPULATOR.md).
+        - node:
+            if: $(var manipulation)
+            pkg: rosbot_controller
+            exec: manipulator_supervisor
+            respawn: 'true'
+            respawn_delay: 5.0
+            param:
+              - name: arm_activate
+                value: $(var arm_activate)
+              - name: controller_manager_timeout
+                value: $(var controller_manager_timeout)
+              - name: params_file
+                value: $(var resolved_controller_config)
+              - name: port
+                value: $(var manipulator_serial_port)
+              - name: use_sim
+                value: $(var use_sim)
+              - name: robot_description
+                value: |
+                  $(command "bash -c '
+                    xacro $(find-pkg-share rosbot_description)/urdf/$(var robot_model).urdf.xacro \
+                      components_config:=$(var components_config) \
+                      configuration:=$(var configuration) \
+                      manipulator_serial_port:=$(var manipulator_serial_port) \
+                      mecanum:=$(var mecanum) \
+                      namespace:=$(var namespace) \
+                      manipulator_ros2_control:=True \
+                      robot_ros2_control:=False \
+                      use_sim:=$(var use_sim)
+                  '")
+
   # =======================
   # Manipulator (delayed)
   # =======================
 
   - timer:
       period: 5.0
-      if: $(eval "'$(var configuration)'.startswith('manipulation')")
+      if: $(var manipulation)
       children:
         - include:
             file: $(find-pkg-share rosbot_controller)/launch/manipulator.yaml
             let:
               - name: arm_activate
                 value: $(var arm_activate)
-              - name: controller_manager_timeout
-                value: $(var controller_manager_timeout)

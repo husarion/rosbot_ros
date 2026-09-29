@@ -12,14 +12,24 @@
         type: imu_sensor_broadcaster/IMUSensorBroadcaster
       joint_state_broadcaster:
         type: joint_state_broadcaster/JointStateBroadcaster
+      twist_mux_controller:
+        type: twist_mux_controller/TwistMuxController
+
+  # The arm has its own controller_manager so a missing arm cannot take the drive down.
+  # Hardware: started by rosbot_controller/manipulator_supervisor; simulation: a second
+  # gz_ros2_control plugin (see MANIPULATOR.md).
+  manipulator_controller_manager:
+    ros__parameters:
+      update_rate: 100 # Hz
+
+      manipulator_joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
       manipulator_controller:
         type: joint_trajectory_controller/JointTrajectoryController
       # JTC (not GripperActionController) - GAC cancel/restart per goal causes
       # stair-step motion when joy2servo pushes targets at 20 Hz.
       gripper_controller:
         type: joint_trajectory_controller/JointTrajectoryController
-      twist_mux_controller:
-        type: twist_mux_controller/TwistMuxController
 
       hardware_components_initial_state:
         <manipulator_state>:

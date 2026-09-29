@@ -28,27 +28,33 @@ def run_command(cmd, timeout_sec):
         print(f"Command failed but continuing: {cmd}")
 
 
+USAGE = "Usage: ros2 run rosbot_controller arm_control [active|inactive]"
+CONTROLLER_MANAGER = "manipulator_controller_manager"
+
+
 def main():
     if len(sys.argv) < 2:
-        print("Usage: ros2 run rosbot_controller arm_control [active|inactive]")
+        print(USAGE)
         sys.exit(1)
 
     state = sys.argv[1].lower()
+    ctl = f"ros2 control set_controller_state -c {CONTROLLER_MANAGER}"
+    hw = f"ros2 control set_hardware_component_state -c {CONTROLLER_MANAGER}"
 
     if state == "inactive":
         print("Manipulator torque will be turned off")
-        run_command("ros2 control set_controller_state manipulator_controller inactive", 7)
-        run_command("ros2 control set_controller_state gripper_controller inactive", 5)
-        run_command("ros2 control set_hardware_component_state OpenManipulatorXSystem inactive", 5)
+        run_command(f"{ctl} manipulator_controller inactive", 7)
+        run_command(f"{ctl} gripper_controller inactive", 5)
+        run_command(f"{hw} OpenManipulatorXSystem inactive", 5)
 
     elif state == "active":
-        run_command("ros2 control set_hardware_component_state OpenManipulatorXSystem active", 7)
-        run_command("ros2 control set_controller_state manipulator_controller active", 5)
-        run_command("ros2 control set_controller_state gripper_controller active", 5)
+        run_command(f"{hw} OpenManipulatorXSystem active", 7)
+        run_command(f"{ctl} manipulator_controller active", 5)
+        run_command(f"{ctl} gripper_controller active", 5)
 
     else:
         print(f"Invalid state: '{state}'")
-        print("Usage: ros2 run rosbot_controller arm_control [active|inactive]")
+        print(USAGE)
         sys.exit(1)
 
 

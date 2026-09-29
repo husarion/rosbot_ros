@@ -31,6 +31,23 @@ This is a **launch-time** switch only: toggling the arm at runtime with
 `arm_control inactive` / `sudo rosbot.arm-activate` does not stop an already-running
 `servo_node`.
 
+## Missing or disconnected arm
+
+The arm runs under its own `manipulator_controller_manager`, managed by
+`manipulator_supervisor`, so the robot drives normally whether or not the arm is there. This
+matters for robots tested bare and fitted with the arm later.
+
+- **Arm not connected at startup** — the driver logs
+  `Manipulator not responding on /dev/manipulator (Dynamixel ID 11)` once and keeps retrying.
+  Connect the arm and it comes up within a few seconds, no restart needed.
+- **Arm unplugged while running** — `OpenManipulatorXSystem` drops out of `active`/`inactive`,
+  the supervisor stops the arm stack and waits for the arm again.
+- A late-connected arm starts with the controllers in the `arm_activate` state but does **not**
+  run the auto-home move, which only happens at driver startup.
+
+`arm_control` / `rosbot.arm-activate` talk to `manipulator_controller_manager`, on hardware and
+in simulation alike.
+
 ## Control
 
 Once the arm is activated, the manipulator should engage the torque on the joints, locking them in place. You can now control OpenMANIPULATOR-X using a gamepad or RViz.

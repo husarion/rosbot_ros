@@ -26,6 +26,7 @@ from ament_index_python.packages import get_package_share_directory
 
 PLACEHOLDER_MANIPULATOR_STATE = "<manipulator_state>"
 PLACEHOLDER_NAMESPACE_PREFIX = "<namespace>/"  # the sed pattern includes the trailing /
+ARM_CONTROLLERS = ["manipulator_controller", "gripper_controller"]
 
 
 def _twist_mux_values(mecanum):
@@ -139,9 +140,9 @@ def test_twist_mux_input_priorities(robot_model):
 @pytest.mark.parametrize("manipulator_state", ["active", "inactive"])
 def test_manipulator_initial_state_routes_to_expected_key(manipulator_state):
     raw = _read("rosbot_xl")
-    resolved = _substitute(raw, namespace="", manipulator_state=manipulator_state)
+    resolved = _substitute(raw, manipulator_state=manipulator_state)
     data = yaml.safe_load(resolved)
-    initial_state = data["/**"]["controller_manager"]["ros__parameters"][
+    initial_state = data["/**"]["manipulator_controller_manager"]["ros__parameters"][
         "hardware_components_initial_state"
     ]
     assert manipulator_state in initial_state, (
@@ -149,3 +150,30 @@ def test_manipulator_initial_state_routes_to_expected_key(manipulator_state):
         f"under hardware_components_initial_state (got keys: {list(initial_state)})"
     )
     assert "OpenManipulatorXSystem" in initial_state[manipulator_state]
+
+
+def test_drive_controller_manager_does_not_own_the_arm():
+    """ros2_control loads hardware all-or-nothing; anything arm-related on the drive's
+    controller_manager would couple the drive to the arm again."""
+    params = yaml.safe_load(_substitute(_read("rosbot_xl")))["/**"]["controller_manager"][
+        "ros__parameters"
+    ]
+    assert "hardware_components_initial_state" not in params
+    for name in ARM_CONTROLLERS:
+        assert name not in params
+
+
+def test_arm_controller_manager_declares_arm_controllers():
+    """manipulator_supervisor spawns these on manipulator_controller_manager; the joint
+    state broadcaster needs its own name, a second `joint_state_broadcaster` node would
+    collide with the drive one in the same namespace."""
+    params = yaml.safe_load(_substitute(_read("rosbot_xl")))["/**"][
+        "manipulator_controller_manager"
+    ]["ros__parameters"]
+    assert params["update_rate"] > 0
+    assert (
+        params["manipulator_joint_state_broadcaster"]["type"]
+        == "joint_state_broadcaster/JointStateBroadcaster"
+    )
+    for name in ARM_CONTROLLERS:
+        assert params[name]["type"] == "joint_trajectory_controller/JointTrajectoryController"
