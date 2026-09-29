@@ -4,13 +4,17 @@ planning_plugins:
 request_adapters:
   - default_planning_request_adapters/ResolveConstraintFrames
   - default_planning_request_adapters/ValidateWorkspaceBounds
+  # Must precede CheckStartStateBounds: a gripper resting a hair past its URDF limit
+  # (mechanical stops lie beyond it) would otherwise fail every plan.
+  - rosbot_moveit/ClampStartStateBounds
   - default_planning_request_adapters/CheckStartStateBounds
   - default_planning_request_adapters/CheckStartStateCollision
 response_adapters:
   - default_planning_response_adapters/AddTimeOptimalParameterization
   - default_planning_response_adapters/ValidateSolution
   - default_planning_response_adapters/DisplayMotionPath
-start_state_max_bounds_error: 0.1
+# ClampStartStateBounds tolerance (m or rad, per joint type).
+start_state_max_bounds_error: 0.002
 
 # Trimmed from SetupAssistant default (24 planners x 2 groups). RRTConnect
 # default; RRTstar/PRMstar as optimizing fallbacks. Gripper needs OMPL for setNamedTarget().
