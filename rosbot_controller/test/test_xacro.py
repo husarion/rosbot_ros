@@ -70,13 +70,32 @@ def _ros2_control_names(**mappings):
     return {el.getAttribute("name") for el in doc.getElementsByTagName("ros2_control")}
 
 
-def test_hardware_descriptions_split_arm_from_drive():
-    """On hardware the drive and arm controller_managers each load only their own
-    components, so a missing arm cannot clear the drive's hardware (all-or-nothing load)."""
-    common = {"configuration": "manipulation_pro", "use_sim": "False"}
-    drive = _ros2_control_names(manipulator_ros2_control="False", **common)
-    arm = _ros2_control_names(robot_ros2_control="False", **common)
+@pytest.mark.parametrize("use_sim", ["False", "True"])
+def test_descriptions_split_arm_from_drive(use_sim):
+    """The drive and arm controller_managers each load only their own components, so a
+    missing arm cannot clear the drive's hardware (all-or-nothing load). The defaults are
+    the drive's description, the one robot_state_publisher publishes."""
+    common = {"configuration": "manipulation_pro", "use_sim": use_sim}
+    drive = _ros2_control_names(**common)
+    arm = _ros2_control_names(
+        robot_ros2_control="False", manipulator_ros2_control="True", **common
+    )
 
-    assert drive == {"imu", "rosbot_system"}
+    assert "OpenManipulatorXSystem" not in drive
+    assert "rosbot_system" in drive
     assert arm == {"OpenManipulatorXSystem"}
-    assert _ros2_control_names(**common) == drive | arm
+
+
+def _gz_controller_managers(**mappings):
+    rosbot_description = get_package_share_directory("rosbot_description")
+    xacro_path = os.path.join(rosbot_description, "urdf", "rosbot_xl.urdf.xacro")
+    doc = xacro.process_file(xacro_path, mappings=mappings)
+    return sorted(el.firstChild.data for el in doc.getElementsByTagName("controller_manager_name"))
+
+
+def test_simulation_hosts_one_plugin_per_controller_manager():
+    assert _gz_controller_managers(configuration="manipulation", use_sim="True") == [
+        "controller_manager",
+        "manipulator_controller_manager",
+    ]
+    assert _gz_controller_managers(configuration="basic", use_sim="True") == ["controller_manager"]

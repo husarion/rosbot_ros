@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import shlex
 import subprocess
 import sys
 
@@ -29,11 +28,8 @@ def run_command(cmd, timeout_sec):
         print(f"Command failed but continuing: {cmd}")
 
 
-USAGE = (
-    "Usage: ros2 run rosbot_controller arm_control [active|inactive] [controller_manager]\n"
-    "  controller_manager defaults to manipulator_controller_manager (hardware);"
-    " pass controller_manager in simulation."
-)
+USAGE = "Usage: ros2 run rosbot_controller arm_control [active|inactive]"
+CONTROLLER_MANAGER = "manipulator_controller_manager"
 
 
 def main():
@@ -42,9 +38,8 @@ def main():
         sys.exit(1)
 
     state = sys.argv[1].lower()
-    cm = sys.argv[2] if len(sys.argv) > 2 else "manipulator_controller_manager"
-    ctl = f"ros2 control set_controller_state -c {shlex.quote(cm)}"
-    hw = f"ros2 control set_hardware_component_state -c {shlex.quote(cm)}"
+    ctl = f"ros2 control set_controller_state -c {CONTROLLER_MANAGER}"
+    hw = f"ros2 control set_hardware_component_state -c {CONTROLLER_MANAGER}"
 
     if state == "inactive":
         print("Manipulator torque will be turned off")

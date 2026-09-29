@@ -33,7 +33,7 @@ This is a **launch-time** switch only: toggling the arm at runtime with
 
 ## Missing or disconnected arm
 
-On hardware the arm runs under its own `manipulator_controller_manager`, managed by
+The arm runs under its own `manipulator_controller_manager`, managed by
 `manipulator_supervisor`, so the robot drives normally whether or not the arm is there. This
 matters for robots tested bare and fitted with the arm later.
 
@@ -45,8 +45,8 @@ matters for robots tested bare and fitted with the arm later.
 - A late-connected arm starts with the controllers in the `arm_activate` state but does **not**
   run the auto-home move, which only happens at driver startup.
 
-`arm_control` / `rosbot.arm-activate` talk to `manipulator_controller_manager`. In simulation the
-arm stays on `controller_manager`: `ros2 run rosbot_controller arm_control active controller_manager`.
+`arm_control` / `rosbot.arm-activate` talk to `manipulator_controller_manager`, on hardware and
+in simulation alike.
 
 ## Control
 

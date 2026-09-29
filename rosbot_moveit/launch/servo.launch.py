@@ -20,8 +20,6 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.conditions import IfCondition
 from launch.substitutions import (
-    Command,
-    FindExecutable,
     LaunchConfiguration,
     PathJoinSubstitution,
     PythonExpression,
@@ -72,31 +70,9 @@ def _launch_setup(context):
     )
     joy_config = PathJoinSubstitution([pkg_config_dir, "config", "config.yaml"])
 
-    # URDF must match move_group; otherwise servo's model diverges from live.
-    components_config = PathJoinSubstitution(
-        [FindPackageShare("rosbot_description"), "config", "rosbot_xl", "manipulation.yaml"]
-    )
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution(
-                [
-                    FindPackageShare("rosbot_description"),
-                    "urdf",
-                    "rosbot_xl.urdf.xacro",
-                ]
-            ),
-            " components_config:=",
-            components_config,
-            " configuration:='manipulation'",
-        ]
-    )
-
     moveit_config = _apply_config_dir_overrides(
         MoveItConfigsBuilder("rosbot_xl", package_name="rosbot_moveit"), config_dir
     ).to_moveit_configs()
-    moveit_config.robot_description = {"robot_description": robot_description_content}
 
     servo_enabled_condition = IfCondition(LaunchConfiguration("servo_enabled"))
 
@@ -105,7 +81,9 @@ def _launch_setup(context):
         executable="servo_node",
         parameters=[
             servo_params,
-            moveit_config.robot_description,
+            # No robot_description parameter: MoveIt's rdf_loader then takes the latched
+            # robot_description topic from robot_state_publisher, so the collision model
+            # always matches the configured components (e.g. manipulation_pro's camera).
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
             moveit_config.joint_limits,

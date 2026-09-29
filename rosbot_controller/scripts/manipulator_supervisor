@@ -19,7 +19,8 @@
 # failing on_init clears every component of that controller_manager (and in Jazzy 4.48 the
 # node then segfaults in pal_statistics). The supervisor starts the arm controller_manager
 # only once the servos answer a ping, and restarts it whenever it dies or the hardware drops
-# out of active/inactive.
+# out of active/inactive. In simulation gz_ros2_control hosts that controller_manager, so the
+# supervisor only feeds it the arm description and spawns the controllers.
 
 import ctypes
 import signal
@@ -78,6 +79,7 @@ class ManipulatorSupervisor(Node):
             "controller_manager_timeout", 30
         ).value
         self.hardware_init_timeout = self.declare_parameter("hardware_init_timeout", 30.0).value
+        self.use_sim = self.declare_parameter("use_sim", False).value
         self.robot_description = String(data=self.declare_parameter("robot_description", "").value)
 
         self.namespace = self.get_namespace()
@@ -88,12 +90,15 @@ class ManipulatorSupervisor(Node):
         self.description_pub = self.create_publisher(String, self.description_topic, latched)
 
     def run(self):
+        if self.use_sim:
+            self._run_sim()
+            return
         while rclpy.ok():
             if not self._wait_for_arm():
                 return
             cm = self._start_controller_manager()
             try:
-                if not self._wait_for_hardware(cm):
+                if not self._wait_for_hardware(cm, self.hardware_init_timeout):
                     self.get_logger().error(
                         f"{HARDWARE_COMPONENT} did not initialize within "
                         f"{self.hardware_init_timeout:.0f} s"
@@ -106,6 +111,19 @@ class ManipulatorSupervisor(Node):
             finally:
                 self._stop(cm)
             self.get_logger().warn(f"Restarting manipulator in {self.retry_period:.0f} s")
+            self._sleep(self.retry_period)
+
+    def _run_sim(self):
+        # The plugin blocks the model load until it gets the arm description and cannot be
+        # restarted on its own, so wait without a deadline and then stay up to keep serving
+        # the latched description.
+        while rclpy.ok():
+            if self._wait_for_hardware(None, None) and self._spawn_controllers():
+                self.get_logger().info("Manipulator ready")
+                break
+            self.get_logger().error("Failed to spawn manipulator controllers")
+            self._sleep(self.retry_period)
+        while rclpy.ok():
             self._sleep(self.retry_period)
 
     def _wait_for_arm(self) -> bool:
@@ -140,16 +158,20 @@ class ManipulatorSupervisor(Node):
         ]  # fmt: skip
         return subprocess.Popen(cmd, preexec_fn=_die_with_parent)
 
-    def _wait_for_hardware(self, cm: subprocess.Popen) -> bool:
+    def _wait_for_hardware(self, cm: subprocess.Popen | None, timeout: float | None) -> bool:
         # controller_manager creates its services only after the hardware initialized, and
         # waits forever for a new robot_description after a failed init. Republishing covers
         # a latched sample that did not reach the fresh subscriber.
         client = self.create_client(
             ListHardwareComponents, f"{self.cm_fqn}/list_hardware_components"
         )
-        deadline = time.monotonic() + self.hardware_init_timeout
+        deadline = None if timeout is None else time.monotonic() + timeout
         try:
-            while rclpy.ok() and time.monotonic() < deadline and cm.poll() is None:
+            while (
+                rclpy.ok()
+                and (deadline is None or time.monotonic() < deadline)
+                and (cm is None or cm.poll() is None)
+            ):
                 self.description_pub.publish(self.robot_description)
                 if client.wait_for_service(timeout_sec=2.0):
                     return True

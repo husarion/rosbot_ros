@@ -72,12 +72,12 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 
 ### `rosbot_controller` — ros2_control + manipulator
 
-- [controller.yaml](rosbot_controller/launch/controller.yaml) — sed-resolves `controllers.yaml` → `/tmp/rosbot_controller_<ns>.yaml` (substitutes `<namespace>/`, `<manipulator_state>`, `<mecanum>`, `<drive_controller>`), starts `controller_manager` (HW only), spawns `{differential,mecanum}_drive_controller` + `imu_broadcaster` + `joint_state_broadcaster` + `twist_mux_controller` after 3 s. If `configuration` starts with `manipulation` → `manipulator.yaml` after 5 s (MoveIt, servo, home; arm spawners only in sim). On hardware the arm controllers live on a separate `manipulator_controller_manager` started by `manipulator_supervisor` — see [§12](#12-manipulator-controller_manager-isolation).
+- [controller.yaml](rosbot_controller/launch/controller.yaml) — sed-resolves `controllers.yaml` → `/tmp/rosbot_controller_<ns>.yaml` (substitutes `<namespace>/`, `<manipulator_state>`, `<mecanum>`, `<drive_controller>`), starts `controller_manager` (HW only), spawns `{differential,mecanum}_drive_controller` + `imu_broadcaster` + `joint_state_broadcaster` + `twist_mux_controller` after 3 s. If `configuration` starts with `manipulation` → `manipulator.yaml` after 5 s (MoveIt, servo, home). The arm controllers live on a separate `manipulator_controller_manager`, driven by `manipulator_supervisor` — see [§12](#12-manipulator-controller_manager-isolation).
 - [manipulator.yaml](rosbot_controller/launch/manipulator.yaml) — `manipulator_controller` + `gripper_controller` (both JTC), `move_group.launch.py`, `servo.launch.py`, `home.launch.py` (after 10 s, with MoveIt config injection).
 - Spawner remaps drive controller's `~/cmd_vel:=cmd_vel`, `~/odom:=odometry/wheels`, `~/imu:=imu/data` — canonical public names. The `~/cmd_vel` remap is inert while `twist_mux_controller` is active (chained mode) and only takes over if the mux fails to spawn.
 - **Velocity arbitration** — `twist_mux_controller` (from `husarion_controllers`) claims the drive controller's reference interfaces and forwards the highest-priority input that published within 0.2 s: `manual/cmd_vel` (100) > `autonomous/cmd_vel` (10) > `cmd_vel` (1). Arbitration runs in the 100 Hz control loop, not over topics. It is pointed at the right controller by `drive_controller` + `holonomic`, both sed-substituted from the `mecanum` arg; the mux derives the interface names itself, because the two drive controllers name them differently (`diff_drive`: `linear|angular/velocity`; husarion mecanum: `linear/{x,y}` + `angular/z`). Contract guarded by [test_controllers_yaml.py](rosbot_controller/test/test_controllers_yaml.py).
-- `scripts/arm_control active|inactive [controller_manager]` — toggles `OpenManipulatorXSystem` + arm controllers (default `manipulator_controller_manager`).
-- `scripts/manipulator_supervisor` — owns the arm `controller_manager` on hardware ([§12](#12-manipulator-controller_manager-isolation)).
+- `scripts/arm_control active|inactive` — toggles `OpenManipulatorXSystem` + arm controllers on `manipulator_controller_manager`.
+- `scripts/manipulator_supervisor` — owns the arm's `manipulator_controller_manager` ([§12](#12-manipulator-controller_manager-isolation)).
 
 ### `rosbot_description` — URDF, configurations
 
@@ -176,7 +176,7 @@ Creates: `rosbot_controller/config/`, `rosbot_description/config/`, `rosbot_joy/
 ### Sim vs HW divergence (intentional, upstream constraint)
 
 - **HW** — every node lives in `GroupAction` with `push_ros_namespace`. Canonical idiom, handles every service/topic/action.
-- **Sim** — `controller_manager` is hosted by `gz_ros2_control-system` plugin inside the Gazebo process, loaded by `gz_sim` BEFORE `LaunchContext` can apply `push_ros_namespace`. The plugin's `<ros><namespace>` handles relative names; absolute names (`/controller_manager/list_controllers` etc. + `/diagnostics` / `/tf` / `/tf_static` / introspection topics) need explicit URDF `<remapping>` entries in [common/gazebo.urdf.xacro](rosbot_description/urdf/common/gazebo.urdf.xacro). Current block covers 14 entries — full public CM surface in `ros-jazzy-controller-manager` (11 services + 3 diagnostic topics).
+- **Sim** — `controller_manager` is hosted by `gz_ros2_control-system` plugin inside the Gazebo process, loaded by `gz_sim` BEFORE `LaunchContext` can apply `push_ros_namespace`. The plugin's `<ros><namespace>` handles relative names; absolute names (`/controller_manager/list_controllers` etc. + `/diagnostics` / `/tf` / `/tf_static` / introspection topics) need explicit URDF `<remapping>` entries in [common/gazebo.urdf.xacro](rosbot_description/urdf/common/gazebo.urdf.xacro). The `controller` macro emits the block per plugin instance, keyed by `controller_manager_name` (one for `controller_manager`, one for `manipulator_controller_manager`) — 14 entries each, the full public CM surface in `ros-jazzy-controller-manager` (11 services + 3 diagnostic topics).
 
 Regression guards: [test_namespace_isolation.py](rosbot_bringup/test/test_namespace_isolation.py) (HW), [test_xacro::test_gazebo_urdf_namespace_remappings](rosbot_description/test/test_xacro.py) (sim URDF).
 
@@ -273,7 +273,7 @@ the USB 2.0 controller with the RPLidar and the STM32's FTDI -- but this was **n
 is a local copy of the upstream xacro whose only deviation is `is_async="true"` on the
 `<ros2_control>` tag. The hardware component then runs its read/write in its own FIFO thread,
 so a slow read no longer stalls the arm's control loop. (Since §12 the drive controllers run
-under a separate controller_manager on hardware; in simulation they still share one.) Keep the file in sync with `open_manipulator_description`.
+under a separate controller_manager.) Keep the file in sync with `open_manipulator_description`.
 
 HW-measured over ~8 min each, 100 Hz, `servo_node` active:
 
@@ -336,17 +336,19 @@ configured as `manipulation*` without the arm (production tests the bare robot) 
 the drive as well; the node then segfaulted in `pal_statistics` introspection of the cleared
 interfaces, and `on_exit: shutdown` took the whole driver down.
 
-**Design (hardware only).**
+**Design.** The same two-controller_manager layout on hardware and in simulation, so controller
+manager names, spawners, `arm_control` and the snap's arm scripts are identical in both.
 
-- `rosbot_xl.urdf.xacro` has `robot_ros2_control` / `manipulator_ros2_control` switches. The
-  `robot_description` from `robot_state_publisher` keeps all links but no arm `<ros2_control>`;
+- `rosbot_xl.urdf.xacro` has `robot_ros2_control` / `manipulator_ros2_control` switches; the
+  defaults (`True` / `False`) are the drive's description, which `robot_state_publisher`
+  publishes: all links, no arm `<ros2_control>`.
   `manipulator_supervisor` gets the complement (arm block only) as a parameter and publishes
   it on `manipulator_controller_manager/robot_description`, repeatedly until the arm
   controller_manager's services appear. Those are created only after a successful hardware
   init (`init_services()` follows `load_and_initialize_components`), so their absence after
   `hardware_init_timeout` means a failed init — the node would otherwise wait forever for a new
   description. A single latched sample was HW-observed to miss a restarted subscriber.
-- `manipulator_supervisor` pings Dynamixel ID 11, then runs `ros2_control_node` (renamed
+- Hardware: `manipulator_supervisor` pings Dynamixel ID 11, then runs `ros2_control_node` (renamed
   `controller_manager:__node:=manipulator_controller_manager` — a bare `__node:=` would also
   rename the Dynamixel plugin's internal node and duplicate the name) and the spawners as child
   processes. It restarts them when the child exits or `OpenManipulatorXSystem` leaves
@@ -355,17 +357,27 @@ interfaces, and `on_exit: shutdown` took the whole driver down.
 - The arm has its own `manipulator_joint_state_broadcaster`; `joint_states` now has two
   publishers. `robot_state_publisher` and MoveIt merge partial messages; `joy2servo` ignores
   messages without the arm joints so a wheels-only message cannot seed IK with zeros.
-- The main controller_manager's `hardware_components_initial_state` entry for the arm is
-  substituted with `''` on hardware (`'@main_cm_manipulator_component'`): an unknown name logs a
-  warning on every start, an empty one is skipped. The placeholder must stay quoted — an
-  unquoted empty list item fails rcl param parsing (`No value`) and kills controller_manager;
-  the leading `@` stops yamlfmt from dropping the quotes.
+- Simulation: the drive's description carries a second `gz_ros2_control` plugin
+  (`controller_manager_name` = `manipulator_controller_manager`, its `robot_description` remapped
+  to the supervisor's topic, own service remapping block — see §5). The plugin blocks the model
+  load until that description arrives, and `gz_ros2_control` cannot restart it on its own, so in
+  sim the supervisor skips the ping and restarts: it publishes the description until the
+  services appear, spawns the controllers and stays up.
+- `hardware_components_initial_state` for the arm lives only on `manipulator_controller_manager`;
+  the drive's controller_manager has no arm entries at all.
 
-**Simulation** keeps a single controller_manager (`gz_ros2_control`), with the arm spawners in
-`manipulator.yaml` (`spawn_controllers`).
+**MoveIt model.** `move_group` and `servo_node` get no `robot_description` parameter, so MoveIt's
+`rdf_loader` falls back to the latched `robot_description` topic from `robot_state_publisher`
+(`SynchronizedStringParameter`, moveit 2.12.4). Before, both built their own URDF from
+`manipulation.yaml`, so on `manipulation_pro` MoveIt did not know about the `man01_bracket` + ZED
+on `link5` and could not keep them off the platform. The SRDF disables only the three pairs
+that were in contact in 100% of 2000 random arm states (`link4`/`link5` – bracket, bracket – ZED);
+bracket/ZED vs `body_link`, wheels, lidar and antenna stay checked (7–10% of random states hit
+`body_link`).
 
 HW-verified 2026-09-29 on ROSbot XL + OpenMANIPULATOR-X: arm connected (inactive and active +
 auto-home), port missing at startup (drive active, supervisor waiting), arm port appearing at
 runtime (arm up in ~10 s, drive untouched), a Dynamixel init failing on CRC errors (restarted),
 and the arm disconnected while running (`SYNC_READ_FAIL` → `unconfigured` detected in ~6 s,
-reconnected ~5 s after re-plugging; drive controllers active throughout).
+reconnected ~5 s after re-plugging; drive controllers active throughout). Sim-verified the same
+day in Gazebo (namespaced, `manipulation_pro`): both plugins up, auto-home and dock via MoveIt.

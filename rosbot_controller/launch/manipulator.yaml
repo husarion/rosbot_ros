@@ -10,23 +10,6 @@ launch:
         - value: 'False'
 
   - arg:
-      name: controller_manager_timeout
-      default: '60'
-      description: >-
-        Seconds the spawner waits for controller_manager to load + activate the
-        controllers. Raised from 20 for slower SBCs (see controller.yaml).
-
-  - arg:
-      name: spawn_controllers
-      default: 'True'
-      description: >-
-        Spawn the arm controllers on controller_manager. False when manipulator_supervisor owns
-        them on manipulator_controller_manager (hardware).
-      choice:
-        - value: 'True'
-        - value: 'False'
-
-  - arg:
       name: servo_enabled
       default: $(var arm_activate)
       description: >-
@@ -35,27 +18,6 @@ launch:
         e.g. to keep the arm active while skipping servo_node's always-on
         collision-checking loop (~91% of one CPU core, see MANIPULATOR.md) when
         the joystick won't be used this session.
-
-  - node:
-      pkg: controller_manager
-      exec: spawner
-      args: >
-        manipulator_controller
-        gripper_controller
-        -c controller_manager
-        --controller-manager-timeout $(var controller_manager_timeout)
-      if: $(eval "$(var spawn_controllers) and $(var arm_activate)")
-
-  - node:
-      pkg: controller_manager
-      exec: spawner
-      args: >
-        manipulator_controller
-        gripper_controller
-        -c controller_manager
-        --controller-manager-timeout $(var controller_manager_timeout)
-        --inactive
-      if: $(eval "$(var spawn_controllers) and not $(var arm_activate)")
 
   - include:
       file: $(find-pkg-share rosbot_moveit)/launch/move_group.launch.py

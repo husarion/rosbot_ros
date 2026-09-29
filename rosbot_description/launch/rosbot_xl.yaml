@@ -30,16 +30,6 @@ launch:
       description: Port to connect to the manipulator.
 
   - arg:
-      name: manipulator_ros2_control
-      default: 'True'
-      description: >-
-        Include the manipulator <ros2_control> block in robot_description. The driver sets it to
-        False on hardware, where the arm runs under its own manipulator_controller_manager.
-      choice:
-        - value: 'True'
-        - value: 'False'
-
-  - arg:
       name: mock_joints
       default: 'True'
       description: Run joint_state_publisher for simulating joint states of the robot (visualization only).
@@ -100,7 +90,6 @@ launch:
                 components_config:=$(var components_config) \
                 configuration:=$(var configuration) \
                 controller_config:=$(var controller_config) \
-                manipulator_ros2_control:=$(var manipulator_ros2_control) \
                 manipulator_serial_port:=$(var manipulator_serial_port) \
                 mecanum:=$(var mecanum) \
                 namespace:=$(var namespace) \

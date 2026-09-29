@@ -100,15 +100,9 @@ launch:
       name: resolved_controller_config
       value: /tmp/rosbot_controller_$(var namespace).yaml
 
-  # On hardware the arm gets its own controller_manager, so a missing arm cannot take the
-  # drive down (see MANIPULATOR.md). gz_ros2_control runs a single controller_manager.
   - let:
-      name: manipulator_separate_cm
-      value: $(eval "'$(var configuration)'.startswith('manipulation') and not $(var use_sim)")
-
-  - let:
-      name: main_cm_manipulator_component
-      value: $(eval "'' if $(var manipulator_separate_cm) else 'OpenManipulatorXSystem'")
+      name: manipulation
+      value: $(eval "'$(var configuration)'.startswith('manipulation')")
 
   - let:
       name: components_config
@@ -127,7 +121,6 @@ launch:
             -e 's|<manipulator_state>|"$(var manipulator_state)"|g' \
             -e 's|<mecanum>|"$(var mecanum)"|g' \
             -e 's|<drive_controller>|"$(var drive_controller)"|g' \
-            -e 's|@main_cm_manipulator_component|"$(var main_cm_manipulator_component)"|g' \
             "$(var controller_config)" \
             > "$(var resolved_controller_config)"
         "
@@ -143,8 +136,6 @@ launch:
           value: $(var configuration)
         - name: controller_config
           value: $(var resolved_controller_config)
-        - name: manipulator_ros2_control
-          value: $(eval "not $(var manipulator_separate_cm)")
         - name: manipulator_serial_port
           value: $(var manipulator_serial_port)
         - name: mock_joints
@@ -183,8 +174,10 @@ launch:
               -r ~/odom:=odometry/wheels
               -r ~/imu:=imu/data"
 
+        # The arm runs under its own manipulator_controller_manager so a missing arm cannot
+        # take the drive down (see MANIPULATOR.md).
         - node:
-            if: $(var manipulator_separate_cm)
+            if: $(var manipulation)
             pkg: rosbot_controller
             exec: manipulator_supervisor
             respawn: 'true'
@@ -198,6 +191,8 @@ launch:
                 value: $(var resolved_controller_config)
               - name: port
                 value: $(var manipulator_serial_port)
+              - name: use_sim
+                value: $(var use_sim)
               - name: robot_description
                 value: |
                   $(command "bash -c '
@@ -207,8 +202,9 @@ launch:
                       manipulator_serial_port:=$(var manipulator_serial_port) \
                       mecanum:=$(var mecanum) \
                       namespace:=$(var namespace) \
+                      manipulator_ros2_control:=True \
                       robot_ros2_control:=False \
-                      use_sim:=False
+                      use_sim:=$(var use_sim)
                   '")
 
   # =======================
@@ -217,14 +213,10 @@ launch:
 
   - timer:
       period: 5.0
-      if: $(eval "'$(var configuration)'.startswith('manipulation')")
+      if: $(var manipulation)
       children:
         - include:
             file: $(find-pkg-share rosbot_controller)/launch/manipulator.yaml
             let:
               - name: arm_activate
                 value: $(var arm_activate)
-              - name: controller_manager_timeout
-                value: $(var controller_manager_timeout)
-              - name: spawn_controllers
-                value: $(eval "not $(var manipulator_separate_cm)")

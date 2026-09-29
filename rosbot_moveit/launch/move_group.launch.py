@@ -16,14 +16,8 @@ import os
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
-from launch.substitutions import (
-    Command,
-    FindExecutable,
-    LaunchConfiguration,
-    PathJoinSubstitution,
-)
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
@@ -57,29 +51,10 @@ def _launch_setup(context):
         MoveItConfigsBuilder("rosbot_xl", package_name="rosbot_moveit"), config_dir
     ).to_moveit_configs()
 
-    components_config = PathJoinSubstitution(
-        [FindPackageShare("rosbot_description"), "config", "rosbot_xl", "manipulation.yaml"]
-    )
-
-    # Override builder's vanilla xacro so URDF matches bringup
-    # (components_config + configuration:='manipulation').
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution(
-                [
-                    FindPackageShare("rosbot_description"),
-                    "urdf",
-                    "rosbot_xl.urdf.xacro",
-                ]
-            ),
-            " components_config:=",
-            components_config,
-            " configuration:='manipulation'",
-        ]
-    )
-    moveit_config.robot_description = {"robot_description": robot_description_content}
+    # No robot_description parameter: MoveIt's rdf_loader then takes the latched
+    # robot_description topic from robot_state_publisher, so the collision model always
+    # matches the configured components (e.g. manipulation_pro's bracket + camera).
+    moveit_config.robot_description = {}
 
     move_group_configuration = {
         "publish_robot_description_semantic": True,

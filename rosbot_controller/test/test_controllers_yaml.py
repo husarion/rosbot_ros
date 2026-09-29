@@ -26,7 +26,6 @@ from ament_index_python.packages import get_package_share_directory
 
 PLACEHOLDER_MANIPULATOR_STATE = "<manipulator_state>"
 PLACEHOLDER_NAMESPACE_PREFIX = "<namespace>/"  # the sed pattern includes the trailing /
-PLACEHOLDER_MAIN_CM_COMPONENT = "@main_cm_manipulator_component"
 ARM_CONTROLLERS = ["manipulator_controller", "gripper_controller"]
 
 
@@ -54,9 +53,7 @@ def _read(robot_model):
         return f.read()
 
 
-def _substitute(
-    raw, namespace="", manipulator_state="active", mecanum=False, separate_arm_cm=False
-):
+def _substitute(raw, namespace="", manipulator_state="active", mecanum=False):
     # Mirror the sed pattern in rosbot_controller/launch/controller.yaml. Ros2
     # namespaces typically end without a trailing slash; the launch expands the
     # bash var which already includes the slash, so an empty namespace yields
@@ -64,9 +61,6 @@ def _substitute(
     ns_replacement = f"{namespace}/" if namespace else ""
     out = raw.replace(PLACEHOLDER_NAMESPACE_PREFIX, ns_replacement)
     out = out.replace(PLACEHOLDER_MANIPULATOR_STATE, manipulator_state)
-    out = out.replace(
-        PLACEHOLDER_MAIN_CM_COMPONENT, "" if separate_arm_cm else "OpenManipulatorXSystem"
-    )
     for placeholder, value in _twist_mux_values(mecanum).items():
         out = out.replace(placeholder, value)
     return out
@@ -99,7 +93,6 @@ def test_substituted_yaml_parses(robot_model, namespace, mecanum):
     assert "<manipulator_state>" not in resolved, "manipulator_state placeholder leaked"
     assert "<mecanum>" not in resolved, "mecanum placeholder leaked through substitution"
     assert "<drive_controller>" not in resolved, "drive_controller placeholder leaked"
-    assert PLACEHOLDER_MAIN_CM_COMPONENT not in resolved, "main CM component placeholder leaked"
     data = yaml.safe_load(resolved)
     assert isinstance(data, dict)
     assert "/**" in data, "Missing ROS 2 wildcard key '/**'"
@@ -145,19 +138,13 @@ def test_twist_mux_input_priorities(robot_model):
 
 
 @pytest.mark.parametrize("manipulator_state", ["active", "inactive"])
-@pytest.mark.parametrize(
-    "separate_arm_cm,cm_name",
-    [(False, "controller_manager"), (True, "manipulator_controller_manager")],
-)
-def test_manipulator_initial_state_routes_to_expected_key(
-    manipulator_state, separate_arm_cm, cm_name
-):
+def test_manipulator_initial_state_routes_to_expected_key(manipulator_state):
     raw = _read("rosbot_xl")
-    resolved = _substitute(
-        raw, manipulator_state=manipulator_state, separate_arm_cm=separate_arm_cm
-    )
+    resolved = _substitute(raw, manipulator_state=manipulator_state)
     data = yaml.safe_load(resolved)
-    initial_state = data["/**"][cm_name]["ros__parameters"]["hardware_components_initial_state"]
+    initial_state = data["/**"]["manipulator_controller_manager"]["ros__parameters"][
+        "hardware_components_initial_state"
+    ]
     assert manipulator_state in initial_state, (
         f"Substituted manipulator_state='{manipulator_state}' did not land as a key "
         f"under hardware_components_initial_state (got keys: {list(initial_state)})"
@@ -165,14 +152,15 @@ def test_manipulator_initial_state_routes_to_expected_key(
     assert "OpenManipulatorXSystem" in initial_state[manipulator_state]
 
 
-def test_main_cm_drops_arm_component_on_hardware():
-    """An arm component the main controller_manager does not own logs 'unknown' on every
-    start; an empty name is skipped silently by set_initial_hardware_components_state."""
-    data = yaml.safe_load(_substitute(_read("rosbot_xl"), separate_arm_cm=True))
-    initial_state = data["/**"]["controller_manager"]["ros__parameters"][
-        "hardware_components_initial_state"
+def test_drive_controller_manager_does_not_own_the_arm():
+    """ros2_control loads hardware all-or-nothing; anything arm-related on the drive's
+    controller_manager would couple the drive to the arm again."""
+    params = yaml.safe_load(_substitute(_read("rosbot_xl")))["/**"]["controller_manager"][
+        "ros__parameters"
     ]
-    assert initial_state["active"] == [""]
+    assert "hardware_components_initial_state" not in params
+    for name in ARM_CONTROLLERS:
+        assert name not in params
 
 
 def test_arm_controller_manager_declares_arm_controllers():
