@@ -24,6 +24,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
 from rosbot_utils.audio_device import find_playback_device
 from rosbot_utils.battery_alert_parameters import battery_alert
+from rosbot_utils.battery_alert_policy import LowBatteryAlertPolicy
 from sensor_msgs.msg import BatteryState
 
 CONNECT_ALSA_HINT = "if running from the snap, run: sudo snap connect rosbot:alsa"
@@ -48,7 +49,9 @@ class BatteryMonitor(Node):
             BatteryState, "battery", self.battery_callback, qos_profile
         )
 
-        self.last_play_time = None
+        self.alert_policy = LowBatteryAlertPolicy(
+            self.params.percentage_threshold, self.params.interval_sec * 10**9
+        )
         self.sounds_path = get_package_share_directory("rosbot_utils") + "/config/low_battery.wav"
 
         # The constructor must not touch the sound card: a USB sound card can be
@@ -133,21 +136,10 @@ class BatteryMonitor(Node):
             self.get_logger().error("aplay not found, install alsa-utils")
 
     def battery_callback(self, msg: BatteryState):
-        percentage = msg.percentage
-        now = self.get_clock().now()
-
-        if percentage < self.params.percentage_threshold:
-            if (
-                self.last_play_time is None
-                or (now - self.last_play_time).nanoseconds > self.params.interval_sec * 1e9
-            ):
-
-                self.get_logger().warn(f"Low battery: {100 * percentage:.1f}%")
-                self._play()
-                self.last_play_time = now
-        else:
-            # reset when battery is OK again
-            self.last_play_time = None
+        now_ns = self.get_clock().now().nanoseconds
+        if self.alert_policy.should_alert(msg.percentage, now_ns):
+            self.get_logger().warn(f"Low battery: {100 * msg.percentage:.1f}%")
+            self._play()
 
 
 def main(args=None):

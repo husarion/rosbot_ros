@@ -33,6 +33,8 @@ if(BUILD_TESTING)
   ament_add_pytest_test(test_firmware_version test/test_firmware_version.py)
   ament_add_pytest_test(test_configs test/test_configs.py)
   ament_add_pytest_test(test_audio_device test/test_audio_device.py)
+  ament_add_pytest_test(test_battery_alert_policy
+                        test/test_battery_alert_policy.py)
   ament_add_pytest_test(test_low_battery_wav test/test_low_battery_wav.py)
 
   # test_led_strip launches the C++ animation nodes and subscribes to led_strip,
