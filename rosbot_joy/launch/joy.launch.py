@@ -65,7 +65,7 @@ def generate_launch_description():
         executable="teleop_node",
         name="joy2twist",
         parameters=[joy_config],
-        remappings={("/cmd_vel", joy_vel)},
+        remappings={("cmd_vel", joy_vel)},
     )
 
     return LaunchDescription(
