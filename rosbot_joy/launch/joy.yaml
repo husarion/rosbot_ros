@@ -32,5 +32,5 @@ launch:
       param:
         - from: $(var joy_config)
       remap:
-        - from: /cmd_vel
+        - from: cmd_vel
           to: $(var joy_vel)

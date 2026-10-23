@@ -61,5 +61,5 @@ def test_cmd_vel_remap_to_joy_vel_arg(launch_doc):
     teleop = next(n for n in _nodes(launch_doc) if n["pkg"] == "teleop_twist_joy")
     remaps = teleop.get("remap", [])
     assert any(
-        r.get("from") == "/cmd_vel" and "joy_vel" in r.get("to", "") for r in remaps
-    ), "teleop_twist_joy must remap /cmd_vel onto the joy_vel arg"
+        r.get("from") == "cmd_vel" and "joy_vel" in r.get("to", "") for r in remaps
+    ), "teleop_twist_joy must remap cmd_vel onto the joy_vel arg"
