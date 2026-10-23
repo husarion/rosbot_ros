@@ -51,7 +51,7 @@ USER_DIR = os.path.join(tempfile.gettempdir(), "rosbot_test_animations")
 
 
 @launch_pytest.fixture
-def generate_test_description():
+def led_strip_launch_description():
     # Start from an empty user dir: a leftover PNG would be picked up by the
     # node's startup scan and cached, so the "not on disk yet" case below would
     # no longer be reachable.
@@ -108,7 +108,7 @@ def _set_animation(node, client, value):
     )
 
 
-@pytest.mark.launch(fixture=generate_test_description)
+@pytest.mark.launch(fixture=led_strip_launch_description)
 def test_led_strip_image_contract():
     rclpy.init()
     try:
@@ -138,7 +138,7 @@ def test_led_strip_image_contract():
         rclpy.shutdown()
 
 
-@pytest.mark.launch(fixture=generate_test_description)
+@pytest.mark.launch(fixture=led_strip_launch_description)
 def test_current_animation_parameter():
     rclpy.init()
     try:
@@ -173,7 +173,7 @@ def test_current_animation_parameter():
         rclpy.shutdown()
 
 
-@pytest.mark.launch(fixture=generate_test_description)
+@pytest.mark.launch(fixture=led_strip_launch_description)
 def test_animation_loaded_from_user_dir_at_runtime():
     """An animation dropped in after startup is selectable without a restart.
 
@@ -216,7 +216,7 @@ def test_animation_loaded_from_user_dir_at_runtime():
         rclpy.shutdown()
 
 
-@pytest.mark.launch(fixture=generate_test_description)
+@pytest.mark.launch(fixture=led_strip_launch_description)
 def test_animation_follows_cmd_vel_source():
     """The strip shows who is driving, and hands back on request.
 
@@ -274,7 +274,7 @@ def test_animation_follows_cmd_vel_source():
         rclpy.shutdown()
 
 
-@pytest.mark.launch(fixture=generate_test_description)
+@pytest.mark.launch(fixture=led_strip_launch_description)
 def test_led_strip_enable_service():
     rclpy.init()
     try:

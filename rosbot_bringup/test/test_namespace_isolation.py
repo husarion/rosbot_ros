@@ -64,7 +64,7 @@ REQUIRED_NS_SERVICES = {
 
 
 @launch_pytest.fixture
-def generate_test_description():
+def bringup_launch_description():
     return make_bringup_launch_description(
         hardware_bridge="False",
         namespace=NAMESPACE,
@@ -85,7 +85,7 @@ def _classify(names, ns_prefix, allowed_globals):
     return leaks, namespaced
 
 
-@pytest.mark.launch(fixture=generate_test_description)
+@pytest.mark.launch(fixture=bringup_launch_description)
 def test_namespace_isolation():
     rclpy.init()
     try:

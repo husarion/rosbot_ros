@@ -25,7 +25,7 @@ from bringup_helpers import (
 
 
 @launch_pytest.fixture
-def generate_test_description(request):
+def bringup_launch_description(request):
     mecanum, namespace, robot_model = request.param
     print(
         f"""
@@ -56,10 +56,10 @@ robot_model_options = ["rosbot", "rosbot_xl"]
 test_params = list(product(mecanum_options, namespace_options, robot_model_options))
 
 
-@pytest.mark.parametrize("generate_test_description", test_params, indirect=True)
-@pytest.mark.launch(fixture=generate_test_description)
-def test_bringup(generate_test_description):
-    _, _, namespace, _ = generate_test_description
+@pytest.mark.parametrize("bringup_launch_description", test_params, indirect=True)
+@pytest.mark.launch(fixture=bringup_launch_description)
+def test_bringup(bringup_launch_description):
+    _, _, namespace, _ = bringup_launch_description
 
     rclpy.init()
     try:
