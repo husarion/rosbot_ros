@@ -2,6 +2,13 @@
 Changelog for package rosbot_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix gamepad commands bypassing twist_mux priority under a namespace
+  The teleop remap used ``/cmd_vel``, which only matches when the node has no
+  namespace; with one, joy2twist published on ``/<ns>/cmd_vel`` (priority 1)
+  instead of ``/<ns>/manual/cmd_vel`` (priority 100), so nav2 overrode the pad.
+
 1.3.0 (2026-09-24)
 ------------------
 
