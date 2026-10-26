@@ -14,48 +14,48 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
+import os
 import subprocess
-import sys
+
+CONTROLLER_MANAGER = "manipulator_controller_manager"
 
 
 def run_command(cmd, timeout_sec):
     try:
-        subprocess.run(cmd, shell=True, check=True, timeout=timeout_sec)
+        subprocess.run(cmd, check=True, timeout=timeout_sec)
     except subprocess.TimeoutExpired:
-        print(f"Command timed out: {cmd}")
+        print(f"Command timed out: {' '.join(cmd)}")
     except subprocess.CalledProcessError:
         # Mimics '|| true' in bash: ignore non-zero exit codes
-        print(f"Command failed but continuing: {cmd}")
-
-
-USAGE = "Usage: ros2 run rosbot_controller arm_control [active|inactive]"
-CONTROLLER_MANAGER = "manipulator_controller_manager"
+        print(f"Command failed but continuing: {' '.join(cmd)}")
 
 
 def main():
-    if len(sys.argv) < 2:
-        print(USAGE)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(prog="ros2 run rosbot_controller arm_control")
+    parser.add_argument("state", type=str.lower, choices=["active", "inactive"])
+    parser.add_argument(
+        "--namespace",
+        default=os.environ.get("ROBOT_NAMESPACE", ""),
+        help="Robot namespace (default: $ROBOT_NAMESPACE).",
+    )
+    args = parser.parse_args()
 
-    state = sys.argv[1].lower()
-    ctl = f"ros2 control set_controller_state -c {CONTROLLER_MANAGER}"
-    hw = f"ros2 control set_hardware_component_state -c {CONTROLLER_MANAGER}"
+    # The ros2 CLI node lives in '/', so a relative -c would miss a namespaced manager.
+    ns = args.namespace.strip("/")
+    cm = f"/{ns}/{CONTROLLER_MANAGER}" if ns else f"/{CONTROLLER_MANAGER}"
+    ctl = ["ros2", "control", "set_controller_state", "-c", cm]
+    hw = ["ros2", "control", "set_hardware_component_state", "-c", cm]
 
-    if state == "inactive":
+    if args.state == "inactive":
         print("Manipulator torque will be turned off")
-        run_command(f"{ctl} manipulator_controller inactive", 7)
-        run_command(f"{ctl} gripper_controller inactive", 5)
-        run_command(f"{hw} OpenManipulatorXSystem inactive", 5)
-
-    elif state == "active":
-        run_command(f"{hw} OpenManipulatorXSystem active", 7)
-        run_command(f"{ctl} manipulator_controller active", 5)
-        run_command(f"{ctl} gripper_controller active", 5)
-
+        run_command([*ctl, "manipulator_controller", "inactive"], 7)
+        run_command([*ctl, "gripper_controller", "inactive"], 5)
+        run_command([*hw, "OpenManipulatorXSystem", "inactive"], 5)
     else:
-        print(f"Invalid state: '{state}'")
-        print(USAGE)
-        sys.exit(1)
+        run_command([*hw, "OpenManipulatorXSystem", "active"], 7)
+        run_command([*ctl, "manipulator_controller", "active"], 5)
+        run_command([*ctl, "gripper_controller", "active"], 5)
 
 
 if __name__ == "__main__":
