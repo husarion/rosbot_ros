@@ -2,6 +2,17 @@
 Changelog for package rosbot_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix teleop twist joy cmd_vel remapping (`#201 <https://github.com/husarion/rosbot_ros/issues/201>`_)
+  * Update joy.yaml
+  Remapping does not work with the namespace.
+  The node uses relative topic name by default: [teleop_twist_joy](https://github.com/ros2/teleop_twist_joy/blob/d311b335ed3fd3bf0784e48dde7856455e1c5585/src/teleop_twist_joy.cpp#L79)
+  * fix tests
+  ---------
+  Co-authored-by: rafal-gorecki <rafal.gorecki@husarion.com>
+* Contributors: Dawid Kmak
+
 1.3.0 (2026-09-24)
 ------------------
 

@@ -2,6 +2,9 @@
 Changelog for package rosbot_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.0 (2026-09-24)
 ------------------
 * Publish odometry at 50 Hz, run EKF at 50 Hz

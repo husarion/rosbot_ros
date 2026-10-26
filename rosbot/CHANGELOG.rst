@@ -2,6 +2,12 @@
 Changelog for package rosbot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump firmware to v2.3.0-jazzy
+* Bump firmware to v2.2.1-jazzy
+* Contributors: rafal-gorecki
+
 1.3.0 (2026-09-24)
 ------------------
 * Bump firmware to v2.2.0-jazzy and drop micro-ROS

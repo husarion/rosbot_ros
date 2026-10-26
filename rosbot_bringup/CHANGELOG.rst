@@ -2,6 +2,11 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Rename launch_pytest fixtures hijacked by launch_testing (`#204 <https://github.com/husarion/rosbot_ros/issues/204>`_)
+* Contributors: Rafal Gorecki
+
 1.3.0 (2026-09-24)
 ------------------
 * Bump firmware to v2.2.0-jazzy and drop micro-ROS

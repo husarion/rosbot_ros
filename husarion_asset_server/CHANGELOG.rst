@@ -2,6 +2,9 @@
 Changelog for package husarion_asset_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.0 (2026-09-24)
 ------------------
 

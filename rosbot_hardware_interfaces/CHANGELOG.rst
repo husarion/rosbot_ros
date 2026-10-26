@@ -2,6 +2,9 @@
 Changelog for package rosbot_hardware_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.0 (2026-09-24)
 ------------------
 

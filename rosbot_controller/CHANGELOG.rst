@@ -2,6 +2,26 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Arm on its own controller_manager (HW + sim), full MoveIt model (`#199 <https://github.com/husarion/rosbot_ros/issues/199>`_)
+  * Run manipulator under its own controller_manager on HW
+  ros2_control loads hardware all-or-nothing, so a missing arm on a
+  manipulation config took the drive down with it. Arm controllers,
+  hardware state and arm_control now live on
+  manipulator_controller_manager (breaking for tools that addressed
+  them on controller_manager); simulation is unchanged.
+  * Two controller_managers in sim too; full MoveIt model
+  Simulation now hosts manipulator_controller_manager in a second
+  gz_ros2_control plugin, so names and tooling match hardware; the
+  manipulator_ros2_control / spawn_controllers launch args and the
+  arm_control controller_manager argument are gone.
+  move_group and servo read robot_description from
+  robot_state_publisher instead of building it from manipulation.yaml,
+  which left manipulation_pro's bracket + ZED out of collision checking.
+  Existing config_dir copies need the updated rosbot_xl.srdf.
+* Contributors: Rafal Gorecki
+
 1.3.0 (2026-09-24)
 ------------------
 * Publish odometry at 50 Hz, run EKF at 50 Hz
