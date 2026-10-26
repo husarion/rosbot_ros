@@ -2,8 +2,8 @@
 Changelog for package rosbot_moveit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.1 (2026-10-26)
+------------------
 * Clamp near-limit MoveIt start states onto the joint limits (`#200 <https://github.com/husarion/rosbot_ros/issues/200>`_)
   * Widen MoveIt gripper bounds to the measured stops
   * Clamp near-limit start states instead of widening bounds

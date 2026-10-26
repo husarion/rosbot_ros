@@ -2,8 +2,8 @@
 Changelog for package rosbot_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.1 (2026-10-26)
+------------------
 * Fix teleop twist joy cmd_vel remapping (`#201 <https://github.com/husarion/rosbot_ros/issues/201>`_)
   * Update joy.yaml
   Remapping does not work with the namespace.

@@ -2,8 +2,8 @@
 Changelog for package rosbot_bringup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.1 (2026-10-26)
+------------------
 * Rename launch_pytest fixtures hijacked by launch_testing (`#204 <https://github.com/husarion/rosbot_ros/issues/204>`_)
 * Contributors: Rafal Gorecki
 

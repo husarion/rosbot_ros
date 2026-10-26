@@ -2,8 +2,8 @@
 Changelog for package rosbot_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.1 (2026-10-26)
+------------------
 * Arm on its own controller_manager (HW + sim), full MoveIt model (`#199 <https://github.com/husarion/rosbot_ros/issues/199>`_)
   * Run manipulator under its own controller_manager on HW
   ros2_control loads hardware all-or-nothing, so a missing arm on a

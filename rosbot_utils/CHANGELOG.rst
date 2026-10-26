@@ -2,8 +2,8 @@
 Changelog for package rosbot_utils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.1 (2026-10-26)
+------------------
 * Bump firmware to v2.3.0-jazzy
 * Rename launch_pytest fixtures hijacked by launch_testing (`#204 <https://github.com/husarion/rosbot_ros/issues/204>`_)
 * Throttle battery alert to once per interval, ignore 0% (`#198 <https://github.com/husarion/rosbot_ros/issues/198>`_)
