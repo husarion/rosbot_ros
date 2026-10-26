@@ -148,7 +148,7 @@ Format: `date — one-line summary (link)`. Detail lives in code + [.claude/spec
 - *2026-04-30 — initial CLAUDE.md / ARCHITECTURE.md.*
 - *2025-04-21 — `led_strip` arg in [rosbot_xl.yaml](rosbot_bringup/launch/rosbot_xl.yaml) (commit `bbd741b`).*
 - *2025-04-XX — firmware → `v1.1.0-jazzy`, improved PID (commits `b87b1a4`, `e5509b2`).*
-- *2026-05-04 — `frame_filters` parameter exposed for `tf_namespace_bridge` via per-package config (default empty = pass-through).*
+- *2026-05-04 — `frame_filters` parameter exposed for `tf_namespace_bridge` via per-package config (default `['*']` = pass-through).*
 - *2026-05-15 — MoveIt topic namespacing for `joy2servo`/`servo_node` fixed via `MoveGroupInterface::Options` 3-arg ctor + relative `monitored_planning_scene_topic`. `/parameter_events` global by design.*
 - *2026-05-15 — `rosbot_moveit` refactor: `joy2servo` moved from `rosbot_joy`; ~1000 LOC of dead code removed; `dock`/`home` deduplicated via `arm_pose_mover` shared lib; `ompl_planning.yaml` 192→41 lines; `servo.launch.py` typo + symmetry fix; `test_moveit_config.py` regression guards.*
 - *2026-05-15 — manipulation HW noise classified — most accepted upstream (`planner_id` empty, `OccupancyMapMonitor`, `controller_manager` deprecated `-r`, RT scheduling, dynamixel matrix, `RosbotSystem` startup race). `validate_workspace_bounds` fixed via `MoveGroupInterface::setWorkspace(±0.5m)` in [arm_pose_mover.cpp](rosbot_moveit/src/arm_pose_mover.cpp) + [joy2servo.cpp](rosbot_moveit/src/joy2servo.cpp).*
