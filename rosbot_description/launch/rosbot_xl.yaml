@@ -78,7 +78,7 @@ launch:
         rosbot_description)') + '/config/rosbot_xl/$(var configuration).yaml'")
   - let:
       name: urdf_file
-      value: /tmp/rosbot_xl_description_$(var namespace).urdf
+      value: /tmp/rosbot_xl_description_$(eval "'$(var namespace)'.strip('/').replace('/', '_')").urdf
   - node:
       pkg: robot_state_publisher
       exec: robot_state_publisher

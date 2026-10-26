@@ -150,3 +150,26 @@ def test_tf_namespace_bridge_default_is_pass_through():
         f"Default frame_filters must be pass-through, got {filters!r}. "
         "Changing the default breaks namespaced TF for downstream consumers."
     )
+
+
+@pytest.mark.parametrize("model", ROBOT_MODELS)
+def test_controller_accepts_every_description_configuration(model):
+    """controller.yaml receives the same `configuration` value as the description
+    launch, so any configuration the description offers must also be a valid choice
+    there — otherwise the whole bringup aborts on argument validation."""
+    with open(
+        os.path.join(get_package_share_directory("rosbot_controller"), "launch", "controller.yaml")
+    ) as f:
+        controller_choices = {
+            c["value"] for c in _args(yaml.safe_load(f))["configuration"]["choice"]
+        }
+
+    with open(
+        os.path.join(get_package_share_directory("rosbot_description"), "launch", f"{model}.yaml")
+    ) as f:
+        description_choices = {
+            c["value"] for c in _args(yaml.safe_load(f))["configuration"]["choice"]
+        }
+
+    missing = description_choices - controller_choices
+    assert not missing, f"controller.yaml rejects {model} configurations: {missing}"
