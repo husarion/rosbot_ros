@@ -294,6 +294,14 @@ void Joy2Servo::JoyCb(const sensor_msgs::msg::Joy::SharedPtr msg) {
     return; // previous callback still running
   }
 
+  if (msg->axes.size() <= Axis::RIGHT_TRIGGER ||
+      msg->buttons.size() <= Button::START) {
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5000,
+                         "Joy message has too few axes (%zu) or buttons (%zu)",
+                         msg->axes.size(), msg->buttons.size());
+    return;
+  }
+
   UpdateInputMode(msg);
 
   if (IsDeadManSwitch(msg)) {

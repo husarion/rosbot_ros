@@ -24,6 +24,7 @@ launch:
       description: Specify configuration packages.
       choice:
         - value: basic
+        - value: pro
         - value: telepresence
         - value: autonomy
         - value: manipulation
@@ -98,7 +99,7 @@ launch:
 
   - let:
       name: resolved_controller_config
-      value: /tmp/rosbot_controller_$(var namespace).yaml
+      value: /tmp/rosbot_controller_$(eval "'$(var namespace)'.strip('/').replace('/', '_')").yaml
 
   - let:
       name: manipulation

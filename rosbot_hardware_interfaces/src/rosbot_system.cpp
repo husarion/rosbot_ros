@@ -281,6 +281,16 @@ return_type RosbotSystem::read(const rclcpp::Time &, const rclcpp::Duration &) {
     return return_type::ERROR;
   }
 
+  if (motor_state->position.size() < motor_state->name.size() ||
+      motor_state->velocity.size() < motor_state->name.size()) {
+    RCLCPP_ERROR(rclcpp::get_logger("RosbotSystem"),
+                 "Malformed motors feedback: %zu names, %zu positions, %zu "
+                 "velocities",
+                 motor_state->name.size(), motor_state->position.size(),
+                 motor_state->velocity.size());
+    return return_type::ERROR;
+  }
+
   for (auto i = 0u; i < motor_state->name.size(); i++) {
     if (pos_state_.find(motor_state->name[i]) == pos_state_.end() ||
         vel_state_.find(motor_state->name[i]) == vel_state_.end()) {

@@ -93,7 +93,7 @@ launch:
         rosbot_gazebo)') + '/config'")
   - let:
       name: rosbot_bridge_config
-      value: /tmp/rosbot_bridge_$(var namespace).yaml
+      value: /tmp/rosbot_bridge_$(eval "'$(var namespace)'.strip('/').replace('/', '_')").yaml
 
   - executable:
       cmd: |

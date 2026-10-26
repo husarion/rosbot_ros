@@ -22,8 +22,8 @@ sudo udevadm trigger
 
 echo "udev rules installed."
 
-if ! groups $USER | grep -q '\bdialout\b'; then
+if ! groups "$USER" | grep -q '\bdialout\b'; then
     echo "Adding $USER to dialout group..."
-    sudo usermod -aG dialout $USER
+    sudo usermod -aG dialout "$USER"
     echo "User added to dialout group. You need to log out and log back in for changes to take effect."
 fi

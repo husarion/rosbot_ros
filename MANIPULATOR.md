@@ -20,6 +20,9 @@ sudo rosbot.arm-activate # if you are using snap
 ros2 run rosbot_controller arm_control active # if you are using local build
 ```
 
+`arm_control` targets `/<namespace>/manipulator_controller_manager`; the namespace is taken from
+`ROBOT_NAMESPACE` or `--namespace <ns>`.
+
 > You can change the driver's default behavior using the `arm_activate` argument.
 
 `servo_node` (the joystick teleop backend, see [Control](#control) below) keeps one CPU
