@@ -1,0 +1,263 @@
+---
+# ============================================================================
+# Manually-dispatched release. Bumps every first-party package.xml to
+# the same new version, tags, then runs bloom-release per package.
+#
+# Required repo secrets:
+#   HUSARION_BOT_APP_ID, HUSARION_BOT_PRIVATE_KEY — GitHub App with
+#   contents:write + pull-requests:write on husarion/rosbot_ros-release
+#   and the maintainer's fork of ros/rosdistro (husarion/rosdistro).
+# ============================================================================
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: Version to bump (major, minor, patch)
+        required: true
+        default: patch
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+      pre_release:
+        description: >-
+          Pre-release run — dispatch from any branch, tag suffixed with
+          `.pre.<run_number>`, GitHub Release flagged as pre-release,
+          bloom-release SKIPPED.
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+env:
+  # Change when forking a new distro branch.
+  EXPECTED_DISTRO: jazzy
+
+  # Sibling repos (husarion_components_description, husarion_controllers,
+  # tf_namespace_bridge, micro-ROS-Agent) release from their own source
+  # repos — do NOT add them here.
+  PACKAGES: |
+    rosbot
+    rosbot_bringup
+    rosbot_controller
+    rosbot_description
+    rosbot_gazebo
+    rosbot_hardware_interfaces
+    rosbot_joy
+    rosbot_localization
+    rosbot_moveit
+    rosbot_utils
+
+jobs:
+
+  bump-versions:
+    name: Bump versions and tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.bump.outputs.tag_name }}
+      version: ${{ steps.bump.outputs.version }}
+      is_prerelease: ${{ steps.bump.outputs.is_prerelease }}
+      sha: ${{ steps.push.outputs.sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify branch matches EXPECTED_DISTRO
+        env:
+          PRE_RELEASE: ${{ inputs.pre_release }}
+        run: |
+          branch="${GITHUB_REF_NAME}"
+          if [ "${PRE_RELEASE}" = "true" ]; then
+            echo "Pre-release run on '${branch}' (distro check skipped)."
+          elif [ "${branch}" != "${EXPECTED_DISTRO}" ]; then
+            echo "::error::Workflow expects branch '${EXPECTED_DISTRO}' (got '${branch}'). Set pre_release=true to dispatch from a feature branch."
+            exit 1
+          fi
+
+      - name: Get latest stable tag
+        id: get_tag
+        run: |
+          # Plain numeric tags (no `v` prefix) match existing 1.0.0 / 0.18.8.
+          latest=$(git tag -l '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname \
+            | grep -v '\.pre\.' | head -n1)
+          if [ -z "$latest" ]; then
+            latest="0.0.0"
+          fi
+          echo "Latest stable: $latest"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+
+      - name: Compute next version
+        id: bump
+        env:
+          PRE_RELEASE: ${{ inputs.pre_release }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          latest="${{ steps.get_tag.outputs.latest }}"
+          IFS='.' read -r major minor patch <<< "$latest"
+          case "${{ inputs.bump_type }}" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+          esac
+          version="${major}.${minor}.${patch}"
+          if [ "${PRE_RELEASE}" = "true" ]; then
+            tag_name="${version}.pre.${RUN_NUMBER}"
+            is_prerelease=true
+          else
+            tag_name="${version}"
+            is_prerelease=false
+          fi
+          {
+            echo "version=$version"
+            echo "tag_name=$tag_name"
+            echo "is_prerelease=$is_prerelease"
+          } >> "$GITHUB_OUTPUT"
+          echo "New tag: $tag_name (prerelease=$is_prerelease)"
+
+      - name: Bump <version> in all package.xml files
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.bump.outputs.version }}"
+          while IFS= read -r pkg; do
+            [ -z "$pkg" ] && continue
+            f="${pkg}/package.xml"
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing $f"
+              exit 1
+            fi
+            sed -i -E "s|(<version>)[^<]+(</version>)|\1${VERSION}\2|" "$f"
+            echo "  ${f}: $(grep -m1 '<version>' "$f")"
+          done <<< "${PACKAGES}"
+
+      - name: Commit, push, tag
+        id: push
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.bump.outputs.tag_name }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          while IFS= read -r pkg; do
+            [ -z "$pkg" ] && continue
+            git add "${pkg}/package.xml"
+          done <<< "${PACKAGES}"
+
+          git commit -m "bump version to ${TAG}"
+          git push
+          NEW_SHA=$(git rev-parse HEAD)
+          echo "sha=$NEW_SHA" >> "$GITHUB_OUTPUT"
+
+          git tag "${TAG}" "${NEW_SHA}"
+          git push origin "${TAG}"
+          echo "Tagged ${TAG} -> ${NEW_SHA}"
+
+  github-release:
+    name: GitHub Release
+    needs: bump-versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.bump-versions.outputs.tag_name }}
+          IS_PRERELEASE: ${{ needs.bump-versions.outputs.is_prerelease }}
+        run: |
+          set -euo pipefail
+          extra=""
+          if [ "${IS_PRERELEASE}" = "true" ]; then
+            extra="--prerelease"
+          fi
+          gh release create "${TAG}" \
+              --repo "${{ github.repository }}" \
+              --title "${TAG}" \
+              --generate-notes \
+              ${extra}
+
+  # ----------------------------------------------------------------------
+  # One-shot setup (per package, per distro, locally by a maintainer):
+  #   1. Create empty `husarion/rosbot_ros-release` repo.
+  #   2. Add it + the maintainer's fork of ros/rosdistro to the
+  #      HUSARION_BOT App installation (push).
+  #   3. From a local checkout at the release tag:
+  #        for pkg in rosbot rosbot_bringup rosbot_controller \
+  #                   rosbot_description rosbot_gazebo \
+  #                   rosbot_hardware_interfaces rosbot_joy \
+  #                   rosbot_localization rosbot_moveit rosbot_utils; do
+  #          bloom-release --new-track --rosdistro jazzy --track jazzy \
+  #            --release-repo-url git@github.com:husarion/rosbot_ros-release.git \
+  #            "$pkg"
+  #        done
+  #      Release tag pattern: `:{version}` (no `v` prefix, matches the
+  #      tags this workflow creates).
+  #   4. Re-run; subsequent releases reuse the tracks.
+  # ----------------------------------------------------------------------
+
+  bloom-release:
+    name: Bloom release (${{ matrix.distro }})
+    needs: bump-versions
+    if: needs.bump-versions.outputs.is_prerelease != 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [jazzy]
+    container: ros:${{ matrix.distro }}-ros-base
+    steps:
+      - name: Mint Husarion bot token
+        id: bot_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.HUSARION_BOT_APP_ID }}
+          private-key: ${{ secrets.HUSARION_BOT_PRIVATE_KEY }}
+          owner: husarion
+          repositories: rosbot_ros-release,rosdistro
+
+      - name: Install bloom + git
+        shell: bash
+        run: |
+          set -eo pipefail
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git python3-bloom python3-catkin-pkg
+
+      - name: Configure git for bot
+        shell: bash
+        run: |
+          git config --global user.name "husarion-bot[bot]"
+          git config --global user.email "husarion-bot@users.noreply.github.com"
+          git config --global \
+            url."https://x-access-token:${{ steps.bot_token.outputs.token }}@github.com/".insteadOf \
+            "https://github.com/"
+
+      - name: Run bloom-release for each package
+        # --no-web: no display in CI.
+        # --unsafe: rosdep update leaves artefacts that trip bloom's
+        # uncommitted-changes check.
+        # Sequential calls append to the same rosdistro PR branch.
+        shell: bash
+        run: |
+          set -eo pipefail
+          source /opt/ros/${{ matrix.distro }}/setup.bash
+          rosdep update --rosdistro=${{ matrix.distro }}
+
+          while IFS= read -r pkg; do
+            [ -z "$pkg" ] && continue
+            echo "::group::bloom-release ${pkg}"
+            bloom-release \
+              --ros-distro ${{ matrix.distro }} \
+              --track ${{ matrix.distro }} \
+              --non-interactive \
+              --no-web \
+              --unsafe \
+              "${pkg}"
+            echo "::endgroup::"
+          done <<< "${PACKAGES}"
