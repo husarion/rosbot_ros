@@ -69,27 +69,33 @@ void Joy2Servo::JointStateCb(
 }
 
 void Joy2Servo::SetServoCommandTypeToJointJog() {
-  // moveit_servo defaults expected_command_type_ to "unset" in jazzy 2.12.4
-  // and rejects messages until switch_command_type is called.
-  if (!switch_cmd_type_srv_->wait_for_service(std::chrono::seconds(5))) {
-    RCLCPP_WARN_STREAM(this->get_logger(),
-                       switch_cmd_type_srv_->get_service_name()
-                           << " not available after 5s; servo will reject "
-                              "JointJog messages until it appears");
+  // jazzy 2.12.4 never initialises expected_command_type_, so servo drops
+  // JointJog until switch_command_type succeeds. A single boot-time call is
+  // lost when servo_node comes up late or the request is dropped, hence retry
+  // until servo confirms.
+  if (!switch_cmd_type_srv_->service_is_ready()) {
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 10000,
+                         "%s not available; servo will reject JointJog "
+                         "messages until it appears",
+                         switch_cmd_type_srv_->get_service_name());
     return;
   }
   auto request =
       std::make_shared<moveit_msgs::srv::ServoCommandType::Request>();
   request->command_type =
       moveit_msgs::srv::ServoCommandType::Request::JOINT_JOG;
+  switch_cmd_type_srv_->prune_pending_requests();
   switch_cmd_type_srv_->async_send_request(
       request,
-      [logger = this->get_logger()](
-          rclcpp::Client<moveit_msgs::srv::ServoCommandType>::SharedFuture
-              future) {
+      [this](rclcpp::Client<moveit_msgs::srv::ServoCommandType>::SharedFuture
+                 future) {
         if (!future.get()->success) {
-          RCLCPP_WARN(logger, "servo refused switch_command_type=JOINT_JOG");
+          RCLCPP_WARN(this->get_logger(),
+                      "servo refused switch_command_type=JOINT_JOG");
+          return;
         }
+        command_type_timer_->cancel();
+        RCLCPP_INFO(this->get_logger(), "servo command type set to JOINT_JOG");
       });
 }
 
@@ -126,7 +132,9 @@ void Joy2Servo::InitializeMoveGroup() {
   manipulator_group_->setMaxVelocityScalingFactor(0.4);
   manipulator_group_->setMaxAccelerationScalingFactor(0.2);
 
-  SetServoCommandTypeToJointJog();
+  command_type_timer_ = this->create_wall_timer(
+      SERVO_COMMAND_TYPE_RETRY_PERIOD,
+      std::bind(&Joy2Servo::SetServoCommandTypeToJointJog, this));
 }
 
 void Joy2Servo::MoveToDockPose() {

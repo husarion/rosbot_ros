@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
 #include <control_msgs/msg/joint_jog.hpp>
 #include <moveit/move_group_interface/move_group_interface.hpp>
 #include <moveit_msgs/srv/servo_command_type.hpp>
@@ -69,6 +70,7 @@ const double GRIPPER_MAX_POSE = 0.015;
 // Must exceed CM update period (10 ms) and one joy callback (~50 ms) for smooth
 // motion.
 const double GRIPPER_TRAJECTORY_TIME_FROM_START = 0.1; // seconds
+const std::chrono::seconds SERVO_COMMAND_TYPE_RETRY_PERIOD{1};
 const std::vector<std::string> JOINT_NAMES = {"joint1", "joint2", "joint3",
                                               "joint4"};
 
@@ -98,6 +100,7 @@ private:
       joint_state_sub_;
   rclcpp::Client<moveit_msgs::srv::ServoCommandType>::SharedPtr
       switch_cmd_type_srv_;
+  rclcpp::TimerBase::SharedPtr command_type_timer_;
   moveit::planning_interface::MoveGroupInterfacePtr gripper_group_;
   moveit::planning_interface::MoveGroupInterfacePtr manipulator_group_;
 
