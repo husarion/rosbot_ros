@@ -75,6 +75,7 @@ class ManipulatorSupervisor(Node):
         self.params_file = self.declare_parameter("params_file", "").value
         self.arm_activate = self.declare_parameter("arm_activate", False).value
         self.retry_period = self.declare_parameter("retry_period", 5.0).value
+        self.max_retry_period = self.declare_parameter("max_retry_period", 300.0).value
         self.controller_manager_timeout = self.declare_parameter(
             "controller_manager_timeout", 30
         ).value
@@ -93,6 +94,10 @@ class ManipulatorSupervisor(Node):
         if self.use_sim:
             self._run_sim()
             return
+        # Every attempt starts and kills a controller_manager and spawners. Endless churn of
+        # short-lived DDS participants triggers a Fast DDS 2.14 discovery deadlock in other
+        # nodes (HW-observed: rosbot_mcu dropped out of the graph), so failed attempts back off.
+        retry_delay = self.retry_period
         while rclpy.ok():
             if not self._wait_for_arm():
                 return
@@ -106,12 +111,14 @@ class ManipulatorSupervisor(Node):
                 elif self._spawn_controllers():
                     self.get_logger().info("Manipulator ready")
                     self._monitor(cm)
+                    retry_delay = self.retry_period
                 else:
                     self.get_logger().error("Failed to spawn manipulator controllers")
             finally:
                 self._stop(cm)
-            self.get_logger().warn(f"Restarting manipulator in {self.retry_period:.0f} s")
-            self._sleep(self.retry_period)
+            self.get_logger().warn(f"Restarting manipulator in {retry_delay:.0f} s")
+            self._sleep(retry_delay)
+            retry_delay = min(2 * retry_delay, self.max_retry_period)
 
     def _run_sim(self):
         # The plugin blocks the model load until it gets the arm description and cannot be
