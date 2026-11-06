@@ -354,6 +354,12 @@ manager names, spawners, `arm_control` and the snap's arm scripts are identical 
   processes. It restarts them when the child exits or `OpenManipulatorXSystem` leaves
   `active`/`inactive`. Children get `PR_SET_PDEATHSIG` so a killed supervisor never leaves an
   orphan holding the serial port.
+- Failed restarts back off (5 s doubling to `max_retry_period`, 300 s). A flaky arm used to
+  restart the stack every ~35 s; each cycle creates and destroys DDS participants and writers,
+  and that churn hits a Fast DDS 2.14.7 deadlock (`PDP::removeWriterProxyData` holds the PDP
+  mutex while `WriterProxy::stop` waits for the event thread, which waits for the PDP mutex in
+  `check_remote_participant_liveliness`). The affected process keeps running but leaves the
+  graph; HW-observed on `rosbot_mcu` (no battery, IMU or wheel states) on 2026-11-05.
 - The arm has its own `manipulator_joint_state_broadcaster`; `joint_states` now has two
   publishers. `robot_state_publisher` and MoveIt merge partial messages; `joy2servo` ignores
   messages without the arm joints so a wheels-only message cannot seed IK with zeros.
