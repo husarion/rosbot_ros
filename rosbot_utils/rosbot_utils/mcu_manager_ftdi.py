@@ -30,6 +30,51 @@ from pyftdi.usbtools import UsbTools
 CBUS_BOOT0 = 0b01
 CBUS_RESET = 0b10
 
+FTDI_VID = 0x0403
+FTDI_PID_FT_X = 0x6015
+
+
+def _usb_location_of_tty(port):
+    """(bus, address) of the USB device behind a tty node, or None."""
+    name = os.path.basename(os.path.realpath(port))
+    path = os.path.realpath(f"/sys/class/tty/{name}/device")
+    while path and path != "/":
+        try:
+            with open(os.path.join(path, "busnum")) as f:
+                bus = int(f.read())
+            with open(os.path.join(path, "devnum")) as f:
+                address = int(f.read())
+            return bus, address
+        except (OSError, ValueError):
+            path = os.path.dirname(path)
+    return None
+
+
+def find_ft_x_device(port=None):
+    """Pick the robot's FT-X on the bus without touching any other USB device.
+
+    pyftdi's URL lookup reads the string descriptors of every FTDI device it
+    can enumerate, so a single unreadable one (e.g. a root-only dongle) makes
+    the open fail even though the target is fine. Opening the device object
+    directly avoids that. With several FT-X devices the port decides, and an
+    ambiguous choice is an error rather than a guess, so a firmware image is
+    never written to the wrong board.
+    """
+    candidates = list(usb.core.find(find_all=True, idVendor=FTDI_VID, idProduct=FTDI_PID_FT_X))
+    if not candidates:
+        raise RuntimeError("No FTDI 0403:6015 device found on the USB bus.")
+    if len(candidates) == 1:
+        return candidates[0]
+
+    location = _usb_location_of_tty(port) if port else None
+    for device in candidates:
+        if location == (device.bus, device.address):
+            return device
+    raise RuntimeError(
+        f"{len(candidates)} FTDI 0403:6015 devices found and {port} does not identify one "
+        "of them. Unplug the others or pass the right --port."
+    )
+
 
 def _error_text(exc):
     if hasattr(exc, "stderr"):
@@ -40,7 +85,6 @@ def _error_text(exc):
 class McuManagerFTDI:
     def __init__(self, port: str):
         self.port = port
-        self.device = "ftdi://ftdi:ft-x:/1"
         self.ftdi = Ftdi()
 
     def _open_ftdi_with_retry(self, max_attempts: int = 3, interval: float = 1.5):
@@ -51,7 +95,7 @@ class McuManagerFTDI:
         # reset is what leaves this FTDI unresponsive until a physical replug.
         for attempt in range(max_attempts):
             try:
-                self.ftdi.open_from_url(url=self.device)
+                self.ftdi.open_from_device(find_ft_x_device(self.port))
                 return
             except Exception:
                 if attempt == max_attempts - 1:
