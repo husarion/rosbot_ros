@@ -23,14 +23,14 @@ add_library(${PROJECT_NAME} SHARED src/rosbot_system.cpp
                                    src/rosbot_imu_sensor.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
-ament_target_dependencies(
+target_link_libraries(
   ${PROJECT_NAME}
-  hardware_interface
-  realtime_tools
-  rclcpp_lifecycle
-  rclcpp
-  pluginlib
-  std_msgs)
+  hardware_interface::hardware_interface
+  realtime_tools::realtime_tools
+  rclcpp_lifecycle::rclcpp_lifecycle
+  rclcpp::rclcpp
+  pluginlib::pluginlib
+  std_msgs::std_msgs)
 
 target_compile_definitions(${PROJECT_NAME}
                            PRIVATE "ROSBOT_HARDWARE_INTERFACES_BUILDING_DLL")
@@ -59,7 +59,8 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(test_plugins test/test_plugins.cpp ENV ROS_DOMAIN_ID=87
                   ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST)
-  ament_target_dependencies(test_plugins hardware_interface pluginlib rclcpp)
+  target_link_libraries(test_plugins hardware_interface::hardware_interface
+                        pluginlib::pluginlib rclcpp::rclcpp)
 endif()
 
 ament_package()
