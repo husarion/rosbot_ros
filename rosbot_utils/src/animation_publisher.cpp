@@ -44,7 +44,7 @@
 #include <string>
 #include <vector>
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -255,8 +255,7 @@ private:
   void LoadAnimations(const std::string &user_dir) {
     try {
       search_dirs_.emplace_back(
-          std::filesystem::path(
-              ament_index_cpp::get_package_share_directory("rosbot_utils")) /
+          ament_index_cpp::get_package_share_path("rosbot_utils") /
           "animations");
     } catch (const std::exception &e) {
       RCLCPP_ERROR(get_logger(), "cannot locate shipped animations: %s",
