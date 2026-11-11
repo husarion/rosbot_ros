@@ -26,7 +26,6 @@
 #include "hardware_interface/types/hardware_component_interface_params.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 
-#include "realtime_tools/realtime_buffer.hpp"
 #include "realtime_tools/realtime_publisher.hpp"
 #include "realtime_tools/realtime_thread_safe_box.hpp"
 
@@ -101,6 +100,7 @@ protected:
 
   std::shared_ptr<realtime_tools::RealtimePublisher<Float32MultiArray>>
       realtime_motor_command_publisher_ = nullptr;
+  Float32MultiArray motor_command_msg_;
 
   rclcpp::Subscription<JointState>::SharedPtr motor_state_subscriber_ = nullptr;
 
