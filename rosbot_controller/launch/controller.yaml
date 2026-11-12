@@ -169,6 +169,7 @@ launch:
               -c controller_manager
               --activate-as-group
               --controller-manager-timeout $(var controller_manager_timeout)
+              --param-file $(var resolved_controller_config)
               --controller-ros-args
               "--ros-args
               -r ~/cmd_vel:=cmd_vel
