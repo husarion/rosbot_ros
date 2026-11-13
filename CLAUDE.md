@@ -107,7 +107,7 @@ ros2 launch rosbot_gazebo simulation.yaml robot_model:=rosbot_xl
 4. **Don't change `controllers.yaml` "Based on real measurements" lines** without fresh measurements.
 5. **Don't enter `manipulation`/`manipulation_pro` without reading [MANIPULATOR.md](MANIPULATOR.md)** — HW pitfalls (power loss → arm falls).
 6. **Don't ship new topics/launch args without updating [ROS_API.md](ROS_API.md) + table in [README.md](README.md).**
-7. **Don't touch `tf_namespace_bridge`** outside designated cases — it's the only bridge from namespaced TF to global `/tf` (nav2 / multirobot).
+7. **Don't touch `tf_namespace_bridge` in `rosbot_gazebo`** outside designated cases — it is still the only bridge from namespaced TF to global `/tf` in multi-robot simulation. Real-robot bringup no longer uses it (`ros2_airlock` does the namespacing/TF prefixing).
 
 ---
 
@@ -130,7 +130,7 @@ Knowledge-base updates required for any public change:
 ## 8. Sensitive spots
 
 - **MCU link:** MAVLink only (`rosbot_mavlink_bridge`, shipped in `rosbot-firmware`). ROSbot 2/3 → serial (`/dev/ttySERIAL`, 921600). ROSbot XL → Ethernet. `configure_robot` checks firmware version + sets namespace over serial before the bridge starts. micro-ROS was removed together with firmware `v2.2.0-jazzy` — don't reintroduce a `backend` arg.
-- **Namespace:** `ROBOT_NAMESPACE` env → `--ros-args`. Inside robot TF is namespaced (`/<ns>/tf`); `tf_namespace_bridge` re-publishes to global `/tf`.
+- **Namespace:** `ROBOT_NAMESPACE` env → `--ros-args`. Inside robot TF is namespaced (`/<ns>/tf`); `ros2_airlock` (rosbot snap) maps it to the network; in simulation `tf_namespace_bridge` re-publishes to global `/tf`.
 - **XL `configuration` arg:** `basic|telepresence|autonomy|manipulation|manipulation_pro|custom`. Drives component list in `rosbot_description/config/rosbot_xl/<configuration>.yaml` + whether manipulator launches.
 - **XL `controllers.yaml` placeholder:** `<manipulator_state>` is sed-replaced with `active`/`inactive` before `controller_manager` starts. See [controller.yaml](rosbot_controller/launch/controller.yaml).
 - **Sim vs HW ros2_control:** same URDF, different `<plugin>` — `rosbot_hardware_interfaces/RosbotSystem` (HW) vs `gz_ros2_control/GazeboSimSystem` (sim). See [ros2_control.urdf.xacro](rosbot_description/urdf/common/ros2_control.urdf.xacro).

@@ -19,10 +19,6 @@ repositories:
     type: git
     url: https://github.com/husarion/rosbot-firmware.git
     version: 32a218464c27495464dc9c31847cb5b2b9fde8a2
-  tf_namespace_bridge:
-    type: git
-    url: https://github.com/husarion/tf_namespace_bridge
-    version: 48ea8cd5184630d79ab54060e3a959881d58182c
   # Downloaded from apt packages, keep last known working versions here for reference
   # dynamixel_hardware_interface:
   #   type: git

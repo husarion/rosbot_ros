@@ -55,13 +55,11 @@ def test_per_model_launch_declares_required_args(model):
     doc = _launch(f"{model}.yaml")
     args = _args(doc)
     # config_dir (snap convention), namespace (multi-robot),
-    # hardware_bridge (HW switch), tf_namespace_bridge (multirobot TF),
-    # robot_model (sanity).
+    # hardware_bridge (HW switch), robot_model (sanity).
     required = {
         "config_dir",
         "namespace",
         "hardware_bridge",
-        "tf_namespace_bridge",
         "robot_model",
         "asset_server",
     }
@@ -132,24 +130,6 @@ def test_battery_alert_launch_is_rosbot_xl_only():
     for model in choices:
         config = os.path.join(share, "config", model, "config.yaml")
         assert os.path.isfile(config), f"Missing {config} for allowed robot_model {model}"
-
-
-def test_tf_namespace_bridge_default_is_pass_through():
-    """frame_filters=['*'] = pass-through (no filtering). CLAUDE.md §9 2026-05-04.
-
-    Config now lives in rosbot_description (single owner — see CLAUDE.md §9
-    2026-08-12, was duplicated identically across 3 packages).
-    """
-    path = os.path.join(
-        get_package_share_directory("rosbot_description"), "config", "tf_namespace_bridge.yaml"
-    )
-    with open(path) as f:
-        cfg = yaml.safe_load(f)
-    filters = cfg["/**"]["tf_namespace_bridge"]["ros__parameters"]["frame_filters"]
-    assert filters == ["*"], (
-        f"Default frame_filters must be pass-through, got {filters!r}. "
-        "Changing the default breaks namespaced TF for downstream consumers."
-    )
 
 
 @pytest.mark.parametrize("model", ROBOT_MODELS)

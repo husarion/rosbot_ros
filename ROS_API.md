@@ -22,7 +22,7 @@ robots on one network without them talking over each other.
 
 A few topics stay global on purpose:
 
-- `/tf`, `/tf_static` — bridged via [tf_namespace_bridge](https://github.com/husarion/tf_namespace_bridge).
+- `/tf`, `/tf_static` — on the real robot the driver publishes them namespaced only; mapping to global `/tf` is done outside the driver by `ros2_airlock` (rosbot snap). In simulation, [tf_namespace_bridge](https://github.com/husarion/tf_namespace_bridge) still bridges them.
 - `/parameter_events`, `/rosout` — ROS 2 infrastructure.
 - `/clock` — simulation only.
 - `/asset_providers` — so one router can find every robot on a single topic.
