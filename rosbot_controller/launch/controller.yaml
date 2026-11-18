@@ -98,7 +98,7 @@ launch:
       value: $(eval "('mecanum_drive_controller' if $(var mecanum) else 'differential_drive_controller')")
 
   - let:
-      name: resolved_controller_config
+      name: resolved_controller_config_path
       value: /tmp/rosbot_controller_$(eval "'$(var namespace)'.strip('/').replace('/', '_')").yaml
 
   - let:
@@ -111,20 +111,21 @@ launch:
         rosbot_description)') + '/config/$(var robot_model)/$(var configuration).yaml'")
 
   # =======================
-  # Resolve controller config (ReplaceString)
+  # Resolve controller config
   # =======================
 
-  - executable:
-      cmd: |
-        bash -c "
-          sed \
-            -e 's|<namespace>/|"$(var ns)"|g' \
-            -e 's|<manipulator_state>|"$(var manipulator_state)"|g' \
-            -e 's|<mecanum>|"$(var mecanum)"|g' \
-            -e 's|<drive_controller>|"$(var drive_controller)"|g' \
-            "$(var controller_config)" \
-            > "$(var resolved_controller_config)"
-        "
+  # Runs while the launch file is parsed, so the file exists before any node below starts.
+  # The value is the path itself (printf adds no newline).
+  - let:
+      name: resolved_controller_config
+      value: >-
+        $(command "bash -c 'sed
+        -e \"s|<namespace>/|$(var ns)|g\"
+        -e \"s|<manipulator_state>|$(var manipulator_state)|g\"
+        -e \"s|<mecanum>|$(var mecanum)|g\"
+        -e \"s|<drive_controller>|$(var drive_controller)|g\"
+        \"$(var controller_config)\" > \"$(var resolved_controller_config_path)\"
+        && printf %s \"$(var resolved_controller_config_path)\"'")
 
   # =======================
   # Load URDF
@@ -145,11 +146,10 @@ launch:
           value: $(var use_sim)
 
   # =======================
-  # Controllers (wait few seconds to resolve parameters file)
+  # Controllers
   # =======================
 
-  - timer:
-      period: 3.0
+  - group:
       children:
         - node:
             unless: $(var use_sim)
