@@ -90,13 +90,9 @@ protected:
 
   std::vector<double> imu_sensor_state_;
 
-  bool subscriber_is_active_ = false;
-
   std::shared_ptr<rclcpp::Node> node_;
 
   void imu_cb(const std::shared_ptr<Imu> msg);
-  rclcpp::executors::MultiThreadedExecutor executor_;
-  std::unique_ptr<std::thread> executor_thread_;
 
   uint connection_check_period_ms_;
   uint connection_timeout_ms_;

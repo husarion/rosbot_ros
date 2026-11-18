@@ -109,13 +109,9 @@ protected:
   std::map<std::string, double> vel_state_;
   std::map<std::string, double> eff_state_;
 
-  bool subscriber_is_active_ = false;
-
   std::shared_ptr<rclcpp::Node> node_;
 
   void motor_state_cb(const std::shared_ptr<JointState> msg);
-  rclcpp::executors::MultiThreadedExecutor executor_;
-  std::unique_ptr<std::thread> executor_thread_;
 
   std::vector<std::string> velocity_command_joint_order_;
 

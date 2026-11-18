@@ -61,6 +61,11 @@ if(BUILD_TESTING)
                   ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST)
   target_link_libraries(test_plugins hardware_interface::hardware_interface
                         pluginlib::pluginlib rclcpp::rclcpp)
+
+  ament_add_gtest(test_activation test/test_activation.cpp ENV ROS_DOMAIN_ID=87
+                  ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST)
+  target_include_directories(test_activation PRIVATE include)
+  target_link_libraries(test_activation ${PROJECT_NAME})
 endif()
 
 ament_package()

@@ -191,6 +191,14 @@ CallbackReturn RosbotSystem::on_activate(const rclcpp_lifecycle::State &) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
         rclcpp::get_logger("RosbotSystem"), *node_->get_clock(), 5000,
         "Feedback message from motors wasn't received yet");
+    // on_activate blocks a CM executor thread, so do not rely on the executor
+    // to deliver the first message: with a single-threaded executor it never
+    // would.
+    JointState taken_msg;
+    rclcpp::MessageInfo taken_info;
+    while (motor_state_subscriber_->take(taken_msg, taken_info)) {
+      motor_state_cb(std::make_shared<JointState>(taken_msg));
+    }
     received_motor_state_msg_ptr_.get(
         [&](const auto &msg) { motor_state = msg; });
 

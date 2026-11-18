@@ -78,6 +78,14 @@ CallbackReturn RosbotImuSensor::on_activate(const rclcpp_lifecycle::State &) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
         rclcpp::get_logger("RosbotImuSensor"), *node_->get_clock(), 5000,
         "Feedback message from imu wasn't received yet");
+    // on_activate blocks a CM executor thread, so do not rely on the executor
+    // to deliver the first message: with a single-threaded executor it never
+    // would.
+    Imu taken_msg;
+    rclcpp::MessageInfo taken_info;
+    while (imu_subscriber_->take(taken_msg, taken_info)) {
+      imu_cb(std::make_shared<Imu>(taken_msg));
+    }
     received_imu_msg_ptr_.get([&](const auto &msg) { imu_msg = msg; });
     if (imu_msg) {
       RCLCPP_DEBUG(node_->get_logger(),
