@@ -26,7 +26,6 @@
 #include "hardware_interface/types/hardware_component_interface_params.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 
-#include "realtime_tools/realtime_buffer.hpp"
 #include "realtime_tools/realtime_publisher.hpp"
 #include "realtime_tools/realtime_thread_safe_box.hpp"
 
@@ -101,6 +100,7 @@ protected:
 
   std::shared_ptr<realtime_tools::RealtimePublisher<Float32MultiArray>>
       realtime_motor_command_publisher_ = nullptr;
+  Float32MultiArray motor_command_msg_;
 
   rclcpp::Subscription<JointState>::SharedPtr motor_state_subscriber_ = nullptr;
 
@@ -109,13 +109,9 @@ protected:
   std::map<std::string, double> vel_state_;
   std::map<std::string, double> eff_state_;
 
-  bool subscriber_is_active_ = false;
-
   std::shared_ptr<rclcpp::Node> node_;
 
   void motor_state_cb(const std::shared_ptr<JointState> msg);
-  rclcpp::executors::MultiThreadedExecutor executor_;
-  std::unique_ptr<std::thread> executor_thread_;
 
   std::vector<std::string> velocity_command_joint_order_;
 

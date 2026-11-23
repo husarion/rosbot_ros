@@ -100,6 +100,7 @@ How the repo is wired: packages, roles, integration points. Public topics → [R
 - `RosbotSystem` (`SystemInterface`) — 4 wheel joints, `velocity` cmd → MCU via `motors_cmd` `Float32MultiArray` (order from `velocity_command_joint_order` param). State interfaces per joint: `position`, `velocity`, and optional `effort` (motor torque from `_motors/feedback`; declared in the HW URDF, absent in sim → effort published as `NaN` there).
 - `RosbotImuSensor` (`SensorInterface`) — subscribes `_imu/data` from MCU, exposes 10 state interfaces.
 - Params: `connection_timeout_ms`, `connection_check_period_ms`. Defined in [common/ros2_control.urdf.xacro](rosbot_description/urdf/common/ros2_control.urdf.xacro).
+- `on_activate` waits for the first MCU message by calling `Subscription::take()` itself. It runs inside a controller_manager executor callback, so waiting for the executor to deliver the message deadlocks a single-threaded or events executor. Guard: [test_activation.cpp](rosbot_hardware_interfaces/test/test_activation.cpp).
 
 **This is the firmware ABI** — topic / payload changes require synchronized firmware update.
 

@@ -172,6 +172,7 @@ CallbackReturn RosbotSystem::on_activate(const rclcpp_lifecycle::State &) {
   realtime_motor_command_publisher_ =
       std::make_shared<realtime_tools::RealtimePublisher<Float32MultiArray>>(
           motor_command_publisher_);
+  motor_command_msg_.data.assign(velocity_command_joint_order_.size(), 0.0f);
 
   motor_state_subscriber_ = node_->create_subscription<JointState>(
       "_motors/feedback", rclcpp::SensorDataQoS(),
@@ -190,6 +191,14 @@ CallbackReturn RosbotSystem::on_activate(const rclcpp_lifecycle::State &) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
         rclcpp::get_logger("RosbotSystem"), *node_->get_clock(), 5000,
         "Feedback message from motors wasn't received yet");
+    // on_activate blocks a CM executor thread, so do not rely on the executor
+    // to deliver the first message: with a single-threaded executor it never
+    // would.
+    JointState taken_msg;
+    rclcpp::MessageInfo taken_info;
+    while (motor_state_subscriber_->take(taken_msg, taken_info)) {
+      motor_state_cb(std::make_shared<JointState>(taken_msg));
+    }
     received_motor_state_msg_ptr_.get(
         [&](const auto &msg) { motor_state = msg; });
 
@@ -318,19 +327,15 @@ return_type RosbotSystem::read(const rclcpp::Time &, const rclcpp::Duration &) {
 
 return_type RosbotSystem::write(const rclcpp::Time &,
                                 const rclcpp::Duration &) {
-  if (realtime_motor_command_publisher_->trylock()) {
-    auto &motor_command = realtime_motor_command_publisher_->msg_;
-    motor_command.data.clear();
+  RCLCPP_DEBUG(rclcpp::get_logger("RosbotSystem"),
+               "Wrtiting motors cmd message");
 
-    RCLCPP_DEBUG(rclcpp::get_logger("RosbotSystem"),
-                 "Wrtiting motors cmd message");
-
-    for (auto const &joint : velocity_command_joint_order_) {
-      motor_command.data.push_back(vel_commands_[joint]);
-    }
-
-    realtime_motor_command_publisher_->unlockAndPublish();
+  for (std::size_t i = 0; i < velocity_command_joint_order_.size(); ++i) {
+    motor_command_msg_.data[i] =
+        vel_commands_[velocity_command_joint_order_[i]];
   }
+
+  realtime_motor_command_publisher_->try_publish(motor_command_msg_);
 
   return return_type::OK;
 }
