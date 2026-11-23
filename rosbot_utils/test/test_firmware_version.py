@@ -23,9 +23,11 @@ from rosbot_utils.firmware_version import FIRMWARE_VERSION
 
 
 def test_firmware_version_format():
+    # Up to v2.4.0 the firmware carried a distro suffix (v2.4.0-jazzy); from
+    # v2.5.0 it is plain v<major>.<minor>.<patch>, one binary for every distro.
     assert re.fullmatch(
-        r"v\d+\.\d+\.\d+-[a-z]+", FIRMWARE_VERSION
-    ), f"FIRMWARE_VERSION='{FIRMWARE_VERSION}' must match 'v<major>.<minor>.<patch>-<distro>'"
+        r"v\d+\.\d+\.\d+(-[a-z]+)?", FIRMWARE_VERSION
+    ), f"FIRMWARE_VERSION='{FIRMWARE_VERSION}' must match 'v<major>.<minor>.<patch>[-<distro>]'"
 
 
 @pytest.mark.parametrize("robot_model", ["rosbot", "rosbot_xl"])
